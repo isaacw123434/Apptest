@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { 
-  Train, Car, Bus, Bike, MapPin, Clock, 
+  Train, Car, Bus, Bike, Clock,
   ChevronRight, ChevronLeft, Navigation, 
-  X, Circle, Disc, ArrowRight, Leaf, Map as MapIcon,
+  X, Leaf, Map as MapIcon,
   ShieldCheck, Zap
 } from 'lucide-react';
 
@@ -126,6 +127,11 @@ const ModeIcon = ({ icon: Icon, className = "" }) => (
   </div>
 );
 
+ModeIcon.propTypes = {
+  icon: PropTypes.elementType.isRequired,
+  className: PropTypes.string,
+};
+
 const SwapModal = ({ isOpen, onClose, title, options, onSelect, currentId }) => {
   if (!isOpen) return null;
 
@@ -167,6 +173,23 @@ const SwapModal = ({ isOpen, onClose, title, options, onSelect, currentId }) => 
       </div>
     </div>
   );
+};
+
+SwapModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  options: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    cost: PropTypes.number.isRequired,
+    time: PropTypes.number.isRequired,
+    icon: PropTypes.elementType.isRequired,
+    recommended: PropTypes.bool,
+    desc: PropTypes.string,
+  })).isRequired,
+  onSelect: PropTypes.func.isRequired,
+  currentId: PropTypes.string.isRequired,
 };
 
 // --- REALISTIC MAP ENGINE (For Detail View) ---
@@ -257,6 +280,17 @@ const RealisticMap = ({ leg1, leg3, focusedSegment }) => {
       )}
     </div>
   );
+};
+
+RealisticMap.propTypes = {
+  leg1: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    lineColor: PropTypes.string.isRequired,
+  }).isRequired,
+  leg3: PropTypes.shape({
+    lineColor: PropTypes.string.isRequired,
+  }).isRequired,
+  focusedSegment: PropTypes.string,
 };
 
 // --- MAIN APP ---
