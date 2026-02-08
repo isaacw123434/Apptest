@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import Map from 'react-map-gl/mapbox';
-import 'mapbox-gl/dist/mapbox-gl.css';
 import {
   Train, Car, Bus, Bike, Clock,
   ChevronRight, ChevronLeft,
-  X, Zap, ShieldCheck, Leaf, ArrowRight, Footprints
+  X, Zap, ShieldCheck, Leaf, ArrowRight, Footprints,
+  Navigation
 } from 'lucide-react';
 
 // --- DATA CONSTANTS ---
@@ -19,9 +18,7 @@ const SEGMENT_OPTIONS = {
       time: 14,
       cost: 8.97,
       icon: Car,
-      color: 'text-zinc-800',
-      bgColor: 'bg-zinc-100',
-      lineColor: '#3f3f46',
+      co2: 'High',
       desc: 'Fastest door-to-door.'
     },
     {
@@ -31,71 +28,49 @@ const SEGMENT_OPTIONS = {
       time: 23,
       cost: 2.00,
       icon: Bus,
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-100',
-      lineColor: '#10b981',
+      co2: 'Low',
       recommended: true,
-      desc: 'Best balance.'
-    },
-    {
-      id: 'drive_park',
-      label: 'Drive & Park',
-      detail: 'Drive to Station',
-      time: 15,
-      cost: 24.89,
-      icon: Car,
-      color: 'text-zinc-800',
-      bgColor: 'bg-zinc-100',
-      lineColor: '#3f3f46',
-      desc: 'Flexibility.'
-    },
-    {
-      id: 'train_walk_headingley',
-      label: 'Headingley (Walk)',
-      detail: '18m Walk + 10m Train',
-      time: 28,
-      cost: 3.40,
-      icon: Footprints,
-      color: 'text-slate-600',
-      bgColor: 'bg-slate-100',
-      lineColor: '#475569',
-      desc: 'Walking transfer.'
-    },
-    {
-      id: 'train_uber_headingley',
-      label: 'Headingley (Uber)',
-      detail: '5m Uber + 10m Train',
-      time: 15,
-      cost: 9.32,
-      icon: Car,
-      color: 'text-slate-600',
-      bgColor: 'bg-slate-100',
-      lineColor: '#475569',
-      desc: 'Fast transfer.'
+      desc: 'Best balance of cost/time.'
     },
     {
       id: 'cycle',
       label: 'Personal Bike',
-      detail: 'Cycle to Station',
+      detail: 'Cycle to Station Storage',
       time: 17,
       cost: 0.00,
       icon: Bike,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
-      lineColor: '#3b82f6',
-      desc: 'Zero emissions.'
+      co2: 'Zero',
+      desc: 'Free, requires shower at office?'
+    },
+    {
+      id: 'drive_park',
+      label: 'Drive & Park',
+      detail: 'Station Parking (24h)',
+      time: 15,
+      cost: 24.89, // 1.89 fuel + 23 parking
+      icon: Car,
+      co2: 'High',
+      desc: 'Expensive parking fees.'
+    },
+    {
+      id: 'walk_train',
+      label: 'Walk + Local Train',
+      detail: 'Walk to Headingley',
+      time: 28,
+      cost: 3.40,
+      icon: Footprints,
+      co2: 'Low',
+      desc: 'Healthy, but risk of rain.'
     }
   ],
   mainLeg: {
     id: 'train_main',
-    label: 'CrossCountry',
+    label: 'CrossCountry / EMR',
     detail: 'Leeds → Loughborough',
-    time: 102,
+    time: 102, // 1h 42m
     cost: 25.70,
     icon: Train,
-    color: 'text-indigo-600',
-    bgColor: 'bg-indigo-100',
-    lineColor: '#4f46e5'
+    co2: 'Med'
   },
   lastMile: [
     {
@@ -105,10 +80,8 @@ const SEGMENT_OPTIONS = {
       time: 10,
       cost: 14.89,
       icon: Car,
-      color: 'text-zinc-800',
-      bgColor: 'bg-zinc-100',
-      lineColor: '#3f3f46',
-      desc: 'Reliable final leg.'
+      co2: 'High',
+      desc: 'Reliable for final leg.'
     },
     {
       id: 'bus',
@@ -117,38 +90,34 @@ const SEGMENT_OPTIONS = {
       time: 14,
       cost: 3.00,
       icon: Bus,
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-100',
-      lineColor: '#10b981',
+      co2: 'Low',
       recommended: true,
       desc: 'Short walk required.'
     },
     {
       id: 'cycle',
       label: 'Personal Bike',
-      detail: 'Cycle to Dest',
+      detail: 'Folding bike / Hire',
       time: 24,
       cost: 0.00,
       icon: Bike,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
-      lineColor: '#3b82f6',
-      desc: 'Scenic route.'
+      co2: 'Zero',
+      desc: 'Good exercise.'
     }
   ]
 };
 
 const DIRECT_DRIVE = {
-  time: 110,
-  cost: 39.15,
+  time: 110, // 1h 50m
+  cost: 62.15, // 87mi * 0.45 + parking estimate
   distance: 87
 };
 
 // --- SUB-COMPONENTS ---
 
 const ModeIcon = ({ icon: Icon, className = "" }) => (
-  <div className={`p-2 rounded-xl shadow-sm ${className}`}>
-    <Icon size={20} />
+  <div className={`p-2 rounded-full bg-slate-100 ${className}`}>
+    <Icon size={20} className="text-slate-700" />
   </div>
 );
 
@@ -159,12 +128,13 @@ ModeIcon.propTypes = {
 
 const SwapModal = ({ isOpen, onClose, title, options, onSelect, currentId }) => {
   if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-[2px] p-0 sm:p-4 animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-md sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 duration-300">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in">
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10">
         <div className="p-4 border-b flex justify-between items-center bg-slate-50">
           <h3 className="font-semibold text-lg text-slate-800">{title}</h3>
-          <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
+          <button onClick={onClose} className="p-1 hover:bg-slate-200 rounded-full">
             <X size={20} />
           </button>
         </div>
@@ -176,19 +146,20 @@ const SwapModal = ({ isOpen, onClose, title, options, onSelect, currentId }) => 
               className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4
                 ${currentId === opt.id
                   ? 'border-blue-600 bg-blue-50 ring-1 ring-blue-600'
-                  : 'border-slate-100 hover:border-blue-200 hover:bg-slate-50 shadow-sm'
+                  : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
                 }`}
             >
-              <ModeIcon icon={opt.icon} className={currentId === opt.id ? "bg-blue-200 text-blue-700" : "bg-slate-100 text-slate-600"} />
+              <ModeIcon icon={opt.icon} className={currentId === opt.id ? "bg-blue-200" : "bg-slate-100"} />
               <div className="flex-1">
                 <div className="flex justify-between items-center mb-1">
                   <span className="font-semibold text-slate-900">{opt.label}</span>
                   <span className="font-bold text-slate-900">£{opt.cost.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm text-slate-500">
-                  <span>{opt.time} min</span>
-                  {opt.recommended && <span className="text-emerald-600 font-medium text-xs bg-emerald-100 px-2 py-0.5 rounded-full">Best Value</span>}
+                  <span>{opt.time} min • {opt.co2} CO₂</span>
+                  {opt.recommended && <span className="text-emerald-600 font-medium text-xs bg-emerald-100 px-2 py-0.5 rounded-full">Smart Choice</span>}
                 </div>
+                <div className="text-xs text-slate-400 mt-1">{opt.desc}</div>
               </div>
             </button>
           ))}
@@ -209,11 +180,9 @@ SwapModal.propTypes = {
     time: PropTypes.number.isRequired,
     cost: PropTypes.number.isRequired,
     icon: PropTypes.elementType.isRequired,
-    color: PropTypes.string,
-    bgColor: PropTypes.string,
-    lineColor: PropTypes.string,
     desc: PropTypes.string,
     recommended: PropTypes.bool,
+    co2: PropTypes.string,
   })).isRequired,
   onSelect: PropTypes.func.isRequired,
   currentId: PropTypes.string.isRequired,
@@ -221,11 +190,11 @@ SwapModal.propTypes = {
 
 // --- MAP COMPONENTS ---
 
-// 1. SCHEMATIC (For Summary View)
+// 1. SCHEMATIC (For Summary View and Detail View)
 const SchematicMap = ({ leg1, leg3 }) => {
-  const getSchematicColor = (modeId) => {
-    if (modeId === 'uber' || modeId === 'drive_park') return 'stroke-zinc-600';
-    if (modeId === 'bus') return 'stroke-emerald-500';
+  const getMapColor = (modeId) => {
+    if (modeId === 'uber' || modeId === 'drive_park') return 'stroke-orange-500';
+    if (modeId === 'bus' || modeId === 'walk_train') return 'stroke-emerald-500';
     if (modeId === 'cycle') return 'stroke-blue-500';
     return 'stroke-slate-300';
   };
@@ -235,25 +204,25 @@ const SchematicMap = ({ leg1, leg3 }) => {
       <div className="absolute inset-0 opacity-30" style={{backgroundImage: 'radial-gradient(#94a3b8 1px, transparent 1px)', backgroundSize: '16px 16px'}} />
       <svg className="w-full h-full" viewBox="0 0 400 120" preserveAspectRatio="xMidYMid meet">
         {/* Base Track */}
-        <line x1="50" y1="60" x2="350" y2="60" className="stroke-slate-200" strokeWidth="4" />
+        <line x1="50" y1="60" x2="350" y2="60" className="stroke-slate-300" strokeWidth="4" strokeDasharray="4 4" />
 
         {/* Active Route Segments */}
-        <line x1="50" y1="60" x2="150" y2="60" className={`${getSchematicColor(leg1.id)} transition-colors duration-500`} strokeWidth="4" strokeLinecap="round" />
-        <line x1="150" y1="60" x2="250" y2="60" className="stroke-indigo-600" strokeWidth="4" />
-        <line x1="250" y1="60" x2="350" y2="60" className={`${getSchematicColor(leg3.id)} transition-colors duration-500`} strokeWidth="4" strokeLinecap="round" />
+        <line x1="50" y1="60" x2="150" y2="60" className={`${getMapColor(leg1.id)} transition-colors duration-500`} strokeWidth="4" />
+        <line x1="150" y1="60" x2="250" y2="60" className="stroke-indigo-600" strokeWidth="6" />
+        <line x1="250" y1="60" x2="350" y2="60" className={`${getMapColor(leg3.id)} transition-colors duration-500`} strokeWidth="4" />
 
         {/* Nodes */}
-        <circle cx="50" cy="60" r="4" className="fill-white stroke-slate-500 stroke-2" />
-        <text x="50" y="80" textAnchor="middle" className="text-[10px] fill-slate-500 font-bold uppercase tracking-wider">Start</text>
+        <circle cx="50" cy="60" r="6" className="fill-white stroke-slate-500 stroke-2" />
+        <text x="50" y="85" textAnchor="middle" className="text-[10px] fill-slate-500 font-bold uppercase">St Chads</text>
 
-        <circle cx="150" cy="60" r="6" className="fill-white stroke-indigo-600 stroke-2" />
-        <text x="150" y="40" textAnchor="middle" className="text-[10px] fill-indigo-600 font-bold uppercase tracking-wider">Leeds</text>
+        <circle cx="150" cy="60" r="8" className="fill-white stroke-indigo-600 stroke-2" />
+        <text x="150" y="40" textAnchor="middle" className="text-[10px] fill-indigo-600 font-bold uppercase">Leeds Stn</text>
 
-        <circle cx="250" cy="60" r="6" className="fill-white stroke-indigo-600 stroke-2" />
-        <text x="250" y="40" textAnchor="middle" className="text-[10px] fill-indigo-600 font-bold uppercase tracking-wider">Lough</text>
+        <circle cx="250" cy="60" r="8" className="fill-white stroke-indigo-600 stroke-2" />
+        <text x="250" y="40" textAnchor="middle" className="text-[10px] fill-indigo-600 font-bold uppercase">Loughboro</text>
 
-        <circle cx="350" cy="60" r="4" className="fill-slate-800 stroke-white stroke-2" />
-        <text x="350" y="80" textAnchor="middle" className="text-[10px] fill-slate-800 font-bold uppercase tracking-wider">End</text>
+        <circle cx="350" cy="60" r="6" className="fill-slate-800 stroke-white stroke-2" />
+        <text x="350" y="85" textAnchor="middle" className="text-[10px] fill-slate-800 font-bold uppercase">East Leake</text>
       </svg>
     </div>
   );
@@ -266,62 +235,6 @@ SchematicMap.propTypes = {
   leg3: PropTypes.shape({
     id: PropTypes.string.isRequired,
   }).isRequired,
-};
-
-// 2. REALISTIC MAP (For Detail View)
-const RealisticMap = ({ leg1, leg3, focusedSegment }) => {
-  const getViewBox = () => {
-    if (focusedSegment === 'first') return "20 120 160 80"; // Zoom Leeds
-    if (focusedSegment === 'last') return "220 20 160 80"; // Zoom Loughborough
-    return "0 0 400 220"; // Full View
-  };
-
-  return (
-    <div className="relative w-full h-full bg-[#e5e7eb] overflow-hidden">
-      <svg className="w-full h-full transition-all duration-700 ease-in-out" viewBox={getViewBox()} preserveAspectRatio="xMidYMid slice">
-        {/* Land & Water */}
-        <rect width="400" height="220" fill="#f3f4f6" />
-        <path d="M-10,180 Q100,160 150,130 T410,140" fill="none" stroke="#bfdbfe" strokeWidth="15" />
-        <path d="M40,140 L80,140 L90,170 L30,180 Z" fill="#dcfce7" /> {/* Park */}
-        <path d="M280,40 L350,30 L360,70 L300,80 Z" fill="#dcfce7" /> {/* Park */}
-
-        {/* Roads */}
-        <g stroke="white" strokeWidth="4" fill="none">
-          <path d="M0,200 L400,100" />
-          <path d="M50,0 L100,220" />
-          <path d="M300,0 L350,220" />
-        </g>
-
-        {/* Routes */}
-        <path d="M50,160 Q80,160 140,110" fill="none" stroke={leg1.lineColor} strokeWidth="4" strokeLinecap="round" strokeDasharray={leg1.id === 'bus' ? '0' : '3 3'} />
-        <path d="M140,110 Q240,110 340,60" fill="none" stroke="#4f46e5" strokeWidth="4" strokeDasharray="6 4" className="opacity-60" />
-        <path d="M340,60 Q360,60 380,30" fill="none" stroke={leg3.lineColor} strokeWidth="4" strokeLinecap="round" />
-
-        {/* Markers */}
-        <circle cx="50" cy="160" r="3" fill="white" stroke="#64748b" strokeWidth="2" />
-        <circle cx="140" cy="110" r="4" fill="white" stroke="#4f46e5" strokeWidth="2" />
-        <circle cx="340" cy="60" r="4" fill="white" stroke="#4f46e5" strokeWidth="2" />
-        <circle cx="380" cy="30" r="3" fill="#1e293b" stroke="white" strokeWidth="1" />
-      </svg>
-      {focusedSegment && (
-        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg shadow-sm text-xs font-bold text-slate-700 animate-in fade-in">
-          {focusedSegment === 'first' ? 'Zoom: Leeds Area' : 'Zoom: Loughborough Area'}
-        </div>
-      )}
-    </div>
-  );
-};
-
-RealisticMap.propTypes = {
-  leg1: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    lineColor: PropTypes.string.isRequired,
-  }).isRequired,
-  leg3: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    lineColor: PropTypes.string.isRequired,
-  }).isRequired,
-  focusedSegment: PropTypes.string,
 };
 
 // --- MAIN APP ---
@@ -337,30 +250,6 @@ export default function JourneyPlanner() {
   });
 
   const [showSwap, setShowSwap] = useState(null); // 'first' or 'last'
-  const [sheetHeight, setSheetHeight] = useState(60);
-  const [isDragging, setIsDragging] = useState(false);
-
-  const handleDragStart = () => {
-    setIsDragging(true);
-  };
-
-  const handleDragMove = (e) => {
-    if (!isDragging) return;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    const windowHeight = window.innerHeight;
-    const newHeight = ((windowHeight - clientY) / windowHeight) * 100;
-    if (newHeight > 20 && newHeight < 90) {
-      setSheetHeight(newHeight);
-    }
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-    // Snap to positions
-    if (sheetHeight > 75) setSheetHeight(85);
-    else if (sheetHeight < 35) setSheetHeight(25);
-    else setSheetHeight(60);
-  };
 
   // Update config when Tab changes (only in summary view)
   useEffect(() => {
@@ -372,13 +261,14 @@ export default function JourneyPlanner() {
         });
       } else if (activeTab === 'cheapest') {
         setJourneyConfig({
-          leg1: SEGMENT_OPTIONS.firstMile.find(o => o.id === 'bus'),
-          leg3: SEGMENT_OPTIONS.lastMile.find(o => o.id === 'bus')
+          leg1: SEGMENT_OPTIONS.firstMile.find(o => o.id === 'cycle'),
+          leg3: SEGMENT_OPTIONS.lastMile.find(o => o.id === 'cycle')
         });
       } else {
+        // smart
         setJourneyConfig({
           leg1: SEGMENT_OPTIONS.firstMile.find(o => o.id === 'bus'),
-          leg3: SEGMENT_OPTIONS.lastMile.find(o => o.id === 'uber')
+          leg3: SEGMENT_OPTIONS.lastMile.find(o => o.id === 'bus')
         });
       }
     }
@@ -498,22 +388,13 @@ export default function JourneyPlanner() {
 
   // --- VIEW 2: DETAIL & EDIT (Map + Slide Over) ---
   return (
-    <div className="h-screen bg-slate-900 font-sans text-slate-900 flex flex-col overflow-hidden relative">
+    <div className="flex flex-col h-screen bg-slate-50 font-sans text-slate-900">
 
-      {/* 1. MAP BACKGROUND */}
-      <div className="absolute top-0 left-0 right-0 bottom-0 z-0 h-[60%]">
-        <Map
-          mapboxAccessToken="pk.eyJ1Ijoiam91cm5leXBsYW5uZXIiLCJhIjoiY2x0eHkwbXFwMDBrcTJxcXF5eXF5eXF5eSJ9.placeholder"
-          initialViewState={{
-            longitude: -1.3,
-            latitude: 52.8,
-            zoom: 9
-          }}
-          style={{width: "100%", height: "100%"}}
-          mapStyle="mapbox://styles/mapbox/streets-v11"
-        />
+      {/* --- TOP: MAP & CONTEXT --- */}
+      <div className="h-1/3 bg-slate-200 relative overflow-hidden flex items-center justify-center">
+        <SchematicMap leg1={journeyConfig.leg1} leg3={journeyConfig.leg3} />
 
-        {/* Navigation Control */}
+        {/* Back Button */}
         <div className="absolute top-6 left-6 z-20">
           <button
             onClick={() => setView('summary')}
@@ -522,152 +403,192 @@ export default function JourneyPlanner() {
             <ChevronLeft size={16} /> Back
           </button>
         </div>
+
+        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-semibold shadow-sm text-slate-600 border border-slate-200">
+           St Chads View → East Leake
+        </div>
       </div>
 
-      {/* 2. SLIDING SHEET OVERLAY */}
-      <div
-        className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] flex flex-col z-10"
-        style={{
-          height: `${sheetHeight}vh`,
-          transition: isDragging ? 'none' : 'height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)'
-        }}
-      >
+      {/* --- BOTTOM: CONTROLS & TIMELINE --- */}
+      <div className="flex-1 flex flex-col bg-white rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.1)] -mt-6 z-20 overflow-hidden">
 
-        {/* Handle */}
-        <div
-          className="w-full flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing touch-none"
-          onMouseDown={handleDragStart}
-          onTouchStart={handleDragStart}
-          onMouseMove={handleDragMove}
-          onTouchMove={handleDragMove}
-          onMouseUp={handleDragEnd}
-          onTouchEnd={handleDragEnd}
-          onMouseLeave={handleDragEnd}
-        >
-          <div className="w-12 h-1.5 bg-slate-200 rounded-full"></div>
+        {/* TABS */}
+        <div className="flex border-b border-slate-100">
+          {[
+            { id: 'fastest', label: 'Fastest', icon: Zap },
+            { id: 'smart', label: 'Smart Choice', icon: ShieldCheck },
+            { id: 'cheapest', label: 'Cheapest', icon: Leaf },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 py-4 text-sm font-medium flex items-center justify-center gap-2 transition-colors
+                ${activeTab === tab.id
+                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50'
+                  : 'text-slate-500 hover:bg-slate-50'}`}
+            >
+              <tab.icon size={18} /> {tab.label}
+            </button>
+          ))}
         </div>
 
-        {/* Sheet Header */}
-        <div className="px-6 py-4 border-b border-slate-50 shrink-0 flex justify-between items-end">
-           <div>
-             <h2 className="text-2xl font-bold text-slate-900">£{totalCost.toFixed(2)}</h2>
-             <div className="flex items-center gap-2 text-sm text-slate-500">
-               <Clock size={14} /> {Math.floor(totalTime / 60)}h {totalTime % 60}m
-             </div>
-           </div>
-           <div className="text-right">
-              <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
-                Interactive Route
-              </span>
-           </div>
+        {/* SUMMARY HEADER */}
+        <div className="px-6 py-4 bg-white border-b border-slate-100 flex justify-between items-center">
+          <div>
+            <div className="text-3xl font-bold text-slate-900 flex items-center gap-2">
+              £{totalCost.toFixed(2)}
+              {totalCost > 40 && <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-medium">Review Policy</span>}
+              {totalCost < 35 && <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">In Policy</span>}
+            </div>
+            <div className="text-sm text-slate-500 mt-1 flex items-center gap-2">
+              <Clock size={14} />
+              {Math.floor(totalTime / 60)}h {totalTime % 60}m Total
+              <span className="text-slate-300">|</span>
+              <span className="text-slate-700">Arrive {formatTime(destArrivalTime)}</span>
+            </div>
+          </div>
+
+          {/* Comparison vs Drive */}
+          <div className="text-right hidden sm:block">
+            <div className="text-xs text-slate-400">vs Direct Drive</div>
+            <div className="text-xs font-semibold text-slate-600 line-through decoration-red-500">
+              £{DIRECT_DRIVE.cost.toFixed(2)} • 1h 50m
+            </div>
+          </div>
         </div>
 
-        {/* DETAILED TIMELINE (Copied from previous "First Page" logic) */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar pb-24">
-          <div className="relative pl-4 space-y-0">
-            {/* Timeline Vertical Bar */}
-            <div className="absolute left-[27px] top-4 bottom-4 w-1 bg-slate-100 rounded-full"></div>
+        {/* TIMELINE SCROLL AREA */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-0">
 
-            {/* 1. START TIME */}
-            <div className="flex gap-4 min-h-[40px]">
-              <div className="w-16 text-right text-xs text-slate-500 font-mono py-1">{formatTime(leaveHomeTime)}</div>
-              <div className="flex flex-col items-center z-10">
-                <div className="w-3 h-3 rounded-full bg-slate-400"></div>
-              </div>
-              <div className="pb-6"><div className="text-sm font-semibold text-slate-700">Start Journey</div></div>
+          {/* 1. START NODE */}
+          <div className="flex gap-4 min-h-[40px]">
+            <div className="w-16 text-right text-xs text-slate-500 font-mono py-1">{formatTime(leaveHomeTime)}</div>
+            <div className="flex flex-col items-center">
+              <div className="w-3 h-3 rounded-full bg-slate-400"></div>
+              <div className="w-0.5 flex-1 bg-slate-200"></div>
             </div>
-
-            {/* 2. LEG 1 (SWAPPABLE) */}
-            <div className="flex gap-4 group">
-              <div className="w-16 text-right text-xs text-slate-400 font-mono pt-4">{journeyConfig.leg1.time} min</div>
-              <div className="flex flex-col items-center z-10">
-                <div className={`w-3 h-3 rounded-full border-2 bg-white ${journeyConfig.leg1.id === 'uber' ? 'border-zinc-500' : 'border-emerald-500'}`}></div>
-              </div>
-              <div className="pb-8 flex-1">
-                <button
-                  onClick={() => setShowSwap('first')}
-                  className={`w-full text-left relative p-3 rounded-2xl border transition-all duration-300 shadow-sm
-                    ${journeyConfig.leg1.bgColor} border-transparent hover:border-blue-300 hover:shadow-md active:scale-95`}
-                >
-                  <div className="flex justify-between items-center mb-1">
-                     <div className="flex items-center gap-2">
-                       <journeyConfig.leg1.icon size={18} className={journeyConfig.leg1.color} />
-                       <span className="font-bold text-slate-800">{journeyConfig.leg1.label}</span>
-                     </div>
-                     <span className="font-bold text-slate-900">£{journeyConfig.leg1.cost.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-xs text-slate-500">{journeyConfig.leg1.detail}</span>
-                    <span className="text-[10px] font-bold text-blue-600 bg-white/60 px-2 py-0.5 rounded backdrop-blur-sm">CHANGE</span>
-                  </div>
-                </button>
-              </div>
+            <div className="pb-6">
+              <div className="text-sm font-semibold text-slate-700">Start from St Chads View</div>
             </div>
+          </div>
 
-            {/* 3. TRANSFER */}
-            <div className="flex gap-4 min-h-[30px]">
-              <div className="w-16 text-right text-xs text-slate-500 font-mono">07:05</div>
-              <div className="flex flex-col items-center z-10">
-                <div className="w-2 h-2 rounded-full border-2 border-slate-300 bg-white"></div>
-              </div>
-              <div className="pb-4 pt-0"><div className="text-xs font-medium text-slate-400 uppercase">Transfer @ Leeds</div></div>
+          {/* 2. LEG 1 (INTERACTIVE) */}
+          <div className="flex gap-4 group">
+            <div className="w-16 text-right text-xs text-slate-400 font-mono pt-4">{journeyConfig.leg1.time} min</div>
+            <div className="flex flex-col items-center">
+              <div className="w-0.5 h-full bg-slate-200"></div>
             </div>
+            <div className="pb-8 flex-1">
+              <button
+                onClick={() => setShowSwap('first')}
+                className="w-full bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:shadow-md hover:border-blue-300 transition-all text-left flex items-center gap-3 relative overflow-hidden group-hover:ring-1 group-hover:ring-slate-300"
+              >
+                {/* Visual Cue that this is swappable */}
+                <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
-            {/* 4. MAIN LEG (FIXED) */}
-            <div className="flex gap-4">
-              <div className="w-16 text-right text-xs text-slate-400 font-mono pt-4">1h 42m</div>
-              <div className="flex flex-col items-center z-10">
-                 <div className="w-4 h-4 rounded-full border-4 border-indigo-600 bg-white"></div>
-              </div>
-              <div className="pb-8 flex-1">
-                <div className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 flex items-center gap-3 opacity-80">
-                  <Train size={18} className="text-indigo-600" />
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <span className="font-semibold text-slate-800">Train (CrossCountry)</span>
-                      <span className="font-bold text-slate-900">£25.70</span>
-                    </div>
+                <ModeIcon icon={journeyConfig.leg1.icon} className="bg-blue-50 text-blue-600" />
+                <div className="flex-1">
+                  <div className="flex justify-between">
+                    <span className="font-semibold text-slate-800">{journeyConfig.leg1.label}</span>
+                    <span className="font-bold text-slate-900">£{journeyConfig.leg1.cost.toFixed(2)}</span>
                   </div>
+                  <div className="text-xs text-slate-500 truncate">{journeyConfig.leg1.detail}</div>
+                </div>
+                <div className="bg-slate-100 rounded-full p-1 text-slate-400 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors">
+                  <ChevronRight size={16} />
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* 3. TRANSFER NODE */}
+          <div className="flex gap-4 min-h-[30px]">
+            <div className="w-16 text-right text-xs text-slate-500 font-mono">07:05</div>
+            <div className="flex flex-col items-center">
+              <div className="w-2 h-2 rounded-full border-2 border-slate-300 bg-white"></div>
+              <div className="w-0.5 flex-1 border-l-2 border-dotted border-slate-300 mx-auto"></div>
+            </div>
+            <div className="pb-4 pt-0">
+              <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Transfer @ Leeds Stn</div>
+            </div>
+          </div>
+
+          {/* 4. MAIN LEG (FIXED) */}
+          <div className="flex gap-4">
+            <div className="w-16 text-right text-xs text-slate-400 font-mono pt-4">1h 42m</div>
+            <div className="flex flex-col items-center">
+              <div className="w-1 h-full bg-indigo-500"></div>
+            </div>
+            <div className="pb-8 flex-1">
+              <div className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 flex items-center gap-3 opacity-90">
+                <ModeIcon icon={Train} className="bg-indigo-100 text-indigo-700" />
+                <div className="flex-1">
+                  <div className="flex justify-between">
+                    <span className="font-semibold text-slate-800">CrossCountry / EMR</span>
+                    <span className="font-bold text-slate-900">£25.70</span>
+                  </div>
+                  <div className="text-xs text-slate-500">07:10 — 08:52 • On Time</div>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* 5. LEG 3 (SWAPPABLE) */}
-            <div className="flex gap-4 group">
-              <div className="w-16 text-right text-xs text-slate-400 font-mono pt-4">{journeyConfig.leg3.time} min</div>
-              <div className="flex flex-col items-center z-10">
-                <div className={`w-3 h-3 rounded-full border-2 bg-white ${journeyConfig.leg3.id === 'uber' ? 'border-zinc-500' : 'border-blue-500'}`}></div>
-              </div>
-              <div className="pb-8 flex-1">
-                <button
-                  onClick={() => setShowSwap('last')}
-                  className={`w-full text-left relative p-3 rounded-2xl border transition-all duration-300 shadow-sm
-                    ${journeyConfig.leg3.bgColor} border-transparent hover:border-blue-300 hover:shadow-md active:scale-95`}
-                >
-                  <div className="flex justify-between items-center mb-1">
-                     <div className="flex items-center gap-2">
-                       <journeyConfig.leg3.icon size={18} className={journeyConfig.leg3.color} />
-                       <span className="font-bold text-slate-800">{journeyConfig.leg3.label}</span>
-                     </div>
-                     <span className="font-bold text-slate-900">£{journeyConfig.leg3.cost.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-xs text-slate-500">{journeyConfig.leg3.detail}</span>
-                    <span className="text-[10px] font-bold text-blue-600 bg-white/60 px-2 py-0.5 rounded backdrop-blur-sm">CHANGE</span>
-                  </div>
-                </button>
-              </div>
+          {/* 5. TRANSFER NODE */}
+          <div className="flex gap-4 min-h-[30px]">
+            <div className="w-16 text-right text-xs text-slate-500 font-mono">08:52</div>
+            <div className="flex flex-col items-center">
+              <div className="w-2 h-2 rounded-full border-2 border-slate-300 bg-white"></div>
+              <div className="w-0.5 flex-1 border-l-2 border-dotted border-slate-300 mx-auto"></div>
             </div>
-
-            {/* 6. ARRIVAL */}
-            <div className="flex gap-4 min-h-[40px]">
-              <div className="w-16 text-right text-xs text-slate-500 font-mono py-1">{formatTime(destArrivalTime)}</div>
-              <div className="flex flex-col items-center z-10">
-                <div className="w-3 h-3 rounded-full bg-slate-800"></div>
-              </div>
-              <div><div className="text-sm font-semibold text-slate-700">Arrive East Leake</div></div>
+            <div className="pb-4 pt-0">
+              <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Transfer @ Loughborough</div>
             </div>
           </div>
+
+           {/* 6. LEG 3 (INTERACTIVE) */}
+           <div className="flex gap-4 group">
+            <div className="w-16 text-right text-xs text-slate-400 font-mono pt-4">{journeyConfig.leg3.time} min</div>
+            <div className="flex flex-col items-center">
+              <div className="w-0.5 h-full bg-slate-200"></div>
+            </div>
+            <div className="pb-8 flex-1">
+              <button
+                onClick={() => setShowSwap('last')}
+                className="w-full bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:shadow-md hover:border-blue-300 transition-all text-left flex items-center gap-3 group-hover:ring-1 group-hover:ring-slate-300"
+              >
+                <ModeIcon icon={journeyConfig.leg3.icon} className="bg-blue-50 text-blue-600" />
+                <div className="flex-1">
+                  <div className="flex justify-between">
+                    <span className="font-semibold text-slate-800">{journeyConfig.leg3.label}</span>
+                    <span className="font-bold text-slate-900">£{journeyConfig.leg3.cost.toFixed(2)}</span>
+                  </div>
+                  <div className="text-xs text-slate-500 truncate">{journeyConfig.leg3.detail}</div>
+                </div>
+                 <div className="bg-slate-100 rounded-full p-1 text-slate-400 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors">
+                  <ChevronRight size={16} />
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* 7. END NODE */}
+          <div className="flex gap-4 min-h-[40px]">
+            <div className="w-16 text-right text-xs text-slate-500 font-mono py-1">{formatTime(destArrivalTime)}</div>
+            <div className="flex flex-col items-center">
+              <div className="w-3 h-3 rounded-full bg-slate-800"></div>
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-slate-700">Arrive East Leake</div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* BOTTOM ACTION */}
+        <div className="p-4 bg-white border-t border-slate-100 pb-8 sm:pb-4">
+          <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-indigo-200 transition-all transform active:scale-95 flex items-center justify-center gap-2">
+            Book Journey <Navigation size={18} />
+          </button>
         </div>
 
       </div>
