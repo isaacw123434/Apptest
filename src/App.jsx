@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import Map from 'react-map-gl/mapbox';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import {
   Train, Car, Bus, Bike, Clock,
-  ChevronRight, ChevronLeft, Navigation,
+  ChevronRight, ChevronLeft,
   X, Zap, ShieldCheck, Leaf, ArrowRight
 } from 'lucide-react';
 
@@ -34,6 +36,18 @@ const SEGMENT_OPTIONS = {
       lineColor: '#10b981',
       recommended: true,
       desc: 'Best balance.'
+    },
+    {
+      id: 'drive_park',
+      label: 'Drive & Park',
+      detail: 'Drive to Station',
+      time: 12,
+      cost: 5.50,
+      icon: Car,
+      color: 'text-zinc-800',
+      bgColor: 'bg-zinc-100',
+      lineColor: '#3f3f46',
+      desc: 'Flexibility.'
     },
     {
       id: 'cycle',
@@ -299,6 +313,30 @@ export default function JourneyPlanner() {
   });
 
   const [showSwap, setShowSwap] = useState(null); // 'first' or 'last'
+  const [sheetHeight, setSheetHeight] = useState(60);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
+  const handleDragMove = (e) => {
+    if (!isDragging) return;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const windowHeight = window.innerHeight;
+    const newHeight = ((windowHeight - clientY) / windowHeight) * 100;
+    if (newHeight > 20 && newHeight < 90) {
+      setSheetHeight(newHeight);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+    // Snap to positions
+    if (sheetHeight > 75) setSheetHeight(85);
+    else if (sheetHeight < 35) setSheetHeight(25);
+    else setSheetHeight(60);
+  };
 
   // Update config when Tab changes (only in summary view)
   useEffect(() => {
@@ -323,8 +361,14 @@ export default function JourneyPlanner() {
   }, [activeTab, view]);
 
   // Derived Calculations
+  const getStationBuffer = (modeId) => {
+    if (['uber', 'bus', 'drive_park'].includes(modeId)) return 10;
+    return 0;
+  };
+
+  const buffer = getStationBuffer(journeyConfig.leg1.id);
   const totalCost = journeyConfig.leg1.cost + SEGMENT_OPTIONS.mainLeg.cost + journeyConfig.leg3.cost;
-  const totalTime = journeyConfig.leg1.time + SEGMENT_OPTIONS.mainLeg.time + journeyConfig.leg3.time;
+  const totalTime = journeyConfig.leg1.time + buffer + SEGMENT_OPTIONS.mainLeg.time + journeyConfig.leg3.time;
 
   const arrivalDate = new Date();
   arrivalDate.setHours(8, 52, 0, 0);
@@ -332,7 +376,7 @@ export default function JourneyPlanner() {
 
   const departureDate = new Date();
   departureDate.setHours(7, 10, 0, 0);
-  const leaveHomeTime = new Date(departureDate.getTime() - (journeyConfig.leg1.time + 10) * 60000);
+  const leaveHomeTime = new Date(departureDate.getTime() - (journeyConfig.leg1.time + buffer) * 60000);
 
   const formatTime = (date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -434,7 +478,16 @@ export default function JourneyPlanner() {
 
       {/* 1. MAP BACKGROUND */}
       <div className="absolute top-0 left-0 right-0 bottom-0 z-0 h-[60%]">
-        <RealisticMap leg1={journeyConfig.leg1} leg3={journeyConfig.leg3} focusedSegment={showSwap} />
+        <Map
+          mapboxAccessToken="pk.eyJ1Ijoiam91cm5leXBsYW5uZXIiLCJhIjoiY2x0eHkwbXFwMDBrcTJxcXF5eXF5eXF5eSJ9.placeholder"
+          initialViewState={{
+            longitude: -1.3,
+            latitude: 52.8,
+            zoom: 9
+          }}
+          style={{width: "100%", height: "100%"}}
+          mapStyle="mapbox://styles/mapbox/streets-v11"
+        />
 
         {/* Navigation Control */}
         <div className="absolute top-6 left-6 z-20">
@@ -448,10 +501,25 @@ export default function JourneyPlanner() {
       </div>
 
       {/* 2. SLIDING SHEET OVERLAY */}
-      <div className="absolute inset-x-0 bottom-0 h-[60vh] bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] flex flex-col z-10 animate-in slide-in-from-bottom-24 duration-500">
+      <div
+        className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] flex flex-col z-10"
+        style={{
+          height: `${sheetHeight}vh`,
+          transition: isDragging ? 'none' : 'height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)'
+        }}
+      >
 
         {/* Handle */}
-        <div className="w-full flex justify-center pt-3 pb-1 cursor-grab">
+        <div
+          className="w-full flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing touch-none"
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+          onMouseMove={handleDragMove}
+          onTouchMove={handleDragMove}
+          onMouseUp={handleDragEnd}
+          onTouchEnd={handleDragEnd}
+          onMouseLeave={handleDragEnd}
+        >
           <div className="w-12 h-1.5 bg-slate-200 rounded-full"></div>
         </div>
 
@@ -578,12 +646,6 @@ export default function JourneyPlanner() {
           </div>
         </div>
 
-        {/* BOOK BUTTON */}
-        <div className="p-4 bg-white border-t border-slate-100 absolute bottom-0 w-full">
-           <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2 transform active:scale-[0.98]">
-             Book Journey <Navigation size={18} />
-           </button>
-        </div>
       </div>
 
       {/* MODALS */}

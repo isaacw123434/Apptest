@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "lucide-react": "^0.363.0",
+    "mapbox-gl": "^3.18.1",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-map-gl": "^8.1.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
