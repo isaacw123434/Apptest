@@ -5,7 +5,8 @@ import 'leaflet/dist/leaflet.css';
 import {
   Train, Car, Bus, Bike, Clock,
   ChevronRight, ChevronLeft, ChevronDown,
-  X, Zap, ShieldCheck, Leaf, Footprints
+  X, Zap, ShieldCheck, Leaf, Footprints,
+  User, Shield
 } from 'lucide-react';
 
 // --- DATA CONSTANTS ---
@@ -18,6 +19,8 @@ const SEGMENT_OPTIONS = {
       detail: 'St Chads → Leeds Stn',
       time: 14,
       cost: 8.97,
+      distance: 3,
+      riskScore: 0,
       icon: Car,
       color: 'text-black',
       bgColor: 'bg-zinc-100',
@@ -33,14 +36,16 @@ const SEGMENT_OPTIONS = {
       detail: '5min walk + 16min bus',
       time: 23,
       cost: 2.00,
+      distance: 3,
+      riskScore: 0,
       icon: Bus,
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-100',
-      lineColor: '#10b981',
+      color: 'text-brand-dark', // updated color usage
+      bgColor: 'bg-brand-light', // updated color usage
+      lineColor: '#0f766e',
       recommended: true,
       desc: 'Best balance.',
       segments: [
-        { mode: 'bus', label: 'Bus', lineColor: '#10b981', icon: Bus, time: 23, to: 'Leeds Stn' }
+        { mode: 'bus', label: 'Bus', lineColor: '#0f766e', icon: Bus, time: 23, to: 'Leeds Stn' }
       ]
     },
     {
@@ -49,6 +54,8 @@ const SEGMENT_OPTIONS = {
       detail: 'Drive to Station',
       time: 15,
       cost: 24.89,
+      distance: 3,
+      riskScore: 0,
       icon: Car,
       color: 'text-zinc-800',
       bgColor: 'bg-zinc-100',
@@ -64,6 +71,8 @@ const SEGMENT_OPTIONS = {
       detail: '18m Walk + 10m Train',
       time: 28,
       cost: 3.40,
+      distance: 3,
+      riskScore: 2, // Walk(+1) + Train(+1)
       icon: Footprints,
       color: 'text-slate-600',
       bgColor: 'bg-slate-100',
@@ -80,6 +89,8 @@ const SEGMENT_OPTIONS = {
       detail: '5m Uber + 10m Train',
       time: 15,
       cost: 9.32,
+      distance: 3,
+      riskScore: 1, // Uber(0) + Train(+1)
       icon: Car,
       color: 'text-slate-600',
       bgColor: 'bg-slate-100',
@@ -96,6 +107,8 @@ const SEGMENT_OPTIONS = {
       detail: 'Cycle to Station',
       time: 17,
       cost: 0.00,
+      distance: 3,
+      riskScore: 1, // Cycle(+1)
       icon: Bike,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
@@ -112,6 +125,8 @@ const SEGMENT_OPTIONS = {
     detail: 'Leeds → Loughborough',
     time: 102,
     cost: 25.70,
+    distance: 80,
+    riskScore: 1, // Train(+1)
     icon: Train,
     color: 'text-[#713e8d]',
     bgColor: 'bg-indigo-100',
@@ -127,6 +142,8 @@ const SEGMENT_OPTIONS = {
       detail: 'Loughborough → East Leake',
       time: 10,
       cost: 14.89,
+      distance: 5,
+      riskScore: 0,
       icon: Car,
       color: 'text-black',
       bgColor: 'bg-zinc-100',
@@ -142,14 +159,16 @@ const SEGMENT_OPTIONS = {
       detail: 'Walk 4min + Bus 10min',
       time: 14,
       cost: 3.00,
+      distance: 5,
+      riskScore: 2, // Bus Loughborough (+2)
       icon: Bus,
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-100',
-      lineColor: '#10b981',
+      color: 'text-brand-dark',
+      bgColor: 'bg-brand-light',
+      lineColor: '#0f766e',
       recommended: true,
       desc: 'Short walk required.',
       segments: [
-        { mode: 'bus', label: 'Bus', lineColor: '#10b981', icon: Bus, time: 14, to: 'East Leake' }
+        { mode: 'bus', label: 'Bus', lineColor: '#0f766e', icon: Bus, time: 14, to: 'East Leake' }
       ]
     },
     {
@@ -158,6 +177,8 @@ const SEGMENT_OPTIONS = {
       detail: 'Cycle to Dest',
       time: 24,
       cost: 0.00,
+      distance: 5,
+      riskScore: 1, // Cycle (+1)
       icon: Bike,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
@@ -212,11 +233,11 @@ const SwapModal = ({ isOpen, onClose, title, options, onSelect, currentId }) => 
               onClick={() => { onSelect(opt); onClose(); }}
               className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4
                 ${currentId === opt.id
-                  ? 'border-blue-600 bg-blue-50 ring-1 ring-blue-600'
+                  ? 'border-accent bg-blue-50 ring-1 ring-accent'
                   : 'border-slate-100 hover:border-blue-200 hover:bg-slate-50 shadow-sm'
                 }`}
             >
-              <ModeIcon icon={opt.icon} className={currentId === opt.id ? "bg-blue-200 text-blue-700" : "bg-slate-100 text-slate-600"} />
+              <ModeIcon icon={opt.icon} className={currentId === opt.id ? "bg-blue-200 text-accent" : "bg-slate-100 text-slate-600"} />
               <div className="flex-1">
                 <div className="flex justify-between items-center mb-1">
                   <span className="font-semibold text-slate-900">{opt.label}</span>
@@ -224,7 +245,7 @@ const SwapModal = ({ isOpen, onClose, title, options, onSelect, currentId }) => 
                 </div>
                 <div className="flex justify-between text-sm text-slate-500">
                   <span>{opt.time} min</span>
-                  {opt.recommended && <span className="text-emerald-600 font-medium text-xs bg-emerald-100 px-2 py-0.5 rounded-full">Best Value</span>}
+                  {opt.recommended && <span className="text-brand-dark font-medium text-xs bg-brand-light px-2 py-0.5 rounded-full">Best Value</span>}
                 </div>
               </div>
             </button>
@@ -278,7 +299,38 @@ const calculateTotalStats = (leg1, leg3) => {
   const buffer = getStationBuffer(leg1.id);
   const cost = leg1.cost + SEGMENT_OPTIONS.mainLeg.cost + leg3.cost;
   const time = leg1.time + buffer + SEGMENT_OPTIONS.mainLeg.time + leg3.time;
-  return { cost, time, buffer };
+
+  // Risk Score Calculation
+  const risk = (leg1.riskScore || 0) + (SEGMENT_OPTIONS.mainLeg.riskScore || 0) + (leg3.riskScore || 0);
+
+  // Emissions Calculation
+  const carEmission = DIRECT_DRIVE.distance * 0.27; // kg CO2
+
+  const getLegEmission = (leg) => {
+    let factor = 0;
+    if (leg.icon === Train) factor = 0.06;
+    else if (leg.icon === Bus) factor = 0.10;
+    else if (leg.icon === Car) factor = 0.27; // Taxi/Drive
+
+    // Check specific IDs or segments for finer grain if needed, but icon is a good proxy for this demo
+    // Or iterate segments
+    let legDist = leg.distance || 0;
+
+    // Simplification: Use leg total distance * primary mode factor
+    return legDist * factor;
+  };
+
+  const totalEmission = getLegEmission(leg1) + getLegEmission(SEGMENT_OPTIONS.mainLeg) + getLegEmission(leg3);
+  const savings = carEmission - totalEmission;
+  const savingsPercent = Math.round((savings / carEmission) * 100);
+
+  const emissions = {
+      val: savings,
+      percent: savingsPercent,
+      text: savings > 0 ? `Saves ${savingsPercent}% CO₂` : null
+  };
+
+  return { cost, time, buffer, risk, emissions };
 };
 
 const getAllCombinations = () => {
@@ -627,11 +679,21 @@ export default function JourneyPlanner() {
   // --- VIEW 1: SUMMARY PAGE ---
   if (view === 'summary') {
     const topResults = getTop3Results(activeTab, selectedModes);
+    // Find min risk for "Least Risky" badge
+    const minRisk = Math.min(...topResults.map(r => r.risk));
 
     return (
       <div className="flex flex-col h-screen bg-slate-50 font-sans text-slate-900">
 
-        {/* Header: Search Box */}
+        {/* New Header */}
+        <header className="bg-brand text-white p-4 shadow-md flex justify-between items-center z-20">
+            <h1 className="text-xl font-bold tracking-tight">EndMile Routing</h1>
+            <div className="bg-brand-dark p-2 rounded-full">
+                <User size={20} className="text-brand-light" />
+            </div>
+        </header>
+
+        {/* Search Box */}
         <div className="bg-white p-4 shadow-sm z-10">
           <div className="flex flex-col gap-3">
              <div className="flex items-center gap-2 bg-slate-100 p-3 rounded-xl">
@@ -642,7 +704,7 @@ export default function JourneyPlanner() {
                <div className="w-2 h-2 rounded-full bg-slate-800"></div>
                <input type="text" defaultValue="East Leake, Loughborough" className="bg-transparent font-medium text-slate-700 w-full outline-none" />
              </div>
-             <button className="bg-blue-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-blue-700 transition-colors">
+             <button className="bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-xl shadow-md transition-colors">
                Search
              </button>
 
@@ -670,7 +732,7 @@ export default function JourneyPlanner() {
                             onClick={() => setSelectedModes(prev => ({...prev, [mode.id]: !prev[mode.id]}))}
                             className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all
                                 ${selectedModes[mode.id]
-                                    ? 'bg-blue-50 border-blue-500 text-blue-700'
+                                    ? 'bg-blue-50 border-accent text-accent'
                                     : 'bg-white border-slate-200 text-slate-400 grayscale'
                                 }`}
                         >
@@ -695,7 +757,7 @@ export default function JourneyPlanner() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 py-4 text-sm font-medium flex flex-col items-center justify-center gap-1 transition-colors border-b-2
                 ${activeTab === tab.id
-                  ? 'border-blue-600 text-blue-600 bg-blue-50/50'
+                  ? 'border-brand text-brand bg-brand-light/30'
                   : 'border-transparent text-slate-400 hover:text-slate-600'}`}
             >
               <tab.icon size={18} />
@@ -734,6 +796,24 @@ export default function JourneyPlanner() {
                   {/* Mini Schematic */}
                   <div className="bg-slate-50 rounded-xl p-2 mb-3">
                     <MiniSchematic leg1={result.leg1} leg3={result.leg3} />
+                  </div>
+
+                  {/* Badges: Risk & Emissions */}
+                  <div className="flex items-center gap-2 mb-2">
+                    {/* Risk Badge */}
+                    {result.risk === minRisk && (
+                        <div className="flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-[10px] font-bold border border-blue-100">
+                            <Shield size={12} />
+                            <span>Least Risky</span>
+                        </div>
+                    )}
+                    {/* Emissions Badge */}
+                    {result.emissions.text && (
+                        <div className="flex items-center gap-1 bg-emerald-50 text-emerald-700 px-2 py-1 rounded-md text-[10px] font-bold border border-emerald-100">
+                            <Leaf size={12} />
+                            <span>{result.emissions.text}</span>
+                        </div>
+                    )}
                   </div>
 
                   <div className="flex justify-between items-center text-xs text-slate-400">
@@ -887,6 +967,18 @@ export default function JourneyPlanner() {
                                     <span className="text-xs text-slate-500">{segment.to ? `To ${segment.to}` : segment.detail}</span>
                                     {leg.onSwap && segIndex === 0 && <span className="text-xs font-medium text-slate-500 hover:text-blue-600 transition-colors">Edit</span>}
                                   </div>
+
+                                  {/* BOOK NOW BUTTON */}
+                                  {segment.mode === 'train' && (
+                                    <div className="mt-3">
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); alert('Booking flow...'); }}
+                                        className="w-full bg-brand hover:bg-brand-dark text-white font-bold py-2 px-4 rounded-lg shadow-sm transition-colors text-sm"
+                                      >
+                                        Book Now
+                                      </button>
+                                    </div>
+                                  )}
                               </div>
                            </div>
 
