@@ -1,0 +1,40 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Route"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.58, 53.83],
+          [-1.55, 53.80],
+          [-1.20, 52.77],
+          [-1.18, 52.83]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "St Chads" },
+      "geometry": { "type": "Point", "coordinates": [-1.58, 53.83] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Leeds Station" },
+      "geometry": { "type": "Point", "coordinates": [-1.55, 53.80] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Loughborough Station" },
+      "geometry": { "type": "Point", "coordinates": [-1.20, 52.77] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "East Leake" },
+      "geometry": { "type": "Point", "coordinates": [-1.18, 52.83] }
+    }
+  ]
+}
