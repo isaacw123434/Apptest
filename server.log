@@ -9,3 +9,5 @@ Port 5174 is in use, trying another one...
 
   ➜  Local:   http://localhost:5175/
   ➜  Network: use --host to expose
+7:29:44 PM [vite] hmr update /src/App.jsx, /src/index.css
+7:29:57 PM [vite] hmr update /src/App.jsx, /src/index.css

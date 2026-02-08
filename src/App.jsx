@@ -270,7 +270,7 @@ const formatTimeRange = (startDate, durationMinutes) => {
   return `${startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 };
 
-const getStationBuffer = (modeId) => {
+const getStationBuffer = () => {
   return 10;
 };
 
@@ -841,9 +841,7 @@ export default function JourneyPlanner() {
                 const isLastSegmentInLeg = segIndex === segments.length - 1;
                 const isLastLeg = legIndex === journeyLegs.length - 1;
 
-                const segmentStartTime = new Date(currentDateTime);
                 currentDateTime = new Date(currentDateTime.getTime() + segment.time * 60000);
-                const segmentEndTime = currentDateTime;
 
                 return (
                   <div key={segIndex}>
