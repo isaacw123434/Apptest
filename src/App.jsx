@@ -526,12 +526,15 @@ const MiniSchematic = ({ leg1, leg3 }) => {
 
 MiniSchematic.propTypes = {
   leg1: PropTypes.shape({
+    id: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
     lineColor: PropTypes.string.isRequired,
+    segments: PropTypes.arrayOf(PropTypes.object),
   }).isRequired,
   leg3: PropTypes.shape({
     label: PropTypes.string.isRequired,
     lineColor: PropTypes.string.isRequired,
+    segments: PropTypes.arrayOf(PropTypes.object),
   }).isRequired,
 };
 
@@ -662,7 +665,6 @@ export default function JourneyPlanner() {
 
   // Derived Calculations for Detail View
   const totalStats = calculateTotalStats(journeyConfig.leg1, journeyConfig.leg3);
-  const buffer = totalStats.buffer;
   const totalCost = totalStats.cost;
   const totalTime = totalStats.time;
 
