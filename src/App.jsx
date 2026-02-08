@@ -19,9 +19,9 @@ const SEGMENT_OPTIONS = {
       time: 14,
       cost: 8.97,
       icon: Car,
-      color: 'text-zinc-800',
+      color: 'text-black',
       bgColor: 'bg-zinc-100',
-      lineColor: '#3f3f46',
+      lineColor: '#000000',
       desc: 'Fastest door-to-door.'
     },
     {
@@ -93,9 +93,9 @@ const SEGMENT_OPTIONS = {
     time: 102,
     cost: 25.70,
     icon: Train,
-    color: 'text-indigo-600',
+    color: 'text-[#713e8d]',
     bgColor: 'bg-indigo-100',
-    lineColor: '#4f46e5'
+    lineColor: '#713e8d'
   },
   lastMile: [
     {
@@ -105,9 +105,9 @@ const SEGMENT_OPTIONS = {
       time: 10,
       cost: 14.89,
       icon: Car,
-      color: 'text-zinc-800',
+      color: 'text-black',
       bgColor: 'bg-zinc-100',
-      lineColor: '#3f3f46',
+      lineColor: '#000000',
       desc: 'Reliable final leg.'
     },
     {
@@ -223,13 +223,6 @@ SwapModal.propTypes = {
 
 // 1. SCHEMATIC (For Summary View)
 const SchematicMap = ({ leg1, leg3 }) => {
-  const getSchematicColor = (modeId) => {
-    if (modeId === 'uber' || modeId === 'drive_park') return 'stroke-zinc-600';
-    if (modeId === 'bus') return 'stroke-emerald-500';
-    if (modeId === 'cycle') return 'stroke-blue-500';
-    return 'stroke-slate-300';
-  };
-
   return (
     <div className="relative h-full w-full bg-slate-50 overflow-hidden">
       <div className="absolute inset-0 opacity-30" style={{backgroundImage: 'radial-gradient(#94a3b8 1px, transparent 1px)', backgroundSize: '16px 16px'}} />
@@ -238,22 +231,27 @@ const SchematicMap = ({ leg1, leg3 }) => {
         <line x1="50" y1="60" x2="350" y2="60" className="stroke-slate-200" strokeWidth="4" />
 
         {/* Active Route Segments */}
-        <line x1="50" y1="60" x2="150" y2="60" className={`${getSchematicColor(leg1.id)} transition-colors duration-500`} strokeWidth="4" strokeLinecap="round" />
-        <line x1="150" y1="60" x2="250" y2="60" className="stroke-indigo-600" strokeWidth="4" />
-        <line x1="250" y1="60" x2="350" y2="60" className={`${getSchematicColor(leg3.id)} transition-colors duration-500`} strokeWidth="4" strokeLinecap="round" />
+        <line x1="50" y1="60" x2="150" y2="60" stroke={leg1.lineColor} strokeWidth="4" strokeLinecap="round" className="transition-colors duration-500" />
+        <line x1="150" y1="60" x2="250" y2="60" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} strokeWidth="4" />
+        <line x1="250" y1="60" x2="350" y2="60" stroke={leg3.lineColor} strokeWidth="4" strokeLinecap="round" className="transition-colors duration-500" />
+
+        {/* Labels under/above lines */}
+        <text x="100" y="75" textAnchor="middle" className="text-[10px] fill-slate-500 font-medium">{leg1.label}</text>
+        <text x="200" y="25" textAnchor="middle" className="text-[10px] fill-slate-500 font-medium">{SEGMENT_OPTIONS.mainLeg.label}</text>
+        <text x="300" y="75" textAnchor="middle" className="text-[10px] fill-slate-500 font-medium">{leg3.label}</text>
 
         {/* Nodes */}
         <circle cx="50" cy="60" r="4" className="fill-white stroke-slate-500 stroke-2" />
-        <text x="50" y="80" textAnchor="middle" className="text-[10px] fill-slate-500 font-bold uppercase tracking-wider">Start</text>
+        <text x="50" y="95" textAnchor="middle" className="text-[10px] fill-slate-500 font-bold uppercase tracking-wider">Start</text>
 
-        <circle cx="150" cy="60" r="6" className="fill-white stroke-indigo-600 stroke-2" />
-        <text x="150" y="40" textAnchor="middle" className="text-[10px] fill-indigo-600 font-bold uppercase tracking-wider">Leeds</text>
+        <circle cx="150" cy="60" r="6" className="fill-white stroke-2" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} />
+        <text x="150" y="45" textAnchor="middle" className="text-[10px] font-bold uppercase tracking-wider" fill={SEGMENT_OPTIONS.mainLeg.lineColor}>Leeds</text>
 
-        <circle cx="250" cy="60" r="6" className="fill-white stroke-indigo-600 stroke-2" />
-        <text x="250" y="40" textAnchor="middle" className="text-[10px] fill-indigo-600 font-bold uppercase tracking-wider">Lough</text>
+        <circle cx="250" cy="60" r="6" className="fill-white stroke-2" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} />
+        <text x="250" y="45" textAnchor="middle" className="text-[10px] font-bold uppercase tracking-wider" fill={SEGMENT_OPTIONS.mainLeg.lineColor}>Lough</text>
 
         <circle cx="350" cy="60" r="4" className="fill-slate-800 stroke-white stroke-2" />
-        <text x="350" y="80" textAnchor="middle" className="text-[10px] fill-slate-800 font-bold uppercase tracking-wider">End</text>
+        <text x="350" y="95" textAnchor="middle" className="text-[10px] fill-slate-800 font-bold uppercase tracking-wider">End</text>
       </svg>
     </div>
   );
@@ -262,9 +260,13 @@ const SchematicMap = ({ leg1, leg3 }) => {
 SchematicMap.propTypes = {
   leg1: PropTypes.shape({
     id: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    lineColor: PropTypes.string.isRequired,
   }).isRequired,
   leg3: PropTypes.shape({
     id: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    lineColor: PropTypes.string.isRequired,
   }).isRequired,
 };
 
@@ -333,7 +335,7 @@ export default function JourneyPlanner() {
   // Journey State
   const [journeyConfig, setJourneyConfig] = useState({
     leg1: SEGMENT_OPTIONS.firstMile.find(o => o.id === 'bus'),
-    leg3: SEGMENT_OPTIONS.lastMile.find(o => o.id === 'bus')
+    leg3: SEGMENT_OPTIONS.lastMile.find(o => o.id === 'uber')
   });
 
   const [showSwap, setShowSwap] = useState(null); // 'first' or 'last'
@@ -463,23 +465,32 @@ export default function JourneyPlanner() {
               {/* Simple Route Chain Display */}
               <div className="flex items-center justify-between gap-2 mb-2">
                  {/* Leg 1 */}
-                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
-                    <journeyConfig.leg1.icon size={18} className="text-slate-700" />
-                    <span className="text-sm font-semibold text-slate-700">{journeyConfig.leg1.label.split(' ')[0]}</span>
+                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100 flex-1">
+                    <journeyConfig.leg1.icon size={20} className="text-slate-700" />
+                    <div className="flex flex-col">
+                       <span className="text-sm font-semibold text-slate-900 leading-tight">{journeyConfig.leg1.label}</span>
+                       <span className="text-[10px] text-slate-500 font-medium">{journeyConfig.leg1.time} min • £{journeyConfig.leg1.cost.toFixed(2)}</span>
+                    </div>
                  </div>
-                 <ArrowRight size={16} className="text-slate-300" />
+                 <ArrowRight size={16} className="text-slate-300 flex-shrink-0" />
 
                  {/* Leg 2 */}
-                 <div className="flex items-center gap-2 bg-indigo-50 px-3 py-2 rounded-lg border border-indigo-100">
-                    <Train size={18} className="text-indigo-600" />
-                    <span className="text-sm font-semibold text-indigo-700">Train</span>
+                 <div className="flex items-center gap-2 bg-indigo-50 px-3 py-2 rounded-lg border border-indigo-100 flex-1">
+                    <Train size={20} className="text-[#713e8d]" />
+                    <div className="flex flex-col">
+                       <span className="text-sm font-bold text-[#713e8d] leading-tight">{SEGMENT_OPTIONS.mainLeg.label}</span>
+                       <span className="text-[10px] text-slate-500 font-medium">{SEGMENT_OPTIONS.mainLeg.time} min • £{SEGMENT_OPTIONS.mainLeg.cost.toFixed(2)}</span>
+                    </div>
                  </div>
-                 <ArrowRight size={16} className="text-slate-300" />
+                 <ArrowRight size={16} className="text-slate-300 flex-shrink-0" />
 
                  {/* Leg 3 */}
-                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
-                    <journeyConfig.leg3.icon size={18} className="text-slate-700" />
-                    <span className="text-sm font-semibold text-slate-700">{journeyConfig.leg3.label.split(' ')[0]}</span>
+                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100 flex-1">
+                    <journeyConfig.leg3.icon size={20} className="text-slate-700" />
+                    <div className="flex flex-col">
+                       <span className="text-sm font-semibold text-slate-900 leading-tight">{journeyConfig.leg3.label}</span>
+                       <span className="text-[10px] text-slate-500 font-medium">{journeyConfig.leg3.time} min • £{journeyConfig.leg3.cost.toFixed(2)}</span>
+                    </div>
                  </div>
               </div>
               <p className="text-center text-xs text-slate-400 mt-4">Tap card to customize first/last mile</p>
