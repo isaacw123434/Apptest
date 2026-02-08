@@ -71,7 +71,7 @@ const SEGMENT_OPTIONS = {
       desc: 'Walking transfer.',
       segments: [
         { mode: 'walk', label: 'Walk', lineColor: '#475569', icon: Footprints, time: 18, to: 'Headingley Stn' },
-        { mode: 'train', label: 'Northern', lineColor: '#475569', icon: Train, time: 10, to: 'Leeds Stn' }
+        { mode: 'train', label: 'Northern', lineColor: '#003B71', icon: Train, time: 10, to: 'Leeds Stn' }
       ]
     },
     {
@@ -87,7 +87,7 @@ const SEGMENT_OPTIONS = {
       desc: 'Fast transfer.',
       segments: [
         { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 5, to: 'Headingley Stn' },
-        { mode: 'train', label: 'Northern', lineColor: '#475569', icon: Train, time: 10, to: 'Leeds Stn' }
+        { mode: 'train', label: 'Northern', lineColor: '#003B71', icon: Train, time: 10, to: 'Leeds Stn' }
       ]
     },
     {
@@ -271,8 +271,7 @@ const formatTimeRange = (startDate, durationMinutes) => {
 };
 
 const getStationBuffer = (modeId) => {
-  if (['uber', 'bus', 'drive_park'].includes(modeId)) return 10;
-  return 0;
+  return 10;
 };
 
 const calculateTotalStats = (leg1, leg3) => {
@@ -424,7 +423,7 @@ const MiniSchematic = ({ leg1, leg3 }) => {
 
   return (
     <div className="w-full h-12 relative">
-      <svg className="w-full h-full" viewBox="0 10 300 60" preserveAspectRatio="xMidYMid meet">
+      <svg className="w-full h-full" viewBox="0 0 300 80" preserveAspectRatio="xMidYMid meet">
         {/* Base Track */}
         <line x1="20" y1={y} x2="280" y2={y} className="stroke-slate-200" strokeWidth="3" />
 
@@ -439,11 +438,7 @@ const MiniSchematic = ({ leg1, leg3 }) => {
            return (
              <g key={i}>
                <line x1={x1} y1={y} x2={x2} y2={y} stroke={seg.lineColor} strokeWidth="3" strokeLinecap="round" />
-               {/* Icon Overlay */}
-               <circle cx={midX} cy={y} r={10} fill="white" stroke={seg.lineColor} strokeWidth="1" />
-               <g transform={`translate(${midX - 7}, ${y - 7})`}>
-                  <seg.icon size={14} color={seg.lineColor} />
-               </g>
+               <text x={midX} y={i % 2 === 0 ? y + 25 : y - 15} textAnchor="middle" className="text-[10px] fill-slate-500 font-medium">{seg.label}</text>
              </g>
            );
          })}
@@ -842,78 +837,81 @@ export default function JourneyPlanner() {
 
             {journeyLegs.map((leg, legIndex) => {
               const segments = leg.data.segments || [];
+              const segmentElements = segments.map((segment, segIndex) => {
+                const isLastSegmentInLeg = segIndex === segments.length - 1;
+                const isLastLeg = legIndex === journeyLegs.length - 1;
+
+                const segmentStartTime = new Date(currentDateTime);
+                currentDateTime = new Date(currentDateTime.getTime() + segment.time * 60000);
+                const segmentEndTime = currentDateTime;
+
+                return (
+                  <div key={segIndex}>
+                     {/* SEGMENT ROW */}
+                     <div className="flex gap-4 group-hover:bg-slate-50 rounded-lg transition-all duration-200 -ml-2 p-2" onClick={leg.onSwap}>
+                        {/* Time Column */}
+                        <div className="w-16 text-right pt-1">
+                          <div className="text-sm font-semibold text-slate-700">{formatDuration(segment.time)}</div>
+                        </div>
+
+                        {/* Line Column */}
+                        <div className="flex flex-col items-center z-10 w-4 relative">
+                           <div className="absolute -top-2 -bottom-2 w-0.5" style={{backgroundColor: segment.lineColor}}></div>
+                           {/* <div className="w-3 h-3 rounded-full bg-white border-2 z-20 absolute top-1/2 -translate-y-1/2" style={{borderColor: segment.lineColor}}></div> */}
+                        </div>
+
+                        {/* Content Column */}
+                        <div className="flex-1 pb-4">
+                            <div className="flex justify-between items-center mb-1">
+                               <div className="flex items-center gap-2">
+                                 <ModeIcon icon={segment.icon} className="p-1" />
+                                 <span className="font-bold text-slate-800">{segment.label}</span>
+                               </div>
+                               {segIndex === 0 && <span className="font-bold text-slate-900">£{leg.data.cost.toFixed(2)}</span>}
+                            </div>
+                            <div className="flex justify-between items-center mt-1">
+                              <span className="text-xs text-slate-500">{segment.to ? `To ${segment.to}` : segment.detail}</span>
+                              {leg.onSwap && segIndex === 0 && <span className="text-xs font-medium text-slate-500 hover:text-blue-600 transition-colors">Edit</span>}
+                            </div>
+                        </div>
+                     </div>
+
+                     {/* NODE ROW (End of Segment) */}
+                     {(!isLastLeg || !isLastSegmentInLeg) && (
+                        <div className="flex gap-4 min-h-[30px]">
+                          <div className="w-16 text-right text-xs text-slate-500 font-mono">{formatTime(currentDateTime)}</div>
+                          <div className="flex flex-col items-center z-10 w-4 relative">
+                            {/* Line continues from top */}
+                            <div className="absolute top-0 h-[50%] w-0.5" style={{backgroundColor: segment.lineColor}}></div>
+                            {/* Node */}
+                            <div className="w-2 h-2 rounded-full border-2 bg-white z-20" style={{borderColor: segment.lineColor}}></div>
+                            {/* Line continues to bottom */}
+                            <div className="absolute top-[50%] bottom-0 w-0.5"
+                               style={{backgroundColor:
+                                 isLastSegmentInLeg
+                                   ? (journeyLegs[legIndex+1]?.data.segments[0].lineColor || segment.lineColor)
+                                   : segments[segIndex+1].lineColor
+                               }}>
+                            </div>
+                          </div>
+                          <div className="pb-4 pt-0">
+                             <div className="text-xs font-medium text-slate-400 uppercase">
+                               {segment.to ? segment.to.replace(' Stn', '') : 'Transfer'}
+                             </div>
+                          </div>
+                        </div>
+                     )}
+                  </div>
+                );
+              });
+
+              if (legIndex === 0) {
+                 currentDateTime = new Date(currentDateTime.getTime() + buffer * 60000);
+              }
+
               return (
                 <div key={legIndex} className={leg.onSwap ? "group cursor-pointer" : ""}>
-                   {segments.map((segment, segIndex) => {
-                      const isLastSegmentInLeg = segIndex === segments.length - 1;
-                      const isLastLeg = legIndex === journeyLegs.length - 1;
-
-                      const segmentStartTime = new Date(currentDateTime);
-                      currentDateTime = new Date(currentDateTime.getTime() + segment.time * 60000);
-                      const segmentEndTime = currentDateTime;
-
-                      return (
-                        <div key={segIndex}>
-                           {/* SEGMENT ROW */}
-                           <div className="flex gap-4 group-hover:bg-slate-50 rounded-lg transition-all duration-200 -ml-2 p-2" onClick={leg.onSwap}>
-                              {/* Time Column */}
-                              <div className="w-16 text-right pt-1">
-                                <div className="text-sm font-semibold text-slate-700">{formatDuration(segment.time)}</div>
-                                <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-                                  {formatTime(segmentStartTime)} - {formatTime(segmentEndTime)}
-                                </div>
-                              </div>
-
-                              {/* Line Column */}
-                              <div className="flex flex-col items-center z-10 w-4 relative">
-                                 <div className="absolute -top-2 -bottom-2 w-0.5" style={{backgroundColor: segment.lineColor}}></div>
-                                 {/* <div className="w-3 h-3 rounded-full bg-white border-2 z-20 absolute top-1/2 -translate-y-1/2" style={{borderColor: segment.lineColor}}></div> */}
-                              </div>
-
-                              {/* Content Column */}
-                              <div className="flex-1 pb-4">
-                                  <div className="flex justify-between items-center mb-1">
-                                     <div className="flex items-center gap-2">
-                                       <ModeIcon icon={segment.icon} className="p-1" />
-                                       <span className="font-bold text-slate-800">{segment.label}</span>
-                                     </div>
-                                     {segIndex === 0 && <span className="font-bold text-slate-900">£{leg.data.cost.toFixed(2)}</span>}
-                                  </div>
-                                  <div className="flex justify-between items-center mt-1">
-                                    <span className="text-xs text-slate-500">{segment.to ? `To ${segment.to}` : segment.detail}</span>
-                                    {leg.onSwap && segIndex === 0 && <span className="text-xs font-medium text-slate-500 hover:text-blue-600 transition-colors">Edit</span>}
-                                  </div>
-                              </div>
-                           </div>
-
-                           {/* NODE ROW (End of Segment) */}
-                           {(!isLastLeg || !isLastSegmentInLeg) && (
-                              <div className="flex gap-4 min-h-[30px]">
-                                <div className="w-16 text-right text-xs text-slate-500 font-mono">{formatTime(currentDateTime)}</div>
-                                <div className="flex flex-col items-center z-10 w-4 relative">
-                                  {/* Line continues from top */}
-                                  <div className="absolute top-0 h-[50%] w-0.5" style={{backgroundColor: segment.lineColor}}></div>
-                                  {/* Node */}
-                                  <div className="w-2 h-2 rounded-full border-2 bg-white z-20" style={{borderColor: segment.lineColor}}></div>
-                                  {/* Line continues to bottom */}
-                                  <div className="absolute top-[50%] bottom-0 w-0.5"
-                                     style={{backgroundColor:
-                                       isLastSegmentInLeg
-                                         ? (journeyLegs[legIndex+1]?.data.segments[0].lineColor || segment.lineColor)
-                                         : segments[segIndex+1].lineColor
-                                     }}>
-                                  </div>
-                                </div>
-                                <div className="pb-4 pt-0">
-                                   <div className="text-xs font-medium text-slate-400 uppercase">
-                                     {segment.to ? segment.to.replace(' Stn', '') : 'Transfer'}
-                                   </div>
-                                </div>
-                              </div>
-                           )}
-                        </div>
-                      );
-                   })}
+                   {segmentElements}
                 </div>
               );
             })}
