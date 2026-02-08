@@ -556,6 +556,14 @@ TimelineSchematic.propTypes = {
     color: PropTypes.string,
     lineColor: PropTypes.string,
     icon: PropTypes.elementType.isRequired,
+    segments: PropTypes.arrayOf(PropTypes.shape({
+      mode: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+      time: PropTypes.number.isRequired,
+      lineColor: PropTypes.string.isRequired,
+      icon: PropTypes.elementType.isRequired,
+      to: PropTypes.string,
+    })),
   }).isRequired,
   leg3: PropTypes.shape({
     id: PropTypes.string,
@@ -565,6 +573,14 @@ TimelineSchematic.propTypes = {
     color: PropTypes.string,
     lineColor: PropTypes.string,
     icon: PropTypes.elementType.isRequired,
+    segments: PropTypes.arrayOf(PropTypes.shape({
+      mode: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+      time: PropTypes.number.isRequired,
+      lineColor: PropTypes.string.isRequired,
+      icon: PropTypes.elementType.isRequired,
+      to: PropTypes.string,
+    })),
   }).isRequired,
   startTime: PropTypes.instanceOf(Date).isRequired,
 };
