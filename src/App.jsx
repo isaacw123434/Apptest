@@ -170,11 +170,6 @@ const SEGMENT_OPTIONS = {
   ]
 };
 
-const DIRECT_DRIVE = {
-  time: 110,
-  cost: 39.15,
-  distance: 87
-};
 
 const MOCK_PATH = [
   [53.8008, -1.5491], // Leeds
@@ -748,11 +743,6 @@ export default function JourneyPlanner() {
                 )}
              </div>
            ))}
-           <div className="mt-8 text-center px-8">
-            <p className="text-xs text-slate-400">
-              vs Direct Drive: <span className="line-through decoration-red-400 decoration-2 font-semibold">£{DIRECT_DRIVE.cost.toFixed(2)}</span>
-            </p>
-           </div>
         </div>
       </div>
     );
