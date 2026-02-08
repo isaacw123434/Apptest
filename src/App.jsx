@@ -16,7 +16,7 @@ const SEGMENT_OPTIONS = {
     {
       id: 'uber',
       label: 'Uber',
-      detail: 'St Chads → Leeds Stn',
+      detail: 'St Chads → Leeds Station',
       time: 14,
       cost: 8.97,
       distance: 3,
@@ -26,8 +26,9 @@ const SEGMENT_OPTIONS = {
       bgColor: 'bg-zinc-100',
       lineColor: '#000000',
       desc: 'Fastest door-to-door.',
+      waitTime: 4,
       segments: [
-        { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 14, to: 'Leeds Stn' }
+        { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 14, to: 'Leeds Station' }
       ]
     },
     {
@@ -44,8 +45,9 @@ const SEGMENT_OPTIONS = {
       lineColor: '#0f766e',
       recommended: true,
       desc: 'Best balance.',
+      nextBusIn: 12,
       segments: [
-        { mode: 'bus', label: 'Bus', lineColor: '#0f766e', icon: Bus, time: 23, to: 'Leeds Stn' }
+        { mode: 'bus', label: 'Bus', lineColor: '#0f766e', icon: Bus, time: 23, to: 'Leeds Station' }
       ]
     },
     {
@@ -62,7 +64,7 @@ const SEGMENT_OPTIONS = {
       lineColor: '#3f3f46',
       desc: 'Flexibility.',
       segments: [
-        { mode: 'car', label: 'Drive', lineColor: '#3f3f46', icon: Car, time: 15, to: 'Leeds Stn' }
+        { mode: 'car', label: 'Drive', lineColor: '#3f3f46', icon: Car, time: 15, to: 'Leeds Station' }
       ]
     },
     {
@@ -79,8 +81,8 @@ const SEGMENT_OPTIONS = {
       lineColor: '#1d4ed8',
       desc: 'Walking transfer.',
       segments: [
-        { mode: 'walk', label: 'Walk', lineColor: '#475569', icon: Footprints, time: 18, to: 'Headingley Stn' },
-        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', icon: Train, time: 10, to: 'Leeds Stn' }
+        { mode: 'walk', label: 'Walk', lineColor: '#475569', icon: Footprints, time: 18, to: 'Headingley Station' },
+        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', icon: Train, time: 10, to: 'Leeds Station' }
       ]
     },
     {
@@ -96,9 +98,10 @@ const SEGMENT_OPTIONS = {
       bgColor: 'bg-slate-100',
       lineColor: '#1d4ed8',
       desc: 'Fast transfer.',
+      waitTime: 3,
       segments: [
-        { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 5, to: 'Headingley Stn' },
-        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', icon: Train, time: 10, to: 'Leeds Stn' }
+        { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 5, to: 'Headingley Station' },
+        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', icon: Train, time: 10, to: 'Leeds Station' }
       ]
     },
     {
@@ -115,7 +118,7 @@ const SEGMENT_OPTIONS = {
       lineColor: '#3b82f6',
       desc: 'Zero emissions.',
       segments: [
-        { mode: 'bike', label: 'Bike', lineColor: '#3b82f6', icon: Bike, time: 17, to: 'Leeds Stn' }
+        { mode: 'bike', label: 'Bike', lineColor: '#3b82f6', icon: Bike, time: 17, to: 'Leeds Station' }
       ]
     }
   ],
@@ -131,8 +134,9 @@ const SEGMENT_OPTIONS = {
     color: 'text-[#713e8d]',
     bgColor: 'bg-indigo-100',
     lineColor: '#713e8d',
+    platform: 4,
     segments: [
-      { mode: 'train', label: 'CrossCountry', lineColor: '#713e8d', icon: Train, time: 102, to: 'Loughborough Stn' }
+      { mode: 'train', label: 'CrossCountry', lineColor: '#713e8d', icon: Train, time: 102, to: 'Loughborough Station' }
     ]
   },
   lastMile: [
@@ -295,6 +299,20 @@ const getStationBuffer = () => {
   return 10;
 };
 
+const getLegEmission = (leg) => {
+  let factor = 0;
+  if (leg.icon === Train) factor = 0.06;
+  else if (leg.icon === Bus) factor = 0.10;
+  else if (leg.icon === Car) factor = 0.27; // Taxi/Drive
+
+  // Check specific IDs or segments for finer grain if needed, but icon is a good proxy for this demo
+  // Or iterate segments
+  let legDist = leg.distance || 0;
+
+  // Simplification: Use leg total distance * primary mode factor
+  return legDist * factor;
+};
+
 const calculateTotalStats = (leg1, leg3) => {
   const buffer = getStationBuffer(leg1.id);
   const cost = leg1.cost + SEGMENT_OPTIONS.mainLeg.cost + leg3.cost;
@@ -306,20 +324,6 @@ const calculateTotalStats = (leg1, leg3) => {
   // Emissions Calculation
   const carEmission = DIRECT_DRIVE.distance * 0.27; // kg CO2
 
-  const getLegEmission = (leg) => {
-    let factor = 0;
-    if (leg.icon === Train) factor = 0.06;
-    else if (leg.icon === Bus) factor = 0.10;
-    else if (leg.icon === Car) factor = 0.27; // Taxi/Drive
-
-    // Check specific IDs or segments for finer grain if needed, but icon is a good proxy for this demo
-    // Or iterate segments
-    let legDist = leg.distance || 0;
-
-    // Simplification: Use leg total distance * primary mode factor
-    return legDist * factor;
-  };
-
   const totalEmission = getLegEmission(leg1) + getLegEmission(SEGMENT_OPTIONS.mainLeg) + getLegEmission(leg3);
   const savings = carEmission - totalEmission;
   const savingsPercent = Math.round((savings / carEmission) * 100);
@@ -327,7 +331,7 @@ const calculateTotalStats = (leg1, leg3) => {
   const emissions = {
       val: savings,
       percent: savingsPercent,
-      text: savings > 0 ? `Saves ${savingsPercent}% CO₂` : null
+      text: savings > 0 ? `Saves ${savingsPercent}% CO₂ vs driving` : null
   };
 
   return { cost, time, buffer, risk, emissions };
@@ -463,74 +467,90 @@ SchematicMap.propTypes = {
   }).isRequired,
 };
 
-// 3. MINI SCHEMATIC (For List View)
-const MiniSchematic = ({ leg1, leg3 }) => {
-  const segments = getFlattenedSegments(leg1, leg3);
-  const totalWidth = 260; // 280 - 20
-  const startX = 20;
-  const y = 40;
+// 3. TIMELINE SCHEMATIC (Replaces MiniSchematic)
+const TimelineSchematic = ({ leg1, leg3, startTime }) => {
+  const mainLeg = SEGMENT_OPTIONS.mainLeg;
+  const legs = [leg1, mainLeg, leg3];
+  const totalDuration = legs.reduce((acc, leg) => acc + leg.time, 0);
 
-  const totalTime = segments.reduce((acc, s) => acc + s.time, 0);
-  let currentX = startX;
+  // Time Calculation for Text Description
+  let currentTime = new Date(startTime);
+
+  const routeTextParts = legs.map((leg) => {
+    const startStr = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    const durationStr = formatDuration(leg.time);
+
+    // Advance time
+    currentTime = new Date(currentTime.getTime() + leg.time * 60000);
+    // Note: We are ignoring the buffer for the simplified text flow as per screenshot
+
+    // Simplify Label
+    let label = leg.label;
+    if (leg.id.includes('bus')) label = 'Bus';
+    if (leg.id.includes('train')) label = 'Train';
+    if (leg.id.includes('uber')) label = 'Uber';
+
+    return `${startStr} ${label} (${durationStr})`;
+  });
 
   return (
-    <div className="w-full h-12 relative">
-      <svg className="w-full h-full" viewBox="0 10 300 60" preserveAspectRatio="xMidYMid meet">
-        {/* Base Track */}
-        <line x1="20" y1={y} x2="280" y2={y} className="stroke-slate-200" strokeWidth="3" />
+    <div className="w-full flex flex-col gap-2">
+      {/* Visual Timeline */}
+      <div className="flex w-full h-10 rounded-full overflow-hidden shadow-sm">
+        {legs.map((leg, index) => {
+          const width = (leg.time / totalDuration) * 100;
+          const isMain = leg.id === 'train_main';
 
-        {/* Active Route Segments */}
-        {segments.map((seg, i) => {
-           const segWidth = (seg.time / totalTime) * totalWidth;
-           const x1 = currentX;
-           const x2 = x1 + segWidth;
-           const midX = x1 + segWidth / 2;
-           currentX = x2;
+          return (
+            <div
+              key={index}
+              style={{ width: `${width}%`, backgroundColor: isMain ? leg.lineColor : undefined }}
+              className={`
+                flex items-center justify-center gap-1 relative border-r border-white/20 last:border-r-0
+                ${!isMain ? leg.bgColor : ''}
+                ${!isMain ? leg.color : 'text-white'}
+              `}
+            >
+               <leg.icon size={16} />
+               <span className="text-[10px] font-bold truncate">{isMain ? 'CrossCountry' : leg.label.split(' ')[0]}</span>
+            </div>
+          );
+        })}
+      </div>
 
-           return (
-             <g key={i}>
-               <line x1={x1} y1={y} x2={x2} y2={y} stroke={seg.lineColor} strokeWidth="3" strokeLinecap="round" />
-               {/* Text Label */}
-               <text
-                 x={midX}
-                 y={i % 2 === 0 ? y + 20 : y - 10}
-                 textAnchor="middle"
-                 className="text-[10px] font-medium fill-slate-500"
-               >
-                 {seg.label}
-               </text>
-             </g>
-           );
-         })}
-
-        {/* Nodes */}
-        <circle cx={startX} cy={y} r="3" className="fill-white stroke-slate-500 stroke-2" />
-
-        {(() => {
-           let nodeX = startX;
-           return segments.map((seg, i) => {
-             const segWidth = (seg.time / totalTime) * totalWidth;
-             nodeX += segWidth;
-             const isLast = i === segments.length - 1;
-             return (
-                 <circle key={i} cx={nodeX} cy={y} r={isLast ? 3 : 4} className={isLast ? "fill-slate-800 stroke-white stroke-2" : "fill-white stroke-2"} stroke={isLast ? "white" : seg.lineColor} />
-             );
-           });
-         })()}
-      </svg>
+      {/* Route Text Description */}
+      <div className="flex items-center justify-center text-[11px] font-medium text-slate-900 bg-white/50 py-1 rounded-lg">
+        {routeTextParts.map((part, i) => (
+          <span key={i} className="flex items-center">
+            {part}
+            {i < routeTextParts.length - 1 && <ChevronRight size={12} className="mx-1 text-slate-400" />}
+          </span>
+        ))}
+      </div>
     </div>
   );
 };
 
-MiniSchematic.propTypes = {
+TimelineSchematic.propTypes = {
   leg1: PropTypes.shape({
+    id: PropTypes.string,
     label: PropTypes.string.isRequired,
-    lineColor: PropTypes.string.isRequired,
+    time: PropTypes.number.isRequired,
+    bgColor: PropTypes.string,
+    color: PropTypes.string,
+    lineColor: PropTypes.string,
+    icon: PropTypes.elementType.isRequired,
   }).isRequired,
   leg3: PropTypes.shape({
+    id: PropTypes.string,
     label: PropTypes.string.isRequired,
-    lineColor: PropTypes.string.isRequired,
+    time: PropTypes.number.isRequired,
+    bgColor: PropTypes.string,
+    color: PropTypes.string,
+    lineColor: PropTypes.string,
+    icon: PropTypes.elementType.isRequired,
   }).isRequired,
+  startTime: PropTypes.instanceOf(Date).isRequired,
 };
 
 // 2. REALISTIC MAP (For Detail View)
@@ -793,9 +813,9 @@ export default function JourneyPlanner() {
                      </div>
                   </div>
 
-                  {/* Mini Schematic */}
+                  {/* Timeline Schematic */}
                   <div className="bg-slate-50 rounded-xl p-2 mb-3">
-                    <MiniSchematic leg1={result.leg1} leg3={result.leg3} />
+                    <TimelineSchematic leg1={result.leg1} leg3={result.leg3} startTime={departureDate} />
                   </div>
 
                   {/* Badges: Risk & Emissions */}
@@ -914,8 +934,8 @@ export default function JourneyPlanner() {
             {/* <div className="absolute left-[27px] top-4 bottom-4 w-0.5 bg-slate-200 rounded-full"></div> */}
 
             {/* 1. START TIME */}
-            <div className="flex gap-4 min-h-[40px]">
-              <div className="w-16 text-right text-xs text-slate-500 font-mono py-1">{formatTime(leaveHomeTime)}</div>
+            <div className="flex gap-3 min-h-[40px]">
+              <div className="w-[4.5rem] text-right text-xs text-slate-500 font-mono py-1">{formatTime(leaveHomeTime)}</div>
               <div className="flex flex-col items-center z-10 w-4 relative">
                 <div className="w-3 h-3 rounded-full bg-white border-2 border-slate-500 z-20"></div>
                 <div className="absolute top-[6px] bottom-0 w-0.5" style={{backgroundColor: journeyConfig.leg1.lineColor}}></div>
@@ -942,35 +962,57 @@ export default function JourneyPlanner() {
                       return (
                         <div key={segIndex}>
                            {/* SEGMENT ROW */}
-                           <div className="flex gap-4 group-hover:bg-slate-50 rounded-lg transition-all duration-200 -ml-2 p-2" onClick={leg.onSwap}>
+                           <div className="flex gap-3 group-hover:bg-slate-50 rounded-lg transition-all duration-200 -ml-2 p-2" onClick={leg.onSwap}>
                               {/* Time Column */}
-                              <div className="w-16 text-right pt-1">
-                                <div className="text-sm font-semibold text-slate-700">{formatDuration(segment.time)}</div>
+                              <div className="w-[4.5rem] text-right pt-1 shrink-0">
+                                <div className="text-base font-bold text-slate-800">{formatDuration(segment.time)}</div>
                               </div>
 
                               {/* Line Column */}
-                              <div className="flex flex-col items-center z-10 w-4 relative">
+                              <div className="flex flex-col items-center z-10 w-4 relative shrink-0">
                                  <div className="absolute -top-2 -bottom-2 w-0.5" style={{backgroundColor: segment.lineColor}}></div>
-                                 {/* <div className="w-3 h-3 rounded-full bg-white border-2 z-20 absolute top-1/2 -translate-y-1/2" style={{borderColor: segment.lineColor}}></div> */}
                               </div>
 
                               {/* Content Column */}
-                              <div className="flex-1 pb-4">
-                                  <div className="flex justify-between items-center mb-1">
-                                     <div className="flex items-center gap-2">
-                                       <ModeIcon icon={segment.icon} className="p-1" />
-                                       <span className="font-bold text-slate-800">{segment.label}</span>
+                              <div className="flex-1 pb-4 min-w-0">
+                                  <div className="flex justify-between items-start mb-1 gap-2 flex-wrap">
+                                     <div className="flex items-center gap-2 min-w-0">
+                                       <ModeIcon icon={segment.icon} className="p-1 shrink-0" />
+                                       <span className="text-lg font-bold text-slate-900">{segment.label}</span>
                                      </div>
-                                     {segIndex === 0 && <span className="font-bold text-slate-900">£{leg.data.cost.toFixed(2)}</span>}
+                                     {segIndex === 0 && <span className="text-lg font-bold text-slate-900 shrink-0">£{leg.data.cost.toFixed(2)}</span>}
                                   </div>
-                                  <div className="flex justify-between items-center mt-1">
-                                    <span className="text-xs text-slate-500">{segment.to ? `To ${segment.to}` : segment.detail}</span>
-                                    {leg.onSwap && segIndex === 0 && <span className="text-xs font-medium text-slate-500 hover:text-blue-600 transition-colors">Edit</span>}
+
+                                  <div className="flex flex-col gap-1 mt-1">
+                                    <span className="text-sm font-medium text-slate-600">{segment.to ? `To ${segment.to}` : segment.detail}</span>
+
+                                    {/* Extra Info (Wait time, Platform, etc.) */}
+                                    {(leg.data.waitTime && segment.mode === 'taxi') && (
+                                       <span className="text-sm font-medium text-amber-600">Est wait: {leg.data.waitTime} min</span>
+                                    )}
+                                    {(leg.data.nextBusIn && segment.mode === 'bus') && (
+                                       <span className="text-sm font-medium text-emerald-600">Next bus in {leg.data.nextBusIn} min</span>
+                                    )}
+                                    {(leg.data.platform && segment.mode === 'train') && (
+                                       <span className="text-sm font-medium text-indigo-600">Est Platform: {leg.data.platform}</span>
+                                    )}
+
+                                    {/* Carbon Emission */}
+                                    {(() => {
+                                        const segmentDist = (segment.time / (leg.data.time || 1)) * (leg.data.distance || 0);
+                                        const emission = getLegEmission({ ...segment, distance: segmentDist });
+                                        if (emission > 0) {
+                                            return <span className="text-sm text-slate-500">Carbon: {emission.toFixed(2)} kg CO₂</span>;
+                                        }
+                                        return null;
+                                    })()}
+
+                                    {leg.onSwap && segIndex === 0 && <span className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer mt-1">Edit Route</span>}
                                   </div>
 
                                   {/* BOOK NOW BUTTON */}
                                   {segment.mode === 'train' && (
-                                    <div className="mt-3">
+                                    <div className="mt-4">
                                       <button
                                         onClick={(e) => { e.stopPropagation(); alert('Booking flow...'); }}
                                         className="w-full bg-brand hover:bg-brand-dark text-white font-bold py-2 px-4 rounded-lg shadow-sm transition-colors text-sm"
@@ -984,8 +1026,8 @@ export default function JourneyPlanner() {
 
                            {/* NODE ROW (End of Segment) */}
                            {(!isLastLeg || !isLastSegmentInLeg) && (
-                              <div className="flex gap-4 min-h-[30px]">
-                                <div className="w-16 text-right text-xs text-slate-500 font-mono">{formatTime(currentDateTime)}</div>
+                              <div className="flex gap-3 min-h-[30px]">
+                                <div className="w-[4.5rem] text-right text-xs text-slate-500 font-mono">{formatTime(currentDateTime)}</div>
                                 <div className="flex flex-col items-center z-10 w-4 relative">
                                   {/* Line continues from top */}
                                   <div className="absolute top-0 h-[50%] w-0.5" style={{backgroundColor: segment.lineColor}}></div>
@@ -1015,8 +1057,8 @@ export default function JourneyPlanner() {
             })}
 
             {/* 6. ARRIVAL */}
-            <div className="flex gap-4 min-h-[40px]">
-              <div className="w-16 text-right text-xs text-slate-500 font-mono py-1">{formatTime(currentDateTime)}</div>
+            <div className="flex gap-3 min-h-[40px]">
+              <div className="w-[4.5rem] text-right text-xs text-slate-500 font-mono py-1">{formatTime(currentDateTime)}</div>
               <div className="flex flex-col items-center z-10 w-4 relative">
                 <div className="absolute top-0 h-[6px] w-0.5" style={{backgroundColor: journeyConfig.leg3.lineColor}}></div>
                 <div className="w-3 h-3 rounded-full bg-slate-800 z-20"></div>
