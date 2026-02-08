@@ -67,11 +67,11 @@ const SEGMENT_OPTIONS = {
       icon: Footprints,
       color: 'text-slate-600',
       bgColor: 'bg-slate-100',
-      lineColor: '#475569',
+      lineColor: '#1d4ed8',
       desc: 'Walking transfer.',
       segments: [
         { mode: 'walk', label: 'Walk', lineColor: '#475569', icon: Footprints, time: 18, to: 'Headingley Stn' },
-        { mode: 'train', label: 'Northern', lineColor: '#475569', icon: Train, time: 10, to: 'Leeds Stn' }
+        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', icon: Train, time: 10, to: 'Leeds Stn' }
       ]
     },
     {
@@ -83,11 +83,11 @@ const SEGMENT_OPTIONS = {
       icon: Car,
       color: 'text-slate-600',
       bgColor: 'bg-slate-100',
-      lineColor: '#475569',
+      lineColor: '#1d4ed8',
       desc: 'Fast transfer.',
       segments: [
         { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 5, to: 'Headingley Stn' },
-        { mode: 'train', label: 'Northern', lineColor: '#475569', icon: Train, time: 10, to: 'Leeds Stn' }
+        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', icon: Train, time: 10, to: 'Leeds Stn' }
       ]
     },
     {
@@ -270,9 +270,8 @@ const formatTimeRange = (startDate, durationMinutes) => {
   return `${startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 };
 
-const getStationBuffer = (modeId) => {
-  if (['uber', 'bus', 'drive_park'].includes(modeId)) return 10;
-  return 0;
+const getStationBuffer = () => {
+  return 10;
 };
 
 const calculateTotalStats = (leg1, leg3) => {
@@ -439,11 +438,15 @@ const MiniSchematic = ({ leg1, leg3 }) => {
            return (
              <g key={i}>
                <line x1={x1} y1={y} x2={x2} y2={y} stroke={seg.lineColor} strokeWidth="3" strokeLinecap="round" />
-               {/* Icon Overlay */}
-               <circle cx={midX} cy={y} r={10} fill="white" stroke={seg.lineColor} strokeWidth="1" />
-               <g transform={`translate(${midX - 7}, ${y - 7})`}>
-                  <seg.icon size={14} color={seg.lineColor} />
-               </g>
+               {/* Text Label */}
+               <text
+                 x={midX}
+                 y={i % 2 === 0 ? y + 20 : y - 10}
+                 textAnchor="middle"
+                 className="text-[10px] font-medium fill-slate-500"
+               >
+                 {seg.label}
+               </text>
              </g>
            );
          })}
@@ -841,6 +844,12 @@ export default function JourneyPlanner() {
             </div>
 
             {journeyLegs.map((leg, legIndex) => {
+              // Apply buffer before the main leg (Leeds station)
+              if (legIndex === 1) {
+                const buffer = getStationBuffer(journeyConfig.leg1.id);
+                currentDateTime = new Date(currentDateTime.getTime() + buffer * 60000);
+              }
+
               const segments = leg.data.segments || [];
               return (
                 <div key={legIndex} className={leg.onSwap ? "group cursor-pointer" : ""}>
@@ -848,9 +857,7 @@ export default function JourneyPlanner() {
                       const isLastSegmentInLeg = segIndex === segments.length - 1;
                       const isLastLeg = legIndex === journeyLegs.length - 1;
 
-                      const segmentStartTime = new Date(currentDateTime);
                       currentDateTime = new Date(currentDateTime.getTime() + segment.time * 60000);
-                      const segmentEndTime = currentDateTime;
 
                       return (
                         <div key={segIndex}>
@@ -859,9 +866,6 @@ export default function JourneyPlanner() {
                               {/* Time Column */}
                               <div className="w-16 text-right pt-1">
                                 <div className="text-sm font-semibold text-slate-700">{formatDuration(segment.time)}</div>
-                                <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-                                  {formatTime(segmentStartTime)} - {formatTime(segmentEndTime)}
-                                </div>
                               </div>
 
                               {/* Line Column */}
