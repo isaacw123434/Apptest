@@ -470,25 +470,32 @@ SchematicMap.propTypes = {
 // 3. TIMELINE SCHEMATIC (Replaces MiniSchematic)
 const TimelineSchematic = ({ leg1, leg3, startTime }) => {
   const mainLeg = SEGMENT_OPTIONS.mainLeg;
-  const legs = [leg1, mainLeg, leg3];
-  const totalDuration = legs.reduce((acc, leg) => acc + leg.time, 0);
+
+  // Flatten segments and inherit properties
+  const allSegments = [
+    ...(leg1.segments || []).map(s => ({ ...s, bgColor: leg1.bgColor, color: leg1.color })),
+    ...(mainLeg.segments || []).map(s => ({ ...s, bgColor: mainLeg.bgColor, color: mainLeg.color, isMain: true })),
+    ...(leg3.segments || []).map(s => ({ ...s, bgColor: leg3.bgColor, color: leg3.color }))
+  ];
+
+  const totalDuration = allSegments.reduce((acc, seg) => acc + seg.time, 0);
 
   // Time Calculation for Text Description
   let currentTime = new Date(startTime);
 
-  const routeTextParts = legs.map((leg) => {
+  const routeTextParts = allSegments.map((seg) => {
     const startStr = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-    const durationStr = formatDuration(leg.time);
+    const durationStr = formatDuration(seg.time);
 
     // Advance time
-    currentTime = new Date(currentTime.getTime() + leg.time * 60000);
-    // Note: We are ignoring the buffer for the simplified text flow as per screenshot
+    currentTime = new Date(currentTime.getTime() + seg.time * 60000);
 
     // Simplify Label
-    let label = leg.label;
-    if (leg.id.includes('bus')) label = 'Bus';
-    if (leg.id.includes('train')) label = 'Train';
-    if (leg.id.includes('uber')) label = 'Uber';
+    let label = seg.label;
+    if (seg.mode === 'bus') label = 'Bus';
+    if (seg.mode === 'train') label = 'Train';
+    if (seg.mode === 'taxi') label = 'Uber';
+    if (seg.mode === 'walk') label = 'Walk';
 
     return `${startStr} ${label} (${durationStr})`;
   });
@@ -496,32 +503,41 @@ const TimelineSchematic = ({ leg1, leg3, startTime }) => {
   return (
     <div className="w-full flex flex-col gap-2">
       {/* Visual Timeline */}
-      <div className="flex w-full h-10 rounded-full overflow-hidden shadow-sm">
-        {legs.map((leg, index) => {
-          const width = (leg.time / totalDuration) * 100;
-          const isMain = leg.id === 'train_main';
+      <div className="flex w-full h-10 overflow-x-auto">
+        {allSegments.map((seg, index) => {
+          const width = (seg.time / totalDuration) * 100;
+          const isMain = seg.isMain;
+          const isFirst = index === 0;
+          const isLast = index === allSegments.length - 1;
 
           return (
             <div
               key={index}
-              style={{ width: `${width}%`, backgroundColor: isMain ? leg.lineColor : undefined }}
+              style={{
+                width: `${width}%`,
+                minWidth: '45px',
+                zIndex: allSegments.length - index,
+                backgroundColor: isMain ? seg.lineColor : undefined
+              }}
               className={`
-                flex items-center justify-center gap-1 relative border-r border-white/20 last:border-r-0
-                ${!isMain ? leg.bgColor : ''}
-                ${!isMain ? leg.color : 'text-white'}
+                flex items-center justify-center gap-1 relative h-full shrink-0
+                rounded-r-xl ${isFirst ? 'rounded-l-xl' : '-ml-3'}
+                ${!isLast ? 'border-r-2 border-white' : ''}
+                ${!isMain ? seg.bgColor : ''}
+                ${isMain ? 'text-white' : seg.color}
               `}
             >
-               <leg.icon size={16} />
-               <span className="text-[10px] font-bold truncate">{isMain ? 'CrossCountry' : leg.label.split(' ')[0]}</span>
+               <seg.icon size={16} />
+               <span className="text-[10px] font-bold truncate max-w-[60px]">{isMain ? 'CrossCountry' : seg.label.split(' ')[0]}</span>
             </div>
           );
         })}
       </div>
 
       {/* Route Text Description */}
-      <div className="flex items-center justify-center text-[11px] font-medium text-slate-900 bg-white/50 py-1 rounded-lg">
+      <div className="flex items-center justify-center text-[11px] font-medium text-slate-900 bg-white/50 py-1 rounded-lg flex-wrap gap-y-1">
         {routeTextParts.map((part, i) => (
-          <span key={i} className="flex items-center">
+          <span key={i} className="flex items-center whitespace-nowrap">
             {part}
             {i < routeTextParts.length - 1 && <ChevronRight size={12} className="mx-1 text-slate-400" />}
           </span>
@@ -540,6 +556,14 @@ TimelineSchematic.propTypes = {
     color: PropTypes.string,
     lineColor: PropTypes.string,
     icon: PropTypes.elementType.isRequired,
+    segments: PropTypes.arrayOf(PropTypes.shape({
+      mode: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+      time: PropTypes.number.isRequired,
+      lineColor: PropTypes.string.isRequired,
+      icon: PropTypes.elementType.isRequired,
+      to: PropTypes.string,
+    })),
   }).isRequired,
   leg3: PropTypes.shape({
     id: PropTypes.string,
@@ -549,6 +573,14 @@ TimelineSchematic.propTypes = {
     color: PropTypes.string,
     lineColor: PropTypes.string,
     icon: PropTypes.elementType.isRequired,
+    segments: PropTypes.arrayOf(PropTypes.shape({
+      mode: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+      time: PropTypes.number.isRequired,
+      lineColor: PropTypes.string.isRequired,
+      icon: PropTypes.elementType.isRequired,
+      to: PropTypes.string,
+    })),
   }).isRequired,
   startTime: PropTypes.instanceOf(Date).isRequired,
 };
@@ -653,7 +685,7 @@ export default function JourneyPlanner() {
   });
 
   const [showSwap, setShowSwap] = useState(null); // 'first' or 'last'
-  const [sheetHeight, setSheetHeight] = useState(60);
+  const [sheetHeight, setSheetHeight] = useState(65);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragStart = () => {
@@ -814,7 +846,7 @@ export default function JourneyPlanner() {
                   </div>
 
                   {/* Timeline Schematic */}
-                  <div className="bg-slate-50 rounded-xl p-2 mb-3">
+                  <div className="mb-3">
                     <TimelineSchematic leg1={result.leg1} leg3={result.leg3} startTime={departureDate} />
                   </div>
 
