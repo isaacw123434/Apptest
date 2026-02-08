@@ -571,10 +571,6 @@ export default function JourneyPlanner() {
   const totalCost = journeyConfig.leg1.cost + SEGMENT_OPTIONS.mainLeg.cost + journeyConfig.leg3.cost;
   const totalTime = journeyConfig.leg1.time + buffer + SEGMENT_OPTIONS.mainLeg.time + journeyConfig.leg3.time;
 
-  const arrivalDate = new Date();
-  arrivalDate.setHours(8, 52, 0, 0);
-  const destArrivalTime = new Date(arrivalDate.getTime() + (journeyConfig.leg3.time + 5) * 60000);
-
   const departureDate = new Date();
   departureDate.setHours(7, 10, 0, 0);
   const leaveHomeTime = new Date(departureDate.getTime() - (journeyConfig.leg1.time + buffer) * 60000);
