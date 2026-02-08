@@ -5,7 +5,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import {
   Train, Car, Bus, Bike, Clock,
   ChevronRight, ChevronLeft,
-  X, Zap, ShieldCheck, Leaf, ArrowRight
+  X, Zap, ShieldCheck, Leaf, ArrowRight, Footprints
 } from 'lucide-react';
 
 // --- DATA CONSTANTS ---
@@ -41,13 +41,37 @@ const SEGMENT_OPTIONS = {
       id: 'drive_park',
       label: 'Drive & Park',
       detail: 'Drive to Station',
-      time: 12,
-      cost: 5.50,
+      time: 15,
+      cost: 24.89,
       icon: Car,
       color: 'text-zinc-800',
       bgColor: 'bg-zinc-100',
       lineColor: '#3f3f46',
       desc: 'Flexibility.'
+    },
+    {
+      id: 'train_walk_headingley',
+      label: 'Headingley (Walk)',
+      detail: '18m Walk + 10m Train',
+      time: 28,
+      cost: 3.40,
+      icon: Footprints,
+      color: 'text-slate-600',
+      bgColor: 'bg-slate-100',
+      lineColor: '#475569',
+      desc: 'Walking transfer.'
+    },
+    {
+      id: 'train_uber_headingley',
+      label: 'Headingley (Uber)',
+      detail: '5m Uber + 10m Train',
+      time: 15,
+      cost: 9.32,
+      icon: Car,
+      color: 'text-slate-600',
+      bgColor: 'bg-slate-100',
+      lineColor: '#475569',
+      desc: 'Fast transfer.'
     },
     {
       id: 'cycle',
@@ -101,10 +125,10 @@ const SEGMENT_OPTIONS = {
     },
     {
       id: 'cycle',
-      label: 'Hire Bike',
-      detail: 'Station Dock',
+      label: 'Personal Bike',
+      detail: 'Cycle to Dest',
       time: 24,
-      cost: 3.50,
+      cost: 0.00,
       icon: Bike,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
@@ -116,7 +140,7 @@ const SEGMENT_OPTIONS = {
 
 const DIRECT_DRIVE = {
   time: 110,
-  cost: 62.15,
+  cost: 39.15,
   distance: 87
 };
 
@@ -348,13 +372,13 @@ export default function JourneyPlanner() {
         });
       } else if (activeTab === 'cheapest') {
         setJourneyConfig({
-          leg1: SEGMENT_OPTIONS.firstMile.find(o => o.id === 'cycle'),
-          leg3: SEGMENT_OPTIONS.lastMile.find(o => o.id === 'cycle')
+          leg1: SEGMENT_OPTIONS.firstMile.find(o => o.id === 'bus'),
+          leg3: SEGMENT_OPTIONS.lastMile.find(o => o.id === 'bus')
         });
       } else {
         setJourneyConfig({
           leg1: SEGMENT_OPTIONS.firstMile.find(o => o.id === 'bus'),
-          leg3: SEGMENT_OPTIONS.lastMile.find(o => o.id === 'bus')
+          leg3: SEGMENT_OPTIONS.lastMile.find(o => o.id === 'uber')
         });
       }
     }
