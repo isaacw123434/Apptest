@@ -22,7 +22,10 @@ const SEGMENT_OPTIONS = {
       color: 'text-black',
       bgColor: 'bg-zinc-100',
       lineColor: '#000000',
-      desc: 'Fastest door-to-door.'
+      desc: 'Fastest door-to-door.',
+      segments: [
+        { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 14, to: 'Leeds Stn' }
+      ]
     },
     {
       id: 'bus',
@@ -35,7 +38,10 @@ const SEGMENT_OPTIONS = {
       bgColor: 'bg-emerald-100',
       lineColor: '#10b981',
       recommended: true,
-      desc: 'Best balance.'
+      desc: 'Best balance.',
+      segments: [
+        { mode: 'bus', label: 'Bus', lineColor: '#10b981', icon: Bus, time: 23, to: 'Leeds Stn' }
+      ]
     },
     {
       id: 'drive_park',
@@ -47,7 +53,10 @@ const SEGMENT_OPTIONS = {
       color: 'text-zinc-800',
       bgColor: 'bg-zinc-100',
       lineColor: '#3f3f46',
-      desc: 'Flexibility.'
+      desc: 'Flexibility.',
+      segments: [
+        { mode: 'car', label: 'Drive', lineColor: '#3f3f46', icon: Car, time: 15, to: 'Leeds Stn' }
+      ]
     },
     {
       id: 'train_walk_headingley',
@@ -59,7 +68,11 @@ const SEGMENT_OPTIONS = {
       color: 'text-slate-600',
       bgColor: 'bg-slate-100',
       lineColor: '#475569',
-      desc: 'Walking transfer.'
+      desc: 'Walking transfer.',
+      segments: [
+        { mode: 'walk', label: 'Walk', lineColor: '#475569', icon: Footprints, time: 18, to: 'Headingley Stn' },
+        { mode: 'train', label: 'Train', lineColor: '#475569', icon: Train, time: 10, to: 'Leeds Stn' }
+      ]
     },
     {
       id: 'train_uber_headingley',
@@ -71,7 +84,11 @@ const SEGMENT_OPTIONS = {
       color: 'text-slate-600',
       bgColor: 'bg-slate-100',
       lineColor: '#475569',
-      desc: 'Fast transfer.'
+      desc: 'Fast transfer.',
+      segments: [
+        { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 5, to: 'Headingley Stn' },
+        { mode: 'train', label: 'Train', lineColor: '#475569', icon: Train, time: 10, to: 'Leeds Stn' }
+      ]
     },
     {
       id: 'cycle',
@@ -83,7 +100,10 @@ const SEGMENT_OPTIONS = {
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
       lineColor: '#3b82f6',
-      desc: 'Zero emissions.'
+      desc: 'Zero emissions.',
+      segments: [
+        { mode: 'bike', label: 'Bike', lineColor: '#3b82f6', icon: Bike, time: 17, to: 'Leeds Stn' }
+      ]
     }
   ],
   mainLeg: {
@@ -95,7 +115,10 @@ const SEGMENT_OPTIONS = {
     icon: Train,
     color: 'text-[#713e8d]',
     bgColor: 'bg-indigo-100',
-    lineColor: '#713e8d'
+    lineColor: '#713e8d',
+    segments: [
+      { mode: 'train', label: 'CrossCountry', lineColor: '#713e8d', icon: Train, time: 102, to: 'Loughborough Stn' }
+    ]
   },
   lastMile: [
     {
@@ -108,7 +131,10 @@ const SEGMENT_OPTIONS = {
       color: 'text-black',
       bgColor: 'bg-zinc-100',
       lineColor: '#000000',
-      desc: 'Reliable final leg.'
+      desc: 'Reliable final leg.',
+      segments: [
+        { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 10, to: 'East Leake' }
+      ]
     },
     {
       id: 'bus',
@@ -121,7 +147,10 @@ const SEGMENT_OPTIONS = {
       bgColor: 'bg-emerald-100',
       lineColor: '#10b981',
       recommended: true,
-      desc: 'Short walk required.'
+      desc: 'Short walk required.',
+      segments: [
+        { mode: 'bus', label: 'Bus', lineColor: '#10b981', icon: Bus, time: 14, to: 'East Leake' }
+      ]
     },
     {
       id: 'cycle',
@@ -133,7 +162,10 @@ const SEGMENT_OPTIONS = {
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
       lineColor: '#3b82f6',
-      desc: 'Scenic route.'
+      desc: 'Scenic route.',
+      segments: [
+        { mode: 'bike', label: 'Bike', lineColor: '#3b82f6', icon: Bike, time: 24, to: 'East Leake' }
+      ]
     }
   ]
 };
@@ -254,8 +286,24 @@ const getAllCombinations = () => {
   return combos;
 };
 
-const getTop3Results = (tab) => {
-  const combos = getAllCombinations();
+const getTop3Results = (tab, selectedModes) => {
+  let combos = getAllCombinations();
+
+  // Filter based on selected modes
+  combos = combos.filter(combo => {
+    const allSegments = [
+      ...(combo.leg1.segments || []),
+      ...(SEGMENT_OPTIONS.mainLeg.segments || []),
+      ...(combo.leg3.segments || [])
+    ];
+    // Check if every segment in the journey is allowed by selectedModes
+    return allSegments.every(seg => {
+      if (seg.mode === 'walk') return true; // Always allow walking
+      if (seg.mode === 'taxi') return selectedModes.taxi;
+      return selectedModes[seg.mode];
+    });
+  });
+
   if (tab === 'fastest') {
     return combos.sort((a, b) => a.time - b.time).slice(0, 3);
   } else if (tab === 'cheapest') {
@@ -272,37 +320,57 @@ const getTop3Results = (tab) => {
 
 // --- MAP COMPONENTS ---
 
+const getFlattenedSegments = (leg1, leg3) => {
+  return [
+    ...(leg1.segments || []),
+    ...(SEGMENT_OPTIONS.mainLeg.segments || []),
+    ...(leg3.segments || [])
+  ];
+};
+
 // 1. SCHEMATIC (For Summary View)
 const SchematicMap = ({ leg1, leg3 }) => {
+  const segments = getFlattenedSegments(leg1, leg3);
+  const totalWidth = 300; // 350 - 50
+  const startX = 50;
+  const segmentWidth = totalWidth / segments.length;
+  const y = 60;
+
   return (
     <div className="relative h-full w-full bg-slate-50 overflow-hidden">
       <div className="absolute inset-0 opacity-30" style={{backgroundImage: 'radial-gradient(#94a3b8 1px, transparent 1px)', backgroundSize: '16px 16px'}} />
       <svg className="w-full h-full" viewBox="0 0 400 120" preserveAspectRatio="xMidYMid meet">
         {/* Base Track */}
-        <line x1="50" y1="60" x2="350" y2="60" className="stroke-slate-200" strokeWidth="4" />
+        <line x1="50" y1={y} x2="350" y2={y} className="stroke-slate-200" strokeWidth="4" />
 
         {/* Active Route Segments */}
-        <line x1="50" y1="60" x2="150" y2="60" stroke={leg1.lineColor} strokeWidth="4" strokeLinecap="round" className="transition-colors duration-500" />
-        <line x1="150" y1="60" x2="250" y2="60" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} strokeWidth="4" />
-        <line x1="250" y1="60" x2="350" y2="60" stroke={leg3.lineColor} strokeWidth="4" strokeLinecap="round" className="transition-colors duration-500" />
-
-        {/* Labels under/above lines */}
-        <text x="100" y="75" textAnchor="middle" className="text-[10px] fill-slate-500 font-medium">{leg1.label}</text>
-        <text x="200" y="25" textAnchor="middle" className="text-[10px] fill-slate-500 font-medium">{SEGMENT_OPTIONS.mainLeg.label}</text>
-        <text x="300" y="75" textAnchor="middle" className="text-[10px] fill-slate-500 font-medium">{leg3.label}</text>
+        {segments.map((seg, i) => {
+           const x1 = startX + i * segmentWidth;
+           const x2 = x1 + segmentWidth;
+           return (
+             <g key={i}>
+               <line x1={x1} y1={y} x2={x2} y2={y} stroke={seg.lineColor} strokeWidth="4" strokeLinecap="round" className="transition-colors duration-500" />
+               <text x={x1 + segmentWidth/2} y={i % 2 === 0 ? y + 25 : y - 15} textAnchor="middle" className="text-[10px] fill-slate-500 font-medium">{seg.label}</text>
+             </g>
+           );
+         })}
 
         {/* Nodes */}
-        <circle cx="50" cy="60" r="4" className="fill-white stroke-slate-500 stroke-2" />
-        <text x="50" y="95" textAnchor="middle" className="text-[10px] fill-slate-500 font-bold uppercase tracking-wider">Start</text>
+        <circle cx={startX} cy={y} r="4" className="fill-white stroke-slate-500 stroke-2" />
+        <text x={startX} y={y + 35} textAnchor="middle" className="text-[10px] fill-slate-500 font-bold uppercase tracking-wider">Start</text>
 
-        <circle cx="150" cy="60" r="6" className="fill-white stroke-2" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} />
-        <text x="150" y="45" textAnchor="middle" className="text-[10px] font-bold uppercase tracking-wider" fill={SEGMENT_OPTIONS.mainLeg.lineColor}>Leeds</text>
-
-        <circle cx="250" cy="60" r="6" className="fill-white stroke-2" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} />
-        <text x="250" y="45" textAnchor="middle" className="text-[10px] font-bold uppercase tracking-wider" fill={SEGMENT_OPTIONS.mainLeg.lineColor}>Lough</text>
-
-        <circle cx="350" cy="60" r="4" className="fill-slate-800 stroke-white stroke-2" />
-        <text x="350" y="95" textAnchor="middle" className="text-[10px] fill-slate-800 font-bold uppercase tracking-wider">End</text>
+        {segments.map((seg, i) => {
+           const cx = startX + (i + 1) * segmentWidth;
+           const isLast = i === segments.length - 1;
+           return (
+             <g key={i}>
+               <circle cx={cx} cy={y} r={isLast ? 4 : 6} className={isLast ? "fill-slate-800 stroke-white stroke-2" : "fill-white stroke-2"} stroke={isLast ? "white" : seg.lineColor} />
+               <text x={cx} y={isLast ? y + 35 : y - 15} textAnchor="middle" className="text-[10px] font-bold uppercase tracking-wider" fill={isLast ? "black" : seg.lineColor}>
+                 {isLast ? "End" : (seg.to ? seg.to.replace(' Stn', '') : "Node")}
+               </text>
+             </g>
+           );
+         })}
       </svg>
     </div>
   );
@@ -323,27 +391,40 @@ SchematicMap.propTypes = {
 
 // 3. MINI SCHEMATIC (For List View)
 const MiniSchematic = ({ leg1, leg3 }) => {
+  const segments = getFlattenedSegments(leg1, leg3);
+  const totalWidth = 260; // 280 - 20
+  const startX = 20;
+  const segmentWidth = totalWidth / segments.length;
+  const y = 40;
+
   return (
     <div className="w-full h-12 relative">
       <svg className="w-full h-full" viewBox="0 0 300 80" preserveAspectRatio="xMidYMid meet">
         {/* Base Track */}
-        <line x1="20" y1="40" x2="280" y2="40" className="stroke-slate-200" strokeWidth="3" />
+        <line x1="20" y1={y} x2="280" y2={y} className="stroke-slate-200" strokeWidth="3" />
 
         {/* Active Route Segments */}
-        <line x1="20" y1="40" x2="100" y2="40" stroke={leg1.lineColor} strokeWidth="3" strokeLinecap="round" />
-        <line x1="100" y1="40" x2="200" y2="40" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} strokeWidth="3" />
-        <line x1="200" y1="40" x2="280" y2="40" stroke={leg3.lineColor} strokeWidth="3" strokeLinecap="round" />
-
-        {/* Labels */}
-        <text x="60" y="65" textAnchor="middle" fill={leg1.lineColor} className="text-[12px] font-bold">{leg1.label}</text>
-        <text x="150" y="25" textAnchor="middle" fill={SEGMENT_OPTIONS.mainLeg.lineColor} className="text-[12px] font-bold">{SEGMENT_OPTIONS.mainLeg.label}</text>
-        <text x="240" y="65" textAnchor="middle" fill={leg3.lineColor} className="text-[12px] font-bold">{leg3.label}</text>
+        {segments.map((seg, i) => {
+           const x1 = startX + i * segmentWidth;
+           const x2 = x1 + segmentWidth;
+           return (
+             <g key={i}>
+               <line x1={x1} y1={y} x2={x2} y2={y} stroke={seg.lineColor} strokeWidth="3" strokeLinecap="round" />
+               <text x={x1 + segmentWidth/2} y={i % 2 === 0 ? y + 25 : y - 15} textAnchor="middle" fill={seg.lineColor} className="text-[12px] font-bold">{seg.label}</text>
+             </g>
+           );
+         })}
 
         {/* Nodes */}
-        <circle cx="20" cy="40" r="3" className="fill-white stroke-slate-500 stroke-2" />
-        <circle cx="100" cy="40" r="4" className="fill-white stroke-2" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} />
-        <circle cx="200" cy="40" r="4" className="fill-white stroke-2" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} />
-        <circle cx="280" cy="40" r="3" className="fill-slate-800 stroke-white stroke-2" />
+        <circle cx={startX} cy={y} r="3" className="fill-white stroke-slate-500 stroke-2" />
+
+        {segments.map((seg, i) => {
+           const cx = startX + (i + 1) * segmentWidth;
+           const isLast = i === segments.length - 1;
+           return (
+               <circle key={i} cx={cx} cy={y} r={isLast ? 3 : 4} className={isLast ? "fill-slate-800 stroke-white stroke-2" : "fill-white stroke-2"} stroke={isLast ? "white" : seg.lineColor} />
+           );
+         })}
       </svg>
     </div>
   );
@@ -450,7 +531,7 @@ export default function JourneyPlanner() {
 
   const [isModeDropdownOpen, setIsModeDropdownOpen] = useState(false);
   const [selectedModes, setSelectedModes] = useState({
-    train: true, bus: true, car: true, bike: false
+    train: true, bus: true, car: true, bike: false, taxi: true
   });
 
   // Journey State
@@ -500,10 +581,16 @@ export default function JourneyPlanner() {
 
   const formatTime = (date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+  const journeyLegs = [
+    { type: 'first', data: journeyConfig.leg1, onSwap: () => setShowSwap('first') },
+    { type: 'main', data: SEGMENT_OPTIONS.mainLeg, onSwap: null },
+    { type: 'last', data: journeyConfig.leg3, onSwap: () => setShowSwap('last') }
+  ];
+  let currentDateTime = new Date(leaveHomeTime);
 
   // --- VIEW 1: SUMMARY PAGE ---
   if (view === 'summary') {
-    const topResults = getTop3Results(activeTab);
+    const topResults = getTop3Results(activeTab, selectedModes);
 
     return (
       <div className="flex flex-col h-screen bg-slate-50 font-sans text-slate-900">
@@ -534,11 +621,12 @@ export default function JourneyPlanner() {
 
              {/* Dropdown Content */}
              {isModeDropdownOpen && (
-                <div className="grid grid-cols-4 gap-2 animate-in slide-in-from-top-2 duration-200">
+                <div className="grid grid-cols-5 gap-2 animate-in slide-in-from-top-2 duration-200">
                     {[
                         { id: 'train', icon: Train, label: 'Train' },
                         { id: 'bus', icon: Bus, label: 'Bus' },
                         { id: 'car', icon: Car, label: 'Car' },
+                        { id: 'taxi', icon: Car, label: 'Taxi' },
                         { id: 'bike', icon: Bike, label: 'Bike' },
                     ].map(mode => (
                         <button
@@ -727,97 +815,81 @@ export default function JourneyPlanner() {
               <div className="pb-6"><div className="text-sm font-semibold text-slate-700">Start Journey</div></div>
             </div>
 
-            {/* 2. LEG 1 (SWAPPABLE) */}
-            <div className="flex gap-4 group">
-              <div className="w-16 text-right text-xs text-slate-400 font-mono pt-4">{journeyConfig.leg1.time} min</div>
-              <div className="flex flex-col items-center z-10 w-4 relative">
-                 <div className="absolute top-0 h-[6px] w-0.5" style={{backgroundColor: journeyConfig.leg1.lineColor}}></div>
-                 <div className="w-3 h-3 rounded-full bg-white border-2 z-20" style={{borderColor: journeyConfig.leg1.lineColor}}></div>
-                 <div className="absolute top-[6px] bottom-0 w-0.5" style={{backgroundColor: journeyConfig.leg1.lineColor}}></div>
-              </div>
-              <div className="pb-8 flex-1">
-                <button
-                  onClick={() => setShowSwap('first')}
-                  className="w-full text-left relative py-1 px-1 group-hover:bg-slate-50 rounded-lg transition-all duration-200"
-                >
-                  <div className="flex justify-between items-center mb-1">
-                     <div className="flex items-center gap-2">
-                       <journeyConfig.leg1.icon size={18} className={journeyConfig.leg1.color} />
-                       <span className="font-bold text-slate-800">{journeyConfig.leg1.label}</span>
-                     </div>
-                     <span className="font-bold text-slate-900">£{journeyConfig.leg1.cost.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-xs text-slate-500">{journeyConfig.leg1.detail}</span>
-                    <Pencil size={14} className="text-slate-400" />
-                  </div>
-                </button>
-              </div>
-            </div>
+            {journeyLegs.map((leg, legIndex) => {
+              const segments = leg.data.segments || [];
+              return (
+                <div key={legIndex} className={leg.onSwap ? "group cursor-pointer" : ""}>
+                   {segments.map((segment, segIndex) => {
+                      const isLastSegmentInLeg = segIndex === segments.length - 1;
+                      const isLastLeg = legIndex === journeyLegs.length - 1;
 
-            {/* 3. TRANSFER */}
-            <div className="flex gap-4 min-h-[30px]">
-              <div className="w-16 text-right text-xs text-slate-500 font-mono">07:05</div>
-              <div className="flex flex-col items-center z-10 w-4 relative">
-                <div className="absolute top-0 h-[4px] w-0.5" style={{backgroundColor: journeyConfig.leg1.lineColor}}></div>
-                <div className="w-2 h-2 rounded-full border-2 bg-white z-20" style={{borderColor: SEGMENT_OPTIONS.mainLeg.lineColor}}></div>
-                <div className="absolute top-[4px] bottom-0 w-0.5" style={{backgroundColor: SEGMENT_OPTIONS.mainLeg.lineColor}}></div>
-              </div>
-              <div className="pb-4 pt-0"><div className="text-xs font-medium text-slate-400 uppercase">Transfer @ Leeds</div></div>
-            </div>
+                      // Calculate segment end time
+                      currentDateTime = new Date(currentDateTime.getTime() + segment.time * 60000);
 
-            {/* 4. MAIN LEG (FIXED) */}
-            <div className="flex gap-4">
-              <div className="w-16 text-right text-xs text-slate-400 font-mono pt-4">1h 42m</div>
-              <div className="flex flex-col items-center z-10 w-4 relative">
-                 <div className="absolute top-0 h-[8px] w-0.5" style={{backgroundColor: SEGMENT_OPTIONS.mainLeg.lineColor}}></div>
-                 <div className="w-4 h-4 rounded-full border-4 bg-white z-20" style={{borderColor: SEGMENT_OPTIONS.mainLeg.lineColor}}></div>
-                 <div className="absolute top-[8px] bottom-0 w-0.5" style={{backgroundColor: SEGMENT_OPTIONS.mainLeg.lineColor}}></div>
-              </div>
-              <div className="pb-8 flex-1">
-                <div className="w-full py-1 px-1 flex items-center gap-3">
-                  <Train size={18} className="text-indigo-600" />
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <span className="font-semibold text-slate-800">Train (CrossCountry)</span>
-                      <span className="font-bold text-slate-900">£25.70</span>
-                    </div>
-                  </div>
+                      return (
+                        <div key={segIndex}>
+                           {/* SEGMENT ROW */}
+                           <div className="flex gap-4 group-hover:bg-slate-50 rounded-lg transition-all duration-200 -ml-2 p-2" onClick={leg.onSwap}>
+                              {/* Time Column */}
+                              <div className="w-16 text-right text-xs text-slate-400 font-mono pt-1">{segment.time} min</div>
+
+                              {/* Line Column */}
+                              <div className="flex flex-col items-center z-10 w-4 relative">
+                                 <div className="absolute top-0 h-full w-0.5" style={{backgroundColor: segment.lineColor}}></div>
+                                 <div className="w-3 h-3 rounded-full bg-white border-2 z-20 absolute top-1/2 -translate-y-1/2" style={{borderColor: segment.lineColor}}></div>
+                              </div>
+
+                              {/* Content Column */}
+                              <div className="flex-1 pb-4">
+                                  <div className="flex justify-between items-center mb-1">
+                                     <div className="flex items-center gap-2">
+                                       <ModeIcon icon={segment.icon} className="p-1" />
+                                       <span className="font-bold text-slate-800">{segment.label}</span>
+                                     </div>
+                                     {segIndex === 0 && <span className="font-bold text-slate-900">£{leg.data.cost.toFixed(2)}</span>}
+                                  </div>
+                                  <div className="flex justify-between items-center mt-1">
+                                    <span className="text-xs text-slate-500">{segment.to ? `To ${segment.to}` : segment.detail}</span>
+                                    {leg.onSwap && segIndex === 0 && <Pencil size={14} className="text-slate-400" />}
+                                  </div>
+                              </div>
+                           </div>
+
+                           {/* NODE ROW (End of Segment) */}
+                           {(!isLastLeg || !isLastSegmentInLeg) && (
+                              <div className="flex gap-4 min-h-[30px]">
+                                <div className="w-16 text-right text-xs text-slate-500 font-mono">{formatTime(currentDateTime)}</div>
+                                <div className="flex flex-col items-center z-10 w-4 relative">
+                                  {/* Line continues from top */}
+                                  <div className="absolute top-0 h-[50%] w-0.5" style={{backgroundColor: segment.lineColor}}></div>
+                                  {/* Node */}
+                                  <div className="w-2 h-2 rounded-full border-2 bg-white z-20" style={{borderColor: segment.lineColor}}></div>
+                                  {/* Line continues to bottom */}
+                                  <div className="absolute top-[50%] bottom-0 w-0.5"
+                                     style={{backgroundColor:
+                                       isLastSegmentInLeg
+                                         ? (journeyLegs[legIndex+1]?.data.segments[0].lineColor || segment.lineColor)
+                                         : segments[segIndex+1].lineColor
+                                     }}>
+                                  </div>
+                                </div>
+                                <div className="pb-4 pt-0">
+                                   <div className="text-xs font-medium text-slate-400 uppercase">
+                                     {segment.to ? segment.to.replace(' Stn', '') : 'Transfer'}
+                                   </div>
+                                </div>
+                              </div>
+                           )}
+                        </div>
+                      );
+                   })}
                 </div>
-              </div>
-            </div>
-
-            {/* 5. LEG 3 (SWAPPABLE) */}
-            <div className="flex gap-4 group">
-              <div className="w-16 text-right text-xs text-slate-400 font-mono pt-4">{journeyConfig.leg3.time} min</div>
-              <div className="flex flex-col items-center z-10 w-4 relative">
-                <div className="absolute top-0 h-[6px] w-0.5" style={{backgroundColor: SEGMENT_OPTIONS.mainLeg.lineColor}}></div>
-                <div className="w-3 h-3 rounded-full border-2 bg-white z-20" style={{borderColor: journeyConfig.leg3.lineColor}}></div>
-                <div className="absolute top-[6px] bottom-0 w-0.5" style={{backgroundColor: journeyConfig.leg3.lineColor}}></div>
-              </div>
-              <div className="pb-8 flex-1">
-                <button
-                  onClick={() => setShowSwap('last')}
-                  className="w-full text-left relative py-1 px-1 group-hover:bg-slate-50 rounded-lg transition-all duration-200"
-                >
-                  <div className="flex justify-between items-center mb-1">
-                     <div className="flex items-center gap-2">
-                       <journeyConfig.leg3.icon size={18} className={journeyConfig.leg3.color} />
-                       <span className="font-bold text-slate-800">{journeyConfig.leg3.label}</span>
-                     </div>
-                     <span className="font-bold text-slate-900">£{journeyConfig.leg3.cost.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-xs text-slate-500">{journeyConfig.leg3.detail}</span>
-                    <Pencil size={14} className="text-slate-400" />
-                  </div>
-                </button>
-              </div>
-            </div>
+              );
+            })}
 
             {/* 6. ARRIVAL */}
             <div className="flex gap-4 min-h-[40px]">
-              <div className="w-16 text-right text-xs text-slate-500 font-mono py-1">{formatTime(destArrivalTime)}</div>
+              <div className="w-16 text-right text-xs text-slate-500 font-mono py-1">{formatTime(currentDateTime)}</div>
               <div className="flex flex-col items-center z-10 w-4 relative">
                 <div className="absolute top-0 h-[6px] w-0.5" style={{backgroundColor: journeyConfig.leg3.lineColor}}></div>
                 <div className="w-3 h-3 rounded-full bg-slate-800 z-20"></div>
