@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { MapContainer, TileLayer } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
   Train, Car, Bus, Bike, Clock,
   ChevronRight, ChevronLeft,
-  X, Zap, ShieldCheck, Leaf, ArrowRight, Footprints
+  X, Zap, ShieldCheck, Leaf, ArrowRight, Footprints, Pencil
 } from 'lucide-react';
 
 // --- DATA CONSTANTS ---
@@ -143,6 +143,11 @@ const DIRECT_DRIVE = {
   cost: 39.15,
   distance: 87
 };
+
+const MOCK_PATH = [
+  [53.8008, -1.5491], // Leeds
+  [52.7698, -1.2062]  // East Leake
+];
 
 // --- SUB-COMPONENTS ---
 
@@ -339,7 +344,7 @@ export default function JourneyPlanner() {
   });
 
   const [showSwap, setShowSwap] = useState(null); // 'first' or 'last'
-  const [sheetHeight, setSheetHeight] = useState(60);
+  const [sheetHeight, setSheetHeight] = useState(80);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragStart = () => {
@@ -406,6 +411,62 @@ export default function JourneyPlanner() {
 
   const formatTime = (date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+  // --- COMPARATIVE INSIGHTS LOGIC ---
+  const calculateStats = (l1, l3) => {
+    const b = getStationBuffer(l1.id);
+    const c = l1.cost + SEGMENT_OPTIONS.mainLeg.cost + l3.cost;
+    const t = l1.time + b + SEGMENT_OPTIONS.mainLeg.time + l3.time;
+    return { cost: c, time: t };
+  };
+
+  const fastestStats = calculateStats(
+    SEGMENT_OPTIONS.firstMile.find(o => o.id === 'uber'),
+    SEGMENT_OPTIONS.lastMile.find(o => o.id === 'uber')
+  );
+  const cheapestStats = calculateStats(
+    SEGMENT_OPTIONS.firstMile.find(o => o.id === 'bus'),
+    SEGMENT_OPTIONS.lastMile.find(o => o.id === 'bus')
+  );
+  const smartStats = calculateStats(
+    SEGMENT_OPTIONS.firstMile.find(o => o.id === 'bus'),
+    SEGMENT_OPTIONS.lastMile.find(o => o.id === 'uber')
+  );
+
+  let insightText = null;
+  if (activeTab === 'smart') {
+    const save = fastestStats.cost - smartStats.cost;
+    const slow = smartStats.time - fastestStats.time;
+    insightText = (
+      <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl mb-4 text-sm flex items-center gap-2 text-emerald-800">
+        <ShieldCheck size={16} className="text-emerald-600" />
+        <span>
+          <strong>Saves £{save.toFixed(2)}</strong> vs Fastest • Only <strong>+{slow} min</strong> slower
+        </span>
+      </div>
+    );
+  } else if (activeTab === 'fastest') {
+    const faster = smartStats.time - fastestStats.time;
+    insightText = (
+       <div className="bg-indigo-50 border border-indigo-100 p-3 rounded-xl mb-4 text-sm flex items-center gap-2 text-indigo-800">
+         <Zap size={16} className="text-indigo-600" />
+         <span>
+           <strong>{faster} min faster</strong> than Smart Choice
+         </span>
+       </div>
+    );
+  } else if (activeTab === 'cheapest') {
+     const save = smartStats.cost - cheapestStats.cost;
+     const slower = cheapestStats.time - smartStats.time;
+     insightText = (
+        <div className="bg-blue-50 border border-blue-100 p-3 rounded-xl mb-4 text-sm flex items-center gap-2 text-blue-800">
+          <Leaf size={16} className="text-blue-600" />
+          <span>
+            <strong>Saves £{save.toFixed(2)}</strong> vs Smart • <strong>+{slower} min</strong> slower
+          </span>
+        </div>
+     );
+  }
+
 
   // --- VIEW 1: SUMMARY PAGE ---
   if (view === 'summary') {
@@ -454,7 +515,9 @@ export default function JourneyPlanner() {
                  <div>
                    <h2 className="text-4xl font-bold text-slate-900">£{totalCost.toFixed(2)}</h2>
                    <div className="flex items-center gap-2 text-slate-500 text-sm mt-2 font-medium">
-                     <Clock size={16} /> {Math.floor(totalTime/60)}h {totalTime%60}m Total
+                     <Clock size={16} />
+                     <span className="text-slate-900">{formatTime(leaveHomeTime)} ➔ {formatTime(destArrivalTime)}</span>
+                     <span className="text-slate-400 font-normal">({Math.floor(totalTime/60)}h {totalTime%60}m)</span>
                    </div>
                  </div>
                  <div className="bg-slate-100 p-2 rounded-full text-slate-400">
@@ -462,34 +525,45 @@ export default function JourneyPlanner() {
                  </div>
               </div>
 
+              {insightText}
+
               {/* Simple Route Chain Display */}
-              <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center justify-between gap-1 mb-2 overflow-x-auto">
                  {/* Leg 1 */}
-                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100 flex-1">
-                    <journeyConfig.leg1.icon size={20} className="text-slate-700" />
-                    <div className="flex flex-col">
-                       <span className="text-sm font-semibold text-slate-900 leading-tight">{journeyConfig.leg1.label}</span>
-                       <span className="text-[10px] text-slate-500 font-medium">{journeyConfig.leg1.time} min • £{journeyConfig.leg1.cost.toFixed(2)}</span>
+                 <div className="flex items-center gap-2 bg-slate-50 px-2 py-2 rounded-lg border border-slate-100 min-w-0 flex-1">
+                    <journeyConfig.leg1.icon size={18} className="text-slate-700 shrink-0" />
+                    <div className="flex flex-col overflow-hidden">
+                       <span className="text-xs font-bold text-slate-900 truncate leading-tight">{journeyConfig.leg1.label}</span>
+                       <span className="text-[10px] text-slate-500 font-medium truncate">{journeyConfig.leg1.time} min</span>
                     </div>
                  </div>
-                 <ArrowRight size={16} className="text-slate-300 flex-shrink-0" />
+
+                 {buffer > 0 ? (
+                   <div className="flex flex-col items-center px-1">
+                     <div className="h-[1px] w-4 bg-slate-300 mb-0.5"></div>
+                     <span className="text-[9px] text-slate-400 font-bold whitespace-nowrap">{buffer}m wait</span>
+                   </div>
+                 ) : (
+                   <ArrowRight size={14} className="text-slate-300 flex-shrink-0" />
+                 )}
 
                  {/* Leg 2 */}
-                 <div className="flex items-center gap-2 bg-indigo-50 px-3 py-2 rounded-lg border border-indigo-100 flex-1">
-                    <Train size={20} className="text-[#713e8d]" />
-                    <div className="flex flex-col">
-                       <span className="text-sm font-bold text-[#713e8d] leading-tight">{SEGMENT_OPTIONS.mainLeg.label}</span>
-                       <span className="text-[10px] text-slate-500 font-medium">{SEGMENT_OPTIONS.mainLeg.time} min • £{SEGMENT_OPTIONS.mainLeg.cost.toFixed(2)}</span>
+                 <div className="flex items-center gap-2 bg-indigo-50 px-2 py-2 rounded-lg border border-indigo-100 min-w-0 flex-1">
+                    <Train size={18} className="text-[#713e8d] shrink-0" />
+                    <div className="flex flex-col overflow-hidden">
+                       <span className="text-xs font-bold text-[#713e8d] truncate leading-tight">{SEGMENT_OPTIONS.mainLeg.label}</span>
+                       <span className="text-[10px] text-slate-500 font-medium truncate">{SEGMENT_OPTIONS.mainLeg.time} min</span>
                     </div>
                  </div>
-                 <ArrowRight size={16} className="text-slate-300 flex-shrink-0" />
+
+                 <ArrowRight size={14} className="text-slate-300 flex-shrink-0" />
 
                  {/* Leg 3 */}
-                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100 flex-1">
-                    <journeyConfig.leg3.icon size={20} className="text-slate-700" />
-                    <div className="flex flex-col">
-                       <span className="text-sm font-semibold text-slate-900 leading-tight">{journeyConfig.leg3.label}</span>
-                       <span className="text-[10px] text-slate-500 font-medium">{journeyConfig.leg3.time} min • £{journeyConfig.leg3.cost.toFixed(2)}</span>
+                 <div className="flex items-center gap-2 bg-slate-50 px-2 py-2 rounded-lg border border-slate-100 min-w-0 flex-1">
+                    <journeyConfig.leg3.icon size={18} className="text-slate-700 shrink-0" />
+                    <div className="flex flex-col overflow-hidden">
+                       <span className="text-xs font-bold text-slate-900 truncate leading-tight">{journeyConfig.leg3.label}</span>
+                       <span className="text-[10px] text-slate-500 font-medium truncate">{journeyConfig.leg3.time} min</span>
                     </div>
                  </div>
               </div>
@@ -512,7 +586,7 @@ export default function JourneyPlanner() {
     <div className="h-screen bg-slate-900 font-sans text-slate-900 flex flex-col overflow-hidden relative">
 
       {/* 1. MAP BACKGROUND */}
-      <div className="absolute top-0 left-0 right-0 bottom-0 z-0 h-[60%]">
+      <div className="absolute inset-0 z-0">
         <MapContainer
           center={[52.8, -1.3]}
           zoom={9}
@@ -523,10 +597,11 @@ export default function JourneyPlanner() {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+          <Polyline positions={MOCK_PATH} color="#3b82f6" weight={4} opacity={0.6} />
         </MapContainer>
 
         {/* Navigation Control */}
-        <div className="absolute top-6 left-6 z-20">
+        <div className="absolute top-6 left-6 z-50">
           <button
             onClick={() => setView('summary')}
             className="bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-lg hover:bg-white transition-colors flex items-center gap-2 text-sm font-bold text-slate-700"
@@ -559,6 +634,27 @@ export default function JourneyPlanner() {
           <div className="w-12 h-1.5 bg-slate-200 rounded-full"></div>
         </div>
 
+        {/* Overlay Tabs */}
+        <div className="flex border-b border-slate-100">
+          {[
+            { id: 'fastest', label: 'Fastest', icon: Zap },
+            { id: 'smart', label: 'Smart Choice', icon: ShieldCheck },
+            { id: 'cheapest', label: 'Cheapest', icon: Leaf },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 py-3 text-xs font-medium flex flex-col items-center justify-center gap-1 transition-colors border-b-2
+                ${activeTab === tab.id
+                  ? 'border-blue-600 text-blue-600 bg-blue-50/50'
+                  : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+            >
+              <tab.icon size={16} />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
         {/* Sheet Header */}
         <div className="px-6 py-4 border-b border-slate-50 shrink-0 flex justify-between items-end">
            <div>
@@ -578,7 +674,7 @@ export default function JourneyPlanner() {
         <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar pb-24">
           <div className="relative pl-4 space-y-0">
             {/* Timeline Vertical Bar */}
-            <div className="absolute left-[27px] top-4 bottom-4 w-1 bg-slate-100 rounded-full"></div>
+            <div className="absolute left-[27px] top-4 bottom-4 w-0.5 bg-slate-200 rounded-full"></div>
 
             {/* 1. START TIME */}
             <div className="flex gap-4 min-h-[40px]">
@@ -598,8 +694,7 @@ export default function JourneyPlanner() {
               <div className="pb-8 flex-1">
                 <button
                   onClick={() => setShowSwap('first')}
-                  className={`w-full text-left relative p-3 rounded-2xl border transition-all duration-300 shadow-sm
-                    ${journeyConfig.leg1.bgColor} border-transparent hover:border-blue-300 hover:shadow-md active:scale-95`}
+                  className="w-full text-left relative py-1 px-1 group-hover:bg-slate-50 rounded-lg transition-all duration-200"
                 >
                   <div className="flex justify-between items-center mb-1">
                      <div className="flex items-center gap-2">
@@ -610,7 +705,7 @@ export default function JourneyPlanner() {
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <span className="text-xs text-slate-500">{journeyConfig.leg1.detail}</span>
-                    <span className="text-[10px] font-bold text-blue-600 bg-white/60 px-2 py-0.5 rounded backdrop-blur-sm">CHANGE</span>
+                    <Pencil size={14} className="text-slate-400" />
                   </div>
                 </button>
               </div>
@@ -632,7 +727,7 @@ export default function JourneyPlanner() {
                  <div className="w-4 h-4 rounded-full border-4 border-indigo-600 bg-white"></div>
               </div>
               <div className="pb-8 flex-1">
-                <div className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 flex items-center gap-3 opacity-80">
+                <div className="w-full py-1 px-1 flex items-center gap-3">
                   <Train size={18} className="text-indigo-600" />
                   <div className="flex-1">
                     <div className="flex justify-between">
@@ -653,8 +748,7 @@ export default function JourneyPlanner() {
               <div className="pb-8 flex-1">
                 <button
                   onClick={() => setShowSwap('last')}
-                  className={`w-full text-left relative p-3 rounded-2xl border transition-all duration-300 shadow-sm
-                    ${journeyConfig.leg3.bgColor} border-transparent hover:border-blue-300 hover:shadow-md active:scale-95`}
+                  className="w-full text-left relative py-1 px-1 group-hover:bg-slate-50 rounded-lg transition-all duration-200"
                 >
                   <div className="flex justify-between items-center mb-1">
                      <div className="flex items-center gap-2">
@@ -665,7 +759,7 @@ export default function JourneyPlanner() {
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <span className="text-xs text-slate-500">{journeyConfig.leg3.detail}</span>
-                    <span className="text-[10px] font-bold text-blue-600 bg-white/60 px-2 py-0.5 rounded backdrop-blur-sm">CHANGE</span>
+                    <Pencil size={14} className="text-slate-400" />
                   </div>
                 </button>
               </div>
