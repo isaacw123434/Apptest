@@ -271,7 +271,7 @@ const formatTimeRange = (startDate, durationMinutes) => {
 };
 
 const getStationBuffer = () => {
-  return 10;
+  return 0;
 };
 
 const calculateTotalStats = (leg1, leg3) => {
@@ -324,6 +324,9 @@ const getTop3Results = (tab, selectedModes) => {
     return combos.sort((a, b) => {
         const scoreA = a.cost + (a.time * 0.3);
         const scoreB = b.cost + (b.time * 0.3);
+        if (Math.abs(scoreA - scoreB) < 0.001) {
+            return a.cost - b.cost;
+        }
         return scoreA - scoreB;
     }).slice(0, 3);
   }
@@ -887,6 +890,11 @@ export default function JourneyPlanner() {
                                     <span className="text-xs text-slate-500">{segment.to ? `To ${segment.to}` : segment.detail}</span>
                                     {leg.onSwap && segIndex === 0 && <span className="text-xs font-medium text-slate-500 hover:text-blue-600 transition-colors">Edit</span>}
                                   </div>
+                                  {segment.mode === 'train' && (
+                                    <button className="mt-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-1.5 rounded-lg shadow-sm transition-colors">
+                                      Book Now
+                                    </button>
+                                  )}
                               </div>
                            </div>
 
