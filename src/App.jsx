@@ -5,7 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import {
   Train, Car, Bus, Bike, Clock,
   ChevronRight, ChevronLeft,
-  X, Zap, ShieldCheck, Leaf, ArrowRight, Footprints, Pencil
+  X, Zap, ShieldCheck, Leaf, Footprints, Pencil
 } from 'lucide-react';
 
 // --- DATA CONSTANTS ---
@@ -224,6 +224,52 @@ SwapModal.propTypes = {
   currentId: PropTypes.string.isRequired,
 };
 
+// --- LOGIC HELPERS ---
+
+const getStationBuffer = (modeId) => {
+  if (['uber', 'bus', 'drive_park'].includes(modeId)) return 10;
+  return 0;
+};
+
+const calculateTotalStats = (leg1, leg3) => {
+  const buffer = getStationBuffer(leg1.id);
+  const cost = leg1.cost + SEGMENT_OPTIONS.mainLeg.cost + leg3.cost;
+  const time = leg1.time + buffer + SEGMENT_OPTIONS.mainLeg.time + leg3.time;
+  return { cost, time, buffer };
+};
+
+const getAllCombinations = () => {
+  const combos = [];
+  SEGMENT_OPTIONS.firstMile.forEach(l1 => {
+    SEGMENT_OPTIONS.lastMile.forEach(l3 => {
+      const stats = calculateTotalStats(l1, l3);
+      combos.push({
+        id: `${l1.id}-${l3.id}`,
+        leg1: l1,
+        leg3: l3,
+        ...stats
+      });
+    });
+  });
+  return combos;
+};
+
+const getTop3Results = (tab) => {
+  const combos = getAllCombinations();
+  if (tab === 'fastest') {
+    return combos.sort((a, b) => a.time - b.time).slice(0, 3);
+  } else if (tab === 'cheapest') {
+    return combos.sort((a, b) => a.cost - b.cost).slice(0, 3);
+  } else {
+    // Smart: weighted score (Cost + 0.3 * Time)
+    return combos.sort((a, b) => {
+        const scoreA = a.cost + (a.time * 0.3);
+        const scoreB = b.cost + (b.time * 0.3);
+        return scoreA - scoreB;
+    }).slice(0, 3);
+  }
+};
+
 // --- MAP COMPONENTS ---
 
 // 1. SCHEMATIC (For Summary View)
@@ -271,6 +317,38 @@ SchematicMap.propTypes = {
   leg3: PropTypes.shape({
     id: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
+    lineColor: PropTypes.string.isRequired,
+  }).isRequired,
+};
+
+// 3. MINI SCHEMATIC (For List View)
+const MiniSchematic = ({ leg1, leg3 }) => {
+  return (
+    <div className="w-full h-12 relative">
+      <svg className="w-full h-full" viewBox="0 0 300 60" preserveAspectRatio="xMidYMid meet">
+        {/* Base Track */}
+        <line x1="20" y1="30" x2="280" y2="30" className="stroke-slate-200" strokeWidth="3" />
+
+        {/* Active Route Segments */}
+        <line x1="20" y1="30" x2="100" y2="30" stroke={leg1.lineColor} strokeWidth="3" strokeLinecap="round" />
+        <line x1="100" y1="30" x2="200" y2="30" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} strokeWidth="3" />
+        <line x1="200" y1="30" x2="280" y2="30" stroke={leg3.lineColor} strokeWidth="3" strokeLinecap="round" />
+
+        {/* Nodes */}
+        <circle cx="20" cy="30" r="3" className="fill-white stroke-slate-500 stroke-2" />
+        <circle cx="100" cy="30" r="4" className="fill-white stroke-2" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} />
+        <circle cx="200" cy="30" r="4" className="fill-white stroke-2" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} />
+        <circle cx="280" cy="30" r="3" className="fill-slate-800 stroke-white stroke-2" />
+      </svg>
+    </div>
+  );
+};
+
+MiniSchematic.propTypes = {
+  leg1: PropTypes.shape({
+    lineColor: PropTypes.string.isRequired,
+  }).isRequired,
+  leg3: PropTypes.shape({
     lineColor: PropTypes.string.isRequired,
   }).isRequired,
 };
@@ -335,6 +413,32 @@ RealisticMap.propTypes = {
 
 export default function JourneyPlanner() {
   const [view, setView] = useState('summary'); // 'summary' or 'detail'
+
+  useEffect(() => {
+    const handlePopState = (event) => {
+      if (event.state && event.state.view === 'detail') {
+        setView('detail');
+      } else {
+        setView('summary');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const goToDetail = () => {
+    window.history.pushState({ view: 'detail' }, '', '#detail');
+    setView('detail');
+  };
+
+  const goToSummary = () => {
+    if (view === 'detail') {
+       window.history.back();
+    } else {
+       setView('summary');
+    }
+  };
+
   const [activeTab, setActiveTab] = useState('smart'); // fastest, cheapest, smart
 
   // Journey State
@@ -369,34 +473,7 @@ export default function JourneyPlanner() {
     else setSheetHeight(60);
   };
 
-  // Update config when Tab changes (only in summary view)
-  useEffect(() => {
-    if (view === 'summary') {
-      if (activeTab === 'fastest') {
-        setJourneyConfig({
-          leg1: SEGMENT_OPTIONS.firstMile.find(o => o.id === 'uber'),
-          leg3: SEGMENT_OPTIONS.lastMile.find(o => o.id === 'uber')
-        });
-      } else if (activeTab === 'cheapest') {
-        setJourneyConfig({
-          leg1: SEGMENT_OPTIONS.firstMile.find(o => o.id === 'bus'),
-          leg3: SEGMENT_OPTIONS.lastMile.find(o => o.id === 'bus')
-        });
-      } else {
-        setJourneyConfig({
-          leg1: SEGMENT_OPTIONS.firstMile.find(o => o.id === 'bus'),
-          leg3: SEGMENT_OPTIONS.lastMile.find(o => o.id === 'uber')
-        });
-      }
-    }
-  }, [activeTab, view]);
-
-  // Derived Calculations
-  const getStationBuffer = (modeId) => {
-    if (['uber', 'bus', 'drive_park'].includes(modeId)) return 10;
-    return 0;
-  };
-
+  // Derived Calculations for Detail View
   const buffer = getStationBuffer(journeyConfig.leg1.id);
   const totalCost = journeyConfig.leg1.cost + SEGMENT_OPTIONS.mainLeg.cost + journeyConfig.leg3.cost;
   const totalTime = journeyConfig.leg1.time + buffer + SEGMENT_OPTIONS.mainLeg.time + journeyConfig.leg3.time;
@@ -411,78 +488,33 @@ export default function JourneyPlanner() {
 
   const formatTime = (date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  // --- COMPARATIVE INSIGHTS LOGIC ---
-  const calculateStats = (l1, l3) => {
-    const b = getStationBuffer(l1.id);
-    const c = l1.cost + SEGMENT_OPTIONS.mainLeg.cost + l3.cost;
-    const t = l1.time + b + SEGMENT_OPTIONS.mainLeg.time + l3.time;
-    return { cost: c, time: t };
-  };
-
-  const fastestStats = calculateStats(
-    SEGMENT_OPTIONS.firstMile.find(o => o.id === 'uber'),
-    SEGMENT_OPTIONS.lastMile.find(o => o.id === 'uber')
-  );
-  const cheapestStats = calculateStats(
-    SEGMENT_OPTIONS.firstMile.find(o => o.id === 'bus'),
-    SEGMENT_OPTIONS.lastMile.find(o => o.id === 'bus')
-  );
-  const smartStats = calculateStats(
-    SEGMENT_OPTIONS.firstMile.find(o => o.id === 'bus'),
-    SEGMENT_OPTIONS.lastMile.find(o => o.id === 'uber')
-  );
-
-  let insightText = null;
-  if (activeTab === 'smart') {
-    const save = fastestStats.cost - smartStats.cost;
-    const slow = smartStats.time - fastestStats.time;
-    insightText = (
-      <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl mb-4 text-sm flex items-center gap-2 text-emerald-800">
-        <ShieldCheck size={16} className="text-emerald-600" />
-        <span>
-          <strong>Saves £{save.toFixed(2)}</strong> vs Fastest • Only <strong>+{slow} min</strong> slower
-        </span>
-      </div>
-    );
-  } else if (activeTab === 'fastest') {
-    const faster = smartStats.time - fastestStats.time;
-    insightText = (
-       <div className="bg-indigo-50 border border-indigo-100 p-3 rounded-xl mb-4 text-sm flex items-center gap-2 text-indigo-800">
-         <Zap size={16} className="text-indigo-600" />
-         <span>
-           <strong>{faster} min faster</strong> than Smart Choice
-         </span>
-       </div>
-    );
-  } else if (activeTab === 'cheapest') {
-     const save = smartStats.cost - cheapestStats.cost;
-     const slower = cheapestStats.time - smartStats.time;
-     insightText = (
-        <div className="bg-blue-50 border border-blue-100 p-3 rounded-xl mb-4 text-sm flex items-center gap-2 text-blue-800">
-          <Leaf size={16} className="text-blue-600" />
-          <span>
-            <strong>Saves £{save.toFixed(2)}</strong> vs Smart • <strong>+{slower} min</strong> slower
-          </span>
-        </div>
-     );
-  }
-
 
   // --- VIEW 1: SUMMARY PAGE ---
   if (view === 'summary') {
+    const topResults = getTop3Results(activeTab);
+
     return (
       <div className="flex flex-col h-screen bg-slate-50 font-sans text-slate-900">
 
-        {/* Header: Schematic Map */}
-        <div className="h-48 bg-slate-200 w-full relative">
-          <SchematicMap leg1={journeyConfig.leg1} leg3={journeyConfig.leg3} />
-          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-semibold shadow-sm text-slate-600">
-             St Chads View → East Leake
+        {/* Header: Search Box */}
+        <div className="bg-white p-4 shadow-sm z-10">
+          <div className="flex flex-col gap-3">
+             <div className="flex items-center gap-2 bg-slate-100 p-3 rounded-xl">
+               <div className="w-2 h-2 rounded-full bg-slate-400"></div>
+               <input type="text" defaultValue="St Chads, Leeds" className="bg-transparent font-medium text-slate-700 w-full outline-none" />
+             </div>
+             <div className="flex items-center gap-2 bg-slate-100 p-3 rounded-xl">
+               <div className="w-2 h-2 rounded-full bg-slate-800"></div>
+               <input type="text" defaultValue="East Leake, Loughborough" className="bg-transparent font-medium text-slate-700 w-full outline-none" />
+             </div>
+             <button className="bg-blue-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-blue-700 transition-colors">
+               Search
+             </button>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="bg-white flex border-b border-slate-100">
+        <div className="bg-white flex border-b border-slate-100 mt-2">
           {[
             { id: 'fastest', label: 'Fastest', icon: Zap },
             { id: 'smart', label: 'Smart Choice', icon: ShieldCheck },
@@ -502,80 +534,63 @@ export default function JourneyPlanner() {
           ))}
         </div>
 
-        {/* Main Content: Basic Summary Card */}
-        <div className="p-6">
-          <div
-            onClick={() => setView('detail')}
-            className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
-          >
-            <div className={`h-2 w-full ${activeTab === 'smart' ? 'bg-emerald-500' : activeTab === 'fastest' ? 'bg-indigo-600' : 'bg-blue-500'}`}></div>
+        {/* Main Content: Results List */}
+        <div className="p-4 space-y-4 overflow-y-auto pb-20 bg-slate-50 flex-1">
+           {topResults.map((result, index) => (
+             <div
+               key={index}
+               onClick={() => {
+                 setJourneyConfig({ leg1: result.leg1, leg3: result.leg3 });
+                 goToDetail();
+               }}
+               className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden cursor-pointer hover:shadow-md transition-all active:scale-[0.98]"
+             >
+                <div className="p-4">
+                  <div className="flex justify-between items-center mb-4">
+                     <div>
+                       <h3 className="text-2xl font-bold text-slate-900">£{result.cost.toFixed(2)}</h3>
+                       <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
+                         <span className="bg-slate-100 px-2 py-1 rounded-md">{Math.floor(result.time/60)}h {result.time%60}m</span>
+                         {result.buffer > 0 && <span className="text-slate-400">incl. {result.buffer}m wait</span>}
+                       </div>
+                     </div>
+                     <div className="flex flex-col items-end">
+                       <div className="flex -space-x-2 mb-1">
+                          <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center z-20">
+                            <result.leg1.icon size={14} className="text-slate-700" />
+                          </div>
+                          <div className="w-8 h-8 rounded-full bg-indigo-100 border-2 border-white flex items-center justify-center z-10">
+                            <Train size={14} className="text-indigo-700" />
+                          </div>
+                          <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center z-0">
+                            <result.leg3.icon size={14} className="text-slate-700" />
+                          </div>
+                       </div>
+                     </div>
+                  </div>
 
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-6">
-                 <div>
-                   <h2 className="text-4xl font-bold text-slate-900">£{totalCost.toFixed(2)}</h2>
-                   <div className="flex items-center gap-2 text-slate-500 text-sm mt-2 font-medium">
-                     <Clock size={16} />
-                     <span className="text-slate-900">{formatTime(leaveHomeTime)} ➔ {formatTime(destArrivalTime)}</span>
-                     <span className="text-slate-400 font-normal">({Math.floor(totalTime/60)}h {totalTime%60}m)</span>
+                  {/* Mini Schematic */}
+                  <div className="bg-slate-50 rounded-xl p-2 mb-3">
+                    <MiniSchematic leg1={result.leg1} leg3={result.leg3} />
+                  </div>
+
+                  <div className="flex justify-between items-center text-xs text-slate-400">
+                    <span>{result.leg1.label} + {SEGMENT_OPTIONS.mainLeg.label} + {result.leg3.label}</span>
+                    <ChevronRight size={16} />
+                  </div>
+                </div>
+                {index === 0 && (
+                   <div className="bg-emerald-50 text-emerald-700 text-[10px] font-bold text-center py-1 uppercase tracking-wide">
+                     Top Choice
                    </div>
-                 </div>
-                 <div className="bg-slate-100 p-2 rounded-full text-slate-400">
-                   <ChevronRight size={24} />
-                 </div>
-              </div>
-
-              {insightText}
-
-              {/* Simple Route Chain Display */}
-              <div className="flex items-center justify-between gap-1 mb-2 overflow-x-auto">
-                 {/* Leg 1 */}
-                 <div className="flex items-center gap-2 bg-slate-50 px-2 py-2 rounded-lg border border-slate-100 min-w-0 flex-1">
-                    <journeyConfig.leg1.icon size={18} className="text-slate-700 shrink-0" />
-                    <div className="flex flex-col overflow-hidden">
-                       <span className="text-xs font-bold text-slate-900 truncate leading-tight">{journeyConfig.leg1.label}</span>
-                       <span className="text-[10px] text-slate-500 font-medium truncate">{journeyConfig.leg1.time} min</span>
-                    </div>
-                 </div>
-
-                 {buffer > 0 ? (
-                   <div className="flex flex-col items-center px-1">
-                     <div className="h-[1px] w-4 bg-slate-300 mb-0.5"></div>
-                     <span className="text-[9px] text-slate-400 font-bold whitespace-nowrap">{buffer}m wait</span>
-                   </div>
-                 ) : (
-                   <ArrowRight size={14} className="text-slate-300 flex-shrink-0" />
-                 )}
-
-                 {/* Leg 2 */}
-                 <div className="flex items-center gap-2 bg-indigo-50 px-2 py-2 rounded-lg border border-indigo-100 min-w-0 flex-1">
-                    <Train size={18} className="text-[#713e8d] shrink-0" />
-                    <div className="flex flex-col overflow-hidden">
-                       <span className="text-xs font-bold text-[#713e8d] truncate leading-tight">{SEGMENT_OPTIONS.mainLeg.label}</span>
-                       <span className="text-[10px] text-slate-500 font-medium truncate">{SEGMENT_OPTIONS.mainLeg.time} min</span>
-                    </div>
-                 </div>
-
-                 <ArrowRight size={14} className="text-slate-300 flex-shrink-0" />
-
-                 {/* Leg 3 */}
-                 <div className="flex items-center gap-2 bg-slate-50 px-2 py-2 rounded-lg border border-slate-100 min-w-0 flex-1">
-                    <journeyConfig.leg3.icon size={18} className="text-slate-700 shrink-0" />
-                    <div className="flex flex-col overflow-hidden">
-                       <span className="text-xs font-bold text-slate-900 truncate leading-tight">{journeyConfig.leg3.label}</span>
-                       <span className="text-[10px] text-slate-500 font-medium truncate">{journeyConfig.leg3.time} min</span>
-                    </div>
-                 </div>
-              </div>
-              <p className="text-center text-xs text-slate-400 mt-4">Tap card to customize first/last mile</p>
-            </div>
-          </div>
-
-          <div className="mt-8 text-center px-8">
+                )}
+             </div>
+           ))}
+           <div className="mt-8 text-center px-8">
             <p className="text-xs text-slate-400">
               vs Direct Drive: <span className="line-through decoration-red-400 decoration-2 font-semibold">£{DIRECT_DRIVE.cost.toFixed(2)}</span>
             </p>
-          </div>
+           </div>
         </div>
       </div>
     );
@@ -603,7 +618,7 @@ export default function JourneyPlanner() {
         {/* Navigation Control */}
         <div className="absolute top-6 left-6 z-50">
           <button
-            onClick={() => setView('summary')}
+            onClick={goToSummary}
             className="bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-lg hover:bg-white transition-colors flex items-center gap-2 text-sm font-bold text-slate-700"
           >
             <ChevronLeft size={16} /> Back
@@ -634,26 +649,6 @@ export default function JourneyPlanner() {
           <div className="w-12 h-1.5 bg-slate-200 rounded-full"></div>
         </div>
 
-        {/* Overlay Tabs */}
-        <div className="flex border-b border-slate-100">
-          {[
-            { id: 'fastest', label: 'Fastest', icon: Zap },
-            { id: 'smart', label: 'Smart Choice', icon: ShieldCheck },
-            { id: 'cheapest', label: 'Cheapest', icon: Leaf },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 py-3 text-xs font-medium flex flex-col items-center justify-center gap-1 transition-colors border-b-2
-                ${activeTab === tab.id
-                  ? 'border-blue-600 text-blue-600 bg-blue-50/50'
-                  : 'border-transparent text-slate-400 hover:text-slate-600'}`}
-            >
-              <tab.icon size={16} />
-              {tab.label}
-            </button>
-          ))}
-        </div>
 
         {/* Sheet Header */}
         <div className="px-6 py-4 border-b border-slate-50 shrink-0 flex justify-between items-end">
