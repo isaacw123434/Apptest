@@ -316,19 +316,6 @@ const calculateTotalStats = (leg1, leg3) => {
     // Or iterate segments
     let legDist = leg.distance || 0;
 
-    // Refinement based on segments
-    let emission = 0;
-    leg.segments.forEach(seg => {
-        let segFactor = 0;
-        if (seg.mode === 'train') segFactor = 0.06;
-        else if (seg.mode === 'bus') segFactor = 0.10;
-        else if (seg.mode === 'taxi' || seg.mode === 'car') segFactor = 0.27;
-
-        // Approximate distance per segment based on time if we don't have it,
-        // but we assigned total distance to the leg.
-        // For simplicity, just use the leg distance * leg primary factor.
-    });
-
     // Simplification: Use leg total distance * primary mode factor
     return legDist * factor;
   };
