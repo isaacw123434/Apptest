@@ -71,12 +71,12 @@ const SEGMENT_OPTIONS = {
       desc: 'Walking transfer.',
       segments: [
         { mode: 'walk', label: 'Walk', lineColor: '#475569', icon: Footprints, time: 18, to: 'Headingley Stn' },
-        { mode: 'train', label: 'Train', lineColor: '#475569', icon: Train, time: 10, to: 'Leeds Stn' }
+        { mode: 'train', label: 'Northern', lineColor: '#475569', icon: Train, time: 10, to: 'Leeds Stn' }
       ]
     },
     {
       id: 'train_uber_headingley',
-      label: 'Headingley (Uber)',
+      label: 'Uber + Northern',
       detail: '5m Uber + 10m Train',
       time: 15,
       cost: 9.32,
@@ -87,7 +87,7 @@ const SEGMENT_OPTIONS = {
       desc: 'Fast transfer.',
       segments: [
         { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 5, to: 'Headingley Stn' },
-        { mode: 'train', label: 'Train', lineColor: '#475569', icon: Train, time: 10, to: 'Leeds Stn' }
+        { mode: 'train', label: 'Northern', lineColor: '#475569', icon: Train, time: 10, to: 'Leeds Stn' }
       ]
     },
     {
@@ -399,7 +399,7 @@ const MiniSchematic = ({ leg1, leg3 }) => {
 
   return (
     <div className="w-full h-12 relative">
-      <svg className="w-full h-full" viewBox="0 0 300 80" preserveAspectRatio="xMidYMid meet">
+      <svg className="w-full h-full" viewBox="0 10 300 60" preserveAspectRatio="xMidYMid meet">
         {/* Base Track */}
         <line x1="20" y1={y} x2="280" y2={y} className="stroke-slate-200" strokeWidth="3" />
 
@@ -705,7 +705,7 @@ export default function JourneyPlanner() {
                   </div>
 
                   <div className="flex justify-between items-center text-xs text-slate-400">
-                    <span>{result.leg1.label} + {SEGMENT_OPTIONS.mainLeg.label} + {result.leg3.label}</span>
+                    <span>{getFlattenedSegments(result.leg1, result.leg3).map(s => s.label).join(', ').replace(/, ([^,]*)$/, ' then $1')}</span>
                     <ChevronRight size={16} />
                   </div>
                 </div>
@@ -832,7 +832,7 @@ export default function JourneyPlanner() {
                               {/* Line Column */}
                               <div className="flex flex-col items-center z-10 w-4 relative">
                                  <div className="absolute top-0 h-full w-0.5" style={{backgroundColor: segment.lineColor}}></div>
-                                 <div className="w-3 h-3 rounded-full bg-white border-2 z-20 absolute top-1/2 -translate-y-1/2" style={{borderColor: segment.lineColor}}></div>
+                                 {/* <div className="w-3 h-3 rounded-full bg-white border-2 z-20 absolute top-1/2 -translate-y-1/2" style={{borderColor: segment.lineColor}}></div> */}
                               </div>
 
                               {/* Content Column */}
