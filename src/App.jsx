@@ -260,9 +260,13 @@ const SchematicMap = ({ leg1, leg3 }) => {
 SchematicMap.propTypes = {
   leg1: PropTypes.shape({
     id: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    lineColor: PropTypes.string.isRequired,
   }).isRequired,
   leg3: PropTypes.shape({
     id: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    lineColor: PropTypes.string.isRequired,
   }).isRequired,
 };
 
