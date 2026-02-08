@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { MapContainer, TileLayer, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
   Train, Car, Bus, Bike, Clock,
   ChevronRight, ChevronLeft, ChevronDown,
-  X, Zap, ShieldCheck, Leaf, Footprints, Pencil
+  X, Zap, ShieldCheck, Leaf, Footprints
 } from 'lucide-react';
 
 // --- DATA CONSTANTS ---
@@ -258,6 +258,18 @@ SwapModal.propTypes = {
 
 // --- LOGIC HELPERS ---
 
+const formatDuration = (minutes) => {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m} min`;
+  return `${h}hr ${m}`;
+};
+
+const formatTimeRange = (startDate, durationMinutes) => {
+  const end = new Date(startDate.getTime() + durationMinutes * 60000);
+  return `${startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+};
+
 const getStationBuffer = (modeId) => {
   if (['uber', 'bus', 'drive_park'].includes(modeId)) return 10;
   return 0;
@@ -319,6 +331,17 @@ const getTop3Results = (tab, selectedModes) => {
 };
 
 // --- MAP COMPONENTS ---
+
+const MapClickHandler = ({ onClick }) => {
+  useMapEvents({
+    click: onClick,
+  });
+  return null;
+};
+
+MapClickHandler.propTypes = {
+  onClick: PropTypes.func.isRequired,
+};
 
 const getFlattenedSegments = (leg1, leg3) => {
   return [
@@ -394,8 +417,10 @@ const MiniSchematic = ({ leg1, leg3 }) => {
   const segments = getFlattenedSegments(leg1, leg3);
   const totalWidth = 260; // 280 - 20
   const startX = 20;
-  const segmentWidth = totalWidth / segments.length;
   const y = 40;
+
+  const totalTime = segments.reduce((acc, s) => acc + s.time, 0);
+  let currentX = startX;
 
   return (
     <div className="w-full h-12 relative">
@@ -405,12 +430,20 @@ const MiniSchematic = ({ leg1, leg3 }) => {
 
         {/* Active Route Segments */}
         {segments.map((seg, i) => {
-           const x1 = startX + i * segmentWidth;
-           const x2 = x1 + segmentWidth;
+           const segWidth = (seg.time / totalTime) * totalWidth;
+           const x1 = currentX;
+           const x2 = x1 + segWidth;
+           const midX = x1 + segWidth / 2;
+           currentX = x2;
+
            return (
              <g key={i}>
                <line x1={x1} y1={y} x2={x2} y2={y} stroke={seg.lineColor} strokeWidth="3" strokeLinecap="round" />
-               <text x={x1 + segmentWidth/2} y={i % 2 === 0 ? y + 25 : y - 15} textAnchor="middle" fill={seg.lineColor} className="text-[12px] font-bold">{seg.label}</text>
+               {/* Icon Overlay */}
+               <circle cx={midX} cy={y} r={10} fill="white" stroke={seg.lineColor} strokeWidth="1" />
+               <g transform={`translate(${midX - 7}, ${y - 7})`}>
+                  <seg.icon size={14} color={seg.lineColor} />
+               </g>
              </g>
            );
          })}
@@ -418,13 +451,17 @@ const MiniSchematic = ({ leg1, leg3 }) => {
         {/* Nodes */}
         <circle cx={startX} cy={y} r="3" className="fill-white stroke-slate-500 stroke-2" />
 
-        {segments.map((seg, i) => {
-           const cx = startX + (i + 1) * segmentWidth;
-           const isLast = i === segments.length - 1;
-           return (
-               <circle key={i} cx={cx} cy={y} r={isLast ? 3 : 4} className={isLast ? "fill-slate-800 stroke-white stroke-2" : "fill-white stroke-2"} stroke={isLast ? "white" : seg.lineColor} />
-           );
-         })}
+        {(() => {
+           let nodeX = startX;
+           return segments.map((seg, i) => {
+             const segWidth = (seg.time / totalTime) * totalWidth;
+             nodeX += segWidth;
+             const isLast = i === segments.length - 1;
+             return (
+                 <circle key={i} cx={nodeX} cy={y} r={isLast ? 3 : 4} className={isLast ? "fill-slate-800 stroke-white stroke-2" : "fill-white stroke-2"} stroke={isLast ? "white" : seg.lineColor} />
+             );
+           });
+         })()}
       </svg>
     </div>
   );
@@ -541,7 +578,7 @@ export default function JourneyPlanner() {
   });
 
   const [showSwap, setShowSwap] = useState(null); // 'first' or 'last'
-  const [sheetHeight, setSheetHeight] = useState(80);
+  const [sheetHeight, setSheetHeight] = useState(60);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragStart = () => {
@@ -573,7 +610,7 @@ export default function JourneyPlanner() {
 
   const departureDate = new Date();
   departureDate.setHours(7, 10, 0, 0);
-  const leaveHomeTime = new Date(departureDate.getTime() - (journeyConfig.leg1.time + buffer) * 60000);
+  const leaveHomeTime = new Date(departureDate.getTime());
 
   const formatTime = (date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -647,7 +684,7 @@ export default function JourneyPlanner() {
         <div className="bg-white flex border-b border-slate-100 mt-2">
           {[
             { id: 'fastest', label: 'Fastest', icon: Zap },
-            { id: 'smart', label: 'Smart Choice', icon: ShieldCheck },
+            { id: 'smart', label: 'Best Value', icon: ShieldCheck },
             { id: 'cheapest', label: 'Cheapest', icon: Leaf },
           ].map(tab => (
             <button
@@ -680,22 +717,14 @@ export default function JourneyPlanner() {
                      <div>
                        <h3 className="text-2xl font-bold text-slate-900">£{result.cost.toFixed(2)}</h3>
                        <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
-                         <span className="bg-slate-100 px-2 py-1 rounded-md">{Math.floor(result.time/60)}h {result.time%60}m</span>
                          {result.buffer > 0 && <span className="text-slate-400">incl. {result.buffer}m wait</span>}
                        </div>
                      </div>
-                     <div className="flex flex-col items-end">
-                       <div className="flex -space-x-2 mb-1">
-                          <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center z-20">
-                            <result.leg1.icon size={14} className="text-slate-700" />
-                          </div>
-                          <div className="w-8 h-8 rounded-full bg-indigo-100 border-2 border-white flex items-center justify-center z-10">
-                            <Train size={14} className="text-indigo-700" />
-                          </div>
-                          <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center z-0">
-                            <result.leg3.icon size={14} className="text-slate-700" />
-                          </div>
-                       </div>
+                     <div className="flex flex-col items-end text-right">
+                        <div className="text-xl font-bold text-slate-900">{formatDuration(result.time)}</div>
+                        <div className="text-xs text-slate-500 font-medium">
+                          {formatTimeRange(departureDate, result.time)}
+                        </div>
                      </div>
                   </div>
 
@@ -705,7 +734,7 @@ export default function JourneyPlanner() {
                   </div>
 
                   <div className="flex justify-between items-center text-xs text-slate-400">
-                    <span>{getFlattenedSegments(result.leg1, result.leg3).map(s => s.label).join(', ').replace(/, ([^,]*)$/, ' then $1')}</span>
+                    <span></span>
                     <ChevronRight size={16} />
                   </div>
                 </div>
@@ -733,11 +762,11 @@ export default function JourneyPlanner() {
       {/* 1. MAP BACKGROUND */}
       <div className="absolute inset-0 z-0">
         <MapContainer
-          center={[52.8, -1.3]}
-          zoom={9}
+          bounds={MOCK_PATH}
           style={{ width: "100%", height: "100%" }}
           zoomControl={false}
         >
+          <MapClickHandler onClick={() => setSheetHeight(10)} />
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -819,19 +848,25 @@ export default function JourneyPlanner() {
                       const isLastSegmentInLeg = segIndex === segments.length - 1;
                       const isLastLeg = legIndex === journeyLegs.length - 1;
 
-                      // Calculate segment end time
+                      const segmentStartTime = new Date(currentDateTime);
                       currentDateTime = new Date(currentDateTime.getTime() + segment.time * 60000);
+                      const segmentEndTime = currentDateTime;
 
                       return (
                         <div key={segIndex}>
                            {/* SEGMENT ROW */}
                            <div className="flex gap-4 group-hover:bg-slate-50 rounded-lg transition-all duration-200 -ml-2 p-2" onClick={leg.onSwap}>
                               {/* Time Column */}
-                              <div className="w-16 text-right text-xs text-slate-400 font-mono pt-1">{segment.time} min</div>
+                              <div className="w-16 text-right pt-1">
+                                <div className="text-sm font-semibold text-slate-700">{formatDuration(segment.time)}</div>
+                                <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                                  {formatTime(segmentStartTime)} - {formatTime(segmentEndTime)}
+                                </div>
+                              </div>
 
                               {/* Line Column */}
                               <div className="flex flex-col items-center z-10 w-4 relative">
-                                 <div className="absolute top-0 h-full w-0.5" style={{backgroundColor: segment.lineColor}}></div>
+                                 <div className="absolute -top-2 -bottom-2 w-0.5" style={{backgroundColor: segment.lineColor}}></div>
                                  {/* <div className="w-3 h-3 rounded-full bg-white border-2 z-20 absolute top-1/2 -translate-y-1/2" style={{borderColor: segment.lineColor}}></div> */}
                               </div>
 
@@ -846,7 +881,7 @@ export default function JourneyPlanner() {
                                   </div>
                                   <div className="flex justify-between items-center mt-1">
                                     <span className="text-xs text-slate-500">{segment.to ? `To ${segment.to}` : segment.detail}</span>
-                                    {leg.onSwap && segIndex === 0 && <Pencil size={14} className="text-slate-400" />}
+                                    {leg.onSwap && segIndex === 0 && <span className="text-xs font-medium text-slate-500 hover:text-blue-600 transition-colors">Edit</span>}
                                   </div>
                               </div>
                            </div>
