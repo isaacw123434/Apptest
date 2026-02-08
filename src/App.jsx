@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import Map from 'react-map-gl/mapbox';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import { MapContainer, TileLayer } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import {
   Train, Car, Bus, Bike, Clock,
   ChevronRight, ChevronLeft,
@@ -502,16 +502,17 @@ export default function JourneyPlanner() {
 
       {/* 1. MAP BACKGROUND */}
       <div className="absolute top-0 left-0 right-0 bottom-0 z-0 h-[60%]">
-        <Map
-          mapboxAccessToken="pk.eyJ1Ijoiam91cm5leXBsYW5uZXIiLCJhIjoiY2x0eHkwbXFwMDBrcTJxcXF5eXF5eXF5eSJ9.placeholder"
-          initialViewState={{
-            longitude: -1.3,
-            latitude: 52.8,
-            zoom: 9
-          }}
-          style={{width: "100%", height: "100%"}}
-          mapStyle="mapbox://styles/mapbox/streets-v11"
-        />
+        <MapContainer
+          center={[52.8, -1.3]}
+          zoom={9}
+          style={{ width: "100%", height: "100%" }}
+          zoomControl={false}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+        </MapContainer>
 
         {/* Navigation Control */}
         <div className="absolute top-6 left-6 z-20">
