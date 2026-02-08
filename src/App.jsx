@@ -16,7 +16,7 @@ const SEGMENT_OPTIONS = {
     {
       id: 'uber',
       label: 'Uber',
-      detail: 'St Chads → Leeds Stn',
+      detail: 'St Chads → Leeds Station',
       time: 14,
       cost: 8.97,
       distance: 3,
@@ -27,7 +27,7 @@ const SEGMENT_OPTIONS = {
       lineColor: '#000000',
       desc: 'Fastest door-to-door.',
       segments: [
-        { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 14, to: 'Leeds Stn' }
+        { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 14, to: 'Leeds Station', waitTime: '5 min' }
       ]
     },
     {
@@ -45,7 +45,7 @@ const SEGMENT_OPTIONS = {
       recommended: true,
       desc: 'Best balance.',
       segments: [
-        { mode: 'bus', label: 'Bus', lineColor: '#0f766e', icon: Bus, time: 23, to: 'Leeds Stn' }
+        { mode: 'bus', label: 'Bus', lineColor: '#0f766e', icon: Bus, time: 23, to: 'Leeds Station', nextDeparture: 'Next in 12m' }
       ]
     },
     {
@@ -62,7 +62,7 @@ const SEGMENT_OPTIONS = {
       lineColor: '#3f3f46',
       desc: 'Flexibility.',
       segments: [
-        { mode: 'car', label: 'Drive', lineColor: '#3f3f46', icon: Car, time: 15, to: 'Leeds Stn' }
+        { mode: 'car', label: 'Drive', lineColor: '#3f3f46', icon: Car, time: 15, to: 'Leeds Station' }
       ]
     },
     {
@@ -79,8 +79,8 @@ const SEGMENT_OPTIONS = {
       lineColor: '#1d4ed8',
       desc: 'Walking transfer.',
       segments: [
-        { mode: 'walk', label: 'Walk', lineColor: '#475569', icon: Footprints, time: 18, to: 'Headingley Stn' },
-        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', icon: Train, time: 10, to: 'Leeds Stn' }
+        { mode: 'walk', label: 'Walk', lineColor: '#475569', icon: Footprints, time: 18, to: 'Headingley Station' },
+        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', icon: Train, time: 10, to: 'Leeds Station', platform: 'Plat 2' }
       ]
     },
     {
@@ -97,8 +97,8 @@ const SEGMENT_OPTIONS = {
       lineColor: '#1d4ed8',
       desc: 'Fast transfer.',
       segments: [
-        { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 5, to: 'Headingley Stn' },
-        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', icon: Train, time: 10, to: 'Leeds Stn' }
+        { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 5, to: 'Headingley Station', waitTime: '3 min' },
+        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', icon: Train, time: 10, to: 'Leeds Station', platform: 'Plat 2' }
       ]
     },
     {
@@ -115,7 +115,7 @@ const SEGMENT_OPTIONS = {
       lineColor: '#3b82f6',
       desc: 'Zero emissions.',
       segments: [
-        { mode: 'bike', label: 'Bike', lineColor: '#3b82f6', icon: Bike, time: 17, to: 'Leeds Stn' }
+        { mode: 'bike', label: 'Bike', lineColor: '#3b82f6', icon: Bike, time: 17, to: 'Leeds Station' }
       ]
     }
   ],
@@ -132,7 +132,7 @@ const SEGMENT_OPTIONS = {
     bgColor: 'bg-indigo-100',
     lineColor: '#713e8d',
     segments: [
-      { mode: 'train', label: 'CrossCountry', lineColor: '#713e8d', icon: Train, time: 102, to: 'Loughborough Stn' }
+      { mode: 'train', label: 'CrossCountry', lineColor: '#713e8d', icon: Train, time: 102, to: 'Loughborough Station', platform: 'Plat 8' }
     ]
   },
   lastMile: [
@@ -327,7 +327,8 @@ const calculateTotalStats = (leg1, leg3) => {
   const emissions = {
       val: savings,
       percent: savingsPercent,
-      text: savings > 0 ? `Saves ${savingsPercent}% CO₂` : null
+      text: savings > 0 ? `Saves ${savingsPercent}% CO₂ vs Driving` : null,
+      amount: totalEmission.toFixed(2)
   };
 
   return { cost, time, buffer, risk, emissions };
@@ -466,70 +467,74 @@ SchematicMap.propTypes = {
 // 3. MINI SCHEMATIC (For List View)
 const MiniSchematic = ({ leg1, leg3 }) => {
   const segments = getFlattenedSegments(leg1, leg3);
-  const totalWidth = 260; // 280 - 20
-  const startX = 20;
-  const y = 40;
-
   const totalTime = segments.reduce((acc, s) => acc + s.time, 0);
-  let currentX = startX;
+
+  const getTimingsString = () => {
+    const startDetails = new Date();
+    startDetails.setHours(7, 10, 0, 0);
+
+    const leg1Segments = leg1.segments || [];
+    const mainSegments = SEGMENT_OPTIONS.mainLeg.segments || [];
+    const leg3Segments = leg3.segments || [];
+
+    let currentTime = new Date(startDetails);
+    let parts = [];
+
+    // Helper to process segments
+    const processSegments = (segs) => {
+        segs.forEach(seg => {
+            const timeStr = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+            const dur = seg.time >= 60 ? `${Math.floor(seg.time/60)}hr ${seg.time%60}` : `${seg.time} min`;
+            parts.push(`${timeStr} ${seg.label} (${dur})`);
+            currentTime = new Date(currentTime.getTime() + seg.time * 60000);
+        });
+    };
+
+    processSegments(leg1Segments);
+
+    // Buffer
+    const buffer = getStationBuffer(leg1.id);
+    currentTime = new Date(currentTime.getTime() + buffer * 60000);
+
+    processSegments(mainSegments);
+    processSegments(leg3Segments);
+
+    return parts.join(' > ');
+  };
 
   return (
-    <div className="w-full h-12 relative">
-      <svg className="w-full h-full" viewBox="0 10 300 60" preserveAspectRatio="xMidYMid meet">
-        {/* Base Track */}
-        <line x1="20" y1={y} x2="280" y2={y} className="stroke-slate-200" strokeWidth="3" />
-
-        {/* Active Route Segments */}
+    <div className="w-full flex flex-col gap-2 mt-2">
+      <div className="h-4 w-full flex rounded-full overflow-hidden bg-slate-100">
         {segments.map((seg, i) => {
-           const segWidth = (seg.time / totalTime) * totalWidth;
-           const x1 = currentX;
-           const x2 = x1 + segWidth;
-           const midX = x1 + segWidth / 2;
-           currentX = x2;
-
+           const width = (seg.time / totalTime) * 100;
            return (
-             <g key={i}>
-               <line x1={x1} y1={y} x2={x2} y2={y} stroke={seg.lineColor} strokeWidth="3" strokeLinecap="round" />
-               {/* Text Label */}
-               <text
-                 x={midX}
-                 y={i % 2 === 0 ? y + 20 : y - 10}
-                 textAnchor="middle"
-                 className="text-[10px] font-medium fill-slate-500"
-               >
-                 {seg.label}
-               </text>
-             </g>
+             <div
+                key={i}
+                style={{width: `${width}%`, backgroundColor: seg.lineColor}}
+                className="h-full border-r border-white/20 last:border-0"
+                title={seg.label}
+             />
            );
          })}
-
-        {/* Nodes */}
-        <circle cx={startX} cy={y} r="3" className="fill-white stroke-slate-500 stroke-2" />
-
-        {(() => {
-           let nodeX = startX;
-           return segments.map((seg, i) => {
-             const segWidth = (seg.time / totalTime) * totalWidth;
-             nodeX += segWidth;
-             const isLast = i === segments.length - 1;
-             return (
-                 <circle key={i} cx={nodeX} cy={y} r={isLast ? 3 : 4} className={isLast ? "fill-slate-800 stroke-white stroke-2" : "fill-white stroke-2"} stroke={isLast ? "white" : seg.lineColor} />
-             );
-           });
-         })()}
-      </svg>
+      </div>
+      <div className="text-[11px] text-slate-500 font-medium leading-relaxed">
+        {getTimingsString()}
+      </div>
     </div>
   );
 };
 
 MiniSchematic.propTypes = {
   leg1: PropTypes.shape({
+    id: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
     lineColor: PropTypes.string.isRequired,
+    segments: PropTypes.arrayOf(PropTypes.object),
   }).isRequired,
   leg3: PropTypes.shape({
     label: PropTypes.string.isRequired,
     lineColor: PropTypes.string.isRequired,
+    segments: PropTypes.arrayOf(PropTypes.object),
   }).isRequired,
 };
 
@@ -659,9 +664,9 @@ export default function JourneyPlanner() {
   };
 
   // Derived Calculations for Detail View
-  const buffer = getStationBuffer(journeyConfig.leg1.id);
-  const totalCost = journeyConfig.leg1.cost + SEGMENT_OPTIONS.mainLeg.cost + journeyConfig.leg3.cost;
-  const totalTime = journeyConfig.leg1.time + buffer + SEGMENT_OPTIONS.mainLeg.time + journeyConfig.leg3.time;
+  const totalStats = calculateTotalStats(journeyConfig.leg1, journeyConfig.leg3);
+  const totalCost = totalStats.cost;
+  const totalTime = totalStats.time;
 
   const departureDate = new Date();
   departureDate.setHours(7, 10, 0, 0);
@@ -683,7 +688,7 @@ export default function JourneyPlanner() {
     const minRisk = Math.min(...topResults.map(r => r.risk));
 
     return (
-      <div className="flex flex-col h-screen bg-slate-50 font-sans text-slate-900">
+      <div className="flex flex-col h-screen bg-slate-50 font-sans text-slate-900 text-lg">
 
         {/* New Header */}
         <header className="bg-brand text-white p-4 shadow-md flex justify-between items-center z-20">
@@ -840,7 +845,7 @@ export default function JourneyPlanner() {
 
   // --- VIEW 2: DETAIL & EDIT (Map + Slide Over) ---
   return (
-    <div className="h-screen bg-slate-900 font-sans text-slate-900 flex flex-col overflow-hidden relative">
+    <div className="h-screen bg-slate-900 font-sans text-slate-900 text-lg flex flex-col overflow-hidden relative">
 
       {/* 1. MAP BACKGROUND */}
       <div className="absolute inset-0 z-0">
@@ -900,9 +905,12 @@ export default function JourneyPlanner() {
                <Clock size={14} /> {Math.floor(totalTime / 60)}h {totalTime % 60}m
              </div>
            </div>
-           <div className="text-right">
+           <div className="text-right flex flex-col items-end gap-1">
               <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
-                Interactive Route
+                {totalStats.emissions.text}
+              </span>
+              <span className="text-[10px] text-slate-400 font-medium">
+                {totalStats.emissions.amount} kg CO₂
               </span>
            </div>
         </div>
@@ -966,6 +974,25 @@ export default function JourneyPlanner() {
                                   <div className="flex justify-between items-center mt-1">
                                     <span className="text-xs text-slate-500">{segment.to ? `To ${segment.to}` : segment.detail}</span>
                                     {leg.onSwap && segIndex === 0 && <span className="text-xs font-medium text-slate-500 hover:text-blue-600 transition-colors">Edit</span>}
+                                  </div>
+
+                                  {/* Wait Time / Next Departure / Platform */}
+                                  <div className="flex flex-wrap gap-2 mt-1">
+                                    {segment.waitTime && (
+                                        <span className="text-xs font-medium text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+                                            Est. wait: {segment.waitTime}
+                                        </span>
+                                    )}
+                                    {segment.nextDeparture && (
+                                        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+                                            {segment.nextDeparture}
+                                        </span>
+                                    )}
+                                    {segment.platform && (
+                                        <span className="text-xs font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                                            {segment.platform}
+                                        </span>
+                                    )}
                                   </div>
 
                                   {/* BOOK NOW BUTTON */}
