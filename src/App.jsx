@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import Map from 'react-map-gl/mapbox';
+import Map, { Source, Layer } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import routeData from './data/route.json';
 import {
   Train, Car, Bus, Bike, Clock,
   ChevronRight, ChevronLeft,
@@ -511,7 +512,27 @@ export default function JourneyPlanner() {
           }}
           style={{width: "100%", height: "100%"}}
           mapStyle="mapbox://styles/mapbox/streets-v11"
-        />
+        >
+          <Source id="route-source" type="geojson" data={routeData}>
+            <Layer
+              id="route-line"
+              type="line"
+              paint={{
+                'line-color': '#007cbf',
+                'line-width': 4
+              }}
+            />
+            <Layer
+              id="route-points"
+              type="circle"
+              paint={{
+                'circle-radius': 6,
+                'circle-color': '#f00'
+              }}
+              filter={['==', '$type', 'Point']}
+            />
+          </Source>
+        </Map>
 
         {/* Navigation Control */}
         <div className="absolute top-6 left-6 z-20">
