@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
   Train, Car, Bus, Bike, Clock,
-  ChevronRight, ChevronLeft,
+  ChevronRight, ChevronLeft, ChevronDown,
   X, Zap, ShieldCheck, Leaf, Footprints, Pencil
 } from 'lucide-react';
 
@@ -325,20 +325,25 @@ SchematicMap.propTypes = {
 const MiniSchematic = ({ leg1, leg3 }) => {
   return (
     <div className="w-full h-12 relative">
-      <svg className="w-full h-full" viewBox="0 0 300 60" preserveAspectRatio="xMidYMid meet">
+      <svg className="w-full h-full" viewBox="0 0 300 80" preserveAspectRatio="xMidYMid meet">
         {/* Base Track */}
-        <line x1="20" y1="30" x2="280" y2="30" className="stroke-slate-200" strokeWidth="3" />
+        <line x1="20" y1="40" x2="280" y2="40" className="stroke-slate-200" strokeWidth="3" />
 
         {/* Active Route Segments */}
-        <line x1="20" y1="30" x2="100" y2="30" stroke={leg1.lineColor} strokeWidth="3" strokeLinecap="round" />
-        <line x1="100" y1="30" x2="200" y2="30" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} strokeWidth="3" />
-        <line x1="200" y1="30" x2="280" y2="30" stroke={leg3.lineColor} strokeWidth="3" strokeLinecap="round" />
+        <line x1="20" y1="40" x2="100" y2="40" stroke={leg1.lineColor} strokeWidth="3" strokeLinecap="round" />
+        <line x1="100" y1="40" x2="200" y2="40" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} strokeWidth="3" />
+        <line x1="200" y1="40" x2="280" y2="40" stroke={leg3.lineColor} strokeWidth="3" strokeLinecap="round" />
+
+        {/* Labels */}
+        <text x="60" y="65" textAnchor="middle" fill={leg1.lineColor} className="text-[12px] font-bold">{leg1.label}</text>
+        <text x="150" y="25" textAnchor="middle" fill={SEGMENT_OPTIONS.mainLeg.lineColor} className="text-[12px] font-bold">{SEGMENT_OPTIONS.mainLeg.label}</text>
+        <text x="240" y="65" textAnchor="middle" fill={leg3.lineColor} className="text-[12px] font-bold">{leg3.label}</text>
 
         {/* Nodes */}
-        <circle cx="20" cy="30" r="3" className="fill-white stroke-slate-500 stroke-2" />
-        <circle cx="100" cy="30" r="4" className="fill-white stroke-2" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} />
-        <circle cx="200" cy="30" r="4" className="fill-white stroke-2" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} />
-        <circle cx="280" cy="30" r="3" className="fill-slate-800 stroke-white stroke-2" />
+        <circle cx="20" cy="40" r="3" className="fill-white stroke-slate-500 stroke-2" />
+        <circle cx="100" cy="40" r="4" className="fill-white stroke-2" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} />
+        <circle cx="200" cy="40" r="4" className="fill-white stroke-2" stroke={SEGMENT_OPTIONS.mainLeg.lineColor} />
+        <circle cx="280" cy="40" r="3" className="fill-slate-800 stroke-white stroke-2" />
       </svg>
     </div>
   );
@@ -346,9 +351,11 @@ const MiniSchematic = ({ leg1, leg3 }) => {
 
 MiniSchematic.propTypes = {
   leg1: PropTypes.shape({
+    label: PropTypes.string.isRequired,
     lineColor: PropTypes.string.isRequired,
   }).isRequired,
   leg3: PropTypes.shape({
+    label: PropTypes.string.isRequired,
     lineColor: PropTypes.string.isRequired,
   }).isRequired,
 };
@@ -441,6 +448,11 @@ export default function JourneyPlanner() {
 
   const [activeTab, setActiveTab] = useState('smart'); // fastest, cheapest, smart
 
+  const [isModeDropdownOpen, setIsModeDropdownOpen] = useState(false);
+  const [selectedModes, setSelectedModes] = useState({
+    train: true, bus: true, car: true, bike: false
+  });
+
   // Journey State
   const [journeyConfig, setJourneyConfig] = useState({
     leg1: SEGMENT_OPTIONS.firstMile.find(o => o.id === 'bus'),
@@ -510,6 +522,40 @@ export default function JourneyPlanner() {
              <button className="bg-blue-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-blue-700 transition-colors">
                Search
              </button>
+
+             {/* Mode Selection Dropdown Trigger */}
+             <button
+                onClick={() => setIsModeDropdownOpen(!isModeDropdownOpen)}
+                className="flex items-center justify-between px-2 py-1 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"
+             >
+                <span>Filter Modes</span>
+                <ChevronDown size={16} className={`transition-transform ${isModeDropdownOpen ? 'rotate-180' : ''}`} />
+             </button>
+
+             {/* Dropdown Content */}
+             {isModeDropdownOpen && (
+                <div className="grid grid-cols-4 gap-2 animate-in slide-in-from-top-2 duration-200">
+                    {[
+                        { id: 'train', icon: Train, label: 'Train' },
+                        { id: 'bus', icon: Bus, label: 'Bus' },
+                        { id: 'car', icon: Car, label: 'Car' },
+                        { id: 'bike', icon: Bike, label: 'Bike' },
+                    ].map(mode => (
+                        <button
+                            key={mode.id}
+                            onClick={() => setSelectedModes(prev => ({...prev, [mode.id]: !prev[mode.id]}))}
+                            className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all
+                                ${selectedModes[mode.id]
+                                    ? 'bg-blue-50 border-blue-500 text-blue-700'
+                                    : 'bg-white border-slate-200 text-slate-400 grayscale'
+                                }`}
+                        >
+                            <mode.icon size={20} />
+                            <span className="text-[10px] font-bold">{mode.label}</span>
+                        </button>
+                    ))}
+                </div>
+             )}
           </div>
         </div>
 
@@ -668,14 +714,15 @@ export default function JourneyPlanner() {
         {/* DETAILED TIMELINE (Copied from previous "First Page" logic) */}
         <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar pb-24">
           <div className="relative pl-4 space-y-0">
-            {/* Timeline Vertical Bar */}
-            <div className="absolute left-[27px] top-4 bottom-4 w-0.5 bg-slate-200 rounded-full"></div>
+            {/* Timeline Vertical Bar REMOVED */}
+            {/* <div className="absolute left-[27px] top-4 bottom-4 w-0.5 bg-slate-200 rounded-full"></div> */}
 
             {/* 1. START TIME */}
             <div className="flex gap-4 min-h-[40px]">
               <div className="w-16 text-right text-xs text-slate-500 font-mono py-1">{formatTime(leaveHomeTime)}</div>
-              <div className="flex flex-col items-center z-10">
-                <div className="w-3 h-3 rounded-full bg-slate-400"></div>
+              <div className="flex flex-col items-center z-10 w-4 relative">
+                <div className="w-3 h-3 rounded-full bg-white border-2 border-slate-500 z-20"></div>
+                <div className="absolute top-[6px] bottom-0 w-0.5" style={{backgroundColor: journeyConfig.leg1.lineColor}}></div>
               </div>
               <div className="pb-6"><div className="text-sm font-semibold text-slate-700">Start Journey</div></div>
             </div>
@@ -683,8 +730,10 @@ export default function JourneyPlanner() {
             {/* 2. LEG 1 (SWAPPABLE) */}
             <div className="flex gap-4 group">
               <div className="w-16 text-right text-xs text-slate-400 font-mono pt-4">{journeyConfig.leg1.time} min</div>
-              <div className="flex flex-col items-center z-10">
-                <div className={`w-3 h-3 rounded-full border-2 bg-white ${journeyConfig.leg1.id === 'uber' ? 'border-zinc-500' : 'border-emerald-500'}`}></div>
+              <div className="flex flex-col items-center z-10 w-4 relative">
+                 <div className="absolute top-0 h-[6px] w-0.5" style={{backgroundColor: journeyConfig.leg1.lineColor}}></div>
+                 <div className="w-3 h-3 rounded-full bg-white border-2 z-20" style={{borderColor: journeyConfig.leg1.lineColor}}></div>
+                 <div className="absolute top-[6px] bottom-0 w-0.5" style={{backgroundColor: journeyConfig.leg1.lineColor}}></div>
               </div>
               <div className="pb-8 flex-1">
                 <button
@@ -709,8 +758,10 @@ export default function JourneyPlanner() {
             {/* 3. TRANSFER */}
             <div className="flex gap-4 min-h-[30px]">
               <div className="w-16 text-right text-xs text-slate-500 font-mono">07:05</div>
-              <div className="flex flex-col items-center z-10">
-                <div className="w-2 h-2 rounded-full border-2 border-slate-300 bg-white"></div>
+              <div className="flex flex-col items-center z-10 w-4 relative">
+                <div className="absolute top-0 h-[4px] w-0.5" style={{backgroundColor: journeyConfig.leg1.lineColor}}></div>
+                <div className="w-2 h-2 rounded-full border-2 bg-white z-20" style={{borderColor: SEGMENT_OPTIONS.mainLeg.lineColor}}></div>
+                <div className="absolute top-[4px] bottom-0 w-0.5" style={{backgroundColor: SEGMENT_OPTIONS.mainLeg.lineColor}}></div>
               </div>
               <div className="pb-4 pt-0"><div className="text-xs font-medium text-slate-400 uppercase">Transfer @ Leeds</div></div>
             </div>
@@ -718,8 +769,10 @@ export default function JourneyPlanner() {
             {/* 4. MAIN LEG (FIXED) */}
             <div className="flex gap-4">
               <div className="w-16 text-right text-xs text-slate-400 font-mono pt-4">1h 42m</div>
-              <div className="flex flex-col items-center z-10">
-                 <div className="w-4 h-4 rounded-full border-4 border-indigo-600 bg-white"></div>
+              <div className="flex flex-col items-center z-10 w-4 relative">
+                 <div className="absolute top-0 h-[8px] w-0.5" style={{backgroundColor: SEGMENT_OPTIONS.mainLeg.lineColor}}></div>
+                 <div className="w-4 h-4 rounded-full border-4 bg-white z-20" style={{borderColor: SEGMENT_OPTIONS.mainLeg.lineColor}}></div>
+                 <div className="absolute top-[8px] bottom-0 w-0.5" style={{backgroundColor: SEGMENT_OPTIONS.mainLeg.lineColor}}></div>
               </div>
               <div className="pb-8 flex-1">
                 <div className="w-full py-1 px-1 flex items-center gap-3">
@@ -737,8 +790,10 @@ export default function JourneyPlanner() {
             {/* 5. LEG 3 (SWAPPABLE) */}
             <div className="flex gap-4 group">
               <div className="w-16 text-right text-xs text-slate-400 font-mono pt-4">{journeyConfig.leg3.time} min</div>
-              <div className="flex flex-col items-center z-10">
-                <div className={`w-3 h-3 rounded-full border-2 bg-white ${journeyConfig.leg3.id === 'uber' ? 'border-zinc-500' : 'border-blue-500'}`}></div>
+              <div className="flex flex-col items-center z-10 w-4 relative">
+                <div className="absolute top-0 h-[6px] w-0.5" style={{backgroundColor: SEGMENT_OPTIONS.mainLeg.lineColor}}></div>
+                <div className="w-3 h-3 rounded-full border-2 bg-white z-20" style={{borderColor: journeyConfig.leg3.lineColor}}></div>
+                <div className="absolute top-[6px] bottom-0 w-0.5" style={{backgroundColor: journeyConfig.leg3.lineColor}}></div>
               </div>
               <div className="pb-8 flex-1">
                 <button
@@ -763,8 +818,9 @@ export default function JourneyPlanner() {
             {/* 6. ARRIVAL */}
             <div className="flex gap-4 min-h-[40px]">
               <div className="w-16 text-right text-xs text-slate-500 font-mono py-1">{formatTime(destArrivalTime)}</div>
-              <div className="flex flex-col items-center z-10">
-                <div className="w-3 h-3 rounded-full bg-slate-800"></div>
+              <div className="flex flex-col items-center z-10 w-4 relative">
+                <div className="absolute top-0 h-[6px] w-0.5" style={{backgroundColor: journeyConfig.leg3.lineColor}}></div>
+                <div className="w-3 h-3 rounded-full bg-slate-800 z-20"></div>
               </div>
               <div><div className="text-sm font-semibold text-slate-700">Arrive East Leake</div></div>
             </div>
