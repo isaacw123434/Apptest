@@ -510,25 +510,45 @@ const TimelineSchematic = ({ leg1, leg3, startTime }) => {
           const isFirst = index === 0;
           const isLast = index === allSegments.length - 1;
 
+          let backgroundColor;
+          let textColorClass = seg.color;
+          let bgClass = seg.bgColor;
+
+          if (isMain) {
+            backgroundColor = seg.lineColor;
+            textColorClass = 'text-white';
+            bgClass = '';
+          } else if (seg.label === 'Uber' || seg.mode === 'taxi') {
+            backgroundColor = '#000000';
+            textColorClass = 'text-white';
+            bgClass = '';
+          } else if (seg.label === 'Northern') {
+            backgroundColor = seg.lineColor;
+            textColorClass = 'text-white';
+            bgClass = '';
+          }
+
           return (
             <div
               key={index}
               style={{
                 width: `${width}%`,
-                minWidth: '45px',
+                minWidth: 'fit-content',
                 zIndex: allSegments.length - index,
-                backgroundColor: isMain ? seg.lineColor : undefined
+                backgroundColor: backgroundColor,
+                paddingLeft: isFirst ? '8px' : '20px',
+                paddingRight: '8px'
               }}
               className={`
                 flex items-center justify-center gap-1 relative h-full shrink-0
                 rounded-r-xl ${isFirst ? 'rounded-l-xl' : '-ml-3'}
                 ${!isLast ? 'border-r-2 border-white' : ''}
-                ${!isMain ? seg.bgColor : ''}
-                ${isMain ? 'text-white' : seg.color}
+                ${bgClass}
+                ${textColorClass}
               `}
             >
                <seg.icon size={16} />
-               <span className="text-[10px] font-bold truncate max-w-[60px]">{isMain ? 'CrossCountry' : seg.label.split(' ')[0]}</span>
+               <span className="text-[10px] font-bold whitespace-nowrap">{isMain ? 'CrossCountry' : seg.label.split(' ')[0]}</span>
             </div>
           );
         })}
@@ -685,7 +705,7 @@ export default function JourneyPlanner() {
   });
 
   const [showSwap, setShowSwap] = useState(null); // 'first' or 'last'
-  const [sheetHeight, setSheetHeight] = useState(65);
+  const [sheetHeight, setSheetHeight] = useState(35);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragStart = () => {
