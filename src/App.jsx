@@ -1159,6 +1159,17 @@ export default function JourneyPlanner() {
 
       </div>
 
+      {/* Save Route Button */}
+      <div className="absolute bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
+        <button
+          onClick={() => alert('Route saved!')}
+          className="bg-brand hover:bg-brand-dark text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-colors flex items-center gap-2 pointer-events-auto"
+        >
+          <Heart size={20} />
+          Save Route
+        </button>
+      </div>
+
       {/* MODALS */}
       <SwapModal
         isOpen={showSwap === 'first'} onClose={() => setShowSwap(null)}
