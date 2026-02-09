@@ -8,9 +8,9 @@ export default {
     extend: {
       colors: {
         brand: {
-          DEFAULT: '#0f766e', // teal-700
-          dark: '#0d9488',    // teal-600
-          light: '#ccfbf1',   // teal-100 (backgrounds)
+          DEFAULT: '#1e40af', // blue-800 (Corporate Blue)
+          dark: '#1e3a8a',    // blue-900 (Deep Navy for hover/accents)
+          light: '#eff6ff',   // blue-50 (Backgrounds)
         },
         accent: {
           DEFAULT: '#0891b2', // cyan-600

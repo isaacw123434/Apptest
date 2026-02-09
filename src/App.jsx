@@ -6,7 +6,8 @@ import {
   Train, Car, Bus, Bike, Clock,
   ChevronRight, ChevronLeft, ChevronDown,
   X, Zap, ShieldCheck, Leaf, Footprints,
-  User, Shield, Heart
+  User, Shield, Heart,
+  ArrowUp, ArrowDown
 } from 'lucide-react';
 
 // --- DATA CONSTANTS ---
@@ -221,6 +222,8 @@ ModeIcon.propTypes = {
 
 const SwapModal = ({ isOpen, onClose, title, options, onSelect, currentId }) => {
   if (!isOpen) return null;
+  const currentOption = options.find(o => o.id === currentId);
+
   return (
     <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-[2px] p-0 sm:p-4 animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-md sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 duration-300">
@@ -231,29 +234,53 @@ const SwapModal = ({ isOpen, onClose, title, options, onSelect, currentId }) => 
           </button>
         </div>
         <div className="p-4 space-y-3 max-h-[60vh] overflow-y-auto">
-          {options.map((opt) => (
-            <button
-              key={opt.id}
-              onClick={() => { onSelect(opt); onClose(); }}
-              className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4
-                ${currentId === opt.id
-                  ? 'border-accent bg-blue-50 ring-1 ring-accent'
-                  : 'border-slate-100 hover:border-blue-200 hover:bg-slate-50 shadow-sm'
-                }`}
-            >
-              <ModeIcon icon={opt.icon} className={currentId === opt.id ? "bg-blue-200 text-accent" : "bg-slate-100 text-slate-600"} />
-              <div className="flex-1">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-semibold text-slate-900">{opt.label}</span>
-                  <span className="font-bold text-slate-900">£{opt.cost.toFixed(2)}</span>
+          {options.map((opt) => {
+            const isSelected = currentId === opt.id;
+            const timeDiff = currentOption ? opt.time - currentOption.time : 0;
+            const costDiff = currentOption ? opt.cost - currentOption.cost : 0;
+
+            return (
+              <button
+                key={opt.id}
+                onClick={() => { onSelect(opt); onClose(); }}
+                className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4
+                  ${isSelected
+                    ? 'border-accent bg-blue-50 ring-1 ring-accent'
+                    : 'border-slate-100 hover:border-blue-200 hover:bg-slate-50 shadow-sm'
+                  }`}
+              >
+                <ModeIcon icon={opt.icon} className={isSelected ? "bg-blue-200 text-accent" : "bg-slate-100 text-slate-600"} />
+                <div className="flex-1">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-semibold text-slate-900">{opt.label}</span>
+                    {isSelected ? (
+                      <span className="font-bold text-slate-900">£{opt.cost.toFixed(2)}</span>
+                    ) : (
+                      <div className="flex items-center gap-1 font-bold">
+                        {costDiff > 0 ? <ArrowUp size={14} className="text-red-600" /> : (costDiff < 0 ? <ArrowDown size={14} className="text-emerald-600" /> : null)}
+                        <span className={costDiff > 0 ? "text-red-600" : (costDiff < 0 ? "text-emerald-600" : "text-slate-500")}>
+                          {costDiff === 0 ? '£0.00' : `£${Math.abs(costDiff).toFixed(2)}`}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex justify-between text-sm text-slate-500 items-center">
+                    {isSelected ? (
+                      <span>{opt.time} min</span>
+                    ) : (
+                      <div className="flex items-center gap-1 font-medium">
+                        {timeDiff > 0 ? <ArrowUp size={14} className="text-red-600" /> : (timeDiff < 0 ? <ArrowDown size={14} className="text-emerald-600" /> : null)}
+                        <span className={timeDiff > 0 ? "text-red-600" : (timeDiff < 0 ? "text-emerald-600" : "text-slate-500")}>
+                          {timeDiff === 0 ? '0 min' : `${Math.abs(timeDiff)} min`}
+                        </span>
+                      </div>
+                    )}
+                    {opt.recommended && <span className="text-brand-dark font-medium text-xs bg-brand-light px-2 py-0.5 rounded-full">Best Value</span>}
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm text-slate-500">
-                  <span>{opt.time} min</span>
-                  {opt.recommended && <span className="text-brand-dark font-medium text-xs bg-brand-light px-2 py-0.5 rounded-full">Best Value</span>}
-                </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
