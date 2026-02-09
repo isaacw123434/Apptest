@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { MapContainer, TileLayer, Polyline, useMapEvents, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
   Train, Car, Bus, Bike, Clock,
@@ -426,22 +427,34 @@ MapClickHandler.propTypes = {
   onClick: PropTypes.func.isRequired,
 };
 
-const FitBoundsToView = ({ bounds, paddingBottom }) => {
+const FitBoundsToView = ({ bounds, paddingBottom, zoomOffset = 0 }) => {
   const map = useMap();
   useEffect(() => {
     if (bounds) {
-      map.fitBounds(bounds, {
-        paddingBottomRight: [0, paddingBottom],
-        paddingTopLeft: [20, 20]
-      });
+      if (zoomOffset === 0) {
+        map.fitBounds(bounds, {
+          paddingBottomRight: [0, paddingBottom],
+          paddingTopLeft: [20, 20]
+        });
+      } else {
+        const b = L.latLngBounds(bounds);
+        const targetZoom = map.getBoundsZoom(b, false, {
+          paddingBottomRight: [0, paddingBottom],
+          paddingTopLeft: [20, 20]
+        });
+        map.flyTo(b.getCenter(), targetZoom + zoomOffset, {
+          duration: 1.5
+        });
+      }
     }
-  }, [bounds, map, paddingBottom]);
+  }, [bounds, map, paddingBottom, zoomOffset]);
   return null;
 };
 
 FitBoundsToView.propTypes = {
   bounds: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
   paddingBottom: PropTypes.number.isRequired,
+  zoomOffset: PropTypes.number,
 };
 
 const getFlattenedSegments = (leg1, leg3) => {
@@ -709,8 +722,8 @@ RealisticMap.propTypes = {
 
 // --- NEW COMPONENTS ---
 
-const DrivingBaselineCard = () => (
-  <div className="mx-4 mt-2 mb-2 bg-slate-100 rounded-xl p-3 flex items-center justify-between border border-slate-200" style={{ height: '60px' }}>
+const DrivingBaselineCard = ({ onClick }) => (
+  <div onClick={onClick} className="mx-4 mt-2 mb-2 bg-slate-100 rounded-xl p-3 flex items-center justify-between border border-slate-200 cursor-pointer hover:bg-slate-200 transition-colors" style={{ height: '60px' }}>
     <div className="flex items-center gap-3">
        <div className="bg-slate-200 p-2 rounded-full text-slate-600">
          <Car size={20} />
@@ -723,6 +736,10 @@ const DrivingBaselineCard = () => (
     </div>
   </div>
 );
+
+DrivingBaselineCard.propTypes = {
+  onClick: PropTypes.func,
+};
 
 const SearchSummaryBar = ({ onExpand }) => (
   <div className="bg-white px-4 py-2 shadow-sm z-10 border-b border-slate-100">
@@ -805,6 +822,8 @@ export default function JourneyPlanner() {
         setView('detail');
       } else if (event.state && event.state.view === 'summary') {
         setView('summary');
+      } else if (event.state && event.state.view === 'direct-drive') {
+        setView('direct-drive');
       } else {
         setView('home');
       }
@@ -842,17 +861,27 @@ export default function JourneyPlanner() {
   const [showSwap, setShowSwap] = useState(null); // 'first' or 'last'
   const [sheetHeight, setSheetHeight] = useState(35);
   const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ y: 0, h: 0 });
 
-  const handleDragStart = () => {
+  const handleDragStart = (e) => {
     setIsDragging(true);
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    dragStartRef.current = {
+      y: clientY,
+      h: sheetHeight
+    };
   };
 
   const handleDragMove = (e) => {
     if (!isDragging) return;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     const windowHeight = window.innerHeight;
-    const newHeight = ((windowHeight - clientY) / windowHeight) * 100;
-    if (newHeight > 20 && newHeight < 90) {
+
+    const deltaY = clientY - dragStartRef.current.y;
+    const deltaH = (deltaY / windowHeight) * 100;
+    const newHeight = dragStartRef.current.h - deltaH;
+
+    if (newHeight > 20 && newHeight < 95) {
       setSheetHeight(newHeight);
     }
   };
@@ -862,6 +891,41 @@ export default function JourneyPlanner() {
     // Snap to positions
     if (sheetHeight > 50) setSheetHeight(85);
     else setSheetHeight(25);
+  };
+
+  const contentScrollRef = useRef(null);
+  const touchStartRef = useRef(0);
+
+  const handleContentTouchStart = (e) => {
+    touchStartRef.current = e.touches[0].clientY;
+  };
+
+  const handleContentTouchMove = (e) => {
+    const el = e.currentTarget;
+    const currentY = e.touches[0].clientY;
+    const deltaY = currentY - touchStartRef.current;
+
+    if (isDragging) {
+      e.preventDefault();
+      handleDragMove(e);
+      return;
+    }
+
+    if (el.scrollTop <= 0 && deltaY > 0) {
+      setIsDragging(true);
+      dragStartRef.current = {
+        y: currentY,
+        h: sheetHeight
+      };
+      e.preventDefault();
+      handleDragMove(e);
+    }
+  };
+
+  const handleContentTouchEnd = () => {
+    if (isDragging) {
+      handleDragEnd();
+    }
   };
 
   // Derived Calculations for Detail View
@@ -999,7 +1063,10 @@ export default function JourneyPlanner() {
         )}
 
         {/* Driving Baseline Card */}
-        <DrivingBaselineCard />
+        <DrivingBaselineCard onClick={() => {
+            window.history.pushState({ view: 'direct-drive' }, '', '#direct-drive');
+            setView('direct-drive');
+        }} />
 
         {/* Tabs */}
         <div className="bg-white flex border-b border-slate-100 mt-2">
@@ -1094,6 +1161,75 @@ export default function JourneyPlanner() {
     );
   }
 
+  // --- VIEW 3: DIRECT DRIVE DETAIL ---
+  if (view === 'direct-drive') {
+    return (
+      <div className="h-screen bg-slate-900 font-sans text-slate-900 flex flex-col overflow-hidden relative">
+        {/* MAP */}
+        <div className="absolute inset-0 z-0">
+          <MapContainer
+            bounds={MOCK_PATH}
+            style={{ width: "100%", height: "100%" }}
+            zoomControl={false}
+          >
+            <FitBoundsToView bounds={MOCK_PATH} paddingBottom={window.innerHeight * 0.3} />
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Polyline positions={MOCK_PATH} color="#3b82f6" weight={4} opacity={0.6} />
+          </MapContainer>
+
+           {/* Navigation Control */}
+            <div className="absolute top-6 left-6 z-[1000]">
+              <button
+                onClick={goToSummary}
+                className="bg-white px-4 py-2 rounded-full shadow-lg hover:bg-slate-50 transition-colors flex items-center gap-2 text-sm font-bold text-slate-700"
+              >
+                <ChevronLeft size={16} /> Back
+              </button>
+            </div>
+        </div>
+
+        {/* OVERLAY CARD */}
+        <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] z-10 h-[30vh] flex flex-col p-6">
+            <div className="flex justify-between items-start mb-4">
+                <div>
+                    <h2 className="text-xl font-bold text-slate-900">Direct Drive</h2>
+                    <p className="text-sm text-slate-500">St Chads → East Leake</p>
+                </div>
+                <div className="bg-slate-100 p-2 rounded-full">
+                    <Car size={24} className="text-slate-600" />
+                </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="bg-slate-50 p-3 rounded-xl">
+                    <div className="text-xs text-slate-500 font-semibold uppercase">Cost</div>
+                    <div className="text-lg font-bold text-slate-900">£{DIRECT_DRIVE.cost.toFixed(2)}</div>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-xl">
+                    <div className="text-xs text-slate-500 font-semibold uppercase">Time</div>
+                    <div className="text-lg font-bold text-slate-900">{formatDuration(DIRECT_DRIVE.time)}</div>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-xl">
+                    <div className="text-xs text-slate-500 font-semibold uppercase">Distance</div>
+                    <div className="text-lg font-bold text-slate-900">{DIRECT_DRIVE.distance} mi</div>
+                </div>
+            </div>
+
+            <button
+                onClick={() => window.open('https://www.google.com/maps/dir/?api=1&destination=East+Leake&travelmode=driving', '_blank')}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 mt-auto"
+            >
+                <span>Open in Google Maps</span>
+                <ChevronRight size={16} />
+            </button>
+        </div>
+      </div>
+    );
+  }
+
   // --- VIEW 2: DETAIL & EDIT (Map + Slide Over) ---
   return (
     <div className="h-screen bg-slate-900 font-sans text-slate-900 flex flex-col overflow-hidden relative">
@@ -1106,7 +1242,7 @@ export default function JourneyPlanner() {
           zoomControl={false}
         >
           <MapClickHandler onClick={() => setSheetHeight(10)} />
-          <FitBoundsToView bounds={MOCK_PATH} paddingBottom={window.innerHeight * 0.35} />
+          <FitBoundsToView bounds={MOCK_PATH} paddingBottom={window.innerHeight * 0.35} zoomOffset={2} />
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -1136,7 +1272,7 @@ export default function JourneyPlanner() {
 
         {/* Handle */}
         <div
-          className="w-full flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing touch-none"
+          className="w-full flex justify-center pt-5 pb-5 cursor-grab active:cursor-grabbing touch-none"
           onMouseDown={handleDragStart}
           onTouchStart={handleDragStart}
           onMouseMove={handleDragMove}
@@ -1150,7 +1286,16 @@ export default function JourneyPlanner() {
 
 
         {/* Sheet Header */}
-        <div className="px-6 py-4 border-b border-slate-50 shrink-0 flex justify-between items-end group">
+        <div
+          className="px-6 py-4 border-b border-slate-50 shrink-0 flex justify-between items-end group cursor-grab active:cursor-grabbing touch-none"
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+          onMouseMove={handleDragMove}
+          onTouchMove={handleDragMove}
+          onMouseUp={handleDragEnd}
+          onTouchEnd={handleDragEnd}
+          onMouseLeave={handleDragEnd}
+        >
            <div>
              <h2 className="text-2xl font-bold text-slate-900">£{totalCost.toFixed(2)}</h2>
              <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -1171,7 +1316,13 @@ export default function JourneyPlanner() {
         </div>
 
         {/* DETAILED TIMELINE (Copied from previous "First Page" logic) */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar pb-24">
+        <div
+          className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar pb-24"
+          ref={contentScrollRef}
+          onTouchStart={handleContentTouchStart}
+          onTouchMove={handleContentTouchMove}
+          onTouchEnd={handleContentTouchEnd}
+        >
           <div className="relative pl-4 space-y-0">
             {/* Timeline Vertical Bar REMOVED */}
             {/* <div className="absolute left-[27px] top-4 bottom-4 w-0.5 bg-slate-200 rounded-full"></div> */}
