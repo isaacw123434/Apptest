@@ -761,9 +761,9 @@ const DrivingBaselineCard = ({ onClick }) => (
        <div className="bg-slate-200 p-2 rounded-full text-slate-600">
          <Car size={20} />
        </div>
-       <span className="font-semibold text-slate-700 text-sm">Driving (Baseline)</span>
+       <span className="font-semibold text-slate-700 text-sm">Driving</span>
     </div>
-    <div className="flex flex-col items-end leading-tight">
+    <div className="flex items-center gap-2 leading-tight">
        <span className="text-red-600 font-bold">£{DIRECT_DRIVE.cost.toFixed(2)}</span>
        <span className="text-slate-500 text-xs font-medium">{formatDuration(DIRECT_DRIVE.time)}</span>
     </div>
@@ -774,18 +774,19 @@ DrivingBaselineCard.propTypes = {
   onClick: PropTypes.func,
 };
 
-const SearchSummaryBar = ({ onExpand }) => (
+const SearchSummaryBar = ({ onExpand, searchParams }) => (
   <div className="bg-white px-4 py-2 shadow-sm z-10 border-b border-slate-100">
     <div
       onClick={onExpand}
       className="bg-slate-50 border border-slate-200 rounded-lg p-2 flex items-center justify-between cursor-pointer hover:bg-slate-100 transition-colors"
     >
        <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-          <span>St Chads</span>
+          <span>{searchParams?.timeType} by</span>
+          <span>{searchParams?.from}</span>
           <span className="text-slate-400">→</span>
-          <span>East Leake</span>
+          <span>{searchParams?.to}</span>
           <span className="text-slate-300">•</span>
-          <span>09:00</span>
+          <span>{searchParams?.time}</span>
        </div>
        <div className="text-slate-400">
          <Pencil size={16} />
@@ -796,6 +797,7 @@ const SearchSummaryBar = ({ onExpand }) => (
 
 SearchSummaryBar.propTypes = {
   onExpand: PropTypes.func.isRequired,
+  searchParams: PropTypes.object,
 };
 
 const SavedRoutes = () => (
@@ -848,6 +850,12 @@ const UpcomingJourneys = () => (
 export default function JourneyPlanner() {
   const [view, setView] = useState('home'); // 'home', 'summary' or 'detail'
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [searchParams, setSearchParams] = useState({
+    from: 'St Chads, Leeds',
+    to: 'East Leake, Loughborough',
+    timeType: 'Depart',
+    time: '09:00'
+  });
 
   useEffect(() => {
     const handlePopState = (event) => {
@@ -893,7 +901,6 @@ export default function JourneyPlanner() {
 
   const [showSwap, setShowSwap] = useState(null); // 'first' or 'last'
   const [sheetHeight, setSheetHeight] = useState(35);
-  const [mapPadding, setMapPadding] = useState(35);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ y: 0, h: 0 });
 
@@ -925,10 +932,8 @@ export default function JourneyPlanner() {
     // Snap to positions
     if (sheetHeight > 50) {
       setSheetHeight(85);
-      setMapPadding(85);
     } else {
       setSheetHeight(25);
-      setMapPadding(25);
     }
   };
 
@@ -998,21 +1003,21 @@ export default function JourneyPlanner() {
       <div className="flex flex-col gap-3">
          <div className="flex items-center gap-2 bg-slate-100 p-3 rounded-xl">
            <div className="w-2 h-2 rounded-full bg-slate-400"></div>
-           <input type="text" defaultValue="St Chads, Leeds" className="bg-transparent font-medium text-slate-700 w-full outline-none" />
+           <input type="text" value={searchParams.from} onChange={(e) => setSearchParams({...searchParams, from: e.target.value})} className="bg-transparent font-medium text-slate-700 w-full outline-none" />
          </div>
          <div className="flex items-center gap-2 bg-slate-100 p-3 rounded-xl">
            <div className="w-2 h-2 rounded-full bg-slate-800"></div>
-           <input type="text" defaultValue="East Leake, Loughborough" className="bg-transparent font-medium text-slate-700 w-full outline-none" />
+           <input type="text" value={searchParams.to} onChange={(e) => setSearchParams({...searchParams, to: e.target.value})} className="bg-transparent font-medium text-slate-700 w-full outline-none" />
          </div>
 
          <div className="flex gap-2">
             <div className="flex items-center bg-slate-100 rounded-xl px-3 py-2 flex-1 relative min-w-0">
-               <select className="bg-transparent text-[10px] font-bold text-slate-500 outline-none appearance-none pr-4 cursor-pointer">
+               <select value={searchParams.timeType} onChange={(e) => setSearchParams({...searchParams, timeType: e.target.value})} className="bg-transparent text-[10px] font-bold text-slate-500 outline-none appearance-none pr-4 cursor-pointer">
                   <option>Depart</option>
                   <option>Arrive</option>
                </select>
                <ChevronDown size={10} className="absolute left-[3.2rem] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
-               <input type="time" defaultValue="09:00" className="bg-transparent text-sm font-bold text-slate-900 outline-none ml-2 w-full min-w-0" />
+               <input type="time" value={searchParams.time} onChange={(e) => setSearchParams({...searchParams, time: e.target.value})} className="bg-transparent text-sm font-bold text-slate-900 outline-none ml-2 w-full min-w-0" />
             </div>
             <button
               onClick={handleSearch}
@@ -1065,7 +1070,7 @@ export default function JourneyPlanner() {
     return (
       <div className="flex flex-col h-screen bg-slate-50 font-sans text-slate-900">
         <header className="bg-brand text-white p-4 shadow-md flex justify-between items-center z-20">
-            <h1 className="text-xl font-bold tracking-tight">EndMile</h1>
+            <h1 onClick={() => setView('home')} className="text-xl font-bold tracking-tight cursor-pointer">EndMile</h1>
             <div className="bg-brand-dark p-2 rounded-full">
                 <User size={20} className="text-brand-light" />
             </div>
@@ -1088,7 +1093,7 @@ export default function JourneyPlanner() {
 
         {/* New Header */}
         <header className="bg-brand text-white p-4 shadow-md flex justify-between items-center z-20">
-            <h1 className="text-xl font-bold tracking-tight">EndMile</h1>
+            <h1 onClick={() => setView('home')} className="text-xl font-bold tracking-tight cursor-pointer">EndMile</h1>
             <div className="bg-brand-dark p-2 rounded-full">
                 <User size={20} className="text-brand-light" />
             </div>
@@ -1098,7 +1103,7 @@ export default function JourneyPlanner() {
         {isSearchExpanded ? (
           renderSearchForm()
         ) : (
-          <SearchSummaryBar onExpand={() => setIsSearchExpanded(true)} />
+          <SearchSummaryBar searchParams={searchParams} onExpand={() => setIsSearchExpanded(true)} />
         )}
 
         {/* Driving Baseline Card */}
@@ -1280,8 +1285,8 @@ export default function JourneyPlanner() {
           style={{ width: "100%", height: "100%" }}
           zoomControl={false}
         >
-          <MapClickHandler onClick={() => { setSheetHeight(10); setMapPadding(10); }} />
-          <FitBoundsToView bounds={MOCK_PATH} paddingBottom={window.innerHeight * (mapPadding / 100)} />
+          <MapClickHandler onClick={() => { setSheetHeight(10); }} />
+          <FitBoundsToView bounds={MOCK_PATH} paddingBottom={0} />
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
