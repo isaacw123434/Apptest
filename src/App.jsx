@@ -805,7 +805,7 @@ export default function JourneyPlanner() {
 
         {/* New Header */}
         <header className="bg-brand text-white p-4 shadow-md flex justify-between items-center z-20">
-            <h1 className="text-xl font-bold tracking-tight">EndMile Routing</h1>
+            <h1 className="text-xl font-bold tracking-tight">EndMile</h1>
             <div className="bg-brand-dark p-2 rounded-full">
                 <User size={20} className="text-brand-light" />
             </div>
