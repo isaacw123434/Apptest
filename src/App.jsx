@@ -469,38 +469,26 @@ MapClickHandler.propTypes = {
   onClick: PropTypes.func.isRequired,
 };
 
-const FitBoundsToView = ({ bounds, paddingBottom, zoomOffset = 0 }) => {
+const FitBoundsToView = ({ bounds, paddingBottom }) => {
   const map = useMap();
   useEffect(() => {
+    map.invalidateSize();
     if (bounds) {
-      if (zoomOffset === 0) {
-        map.fitBounds(bounds, {
-          paddingBottomRight: [0, paddingBottom],
-          paddingTopLeft: [20, 20]
-        });
-      } else {
-        try {
-          const b = L.latLngBounds(bounds);
-          const targetZoom = map.getBoundsZoom(b, false, {
-            paddingBottomRight: [0, paddingBottom],
-            paddingTopLeft: [20, 20]
-          });
-          map.flyTo(b.getCenter(), targetZoom + zoomOffset, {
-            duration: 1.5
-          });
-        } catch (e) {
-          console.error("Map flyTo error:", e);
-        }
-      }
+      map.fitBounds(bounds, {
+        paddingBottomRight: [0, paddingBottom],
+        paddingTopLeft: [20, 20],
+        maxZoom: 16,
+        animate: true,
+        duration: 1.5
+      });
     }
-  }, [bounds, map, paddingBottom, zoomOffset]);
+  }, [bounds, map, paddingBottom]);
   return null;
 };
 
 FitBoundsToView.propTypes = {
   bounds: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
   paddingBottom: PropTypes.number.isRequired,
-  zoomOffset: PropTypes.number,
 };
 
 const getFlattenedSegments = (leg1, leg3) => {
@@ -906,6 +894,7 @@ export default function JourneyPlanner() {
 
   const [showSwap, setShowSwap] = useState(null); // 'first' or 'last'
   const [sheetHeight, setSheetHeight] = useState(35);
+  const [mapPadding, setMapPadding] = useState(35);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ y: 0, h: 0 });
 
@@ -935,8 +924,13 @@ export default function JourneyPlanner() {
   const handleDragEnd = () => {
     setIsDragging(false);
     // Snap to positions
-    if (sheetHeight > 50) setSheetHeight(85);
-    else setSheetHeight(25);
+    if (sheetHeight > 50) {
+      setSheetHeight(85);
+      setMapPadding(85);
+    } else {
+      setSheetHeight(25);
+      setMapPadding(25);
+    }
   };
 
   const contentScrollRef = useRef(null);
@@ -1287,8 +1281,8 @@ export default function JourneyPlanner() {
           style={{ width: "100%", height: "100%" }}
           zoomControl={false}
         >
-          <MapClickHandler onClick={() => setSheetHeight(10)} />
-          <FitBoundsToView bounds={MOCK_PATH} paddingBottom={window.innerHeight * 0.35} zoomOffset={2} />
+          <MapClickHandler onClick={() => { setSheetHeight(10); setMapPadding(10); }} />
+          <FitBoundsToView bounds={MOCK_PATH} paddingBottom={window.innerHeight * (mapPadding / 100)} />
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
