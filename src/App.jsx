@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { MapContainer, TileLayer, Polyline, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
   Train, Car, Bus, Bike, Clock,
   ChevronRight, ChevronLeft, ChevronDown,
   X, Zap, ShieldCheck, Leaf, Footprints,
-  User, Shield
+  User, Shield, Heart
 } from 'lucide-react';
 
 // --- DATA CONSTANTS ---
@@ -398,6 +398,24 @@ MapClickHandler.propTypes = {
   onClick: PropTypes.func.isRequired,
 };
 
+const FitBoundsToView = ({ bounds, paddingBottom }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (bounds) {
+      map.fitBounds(bounds, {
+        paddingBottomRight: [0, paddingBottom],
+        paddingTopLeft: [20, 20]
+      });
+    }
+  }, [bounds, map, paddingBottom]);
+  return null;
+};
+
+FitBoundsToView.propTypes = {
+  bounds: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
+  paddingBottom: PropTypes.number.isRequired,
+};
+
 const getFlattenedSegments = (leg1, leg3) => {
   return [
     ...(leg1.segments || []),
@@ -503,7 +521,7 @@ const TimelineSchematic = ({ leg1, leg3, startTime }) => {
   return (
     <div className="w-full flex flex-col gap-2">
       {/* Visual Timeline */}
-      <div className="flex w-full h-10 overflow-x-auto">
+      <div className="flex w-full h-10 overflow-hidden">
         {allSegments.map((seg, index) => {
           const width = (seg.time / totalDuration) * 100;
           const isMain = seg.isMain;
@@ -533,14 +551,14 @@ const TimelineSchematic = ({ leg1, leg3, startTime }) => {
               key={index}
               style={{
                 width: `${width}%`,
-                minWidth: 'fit-content',
+                minWidth: 'max-content',
                 zIndex: allSegments.length - index,
                 backgroundColor: backgroundColor,
                 paddingLeft: isFirst ? '8px' : '20px',
                 paddingRight: '8px'
               }}
               className={`
-                flex items-center justify-center gap-1 relative h-full shrink-0
+                flex items-center justify-center gap-1 relative h-full shrink
                 rounded-r-xl ${isFirst ? 'rounded-l-xl' : '-ml-3'}
                 ${!isLast ? 'border-r-2 border-white' : ''}
                 ${bgClass}
@@ -725,15 +743,16 @@ export default function JourneyPlanner() {
   const handleDragEnd = () => {
     setIsDragging(false);
     // Snap to positions
-    if (sheetHeight > 75) setSheetHeight(85);
-    else if (sheetHeight < 35) setSheetHeight(25);
-    else setSheetHeight(60);
+    if (sheetHeight > 50) setSheetHeight(85);
+    else setSheetHeight(25);
   };
 
   // Derived Calculations for Detail View
   const buffer = getStationBuffer(journeyConfig.leg1.id);
   const totalCost = journeyConfig.leg1.cost + SEGMENT_OPTIONS.mainLeg.cost + journeyConfig.leg3.cost;
   const totalTime = journeyConfig.leg1.time + buffer + SEGMENT_OPTIONS.mainLeg.time + journeyConfig.leg3.time;
+
+  const totalEmission = getLegEmission(journeyConfig.leg1) + getLegEmission(SEGMENT_OPTIONS.mainLeg) + getLegEmission(journeyConfig.leg3);
 
   const departureDate = new Date();
   departureDate.setHours(7, 10, 0, 0);
@@ -776,9 +795,20 @@ export default function JourneyPlanner() {
                <div className="w-2 h-2 rounded-full bg-slate-800"></div>
                <input type="text" defaultValue="East Leake, Loughborough" className="bg-transparent font-medium text-slate-700 w-full outline-none" />
              </div>
-             <button className="bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-xl shadow-md transition-colors">
-               Search
-             </button>
+
+             <div className="flex gap-2">
+                <div className="flex items-center bg-slate-100 rounded-xl px-3 py-2 flex-1 relative min-w-0">
+                   <select className="bg-transparent text-[10px] font-bold text-slate-500 outline-none appearance-none pr-4 cursor-pointer">
+                      <option>Depart</option>
+                      <option>Arrive</option>
+                   </select>
+                   <ChevronDown size={10} className="absolute left-[3.2rem] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
+                   <input type="time" defaultValue="09:00" className="bg-transparent text-sm font-bold text-slate-900 outline-none ml-2 w-full min-w-0" />
+                </div>
+                <button className="bg-brand hover:bg-brand-dark text-white font-bold py-3 px-8 rounded-xl shadow-md transition-colors">
+                  Search
+                </button>
+             </div>
 
              {/* Mode Selection Dropdown Trigger */}
              <button
@@ -922,6 +952,7 @@ export default function JourneyPlanner() {
           zoomControl={false}
         >
           <MapClickHandler onClick={() => setSheetHeight(10)} />
+          <FitBoundsToView bounds={MOCK_PATH} paddingBottom={window.innerHeight * 0.35} />
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -930,10 +961,10 @@ export default function JourneyPlanner() {
         </MapContainer>
 
         {/* Navigation Control */}
-        <div className="absolute top-6 left-6 z-50">
+        <div className="absolute top-6 left-6 z-[1000]">
           <button
             onClick={goToSummary}
-            className="bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-lg hover:bg-white transition-colors flex items-center gap-2 text-sm font-bold text-slate-700"
+            className="bg-white px-4 py-2 rounded-full shadow-lg hover:bg-slate-50 transition-colors flex items-center gap-2 text-sm font-bold text-slate-700"
           >
             <ChevronLeft size={16} /> Back
           </button>
@@ -965,17 +996,23 @@ export default function JourneyPlanner() {
 
 
         {/* Sheet Header */}
-        <div className="px-6 py-4 border-b border-slate-50 shrink-0 flex justify-between items-end">
+        <div className="px-6 py-4 border-b border-slate-50 shrink-0 flex justify-between items-end group">
            <div>
              <h2 className="text-2xl font-bold text-slate-900">£{totalCost.toFixed(2)}</h2>
              <div className="flex items-center gap-2 text-sm text-slate-500">
                <Clock size={14} /> {Math.floor(totalTime / 60)}h {totalTime % 60}m
              </div>
            </div>
-           <div className="text-right">
-              <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
-                Interactive Route
-              </span>
+           <div className="flex flex-col items-end gap-1">
+              <div className="flex items-center gap-2">
+                 <button className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-red-500" title="Save Route">
+                    <Heart size={20} />
+                 </button>
+                 <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md flex items-center gap-1">
+                    <Leaf size={12} />
+                    {totalEmission.toFixed(2)} kg CO₂
+                 </span>
+              </div>
            </div>
         </div>
 
@@ -990,7 +1027,7 @@ export default function JourneyPlanner() {
               <div className="w-[4.5rem] text-right text-xs text-slate-500 font-mono py-1">{formatTime(leaveHomeTime)}</div>
               <div className="flex flex-col items-center z-10 w-4 relative">
                 <div className="w-3 h-3 rounded-full bg-white border-2 border-slate-500 z-20"></div>
-                <div className="absolute top-[6px] bottom-0 w-0.5" style={{backgroundColor: journeyConfig.leg1.lineColor}}></div>
+                <div className="absolute top-[6px] bottom-0 w-[3px]" style={{backgroundColor: journeyConfig.leg1.lineColor}}></div>
               </div>
               <div className="pb-6"><div className="text-sm font-semibold text-slate-700">Start Journey</div></div>
             </div>
@@ -1022,7 +1059,7 @@ export default function JourneyPlanner() {
 
                               {/* Line Column */}
                               <div className="flex flex-col items-center z-10 w-4 relative shrink-0">
-                                 <div className="absolute -top-2 -bottom-2 w-0.5" style={{backgroundColor: segment.lineColor}}></div>
+                                 <div className="absolute -top-2 -bottom-2 w-[3px]" style={{backgroundColor: segment.lineColor}}></div>
                               </div>
 
                               {/* Content Column */}
@@ -1082,11 +1119,11 @@ export default function JourneyPlanner() {
                                 <div className="w-[4.5rem] text-right text-xs text-slate-500 font-mono">{formatTime(currentDateTime)}</div>
                                 <div className="flex flex-col items-center z-10 w-4 relative">
                                   {/* Line continues from top */}
-                                  <div className="absolute top-0 h-[50%] w-0.5" style={{backgroundColor: segment.lineColor}}></div>
+                                  <div className="absolute top-0 h-[50%] w-[3px]" style={{backgroundColor: segment.lineColor}}></div>
                                   {/* Node */}
                                   <div className="w-2 h-2 rounded-full border-2 bg-white z-20" style={{borderColor: segment.lineColor}}></div>
                                   {/* Line continues to bottom */}
-                                  <div className="absolute top-[50%] bottom-0 w-0.5"
+                                  <div className="absolute top-[50%] bottom-0 w-[3px]"
                                      style={{backgroundColor:
                                        isLastSegmentInLeg
                                          ? (journeyLegs[legIndex+1]?.data.segments[0].lineColor || segment.lineColor)
@@ -1112,7 +1149,7 @@ export default function JourneyPlanner() {
             <div className="flex gap-3 min-h-[40px]">
               <div className="w-[4.5rem] text-right text-xs text-slate-500 font-mono py-1">{formatTime(currentDateTime)}</div>
               <div className="flex flex-col items-center z-10 w-4 relative">
-                <div className="absolute top-0 h-[6px] w-0.5" style={{backgroundColor: journeyConfig.leg3.lineColor}}></div>
+                <div className="absolute top-0 h-[6px] w-[3px]" style={{backgroundColor: journeyConfig.leg3.lineColor}}></div>
                 <div className="w-3 h-3 rounded-full bg-slate-800 z-20"></div>
               </div>
               <div><div className="text-sm font-semibold text-slate-700">Arrive East Leake</div></div>
