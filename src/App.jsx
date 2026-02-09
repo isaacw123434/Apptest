@@ -7,7 +7,8 @@ import {
   ChevronRight, ChevronLeft, ChevronDown,
   X, Zap, ShieldCheck, Leaf, Footprints,
   User, Shield, Heart,
-  ArrowUp, ArrowDown
+  ArrowUp, ArrowDown,
+  Pencil
 } from 'lucide-react';
 
 // --- DATA CONSTANTS ---
@@ -197,8 +198,8 @@ const SEGMENT_OPTIONS = {
 };
 
 const DIRECT_DRIVE = {
-  time: 110,
-  cost: 39.15,
+  time: 110, // 1h 50m
+  cost: 39.15, // 87 miles * 45p
   distance: 87
 };
 
@@ -706,17 +707,106 @@ RealisticMap.propTypes = {
   focusedSegment: PropTypes.string,
 };
 
+// --- NEW COMPONENTS ---
+
+const DrivingBaselineCard = () => (
+  <div className="mx-4 mt-2 mb-2 bg-slate-100 rounded-xl p-3 flex items-center justify-between border border-slate-200" style={{ height: '60px' }}>
+    <div className="flex items-center gap-3">
+       <div className="bg-slate-200 p-2 rounded-full text-slate-600">
+         <Car size={20} />
+       </div>
+       <span className="font-semibold text-slate-700 text-sm">Driving (Baseline)</span>
+    </div>
+    <div className="flex flex-col items-end leading-tight">
+       <span className="text-red-600 font-bold">£{DIRECT_DRIVE.cost.toFixed(2)}</span>
+       <span className="text-slate-500 text-xs font-medium">{formatDuration(DIRECT_DRIVE.time)}</span>
+    </div>
+  </div>
+);
+
+const SearchSummaryBar = ({ onExpand }) => (
+  <div className="bg-white px-4 py-2 shadow-sm z-10 border-b border-slate-100">
+    <div
+      onClick={onExpand}
+      className="bg-slate-50 border border-slate-200 rounded-lg p-2 flex items-center justify-between cursor-pointer hover:bg-slate-100 transition-colors"
+    >
+       <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <span>St Chads</span>
+          <span className="text-slate-400">→</span>
+          <span>East Leake</span>
+          <span className="text-slate-300">•</span>
+          <span>09:00</span>
+       </div>
+       <div className="text-slate-400">
+         <Pencil size={16} />
+       </div>
+    </div>
+  </div>
+);
+
+SearchSummaryBar.propTypes = {
+  onExpand: PropTypes.func.isRequired,
+};
+
+const SavedRoutes = () => (
+  <div className="mt-6 px-4">
+    <div className="flex justify-between items-center mb-3">
+      <h3 className="font-bold text-slate-800">Saved Routes</h3>
+      <button className="text-brand text-xs font-bold">See All</button>
+    </div>
+    <div className="space-y-3">
+       {['Home → Work', 'Leeds → Manchester'].map((route, i) => (
+         <div key={i} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center gap-3">
+            <div className="bg-brand-light p-2 rounded-lg text-brand">
+              <Heart size={18} fill="currentColor" />
+            </div>
+            <span className="font-medium text-slate-700">{route}</span>
+         </div>
+       ))}
+    </div>
+  </div>
+);
+
+const UpcomingJourneys = () => (
+  <div className="mt-6 px-4">
+    <div className="flex justify-between items-center mb-3">
+      <h3 className="font-bold text-slate-800">Upcoming Journeys</h3>
+    </div>
+    <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+        <div className="flex items-center gap-3 mb-2">
+            <div className="bg-brand p-2 rounded-lg text-white">
+                <Train size={18} />
+            </div>
+            <div>
+                <div className="font-bold text-slate-800">Leeds → York</div>
+                <div className="text-xs text-slate-500">Tomorrow, 08:30</div>
+            </div>
+        </div>
+        <div className="w-full bg-slate-100 rounded-full h-1.5 mt-2">
+            <div className="bg-brand h-1.5 rounded-full w-3/4"></div>
+        </div>
+        <div className="mt-2 text-xs text-slate-400 flex justify-between">
+            <span>On time</span>
+            <span>Platform 4</span>
+        </div>
+    </div>
+  </div>
+);
+
 // --- MAIN APP ---
 
 export default function JourneyPlanner() {
-  const [view, setView] = useState('summary'); // 'summary' or 'detail'
+  const [view, setView] = useState('home'); // 'home', 'summary' or 'detail'
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
   useEffect(() => {
     const handlePopState = (event) => {
       if (event.state && event.state.view === 'detail') {
         setView('detail');
-      } else {
+      } else if (event.state && event.state.view === 'summary') {
         setView('summary');
+      } else {
+        setView('home');
       }
     };
     window.addEventListener('popstate', handlePopState);
@@ -794,6 +884,96 @@ export default function JourneyPlanner() {
   ];
   let currentDateTime = new Date(leaveHomeTime);
 
+  const handleSearch = () => {
+    window.history.pushState({ view: 'summary' }, '', '#summary');
+    setView('summary');
+    setIsSearchExpanded(false);
+  };
+
+  const renderSearchForm = () => (
+    <div className="bg-white p-4 shadow-sm z-10">
+      <div className="flex flex-col gap-3">
+         <div className="flex items-center gap-2 bg-slate-100 p-3 rounded-xl">
+           <div className="w-2 h-2 rounded-full bg-slate-400"></div>
+           <input type="text" defaultValue="St Chads, Leeds" className="bg-transparent font-medium text-slate-700 w-full outline-none" />
+         </div>
+         <div className="flex items-center gap-2 bg-slate-100 p-3 rounded-xl">
+           <div className="w-2 h-2 rounded-full bg-slate-800"></div>
+           <input type="text" defaultValue="East Leake, Loughborough" className="bg-transparent font-medium text-slate-700 w-full outline-none" />
+         </div>
+
+         <div className="flex gap-2">
+            <div className="flex items-center bg-slate-100 rounded-xl px-3 py-2 flex-1 relative min-w-0">
+               <select className="bg-transparent text-[10px] font-bold text-slate-500 outline-none appearance-none pr-4 cursor-pointer">
+                  <option>Depart</option>
+                  <option>Arrive</option>
+               </select>
+               <ChevronDown size={10} className="absolute left-[3.2rem] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
+               <input type="time" defaultValue="09:00" className="bg-transparent text-sm font-bold text-slate-900 outline-none ml-2 w-full min-w-0" />
+            </div>
+            <button
+              onClick={handleSearch}
+              className="bg-brand hover:bg-brand-dark text-white font-bold py-3 px-8 rounded-xl shadow-md transition-colors"
+            >
+              Search
+            </button>
+         </div>
+
+         {/* Mode Selection Dropdown Trigger */}
+         <button
+            onClick={() => setIsModeDropdownOpen(!isModeDropdownOpen)}
+            className="flex items-center justify-between px-2 py-1 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"
+         >
+            <span>Filter Modes</span>
+            <ChevronDown size={16} className={`transition-transform ${isModeDropdownOpen ? 'rotate-180' : ''}`} />
+         </button>
+
+         {/* Dropdown Content */}
+         {isModeDropdownOpen && (
+            <div className="grid grid-cols-5 gap-2 animate-in slide-in-from-top-2 duration-200">
+                {[
+                    { id: 'train', icon: Train, label: 'Train' },
+                    { id: 'bus', icon: Bus, label: 'Bus' },
+                    { id: 'car', icon: Car, label: 'Car' },
+                    { id: 'taxi', icon: Car, label: 'Taxi' },
+                    { id: 'bike', icon: Bike, label: 'Bike' },
+                ].map(mode => (
+                    <button
+                        key={mode.id}
+                        onClick={() => setSelectedModes(prev => ({...prev, [mode.id]: !prev[mode.id]}))}
+                        className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all
+                            ${selectedModes[mode.id]
+                                ? 'bg-blue-50 border-accent text-accent'
+                                : 'bg-white border-slate-200 text-slate-400 grayscale'
+                            }`}
+                    >
+                        <mode.icon size={20} />
+                        <span className="text-[10px] font-bold">{mode.label}</span>
+                    </button>
+                ))}
+            </div>
+         )}
+      </div>
+    </div>
+  );
+
+  // --- VIEW 0: HOME PAGE ---
+  if (view === 'home') {
+    return (
+      <div className="flex flex-col h-screen bg-slate-50 font-sans text-slate-900">
+        <header className="bg-brand text-white p-4 shadow-md flex justify-between items-center z-20">
+            <h1 className="text-xl font-bold tracking-tight">EndMile</h1>
+            <div className="bg-brand-dark p-2 rounded-full">
+                <User size={20} className="text-brand-light" />
+            </div>
+        </header>
+        {renderSearchForm()}
+        <SavedRoutes />
+        <UpcomingJourneys />
+      </div>
+    );
+  }
+
   // --- VIEW 1: SUMMARY PAGE ---
   if (view === 'summary') {
     const topResults = getTop3Results(activeTab, selectedModes);
@@ -811,68 +991,15 @@ export default function JourneyPlanner() {
             </div>
         </header>
 
-        {/* Search Box */}
-        <div className="bg-white p-4 shadow-sm z-10">
-          <div className="flex flex-col gap-3">
-             <div className="flex items-center gap-2 bg-slate-100 p-3 rounded-xl">
-               <div className="w-2 h-2 rounded-full bg-slate-400"></div>
-               <input type="text" defaultValue="St Chads, Leeds" className="bg-transparent font-medium text-slate-700 w-full outline-none" />
-             </div>
-             <div className="flex items-center gap-2 bg-slate-100 p-3 rounded-xl">
-               <div className="w-2 h-2 rounded-full bg-slate-800"></div>
-               <input type="text" defaultValue="East Leake, Loughborough" className="bg-transparent font-medium text-slate-700 w-full outline-none" />
-             </div>
+        {/* Search Box (Accordion) */}
+        {isSearchExpanded ? (
+          renderSearchForm()
+        ) : (
+          <SearchSummaryBar onExpand={() => setIsSearchExpanded(true)} />
+        )}
 
-             <div className="flex gap-2">
-                <div className="flex items-center bg-slate-100 rounded-xl px-3 py-2 flex-1 relative min-w-0">
-                   <select className="bg-transparent text-[10px] font-bold text-slate-500 outline-none appearance-none pr-4 cursor-pointer">
-                      <option>Depart</option>
-                      <option>Arrive</option>
-                   </select>
-                   <ChevronDown size={10} className="absolute left-[3.2rem] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
-                   <input type="time" defaultValue="09:00" className="bg-transparent text-sm font-bold text-slate-900 outline-none ml-2 w-full min-w-0" />
-                </div>
-                <button className="bg-brand hover:bg-brand-dark text-white font-bold py-3 px-8 rounded-xl shadow-md transition-colors">
-                  Search
-                </button>
-             </div>
-
-             {/* Mode Selection Dropdown Trigger */}
-             <button
-                onClick={() => setIsModeDropdownOpen(!isModeDropdownOpen)}
-                className="flex items-center justify-between px-2 py-1 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"
-             >
-                <span>Filter Modes</span>
-                <ChevronDown size={16} className={`transition-transform ${isModeDropdownOpen ? 'rotate-180' : ''}`} />
-             </button>
-
-             {/* Dropdown Content */}
-             {isModeDropdownOpen && (
-                <div className="grid grid-cols-5 gap-2 animate-in slide-in-from-top-2 duration-200">
-                    {[
-                        { id: 'train', icon: Train, label: 'Train' },
-                        { id: 'bus', icon: Bus, label: 'Bus' },
-                        { id: 'car', icon: Car, label: 'Car' },
-                        { id: 'taxi', icon: Car, label: 'Taxi' },
-                        { id: 'bike', icon: Bike, label: 'Bike' },
-                    ].map(mode => (
-                        <button
-                            key={mode.id}
-                            onClick={() => setSelectedModes(prev => ({...prev, [mode.id]: !prev[mode.id]}))}
-                            className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all
-                                ${selectedModes[mode.id]
-                                    ? 'bg-blue-50 border-accent text-accent'
-                                    : 'bg-white border-slate-200 text-slate-400 grayscale'
-                                }`}
-                        >
-                            <mode.icon size={20} />
-                            <span className="text-[10px] font-bold">{mode.label}</span>
-                        </button>
-                    ))}
-                </div>
-             )}
-          </div>
-        </div>
+        {/* Driving Baseline Card */}
+        <DrivingBaselineCard />
 
         {/* Tabs */}
         <div className="bg-white flex border-b border-slate-100 mt-2">
