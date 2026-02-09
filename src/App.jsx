@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { MapContainer, TileLayer, Polyline, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -211,11 +211,53 @@ const MOCK_PATH = [
 
 // --- SUB-COMPONENTS ---
 
-const ModeIcon = ({ icon: Icon, className = "" }) => (
-  <div className={`p-2 rounded-xl shadow-sm ${className}`}>
-    <Icon size={20} />
-  </div>
-);
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("ErrorBoundary caught an error", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center h-screen bg-slate-100 p-4 text-center">
+            <h2 className="text-xl font-bold text-slate-800 mb-2">Something went wrong.</h2>
+            <p className="text-sm text-red-600 mb-4 bg-white p-3 rounded shadow font-mono max-w-full overflow-auto">
+              {this.state.error && this.state.error.toString()}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-brand text-white rounded-lg shadow font-bold"
+            >
+              Reload Page
+            </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+ErrorBoundary.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+const ModeIcon = ({ icon: Icon, className = "" }) => {
+  if (!Icon) return null;
+  return (
+    <div className={`p-2 rounded-xl shadow-sm ${className}`}>
+      <Icon size={20} />
+    </div>
+  );
+};
 
 ModeIcon.propTypes = {
   icon: PropTypes.elementType.isRequired,
@@ -437,14 +479,18 @@ const FitBoundsToView = ({ bounds, paddingBottom, zoomOffset = 0 }) => {
           paddingTopLeft: [20, 20]
         });
       } else {
-        const b = L.latLngBounds(bounds);
-        const targetZoom = map.getBoundsZoom(b, false, {
-          paddingBottomRight: [0, paddingBottom],
-          paddingTopLeft: [20, 20]
-        });
-        map.flyTo(b.getCenter(), targetZoom + zoomOffset, {
-          duration: 1.5
-        });
+        try {
+          const b = L.latLngBounds(bounds);
+          const targetZoom = map.getBoundsZoom(b, false, {
+            paddingBottomRight: [0, paddingBottom],
+            paddingTopLeft: [20, 20]
+          });
+          map.flyTo(b.getCenter(), targetZoom + zoomOffset, {
+            duration: 1.5
+          });
+        } catch (e) {
+          console.error("Map flyTo error:", e);
+        }
       }
     }
   }, [bounds, map, paddingBottom, zoomOffset]);
@@ -1219,10 +1265,9 @@ export default function JourneyPlanner() {
             </div>
 
             <button
-                onClick={() => window.open('https://www.google.com/maps/dir/?api=1&destination=East+Leake&travelmode=driving', '_blank')}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 mt-auto"
             >
-                <span>Open in Google Maps</span>
+                <span>Open Maps</span>
                 <ChevronRight size={16} />
             </button>
         </div>
@@ -1232,9 +1277,10 @@ export default function JourneyPlanner() {
 
   // --- VIEW 2: DETAIL & EDIT (Map + Slide Over) ---
   return (
-    <div className="h-screen bg-slate-900 font-sans text-slate-900 flex flex-col overflow-hidden relative">
+    <ErrorBoundary>
+      <div className="h-screen bg-slate-900 font-sans text-slate-900 flex flex-col overflow-hidden relative">
 
-      {/* 1. MAP BACKGROUND */}
+        {/* 1. MAP BACKGROUND */}
       <div className="absolute inset-0 z-0">
         <MapContainer
           bounds={MOCK_PATH}
@@ -1489,6 +1535,7 @@ export default function JourneyPlanner() {
         currentId={journeyConfig.leg3.id}
       />
 
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }
