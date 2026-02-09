@@ -411,6 +411,11 @@ const FitBoundsToView = ({ bounds, paddingBottom }) => {
   return null;
 };
 
+FitBoundsToView.propTypes = {
+  bounds: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
+  paddingBottom: PropTypes.number.isRequired,
+};
+
 const getFlattenedSegments = (leg1, leg3) => {
   return [
     ...(leg1.segments || []),
