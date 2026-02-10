@@ -47,6 +47,25 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _selectTime() async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _timeController.text =
+            '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -146,6 +165,8 @@ class _HomePageState extends State<HomePage> {
                       Expanded(
                         child: TextField(
                           controller: _timeController,
+                          readOnly: true,
+                          onTap: _selectTime,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -212,47 +233,51 @@ class _HomePageState extends State<HomePage> {
           ),
           if (_isModeDropdownOpen) ...[
             const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _modeOptions.map((mode) {
-                final isSelected = _selectedModes[mode['id']]!;
-                return InkWell(
-                  onTap: () {
-                    setState(() {
-                      _selectedModes[mode['id']] = !isSelected;
-                    });
-                  },
-                  child: Container(
-                    width: (MediaQuery.of(context).size.width - 64) / 5,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFFEFF6FF) : Colors.white, // Blue 50
-                      border: Border.all(
-                        color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0), // Accent or Slate 200
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        Icon(
-                          mode['icon'],
-                          size: 20,
-                          color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          mode['label'],
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: _modeOptions.map((mode) {
+                  final isSelected = _selectedModes[mode['id']]!;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedModes[mode['id']] = !isSelected;
+                        });
+                      },
+                      child: Container(
+                        width: (MediaQuery.of(context).size.width - 64) / 5,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isSelected ? const Color(0xFFEFF6FF) : Colors.white, // Blue 50
+                          border: Border.all(
+                            color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0), // Accent or Slate 200
                           ),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ],
+                        child: Column(
+                          children: [
+                            Icon(
+                              mode['icon'],
+                              size: 20,
+                              color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              mode['label'],
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                }).toList(),
+              ),
             ),
           ],
         ],
@@ -281,6 +306,7 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: TextField(
               controller: controller,
+              readOnly: true,
               style: const TextStyle(
                 fontWeight: FontWeight.w500,
                 color: Color(0xFF334155), // Slate 700
