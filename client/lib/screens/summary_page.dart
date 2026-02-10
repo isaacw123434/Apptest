@@ -31,10 +31,12 @@ class _SummaryPageState extends State<SummaryPage> {
 
   List<JourneyResult> _results = [];
   DirectDrive? _directDrive;
+  Leg? _mainLeg;
   bool _isLoading = true;
   String _activeTab = 'smart'; // smart, fastest, cheapest
   String? _errorMessage;
   final Map<String, List<JourneyResult>> _resultsCache = {};
+  bool _isSearchExpanded = false;
 
   @override
   void initState() {
@@ -49,6 +51,7 @@ class _SummaryPageState extends State<SummaryPage> {
       if (mounted) {
         setState(() {
           _directDrive = initData.directDrive;
+          _mainLeg = initData.segmentOptions.mainLeg;
         });
       }
     } catch (e) {
@@ -163,54 +166,133 @@ class _SummaryPageState extends State<SummaryPage> {
   }
 
   Widget _buildSearchSummary() {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isSearchExpanded = !_isSearchExpanded;
+        });
+      },
       child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC), // Slate 50
-          border: Border.all(color: const Color(0xFFE2E8F0)), // Slate 200
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Row(
-                children: [
-                  Text(
-                    '${widget.timeType} by ',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ),
-                  Flexible(
-                    child: Text(
-                      widget.from.split(',')[0],
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+        color: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC), // Slate 50
+            border: Border.all(color: const Color(0xFFE2E8F0)), // Slate 200
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: _isSearchExpanded
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Start
+                    Text(
+                      'Start',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 4),
-                    child: Icon(LucideIcons.arrowRight, size: 12, color: Colors.grey),
-                  ),
-                  Flexible(
-                    child: Text(
-                      widget.to.split(',')[0],
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.from,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '• ${widget.time}',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(LucideIcons.pencil, size: 16, color: Colors.grey),
-          ],
+                    const Divider(height: 24),
+                    // End
+                    Text(
+                      'End',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.to,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const Divider(height: 24),
+                    // Time
+                    Text(
+                      '${widget.timeType} by ${widget.time}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Search Button
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _isSearchExpanded = false;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4F46E5),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Search'),
+                    ),
+                  ],
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Text(
+                            '${widget.timeType} by ',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
+                          Flexible(
+                            child: Text(
+                              widget.from.split(',')[0],
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4),
+                            child: Icon(LucideIcons.arrowRight, size: 12, color: Colors.grey),
+                          ),
+                          Flexible(
+                            child: Text(
+                              widget.to.split(',')[0],
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '• ${widget.time}',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(LucideIcons.pencil, size: 16, color: Colors.grey),
+                  ],
+                ),
         ),
       ),
     );
@@ -424,6 +506,9 @@ class _SummaryPageState extends State<SummaryPage> {
                         height: 40,
                         child: _buildSchematic(result),
                       ),
+                      const SizedBox(height: 8),
+                      // Timeline text
+                      _buildTimelineText(result),
                       const SizedBox(height: 16),
                       Row(
                         children: [
@@ -510,15 +595,18 @@ class _SummaryPageState extends State<SummaryPage> {
     // Leg 1
     allSegments.addAll(result.leg1.segments);
 
-    // Main Leg (Hardcoded in original service as constant, but absent in JourneyResult legs)
-    // We can manually add it
-    allSegments.add(Segment(
-      mode: 'train',
-      label: 'CrossCountry',
-      lineColor: '#713e8d',
-      iconId: 'train',
-      time: 102
-    ));
+    // Main Leg
+    if (_mainLeg != null) {
+      allSegments.addAll(_mainLeg!.segments);
+    } else {
+      // Fallback if mainLeg not loaded yet (shouldn't happen often if we sync loading, but for safety)
+      allSegments.add(Segment(
+          mode: 'train',
+          label: 'CrossCountry',
+          lineColor: '#713e8d',
+          iconId: 'train',
+          time: 102));
+    }
 
     // Leg 3
     allSegments.addAll(result.leg3.segments);
@@ -530,6 +618,78 @@ class _SummaryPageState extends State<SummaryPage> {
     return HorizontalJigsawSchematic(
       segments: allSegments,
       totalTime: totalTime,
+    );
+  }
+
+  Widget _buildTimelineText(JourneyResult result) {
+    List<Segment> allSegments = [];
+    allSegments.addAll(result.leg1.segments);
+
+    if (_mainLeg != null) {
+      allSegments.addAll(_mainLeg!.segments);
+    } else {
+      allSegments.add(Segment(
+        mode: 'train',
+        label: 'CrossCountry',
+        lineColor: '#713e8d',
+        iconId: 'train',
+        time: 102,
+      ));
+    }
+
+    allSegments.addAll(result.leg3.segments);
+
+    TimeOfDay startTime;
+    try {
+      final parts = widget.time.split(':');
+      startTime = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+    } catch (e) {
+      startTime = const TimeOfDay(hour: 7, minute: 10);
+    }
+
+    if (widget.timeType.toLowerCase().contains('arrive')) {
+      int totalMinutes = allSegments.fold(0, (sum, seg) => sum + seg.time);
+      int totalStartMinutes = startTime.hour * 60 + startTime.minute - totalMinutes;
+      // Handle negative wraparound (previous day)
+      if (totalStartMinutes < 0) totalStartMinutes += 24 * 60;
+      startTime = TimeOfDay(hour: (totalStartMinutes ~/ 60) % 24, minute: totalStartMinutes % 60);
+    }
+
+    List<InlineSpan> spans = [];
+    int currentMinutes = startTime.hour * 60 + startTime.minute;
+
+    for (int i = 0; i < allSegments.length; i++) {
+      final seg = allSegments[i];
+
+      String timeStr = '${(currentMinutes ~/ 60 % 24).toString().padLeft(2, '0')}:${(currentMinutes % 60).toString().padLeft(2, '0')}';
+
+      String durationStr;
+      if (seg.time >= 60) {
+        durationStr = '${seg.time ~/ 60}hr ${seg.time % 60}';
+      } else {
+        durationStr = '${seg.time} min';
+      }
+
+      spans.add(TextSpan(
+        text: '$timeStr ${seg.label} ($durationStr)',
+        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+      ));
+
+      if (i < allSegments.length - 1) {
+        spans.add(const TextSpan(
+          text: ' > ',
+          style: TextStyle(color: Colors.grey),
+        ));
+      }
+
+      currentMinutes += seg.time;
+    }
+
+    return Text.rich(
+      TextSpan(children: spans),
+      style: const TextStyle(fontSize: 10), // Small font as requested indirectly by "under the diagram"
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
     );
   }
 
