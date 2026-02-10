@@ -47,6 +47,7 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   void _updatePolylines() {
+    debugPrint('Updating polylines for result: ${_currentResult?.id}');
     if (_currentResult == null) return;
 
     final result = _currentResult!;
@@ -54,8 +55,10 @@ class _DetailPageState extends State<DetailPage> {
 
     // Helper to add segments
     void addSegments(Leg leg) {
+      debugPrint('Processing leg ${leg.id} with ${leg.segments.length} segments');
       for (var seg in leg.segments) {
         if (seg.path != null && seg.path!.isNotEmpty) {
+          debugPrint('Segment ${seg.label} has path with ${seg.path!.length} points');
           // Filter out invalid coordinates to prevent map crashes
           final validPoints = seg.path!.where((p) => p.latitude.abs() <= 90).toList();
           if (validPoints.isNotEmpty) {
@@ -64,7 +67,11 @@ class _DetailPageState extends State<DetailPage> {
               color: _parseColor(seg.lineColor),
               strokeWidth: 4.0,
             ));
+          } else {
+            debugPrint('Segment ${seg.label} has NO valid points');
           }
+        } else {
+          debugPrint('Segment ${seg.label} has NO path');
         }
       }
     }
@@ -194,7 +201,7 @@ class _DetailPageState extends State<DetailPage> {
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   itemCount: options.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final option = options[index];
                     final isSelected = option.id == currentLeg.id;
@@ -373,14 +380,20 @@ class _DetailPageState extends State<DetailPage> {
                 child: Column(
                   children: [
                     // Handle
-                    Center(
+                    GestureDetector(
+                      behavior: HitTestBehavior.translucent,
                       child: Container(
-                        margin: const EdgeInsets.only(top: 12, bottom: 8),
-                        width: 48,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(3),
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: Container(
+                            width: 48,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -571,7 +584,7 @@ class _DetailPageState extends State<DetailPage> {
             child: Center(
               child: Container(
                 width: 4,
-                color: lineColor.withAlpha(50), // 0.2 * 255 approx 50
+                color: lineColor,
               ),
             ),
           ),
