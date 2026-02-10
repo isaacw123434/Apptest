@@ -46,6 +46,9 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
               options: MapOptions(
                 initialCenter: LatLng(53.28, -1.37), // Approximate midpoint
                 initialZoom: 9.0,
+                interactionOptions: const InteractionOptions(
+                  flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                ),
               ),
               children: [
                 TileLayer(
@@ -70,12 +73,11 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
           Positioned(
             top: 40,
             left: 16,
-            child: FloatingActionButton.extended(
+            child: FloatingActionButton.small(
               onPressed: () => Navigator.pop(context),
-              label: const Text('Back'),
-              icon: const Icon(LucideIcons.chevronLeft),
               backgroundColor: Colors.white,
               foregroundColor: Colors.black,
+              child: const Icon(LucideIcons.chevronLeft),
             ),
           ),
 
