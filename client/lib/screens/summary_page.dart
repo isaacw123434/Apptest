@@ -33,36 +33,64 @@ class _SummaryPageState extends State<SummaryPage> {
   bool _isLoading = true;
   String _activeTab = 'smart'; // smart, fastest, cheapest
   String? _errorMessage;
+  final Map<String, List<JourneyResult>> _resultsCache = {};
 
   @override
   void initState() {
     super.initState();
-    _fetchData();
+    _fetchInitData();
+    _fetchTabResults();
   }
 
-  Future<void> _fetchData() async {
+  Future<void> _fetchInitData() async {
+    try {
+      final initData = await _apiService.fetchInitData();
+      if (mounted) {
+        setState(() {
+          _directDrive = initData.directDrive;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching init data: $e');
+    }
+  }
+
+  Future<void> _fetchTabResults() async {
+    if (_resultsCache.containsKey(_activeTab)) {
+      setState(() {
+        _results = _resultsCache[_activeTab]!;
+        _isLoading = false;
+        _errorMessage = null;
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      final initData = await _apiService.fetchInitData();
       final results = await _apiService.searchJourneys(
         tab: _activeTab,
         selectedModes: widget.selectedModes,
       );
 
-      setState(() {
-        _directDrive = initData.directDrive;
-        _results = results;
-        _isLoading = false;
-      });
+      _resultsCache[_activeTab] = results;
+
+      if (mounted) {
+        setState(() {
+          _results = results;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -71,7 +99,7 @@ class _SummaryPageState extends State<SummaryPage> {
       setState(() {
         _activeTab = tab;
       });
-      _fetchData();
+      _fetchTabResults();
     }
   }
 
