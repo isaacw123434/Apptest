@@ -124,73 +124,103 @@ class ApiService {
     data['lastMile'] = (data['lastMile'] as List).map((e) => Map<String, dynamic>.from(e)).toList();
     data['mainLeg'] = Map<String, dynamic>.from(data['mainLeg']);
 
+    // Pre-fetch all routes
+    Map<String, List<LatLng>> routePolylines = {};
+    for (var route in rawRoutesData) {
+      if (route['polyline'] != null && (route['polyline'] as String).isNotEmpty) {
+        routePolylines[route['name']] = decodePolyline(route['polyline']);
+      }
+    }
+
+    List<LatLng>? getPoints(String? routeName) {
+      if (routeName == null) return null;
+      return routePolylines[routeName];
+    }
+
     // Helper to attach path
     void attachPath(Map<String, dynamic> leg, String? routeNameOverride) {
+      String id = leg['id'];
+      List segments = leg['segments'] as List;
+
+      // Special handling for multi-segment legs
+      if (id == 'train_walk_headingley') {
+        leg['segments'] = segments.map((s) {
+          var sMap = Map<String, dynamic>.from(s);
+          String mode = sMap['mode'] ?? '';
+          if (mode == 'walk') {
+            sMap['path'] = getPoints(routesMap['cycle']); // Approximation
+          } else if (mode == 'train') {
+            sMap['path'] = getPoints(routesMap['train_walk_headingley']);
+          }
+          return sMap;
+        }).toList();
+        return;
+      } else if (id == 'train_uber_headingley') {
+        leg['segments'] = segments.map((s) {
+          var sMap = Map<String, dynamic>.from(s);
+          String mode = sMap['mode'] ?? '';
+          if (mode == 'taxi') {
+            sMap['path'] = getPoints(routesMap['uber']); // Approximation
+          } else if (mode == 'train') {
+            sMap['path'] = getPoints(routesMap['train_walk_headingley']);
+          }
+          return sMap;
+        }).toList();
+        return;
+      }
+
       String? routeName;
       if (routeNameOverride != null) {
         routeName = routeNameOverride;
       } else {
-        String id = leg['id'];
         if (id == 'uber') {
           routeName = routesMap['uber'];
         } else if (id == 'bus') {
           routeName = routesMap['bus'];
         } else if (id == 'cycle') {
           routeName = routesMap['cycle'];
-        } else if (id == 'train_walk_headingley') {
-          routeName = routesMap['train_walk_headingley'];
         } else if (id == 'train_main') {
           routeName = routesMap['train_main'];
         } else if (id == 'drive_park') {
           routeName = routesMap['uber'];
-        } else if (id == 'train_uber_headingley') {
-          routeName = routesMap['train_walk_headingley'];
         }
       }
 
-      if (routeName != null) {
-        final route = rawRoutesData.firstWhere(
-          (r) => r['name'] == routeName,
-          orElse: () => {},
-        );
-        if (route.isNotEmpty && route['polyline'] != null) {
-          List<LatLng> points = decodePolyline(route['polyline']);
-          // Inject into segments
-          if (leg['segments'] != null) {
-             List segments = leg['segments'] as List;
-             leg['segments'] = segments.map((s) {
-               var sMap = Map<String, dynamic>.from(s);
+      final points = getPoints(routeName);
 
-               // Logic to decide if we should attach path to this segment
-               String mode = sMap['mode'] ?? '';
-               String routeNameLower = routeName!.toLowerCase();
-               bool shouldAttach = false;
+      if (points != null) {
+        leg['segments'] = segments.map((s) {
+          var sMap = Map<String, dynamic>.from(s);
 
-               if (routeNameLower.contains('train') && mode == 'train') {
-                 shouldAttach = true;
-               } else if ((routeNameLower.contains('drive') || routeNameLower.contains('uber')) && (mode == 'car' || mode == 'taxi')) {
-                 shouldAttach = true;
-               } else if (routeNameLower.contains('bus') && mode == 'bus') {
-                 shouldAttach = true;
-               } else if (routeNameLower.contains('cycle') && mode == 'bike') {
-                 shouldAttach = true;
-               } else if (routeNameLower.contains('direct drive') && mode == 'car') {
-                 shouldAttach = true;
-               }
+          // Logic to decide if we should attach path to this segment
+          String mode = sMap['mode'] ?? '';
+          String routeNameLower = routeName!.toLowerCase();
+          bool shouldAttach = false;
 
-               if (shouldAttach) {
-                 sMap['path'] = points;
-               }
-               return sMap;
-             }).toList();
+          if (routeNameLower.contains('train') && mode == 'train') {
+            shouldAttach = true;
+          } else if ((routeNameLower.contains('drive') || routeNameLower.contains('uber')) &&
+              (mode == 'car' || mode == 'taxi')) {
+            shouldAttach = true;
+          } else if (routeNameLower.contains('bus') && mode == 'bus') {
+            shouldAttach = true;
+          } else if (routeNameLower.contains('cycle') && mode == 'bike') {
+            shouldAttach = true;
+          } else if (routeNameLower.contains('direct drive') && mode == 'car') {
+            shouldAttach = true;
           }
-        }
+
+          if (shouldAttach) {
+            sMap['path'] = points;
+          }
+          return sMap;
+        }).toList();
       }
     }
 
     // Process First Mile
     for (var leg in data['firstMile']) {
-       attachPath(leg, null);
+      attachPath(leg, null);
     }
 
     // Process Main Leg

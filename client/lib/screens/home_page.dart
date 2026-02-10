@@ -233,13 +233,14 @@ class _HomePageState extends State<HomePage> {
           ),
           if (_isModeDropdownOpen) ...[
             const SizedBox(height: 8),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: _modeOptions.map((mode) {
-                  final isSelected = _selectedModes[mode['id']]!;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
+            Row(
+              children: _modeOptions.asMap().entries.map((entry) {
+                final index = entry.key;
+                final mode = entry.value;
+                final isSelected = _selectedModes[mode['id']]!;
+                return Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(right: index == _modeOptions.length - 1 ? 0 : 8.0),
                     child: InkWell(
                       onTap: () {
                         setState(() {
@@ -247,7 +248,6 @@ class _HomePageState extends State<HomePage> {
                         });
                       },
                       child: Container(
-                        width: (MediaQuery.of(context).size.width - 64) / 5,
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
                           color: isSelected ? const Color(0xFFEFF6FF) : Colors.white, // Blue 50
@@ -266,6 +266,7 @@ class _HomePageState extends State<HomePage> {
                             const SizedBox(height: 4),
                             Text(
                               mode['label'],
+                              textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -275,9 +276,9 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                  );
-                }).toList(),
-              ),
+                  ),
+                );
+              }).toList(),
             ),
           ],
         ],

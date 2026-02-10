@@ -20,92 +20,110 @@ class HorizontalJigsawSchematic extends StatelessWidget {
         // If availableWidth is infinite (e.g. in scroll view), use a default or screen width
         final double effectiveWidth = availableWidth.isFinite ? availableWidth : 1000.0;
 
-        // Calculate minimal widths
-        // 40 for icon + some text. Adjust as needed.
-        const double minSegmentWidth = 90.0;
+        // Minimal width for icon + text
+        const double minSegmentWidth = 70.0;
 
-        // Total min width
+        // Calculate widths
+        Map<Segment, double> segmentWidths = {};
+
         double totalMinWidth = segments.length * minSegmentWidth;
 
-        bool canFit = totalMinWidth <= effectiveWidth;
+        if (totalMinWidth > effectiveWidth) {
+           // If we can't fit even with min width, distribute equally
+           for (var seg in segments) {
+             segmentWidths[seg] = effectiveWidth / segments.length;
+           }
+        } else {
+           // Iterative distribution
+           // 1. Sort segments by time to handle smallest first
+           List<Segment> sortedSegments = List.from(segments);
+           sortedSegments.sort((a, b) => a.time.compareTo(b.time));
 
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: canFit ? const NeverScrollableScrollPhysics() : const BouncingScrollPhysics(),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: segments.asMap().entries.map((entry) {
-              final index = entry.key;
-              final seg = entry.value;
-              final isFirst = index == 0;
-              final isLast = index == segments.length - 1;
+           double remainingWidth = effectiveWidth;
+           double remainingTime = totalTime > 0 ? totalTime : 1;
+           Set<Segment> handled = {};
 
-              double width;
-              if (canFit) {
-                 // Proportional
-                 double flex = (seg.time / (totalTime > 0 ? totalTime : 1));
-                 width = effectiveWidth * flex;
-                 if (width < minSegmentWidth) width = minSegmentWidth;
+           // Pass 1: Assign min width to small segments
+           for (var seg in sortedSegments) {
+              if (remainingTime <= 0) break;
+              double propWidth = (seg.time / remainingTime) * remainingWidth;
 
-                 // Re-adjust?
-                 // If we clamp to minWidth, total might exceed effectiveWidth.
-                 // Simple approach: Use constrained width.
-              } else {
-                width = minSegmentWidth;
-                // Or proportional scaled up?
-                // Let's stick to minWidth if we scroll, or a bit more if time is long.
-                 double flex = (seg.time / (totalTime > 0 ? totalTime : 1));
-                 double propWidth = effectiveWidth * flex;
-                 width = propWidth > minSegmentWidth ? propWidth : minSegmentWidth;
+              // Ideally, if propWidth < minSegmentWidth, we give it minSegmentWidth.
+              // But we must check if remaining space allows it.
+              // Actually, since we know totalMinWidth <= effectiveWidth, we have enough space for everyone to be at least minSegmentWidth.
+
+              if (propWidth < minSegmentWidth) {
+                 segmentWidths[seg] = minSegmentWidth;
+                 remainingWidth -= minSegmentWidth;
+                 remainingTime -= seg.time;
+                 handled.add(seg);
               }
+           }
 
-              Color color;
-              try {
-                color = Color(int.parse(seg.lineColor.replaceAll('#', ''), radix: 16) + 0xFF000000);
-              } catch (e) {
-                color = Colors.grey;
+           // Pass 2: Distribute remaining width to others
+           for (var seg in segments) {
+              if (!handled.contains(seg)) {
+                 double w = (seg.time / remainingTime) * remainingWidth;
+                 segmentWidths[seg] = w;
               }
+           }
+        }
 
-              // Text color needs to contrast with background.
-              final isBright = color.computeLuminance() > 0.5;
-              final textColor = isBright ? Colors.black : Colors.white;
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: segments.asMap().entries.map((entry) {
+            final index = entry.key;
+            final seg = entry.value;
+            final isFirst = index == 0;
+            final isLast = index == segments.length - 1;
 
-              return Container(
-                width: width,
-                constraints: BoxConstraints(minWidth: minSegmentWidth),
-                child: HorizontalJigsawSegment(
-                  isFirst: isFirst,
-                  isLast: isLast,
-                  backgroundColor: color,
-                  borderColor: Colors.white,
-                  overlap: 12.0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        _getIconData(seg.iconId),
-                        color: textColor,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          seg.label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: textColor,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
+            double width = segmentWidths[seg] ?? minSegmentWidth;
+
+            Color color;
+            try {
+              color = Color(int.parse(seg.lineColor.replaceAll('#', ''), radix: 16) + 0xFF000000);
+            } catch (e) {
+              color = Colors.grey;
+            }
+
+            // Text color needs to contrast with background.
+            final isBright = color.computeLuminance() > 0.5;
+            final textColor = isBright ? Colors.black : Colors.white;
+
+            return SizedBox(
+              width: width,
+              child: HorizontalJigsawSegment(
+                isFirst: isFirst,
+                isLast: isLast,
+                backgroundColor: color,
+                borderColor: Colors.white,
+                overlap: 12.0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      _getIconData(seg.iconId),
+                      color: textColor,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        seg.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              );
-            }).toList(),
-          ),
+              ),
+            );
+          }).toList(),
         );
       },
     );

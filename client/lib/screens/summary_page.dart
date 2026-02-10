@@ -372,13 +372,14 @@ class _SummaryPageState extends State<SummaryPage> {
                     ),
                     if (_isModeDropdownOpen) ...[
                       const SizedBox(height: 8),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: _modeOptions.map((mode) {
-                            final isSelected = _selectedModes[mode['id']]!;
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
+                      Row(
+                        children: _modeOptions.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final mode = entry.value;
+                          final isSelected = _selectedModes[mode['id']]!;
+                          return Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.only(right: index == _modeOptions.length - 1 ? 0 : 8.0),
                               child: InkWell(
                                 onTap: () {
                                   setState(() {
@@ -386,7 +387,6 @@ class _SummaryPageState extends State<SummaryPage> {
                                   });
                                 },
                                 child: Container(
-                                  width: (MediaQuery.of(context).size.width - 64) / 5,
                                   padding: const EdgeInsets.symmetric(vertical: 8),
                                   decoration: BoxDecoration(
                                     color: isSelected ? const Color(0xFFEFF6FF) : Colors.white, // Blue 50
@@ -405,6 +405,7 @@ class _SummaryPageState extends State<SummaryPage> {
                                       const SizedBox(height: 4),
                                       Text(
                                         mode['label'],
+                                        textAlign: TextAlign.center,
                                         style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.bold,
@@ -414,9 +415,9 @@ class _SummaryPageState extends State<SummaryPage> {
                                   ),
                                 ),
                               ),
-                            );
-                          }).toList(),
-                        ),
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ],
                     const SizedBox(height: 16),
@@ -708,17 +709,106 @@ class _SummaryPageState extends State<SummaryPage> {
                               onTap: () {
                                 showDialog(
                                   context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text('Risk Assessment'),
-                                    content: const Text(
-                                      'This journey has the lowest risk score based on historical data, number of transfers, and connection times.',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text('OK'),
+                                  builder: (context) => Dialog(
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(24.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.all(8),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFFEFF6FF), // Blue 50
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                child: const Icon(LucideIcons.shield, color: Color(0xFF4F46E5)),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              const Text(
+                                                'Risk Assessment',
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 16),
+                                          const Text(
+                                            'This journey has the lowest risk score.',
+                                            style: TextStyle(fontWeight: FontWeight.w500),
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Container(
+                                            padding: const EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFF8FAFC), // Slate 50
+                                              borderRadius: BorderRadius.circular(8),
+                                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                                            ),
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    const Text('First Mile', style: TextStyle(color: Color(0xFF64748B))),
+                                                    Text(result.leg1.riskScore.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 8),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    const Text('Main Leg', style: TextStyle(color: Color(0xFF64748B))),
+                                                    Text((result.risk - result.leg1.riskScore - result.leg3.riskScore).toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 8),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    const Text('Last Mile', style: TextStyle(color: Color(0xFF64748B))),
+                                                    Text(result.leg3.riskScore.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                                                  ],
+                                                ),
+                                                const Divider(height: 16),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    const Text('Total Score', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                    Text(result.risk.toString(), style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF4F46E5))),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(height: 16),
+                                          const Text(
+                                            'Calculated based on historical delay data, number of transfers, and connection buffer times.',
+                                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                                          ),
+                                          const SizedBox(height: 24),
+                                          SizedBox(
+                                            width: double.infinity,
+                                            child: ElevatedButton(
+                                              onPressed: () => Navigator.pop(context),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(0xFF4F46E5),
+                                                foregroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                              ),
+                                              child: const Text('Close'),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
+                                    ),
                                   ),
                                 );
                               },

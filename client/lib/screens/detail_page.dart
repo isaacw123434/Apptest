@@ -376,93 +376,97 @@ class _DetailPageState extends State<DetailPage> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                   boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, -5))],
                 ),
-                child: Column(
-                  children: [
-                    // Handle
-                    GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Center(
-                          child: Container(
-                            width: 48,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Header
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                child: CustomScrollView(
+                  controller: scrollController,
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Column(
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '£${totalCost.toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF0F172A), // Slate 900
+                          // Handle
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: Center(
+                              child: Container(
+                                width: 48,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(3),
                                 ),
                               ),
-                              Row(
-                                children: [
-                                  const Icon(LucideIcons.clock, size: 14, color: Colors.grey),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '${(totalTime / 60).floor()}h ${totalTime % 60}m',
-                                    style: const TextStyle(fontSize: 14, color: Colors.grey),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFECFDF5), // Emerald 50
-                              borderRadius: BorderRadius.circular(8),
                             ),
+                          ),
+
+                          // Header
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                const Icon(LucideIcons.leaf, size: 12, color: Color(0xFF047857)),
-                                const SizedBox(width: 4),
-                                Text(
-                                  result.emissions.text != null
-                                      ? '${result.emissions.val.toStringAsFixed(2)} kg CO₂'
-                                      : 'Low CO₂',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF047857),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '£${totalCost.toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF0F172A), // Slate 900
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        const Icon(LucideIcons.clock, size: 14, color: Colors.grey),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${(totalTime / 60).floor()}h ${totalTime % 60}m',
+                                          style: const TextStyle(fontSize: 14, color: Colors.grey),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFECFDF5), // Emerald 50
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(LucideIcons.leaf, size: 12, color: Color(0xFF047857)),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        result.emissions.text != null
+                                            ? '${result.emissions.val.toStringAsFixed(2)} kg CO₂'
+                                            : 'Low CO₂',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF047857),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
                           ),
+                          const Divider(),
                         ],
                       ),
                     ),
-                    const Divider(),
 
                     // Timeline
-                    Expanded(
-                      child: SingleChildScrollView(
-                        controller: scrollController,
-                        padding: const EdgeInsets.all(24),
+                    SliverPadding(
+                      padding: const EdgeInsets.all(24),
+                      sliver: SliverToBoxAdapter(
                         child: _buildVerticalNodeTimeline(result),
                       ),
                     ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 80)),
                   ],
                 ),
               );
@@ -494,68 +498,119 @@ class _DetailPageState extends State<DetailPage> {
   Widget _buildVerticalNodeTimeline(JourneyResult result) {
     if (_initData == null) return const Center(child: CircularProgressIndicator());
 
-    final leg1Color = _parseColor(result.leg1.lineColor);
-    final mainLegColor = _parseColor(_initData!.segmentOptions.mainLeg.lineColor);
-    final leg3Color = _parseColor(result.leg3.lineColor);
+    // Calculate times - Base is Main Leg Departure at 08:03
+    final int leedsDepartMinutes = 8 * 60 + 3; // 08:03
+    final int leedsArrivalMinutes = leedsDepartMinutes - result.buffer;
+    final int startMinutes = leedsArrivalMinutes - result.leg1.time;
 
-    // Calculate times
-    // Start at 07:10 for mock
-    int currentMinutes = 7 * 60 + 10;
+    int currentMinutes = startMinutes;
 
-    final startTimeStr = _formatMinutes(currentMinutes);
+    List<Widget> children = [];
 
-    // Leg 1
-    currentMinutes += result.leg1.time;
-    final leedsArrivalMinutes = currentMinutes;
+    // Helper to add segments
+    void addSegments(List<Segment> segments, {bool isEditable = false, required VoidCallback? onEdit}) {
+      for (int i = 0; i < segments.length; i++) {
+        final seg = segments[i];
+        final isFirst = i == 0;
+        final isLast = i == segments.length - 1;
 
-    // Wait (Buffer)
-    currentMinutes += result.buffer; // 10 min buffer
-    final leedsDepartureMinutes = currentMinutes;
-    final leedsTimeStr = '${_formatMinutes(leedsArrivalMinutes)} - ${_formatMinutes(leedsDepartureMinutes)}';
+        Color lineColor = _parseColor(seg.lineColor);
+        Color nextColor = isLast ? Colors.grey : _parseColor(segments[i + 1].lineColor);
 
-    // Main Leg
-    currentMinutes += _initData!.segmentOptions.mainLeg.time;
-    final loughboroughTimeStr = _formatMinutes(currentMinutes);
+        // If this is the last segment of this leg, we need to know the NEXT leg's first segment color for the node?
+        // Actually, _buildNode handles prevColor and nextColor for the node itself.
+        // Here we build the CONNECTION.
 
-    // Leg 3
-    currentMinutes += result.leg3.time;
-    final endTimeStr = _formatMinutes(currentMinutes);
+        children.add(_buildSegmentConnection(
+          segment: seg,
+          isEditable: isEditable && isFirst, // Only first segment gets edit button
+          onEdit: onEdit,
+        ));
+
+        currentMinutes += seg.time;
+
+        // Add Node after segment
+        // If this is the last segment of Leg 1, the next node is Leeds (Transfer).
+        // If it's intermediate, it's a stop.
+
+        // We will add the node MANUALLY after calling addSegments for the leg transitions,
+        // so we only add intermediate nodes here?
+        // Actually, we should output: [Node] -> [Segment] -> [Node] -> [Segment] -> [Node]...
+
+        // Wait, the structure is:
+        // Node (Start)
+        // Segment 1
+        // Node (Stop 1)
+        // Segment 2
+        // Node (End Leg)
+
+        // So inside this loop, we add connection, then if not last, add intermediate node.
+        if (!isLast) {
+             children.add(_buildNode(
+               seg.to ?? 'Stop',
+               _formatMinutes(currentMinutes),
+               prevColor: lineColor,
+               nextColor: _parseColor(segments[i+1].lineColor)
+             ));
+        }
+      }
+    }
+
+    // --- Start Node ---
+    Color leg1FirstColor = _parseColor(result.leg1.segments.first.lineColor);
+    children.add(_buildNode(
+      'Start Journey',
+      _formatMinutes(currentMinutes),
+      isStart: true,
+      nextColor: leg1FirstColor
+    ));
+
+    // --- Leg 1 ---
+    addSegments(result.leg1.segments, isEditable: true, onEdit: () => _showEditModal('firstMile'));
+
+    // --- Leeds Node ---
+    // Time range: Arrival - Depart
+    String leedsTimeStr = '${_formatMinutes(currentMinutes)} - ${_formatMinutes(currentMinutes + result.buffer)}';
+    Color leg1LastColor = _parseColor(result.leg1.segments.last.lineColor);
+    Color mainLegColor = _parseColor(_initData!.segmentOptions.mainLeg.segments.first.lineColor);
+
+    children.add(_buildNode(
+      'Leeds Station',
+      leedsTimeStr,
+      prevColor: leg1LastColor,
+      nextColor: mainLegColor
+    ));
+    currentMinutes += result.buffer;
+
+    // --- Main Leg ---
+    addSegments(_initData!.segmentOptions.mainLeg.segments, isEditable: false, onEdit: null);
+
+    // --- Loughborough Node ---
+    Color mainLegLastColor = _parseColor(_initData!.segmentOptions.mainLeg.segments.last.lineColor);
+    Color leg3FirstColor = _parseColor(result.leg3.segments.first.lineColor);
+
+    children.add(_buildNode(
+      'Loughborough Station',
+      _formatMinutes(currentMinutes),
+      prevColor: mainLegLastColor,
+      nextColor: leg3FirstColor
+    ));
+
+    // --- Leg 3 ---
+    addSegments(result.leg3.segments, isEditable: true, onEdit: () => _showEditModal('lastMile'));
+
+    // --- End Node ---
+    Color leg3LastColor = _parseColor(result.leg3.segments.last.lineColor);
+    children.add(_buildNode(
+      'Arrive East Leake',
+      _formatMinutes(currentMinutes),
+      isEnd: true,
+      prevColor: leg3LastColor
+    ));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Start Node
-        _buildNode('Start Journey', startTimeStr, isStart: true, nextColor: leg1Color),
-
-        // Leg 1 (First Mile)
-        _buildLegConnection(
-          leg: result.leg1,
-          isEditable: true,
-          onEdit: () => _showEditModal('firstMile'),
-        ),
-
-        // Transfer Node (Leeds)
-        _buildNode('Leeds Station', leedsTimeStr, prevColor: leg1Color, nextColor: mainLegColor),
-
-        // Main Leg (Train)
-        _buildLegConnection(
-          leg: _initData!.segmentOptions.mainLeg,
-          isEditable: false,
-        ),
-
-        // Transfer Node (Loughborough)
-        _buildNode('Loughborough Station', loughboroughTimeStr, prevColor: mainLegColor, nextColor: leg3Color),
-
-        // Leg 3 (Last Mile)
-        _buildLegConnection(
-          leg: result.leg3,
-          isEditable: true,
-          onEdit: () => _showEditModal('lastMile'),
-        ),
-
-        // End Node
-        _buildNode('Arrive East Leake', endTimeStr, isEnd: true, prevColor: leg3Color),
-      ],
+      children: children,
     );
   }
 
@@ -607,9 +662,14 @@ class _DetailPageState extends State<DetailPage> {
     );
   }
 
-  Widget _buildLegConnection({required Leg leg, bool isEditable = false, VoidCallback? onEdit}) {
-    final emission = calculateEmission(leg.distance, leg.iconId);
-    Color lineColor = _parseColor(leg.lineColor);
+  Widget _buildSegmentConnection({
+    required Segment segment,
+    bool isEditable = false,
+    VoidCallback? onEdit,
+    double? distance
+  }) {
+    final emission = distance != null ? calculateEmission(distance, segment.iconId) : 0.0;
+    Color lineColor = _parseColor(segment.lineColor);
 
     return IntrinsicHeight(
       child: Row(
@@ -618,11 +678,15 @@ class _DetailPageState extends State<DetailPage> {
           // Vertical Line
           SizedBox(
             width: 16,
-            child: Center(
-              child: Container(
-                width: 4,
-                color: lineColor,
-              ),
+            child: Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    width: 4,
+                    color: lineColor,
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(width: 24),
@@ -641,28 +705,28 @@ class _DetailPageState extends State<DetailPage> {
               ),
               child: Row(
                 children: [
-                  Icon(_getIconData(leg.iconId), color: lineColor, size: 24),
+                  Icon(_getIconData(segment.iconId), color: lineColor, size: 24),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(leg.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text(segment.label, style: const TextStyle(fontWeight: FontWeight.bold)),
                         Text(
-                          '${leg.time} min • ${(leg.distance).toStringAsFixed(1)} miles',
+                          '${segment.time} min${distance != null ? ' • ${distance.toStringAsFixed(1)} miles' : ''}',
                           style: const TextStyle(fontSize: 12, color: Colors.grey),
                         ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(LucideIcons.leaf, size: 10, color: Colors.green),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${emission.toStringAsFixed(2)} kg CO₂',
-                              style: const TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
+                        if (distance != null)
+                          Row(
+                            children: [
+                              const Icon(LucideIcons.leaf, size: 10, color: Colors.green),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${emission.toStringAsFixed(2)} kg CO₂',
+                                style: const TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                   ),
