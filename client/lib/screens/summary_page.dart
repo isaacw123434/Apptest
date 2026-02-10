@@ -693,14 +693,4 @@ class _SummaryPageState extends State<SummaryPage> {
     );
   }
 
-  IconData _getIconData(String iconId) {
-    switch (iconId) {
-      case 'train': return LucideIcons.train;
-      case 'bus': return LucideIcons.bus;
-      case 'car': return LucideIcons.car;
-      case 'bike': return LucideIcons.bike;
-      case 'footprints': return LucideIcons.footprints;
-      default: return LucideIcons.circle;
-    }
-  }
 }

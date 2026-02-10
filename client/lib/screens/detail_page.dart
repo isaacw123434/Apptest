@@ -201,7 +201,7 @@ class _DetailPageState extends State<DetailPage> {
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   itemCount: options.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final option = options[index];
                     final isSelected = option.id == currentLeg.id;
