@@ -4,6 +4,7 @@ import '../models.dart';
 import '../services/api_service.dart';
 import 'detail_page.dart';
 import 'direct_drive_page.dart';
+import 'horizontal_jigsaw_schematic.dart';
 
 class SummaryPage extends StatefulWidget {
   final String from;
@@ -526,35 +527,9 @@ class _SummaryPageState extends State<SummaryPage> {
     // Safety check for totalTime
     if (totalTime == 0) totalTime = 1;
 
-    return Row(
-      children: allSegments.map((seg) {
-        final flex = (seg.time / totalTime * 100).ceil();
-        // Parse hex color
-        Color color;
-        try {
-          color = Color(int.parse(seg.lineColor.replaceAll('#', ''), radix: 16) + 0xFF000000);
-        } catch (e) {
-          color = Colors.grey;
-        }
-
-        return Expanded(
-          flex: flex > 0 ? flex : 1,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 1),
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Center(
-              child: Icon(
-                _getIconData(seg.iconId),
-                color: Colors.white,
-                size: 12,
-              ),
-            ),
-          ),
-        );
-      }).toList(),
+    return HorizontalJigsawSchematic(
+      segments: allSegments,
+      totalTime: totalTime,
     );
   }
 
