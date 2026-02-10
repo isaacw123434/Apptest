@@ -684,9 +684,14 @@ class _SummaryPageState extends State<SummaryPage> {
                                   color: Color(0xFF0F172A), // Slate 900
                                 ),
                               ),
-                              Text(
-                                '07:10 - 09:26', // Mock logic for time range
-                                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                              Builder(
+                                builder: (context) {
+                                  final times = _calculateJourneyTimes(result);
+                                  return Text(
+                                    '${_formatTime(times['start']!)} - ${_formatTime(times['end']!)}',
+                                    style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                                  );
+                                }
                               ),
                             ],
                           ),
@@ -925,6 +930,17 @@ class _SummaryPageState extends State<SummaryPage> {
     List<Segment> allSegments = [];
     allSegments.addAll(result.leg1.segments);
 
+    // Add buffer segment
+    if (result.buffer > 0) {
+      allSegments.add(Segment(
+        mode: 'wait',
+        label: 'Transfer',
+        lineColor: '#000000',
+        iconId: '',
+        time: result.buffer,
+      ));
+    }
+
     if (_mainLeg != null) {
       allSegments.addAll(_mainLeg!.segments);
     } else {
@@ -939,21 +955,8 @@ class _SummaryPageState extends State<SummaryPage> {
 
     allSegments.addAll(result.leg3.segments);
 
-    TimeOfDay startTime;
-    try {
-      final parts = widget.time.split(':');
-      startTime = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
-    } catch (e) {
-      startTime = const TimeOfDay(hour: 7, minute: 10);
-    }
-
-    if (widget.timeType.toLowerCase().contains('arrive')) {
-      int totalMinutes = allSegments.fold(0, (sum, seg) => sum + seg.time);
-      int totalStartMinutes = startTime.hour * 60 + startTime.minute - totalMinutes;
-      // Handle negative wraparound (previous day)
-      if (totalStartMinutes < 0) totalStartMinutes += 24 * 60;
-      startTime = TimeOfDay(hour: (totalStartMinutes ~/ 60) % 24, minute: totalStartMinutes % 60);
-    }
+    // Calculate start time based on 8:03 AM Main Leg Departure logic
+    TimeOfDay startTime = _calculateJourneyTimes(result)['start']!;
 
     List<InlineSpan> spans = [];
     int currentMinutes = startTime.hour * 60 + startTime.minute;
@@ -993,4 +996,31 @@ class _SummaryPageState extends State<SummaryPage> {
     );
   }
 
+  Map<String, TimeOfDay> _calculateJourneyTimes(JourneyResult result) {
+    // Main Leg Departure = 8:03 AM (483 minutes)
+    final int mainLegDepartMinutes = 8 * 60 + 3;
+    final int startMinutes = mainLegDepartMinutes - result.buffer - result.leg1.time;
+    // End Time = Start + Duration
+    final int endMinutes = startMinutes + result.time;
+
+    return {
+      'start': _minutesToTimeOfDay(startMinutes),
+      'end': _minutesToTimeOfDay(endMinutes),
+    };
+  }
+
+  TimeOfDay _minutesToTimeOfDay(int totalMinutes) {
+    // Handle wraparound
+    totalMinutes = totalMinutes % (24 * 60);
+    if (totalMinutes < 0) totalMinutes += 24 * 60;
+
+    return TimeOfDay(
+      hour: totalMinutes ~/ 60,
+      minute: totalMinutes % 60,
+    );
+  }
+
+  String _formatTime(TimeOfDay time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
 }
