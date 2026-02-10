@@ -54,7 +54,7 @@ class _DetailPageState extends State<DetailPage> {
       for (var seg in leg.segments) {
         if (seg.path != null && seg.path!.isNotEmpty) {
           lines.add(Polyline(
-            points: seg.path!.map((p) => LatLng(p[0], p[1])).toList(),
+            points: seg.path!,
             color: _parseColor(seg.lineColor),
             strokeWidth: 4.0,
           ));
@@ -76,7 +76,7 @@ class _DetailPageState extends State<DetailPage> {
     // Fallback if no lines generated yet, try mock path
     if (lines.isEmpty && _initData != null && _initData!.mockPath.isNotEmpty) {
        lines.add(Polyline(
-         points: _initData!.mockPath.map((p) => LatLng(p[0], p[1])).toList(),
+         points: _initData!.mockPath,
          color: Colors.blue,
          strokeWidth: 4.0,
        ));

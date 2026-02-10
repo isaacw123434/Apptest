@@ -1,3 +1,5 @@
+import 'package:latlong2/latlong.dart';
+
 class Segment {
   final String mode;
   final String label;
@@ -6,7 +8,7 @@ class Segment {
   final int time;
   final String? to;
   final String? detail;
-  final List<List<double>>? path;
+  final List<LatLng>? path;
 
   Segment({
     required this.mode,
@@ -21,13 +23,15 @@ class Segment {
 
   factory Segment.fromJson(Map<String, dynamic> json) {
     var pathList = json['path'] as List?;
-    List<List<double>>? path;
+    List<LatLng>? path;
     if (pathList != null) {
       try {
         path = [];
         for (var point in pathList) {
-          if (point is List) {
-            path.add(point.map((e) => (e as num).toDouble()).toList());
+          if (point is List && point.length >= 2) {
+            path.add(LatLng((point[0] as num).toDouble(), (point[1] as num).toDouble()));
+          } else if (point is LatLng) {
+            path.add(point);
           }
         }
       } catch (e) {
@@ -217,7 +221,7 @@ class JourneyResult {
 class InitData {
   final SegmentOptions segmentOptions;
   final DirectDrive directDrive;
-  final List<List<double>> mockPath;
+  final List<LatLng> mockPath;
 
   InitData({
     required this.segmentOptions,
@@ -227,12 +231,14 @@ class InitData {
 
   factory InitData.fromJson(Map<String, dynamic> json) {
     var pathList = json['mockPath'] as List?;
-    List<List<double>> mockPath = [];
+    List<LatLng> mockPath = [];
     if (pathList != null) {
       try {
         for (var point in pathList) {
-          if (point is List) {
-            mockPath.add(point.map((e) => (e as num).toDouble()).toList());
+          if (point is List && point.length >= 2) {
+            mockPath.add(LatLng((point[0] as num).toDouble(), (point[1] as num).toDouble()));
+          } else if (point is LatLng) {
+            mockPath.add(point);
           }
         }
       } catch (e) {

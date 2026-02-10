@@ -28,7 +28,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
       final data = await _apiService.fetchInitData();
       setState(() {
         _initData = data;
-        _routePoints = data.mockPath.map((p) => LatLng(p[0], p[1])).toList();
+        _routePoints = data.mockPath;
       });
     } catch (e) {
       debugPrint('Error fetching data: $e');

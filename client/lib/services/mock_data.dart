@@ -1,5 +1,14 @@
+// ignore_for_file: constant_identifier_names
 
-const routesData = [
+class IconIds {
+  static const String train = 'train';
+  static const String car = 'car';
+  static const String bus = 'bus';
+  static const String bike = 'bike';
+  static const String footprints = 'footprints';
+}
+
+final List<Map<String, dynamic>> rawRoutesData = [
   {
     "name": "Cycle: St Chads View to Leeds Station",
     "polyline": "srogInltHrAF@{ANcAPe@Vi@`@[b@E`@DXVPZJXNr@H|@DhA?JfADxAFhAJrC`@C}BAmC?{EJsJ?]AOHSlAhBVZh@x@xA~A`A~@TNPc@P[VWRo@z@cCjAiDdEsL`@eAf@]pAs@lCwAXMt@Wn@IxA?TDt@V`Ad@f@TbARf@Dd@?bAMZIv@c@z@e@rA_AbAm@`Ac@d@Un@SvAa@n@OfAMd@Eh@CfB?xCBd@Bh@?`A@rB@LA@CHIRKZ@B?RDj@TfA^t@^jAb@jAh@`Az@n@j@`Av@d@`@DLZVlBjB^l@LVDf@Cb@AN?fDDAb@BDoADuABkABiBDaCH_ANcA`AyD|@eDnBeHb@{Ab@oAdAkClB_FzAgDv@iAbCkCfCgDp@kAt@cAl@{@d@kAtAoEd@oBJSTe@Vw@?g@n@iCvBsK^_BXw@Rg@Ra@Xe@bAiAj@q@Vo@`@aA`@{AD_@Fq@Bq@C{AGk@c@{B]mBGk@Cm@BoCVeL?yBEoAAs@IWKI[CGKIqAKBEkAEw@UiC?A",
@@ -47,4 +56,203 @@ const routesData = [
   }
 ];
 
-module.exports = routesData;
+final Map<String, dynamic> routesMap = {
+  'uber': 'Drive (Uber): St Chads View to Leeds Station',
+  'bus': 'Bus (Line 24): St Chads View to Leeds Station',
+  'cycle': 'Cycle: St Chads View to Leeds Station',
+  'train_walk_headingley': 'Train (Northern): St Chads View to Leeds Station via Headingley',
+  'train_main': 'Train: Leeds Station to Loughborough',
+  'last_uber': 'Drive (Uber): Loughborough to East Leake',
+  'last_bus': 'Bus (Line 1): Loughborough to East Leake',
+  'last_cycle': 'Cycle: Loughborough to East Leake'
+};
+
+final Map<String, dynamic> directDriveData = {
+  'time': 110,
+  'cost': 39.15,
+  'distance': 87.0
+};
+
+final Map<String, dynamic> segmentOptionsData = {
+  'firstMile': [
+    {
+      'id': 'uber',
+      'label': 'Uber',
+      'detail': 'St Chads → Leeds Station',
+      'time': 14,
+      'cost': 8.97,
+      'distance': 3.0,
+      'riskScore': 0,
+      'iconId': IconIds.car,
+      'color': 'text-black',
+      'bgColor': 'bg-zinc-100',
+      'lineColor': '#000000',
+      'desc': 'Fastest door-to-door.',
+      'waitTime': 4,
+      'segments': [
+        { 'mode': 'taxi', 'label': 'Uber', 'lineColor': '#000000', 'iconId': IconIds.car, 'time': 14, 'to': 'Leeds Station' }
+      ]
+    },
+    {
+      'id': 'bus',
+      'label': 'Bus (Line 24)',
+      'detail': '5min walk + 16min bus',
+      'time': 23,
+      'cost': 2.00,
+      'distance': 3.0,
+      'riskScore': 0,
+      'iconId': IconIds.bus,
+      'color': 'text-brand-dark',
+      'bgColor': 'bg-brand-light',
+      'lineColor': '#30227d',
+      'recommended': true,
+      'desc': 'Best balance.',
+      'nextBusIn': 12,
+      'segments': [
+        { 'mode': 'bus', 'label': 'Bus', 'lineColor': '#30227d', 'iconId': IconIds.bus, 'time': 23, 'to': 'Leeds Station' }
+      ]
+    },
+    {
+      'id': 'drive_park',
+      'label': 'Drive & Park',
+      'detail': 'Drive to Station',
+      'time': 15,
+      'cost': 24.89,
+      'distance': 3.0,
+      'riskScore': 0,
+      'iconId': IconIds.car,
+      'color': 'text-zinc-800',
+      'bgColor': 'bg-zinc-100',
+      'lineColor': '#3f3f46',
+      'desc': 'Flexibility.',
+      'segments': [
+        { 'mode': 'car', 'label': 'Drive', 'lineColor': '#3f3f46', 'iconId': IconIds.car, 'time': 15, 'to': 'Leeds Station' }
+      ]
+    },
+    {
+      'id': 'train_walk_headingley',
+      'label': 'Headingley (Walk)',
+      'detail': '18m Walk + 10m Train',
+      'time': 28,
+      'cost': 3.40,
+      'distance': 3.0,
+      'riskScore': 2,
+      'iconId': IconIds.footprints,
+      'color': 'text-slate-600',
+      'bgColor': 'bg-slate-100',
+      'lineColor': '#262262',
+      'desc': 'Walking transfer.',
+      'segments': [
+        { 'mode': 'walk', 'label': 'Walk', 'lineColor': '#475569', 'iconId': IconIds.footprints, 'time': 18, 'to': 'Headingley Station' },
+        { 'mode': 'train', 'label': 'Northern', 'lineColor': '#262262', 'iconId': IconIds.train, 'time': 10, 'to': 'Leeds Station' }
+      ]
+    },
+    {
+      'id': 'train_uber_headingley',
+      'label': 'Uber + Northern',
+      'detail': '5m Uber + 10m Train',
+      'time': 15,
+      'cost': 9.32,
+      'distance': 3.0,
+      'riskScore': 1,
+      'iconId': IconIds.car,
+      'color': 'text-slate-600',
+      'bgColor': 'bg-slate-100',
+      'lineColor': '#262262',
+      'desc': 'Fast transfer.',
+      'waitTime': 3,
+      'segments': [
+        { 'mode': 'taxi', 'label': 'Uber', 'lineColor': '#000000', 'iconId': IconIds.car, 'time': 5, 'to': 'Headingley Station' },
+        { 'mode': 'train', 'label': 'Northern', 'lineColor': '#262262', 'iconId': IconIds.train, 'time': 10, 'to': 'Leeds Station' }
+      ]
+    },
+    {
+      'id': 'cycle',
+      'label': 'Personal Bike',
+      'detail': 'Cycle to Station',
+      'time': 17,
+      'cost': 0.00,
+      'distance': 3.0,
+      'riskScore': 1,
+      'iconId': IconIds.bike,
+      'color': 'text-blue-600',
+      'bgColor': 'bg-blue-100',
+      'lineColor': '#00FF00',
+      'desc': 'Zero emissions.',
+      'segments': [
+        { 'mode': 'bike', 'label': 'Bike', 'lineColor': '#00FF00', 'iconId': IconIds.bike, 'time': 17, 'to': 'Leeds Station' }
+      ]
+    }
+  ],
+  'mainLeg': {
+    'id': 'train_main',
+    'label': 'CrossCountry',
+    'detail': 'Leeds → Loughborough',
+    'time': 102,
+    'cost': 25.70,
+    'distance': 80.0,
+    'riskScore': 1,
+    'iconId': IconIds.train,
+    'color': 'text-[#713e8d]',
+    'bgColor': 'bg-indigo-100',
+    'lineColor': '#880038',
+    'platform': 4,
+    'segments': [
+      { 'mode': 'train', 'label': 'CrossCountry', 'lineColor': '#880038', 'iconId': IconIds.train, 'time': 102, 'to': 'Loughborough Station' }
+    ]
+  },
+  'lastMile': [
+    {
+      'id': 'uber',
+      'label': 'Uber',
+      'detail': 'Loughborough → East Leake',
+      'time': 10,
+      'cost': 14.89,
+      'distance': 5.0,
+      'riskScore': 0,
+      'iconId': IconIds.car,
+      'color': 'text-black',
+      'bgColor': 'bg-zinc-100',
+      'lineColor': '#000000',
+      'desc': 'Reliable final leg.',
+      'segments': [
+        { 'mode': 'taxi', 'label': 'Uber', 'lineColor': '#000000', 'iconId': IconIds.car, 'time': 10, 'to': 'East Leake' }
+      ]
+    },
+    {
+      'id': 'bus',
+      'label': 'Bus (Line 1)',
+      'detail': 'Walk 4min + Bus 10min',
+      'time': 14,
+      'cost': 3.00,
+      'distance': 5.0,
+      'riskScore': 2,
+      'iconId': IconIds.bus,
+      'color': 'text-brand-dark',
+      'bgColor': 'bg-brand-light',
+      'lineColor': '#002663',
+      'recommended': true,
+      'desc': 'Short walk required.',
+      'segments': [
+        { 'mode': 'bus', 'label': 'Bus', 'lineColor': '#002663', 'iconId': IconIds.bus, 'time': 14, 'to': 'East Leake' }
+      ]
+    },
+    {
+      'id': 'cycle',
+      'label': 'Personal Bike',
+      'detail': 'Cycle to Dest',
+      'time': 24,
+      'cost': 0.00,
+      'distance': 5.0,
+      'riskScore': 1,
+      'iconId': IconIds.bike,
+      'color': 'text-blue-600',
+      'bgColor': 'bg-blue-100',
+      'lineColor': '#00FF00',
+      'desc': 'Scenic route.',
+      'segments': [
+        { 'mode': 'bike', 'label': 'Bike', 'lineColor': '#00FF00', 'iconId': IconIds.bike, 'time': 24, 'to': 'East Leake' }
+      ]
+    }
+  ]
+};
