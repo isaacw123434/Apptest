@@ -13,10 +13,20 @@ class ApiService {
     final segmentOptions = _getSegmentOptionsWithPaths();
 
     // Mock path for Direct Drive (Leeds to East Leake)
-    final List<LatLng> mockPath = [
-      LatLng(53.8008, -1.5491), // Leeds
-      LatLng(52.7698, -1.2062), // East Leake
-    ];
+    final directDriveRoute = rawRoutesData.firstWhere(
+      (r) => r['name'] == 'Direct Drive: St Chads View to East Leake',
+      orElse: () => {'polyline': ''},
+    );
+
+    List<LatLng> mockPath = [];
+    if (directDriveRoute['polyline'] != null && (directDriveRoute['polyline'] as String).isNotEmpty) {
+      mockPath = decodePolyline(directDriveRoute['polyline']);
+    } else {
+      mockPath = [
+        LatLng(53.8008, -1.5491), // Leeds
+        LatLng(52.7698, -1.2062), // East Leake
+      ];
+    }
 
     return InitData(
       segmentOptions: segmentOptions,

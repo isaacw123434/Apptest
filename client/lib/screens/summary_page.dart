@@ -37,12 +37,52 @@ class _SummaryPageState extends State<SummaryPage> {
   String? _errorMessage;
   final Map<String, List<JourneyResult>> _resultsCache = {};
   bool _isSearchExpanded = false;
+  bool _isModeDropdownOpen = false;
+
+  final List<Map<String, dynamic>> _modeOptions = [
+    {'id': 'train', 'icon': LucideIcons.train, 'label': 'Train'},
+    {'id': 'bus', 'icon': LucideIcons.bus, 'label': 'Bus'},
+    {'id': 'car', 'icon': LucideIcons.car, 'label': 'Car'},
+    {'id': 'taxi', 'icon': LucideIcons.car, 'label': 'Taxi'},
+    {'id': 'bike', 'icon': LucideIcons.bike, 'label': 'Bike'},
+  ];
+
+  late TextEditingController _fromController;
+  late TextEditingController _toController;
+  late TextEditingController _timeController;
+  late String _timeType;
+  late Map<String, bool> _selectedModes;
+
+  // Display values
+  late String _displayFrom;
+  late String _displayTo;
+  late String _displayTimeType;
+  late String _displayTime;
 
   @override
   void initState() {
     super.initState();
+    _displayFrom = widget.from;
+    _displayTo = widget.to;
+    _displayTimeType = widget.timeType;
+    _displayTime = widget.time;
+
+    _fromController = TextEditingController(text: widget.from);
+    _toController = TextEditingController(text: widget.to);
+    _timeController = TextEditingController(text: widget.time);
+    _timeType = widget.timeType;
+    _selectedModes = Map.from(widget.selectedModes);
+
     _fetchInitData();
     _fetchTabResults();
+  }
+
+  @override
+  void dispose() {
+    _fromController.dispose();
+    _toController.dispose();
+    _timeController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchInitData() async {
@@ -77,7 +117,7 @@ class _SummaryPageState extends State<SummaryPage> {
     try {
       final results = await _apiService.searchJourneys(
         tab: _activeTab,
-        selectedModes: widget.selectedModes,
+        selectedModes: _selectedModes,
       );
 
       _resultsCache[_activeTab] = results;
@@ -197,12 +237,17 @@ class _SummaryPageState extends State<SummaryPage> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      widget.from,
+                    TextField(
+                      controller: _fromController,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
+                      ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
                       ),
                     ),
                     const Divider(height: 24),
@@ -216,31 +261,150 @@ class _SummaryPageState extends State<SummaryPage> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      widget.to,
+                    TextField(
+                      controller: _toController,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
+                      ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
                       ),
                     ),
                     const Divider(height: 24),
                     // Time
-                    Text(
-                      '${widget.timeType} by ${widget.time}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                    Row(
+                      children: [
+                        DropdownButton<String>(
+                          value: _timeType,
+                          underline: Container(),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[600],
+                          ),
+                          icon: const Icon(LucideIcons.chevronDown, size: 14, color: Colors.grey),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _timeType = newValue!;
+                            });
+                          },
+                          items: <String>['Depart', 'Arrive']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: _timeController,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              isDense: true,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          _isModeDropdownOpen = !_isModeDropdownOpen;
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Filter Modes',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF64748B), // Slate 500
+                              ),
+                            ),
+                            Icon(
+                              LucideIcons.chevronDown,
+                              size: 16,
+                              color: const Color(0xFF64748B), // Slate 500
+                            ),
+                          ],
+                        ),
                       ),
                     ),
+                    if (_isModeDropdownOpen) ...[
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _modeOptions.map((mode) {
+                          final isSelected = _selectedModes[mode['id']]!;
+                          return InkWell(
+                            onTap: () {
+                              setState(() {
+                                _selectedModes[mode['id']] = !isSelected;
+                              });
+                            },
+                            child: Container(
+                              width: (MediaQuery.of(context).size.width - 64) / 5,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                color: isSelected ? const Color(0xFFEFF6FF) : Colors.white, // Blue 50
+                                border: Border.all(
+                                  color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0), // Accent or Slate 200
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    mode['icon'],
+                                    size: 20,
+                                    color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    mode['label'],
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
                     const SizedBox(height: 16),
                     // Search Button
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
+                          _displayFrom = _fromController.text;
+                          _displayTo = _toController.text;
+                          _displayTime = _timeController.text;
+                          _displayTimeType = _timeType;
                           _isSearchExpanded = false;
+                          _resultsCache.clear();
                         });
+                        _fetchTabResults();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF4F46E5),
@@ -261,12 +425,12 @@ class _SummaryPageState extends State<SummaryPage> {
                       child: Row(
                         children: [
                           Text(
-                            '${widget.timeType} by ',
+                            '$_displayTimeType by ',
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                           ),
                           Flexible(
                             child: Text(
-                              widget.from.split(',')[0],
+                              _displayFrom.split(',')[0],
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                             ),
@@ -277,14 +441,14 @@ class _SummaryPageState extends State<SummaryPage> {
                           ),
                           Flexible(
                             child: Text(
-                              widget.to.split(',')[0],
+                              _displayTo.split(',')[0],
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                             ),
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            '• ${widget.time}',
+                            '• $_displayTime',
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                           ),
                         ],
@@ -513,27 +677,46 @@ class _SummaryPageState extends State<SummaryPage> {
                       Row(
                         children: [
                           if (isLeastRisky)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              margin: const EdgeInsets.only(right: 8),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFEFF6FF), // Blue 50
-                                border: Border.all(color: const Color(0xFFDBEAFE)), // Blue 100
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Row(
-                                children: const [
-                                  Icon(LucideIcons.shield, size: 12, color: Color(0xFF1D4ED8)),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    'Least Risky',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF1D4ED8),
+                            GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Risk Assessment'),
+                                    content: const Text(
+                                      'This journey has the lowest risk score based on historical data, number of transfers, and connection times.',
                                     ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('OK'),
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                margin: const EdgeInsets.only(right: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEFF6FF), // Blue 50
+                                  border: Border.all(color: const Color(0xFFDBEAFE)), // Blue 100
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Row(
+                                  children: const [
+                                    Icon(LucideIcons.shield, size: 12, color: Color(0xFF1D4ED8)),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      'Least Risky',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF1D4ED8),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           if (result.emissions.text != null)

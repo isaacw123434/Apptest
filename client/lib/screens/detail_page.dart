@@ -354,12 +354,11 @@ class _DetailPageState extends State<DetailPage> {
           Positioned(
             top: 40,
             left: 16,
-            child: FloatingActionButton.extended(
+            child: FloatingActionButton.small(
               onPressed: () => Navigator.pop(context),
-              label: const Text('Back'),
-              icon: const Icon(LucideIcons.chevronLeft),
               backgroundColor: Colors.white,
               foregroundColor: Colors.black,
+              child: const Icon(LucideIcons.chevronLeft),
             ),
           ),
 
@@ -495,11 +494,38 @@ class _DetailPageState extends State<DetailPage> {
   Widget _buildVerticalNodeTimeline(JourneyResult result) {
     if (_initData == null) return const Center(child: CircularProgressIndicator());
 
+    final leg1Color = _parseColor(result.leg1.lineColor);
+    final mainLegColor = _parseColor(_initData!.segmentOptions.mainLeg.lineColor);
+    final leg3Color = _parseColor(result.leg3.lineColor);
+
+    // Calculate times
+    // Start at 07:10 for mock
+    int currentMinutes = 7 * 60 + 10;
+
+    final startTimeStr = _formatMinutes(currentMinutes);
+
+    // Leg 1
+    currentMinutes += result.leg1.time;
+    final leedsArrivalMinutes = currentMinutes;
+
+    // Wait (Buffer)
+    currentMinutes += result.buffer; // 10 min buffer
+    final leedsDepartureMinutes = currentMinutes;
+    final leedsTimeStr = '${_formatMinutes(leedsArrivalMinutes)} - ${_formatMinutes(leedsDepartureMinutes)}';
+
+    // Main Leg
+    currentMinutes += _initData!.segmentOptions.mainLeg.time;
+    final loughboroughTimeStr = _formatMinutes(currentMinutes);
+
+    // Leg 3
+    currentMinutes += result.leg3.time;
+    final endTimeStr = _formatMinutes(currentMinutes);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Start Node
-        _buildNode('Start Journey', '07:10', isStart: true),
+        _buildNode('Start Journey', startTimeStr, isStart: true, nextColor: leg1Color),
 
         // Leg 1 (First Mile)
         _buildLegConnection(
@@ -509,7 +535,7 @@ class _DetailPageState extends State<DetailPage> {
         ),
 
         // Transfer Node (Leeds)
-        _buildNode('Leeds Station', '07:35'), // Mock time
+        _buildNode('Leeds Station', leedsTimeStr, prevColor: leg1Color, nextColor: mainLegColor),
 
         // Main Leg (Train)
         _buildLegConnection(
@@ -518,7 +544,7 @@ class _DetailPageState extends State<DetailPage> {
         ),
 
         // Transfer Node (Loughborough)
-        _buildNode('Loughborough Station', '09:15'), // Mock time
+        _buildNode('Loughborough Station', loughboroughTimeStr, prevColor: mainLegColor, nextColor: leg3Color),
 
         // Leg 3 (Last Mile)
         _buildLegConnection(
@@ -528,19 +554,30 @@ class _DetailPageState extends State<DetailPage> {
         ),
 
         // End Node
-        _buildNode('Arrive East Leake', '09:30', isEnd: true),
+        _buildNode('Arrive East Leake', endTimeStr, isEnd: true, prevColor: leg3Color),
       ],
     );
   }
 
-  Widget _buildNode(String title, String time, {bool isStart = false, bool isEnd = false}) {
+  String _formatMinutes(int totalMinutes) {
+    int hour = (totalMinutes ~/ 60) % 24;
+    int minute = totalMinutes % 60;
+    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+  }
+
+  Widget _buildNode(String title, String time, {
+    bool isStart = false,
+    bool isEnd = false,
+    Color? prevColor,
+    Color? nextColor,
+  }) {
     return Row(
       children: [
         Column(
           children: [
             // Line above (if not start)
             if (!isStart)
-              Container(width: 2, height: 10, color: Colors.grey[300]),
+              Container(width: 4, height: 10, color: prevColor ?? Colors.grey[300]),
 
             // Dot
             Container(
@@ -555,10 +592,10 @@ class _DetailPageState extends State<DetailPage> {
 
             // Line below (if not end)
             if (!isEnd)
-              Container(width: 2, height: 10, color: Colors.grey[300]),
+              Container(width: 4, height: 10, color: nextColor ?? Colors.grey[300]),
           ],
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 24),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -588,7 +625,7 @@ class _DetailPageState extends State<DetailPage> {
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 24),
           // Content
           Expanded(
             child: Container(

@@ -22,7 +22,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
 
         // Calculate minimal widths
         // 40 for icon + some text. Adjust as needed.
-        const double minSegmentWidth = 70.0;
+        const double minSegmentWidth = 90.0;
 
         // Total min width
         double totalMinWidth = segments.length * minSegmentWidth;
@@ -153,8 +153,8 @@ class HorizontalJigsawSegment extends StatelessWidget {
       ),
       child: Padding(
         padding: EdgeInsets.only(
-          left: isFirst ? 8 : (overlap + 4),
-          right: isLast ? 8 : (overlap + 4), // Padding on right too because of convex protrusion
+          left: isFirst ? 20 : (overlap + 4),
+          right: isLast ? 20 : (overlap + 4),
           top: 4,
           bottom: 4,
         ),
@@ -203,7 +203,7 @@ class _HorizontalJigsawPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final o = overlap;
-    final r = 8.0; // Corner radius for start/end
+    final r = h / 2; // Fully rounded ends
 
     // Start Left
     if (isFirst) {
@@ -213,21 +213,20 @@ class _HorizontalJigsawPainter extends CustomPainter {
     }
 
     // Top Edge
-    path.lineTo(w, 0);
+    if (isLast) {
+      path.lineTo(w - r, 0);
+    } else {
+      path.lineTo(w, 0);
+    }
 
     // Right Edge
     if (isLast) {
-      // Last segment is just rounded rect end?
-      // "slot together is a bubble".
-      // If last segment, it still might need to look like a bubble.
-      // Assuming last segment also convex on right? Or just flat rounded?
-      // "first segment as a rounded bubble... next section... bubble but with start cut off".
-      // Implies sequence of bubbles. Last one is a bubble.
-      // So last one has convex right? Or just rounded end.
-      // Let's make it standard rounded end.
-      path.quadraticBezierTo(w, 0, w, r);
-      path.lineTo(w, h - r);
-      path.quadraticBezierTo(w, h, w - r, h);
+      // Fully rounded end (semi-circle)
+      path.arcToPoint(
+        Offset(w - r, h),
+        radius: Radius.circular(r),
+        clockwise: true,
+      );
     } else {
       // Convex Right (Bubble Out)
       // Bezier curve sticking out to w + o
@@ -238,25 +237,25 @@ class _HorizontalJigsawPainter extends CustomPainter {
     }
 
     // Bottom Edge
-    path.lineTo(isFirst ? r : 0, h);
+    if (isFirst) {
+      path.lineTo(r, h);
+    } else {
+      path.lineTo(0, h);
+    }
 
     // Left Edge
     if (isFirst) {
-      // Rounded Start
-      path.quadraticBezierTo(0, h, 0, h - r);
-      path.lineTo(0, r);
-      path.quadraticBezierTo(0, 0, r, 0);
+      // Fully rounded start (semi-circle)
+      path.arcToPoint(
+        Offset(r, 0),
+        radius: Radius.circular(r),
+        clockwise: true,
+      );
     } else {
       // Concave Left (Bubble In / Slot)
       // Matches the Convex Right of previous.
       // Start at (0, h). End at (0, 0).
       // Curve inwards to (o, h/2).
-      // Since we are drawing counter-clockwise (bottom to top for left edge? No, standard is clockwise or whatever)
-      // Path so far is at (0, h) or (r, h) depending on isFirst.
-      // Wait, we did lineTo(isFirst ? r : 0, h). So we are at (0, h) if !isFirst.
-
-      // We need to go to (0, 0).
-      // Curve inwards.
       path.quadraticBezierTo(o, h / 2, 0, 0);
     }
 
