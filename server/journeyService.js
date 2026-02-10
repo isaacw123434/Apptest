@@ -1,8 +1,14 @@
-import {
-  Train, Car, Bus, Bike, Footprints
-} from 'lucide-react';
+// Converted from src/services/journeyService.js
 
-export const SEGMENT_OPTIONS = {
+const ICON_IDS = {
+  TRAIN: 'train',
+  CAR: 'car',
+  BUS: 'bus',
+  BIKE: 'bike',
+  FOOTPRINTS: 'footprints'
+};
+
+const SEGMENT_OPTIONS = {
   firstMile: [
     {
       id: 'uber',
@@ -12,14 +18,14 @@ export const SEGMENT_OPTIONS = {
       cost: 8.97,
       distance: 3,
       riskScore: 0,
-      icon: Car,
+      iconId: ICON_IDS.CAR,
       color: 'text-black',
       bgColor: 'bg-zinc-100',
       lineColor: '#000000',
       desc: 'Fastest door-to-door.',
       waitTime: 4,
       segments: [
-        { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 14, to: 'Leeds Station' }
+        { mode: 'taxi', label: 'Uber', lineColor: '#000000', iconId: ICON_IDS.CAR, time: 14, to: 'Leeds Station' }
       ]
     },
     {
@@ -30,7 +36,7 @@ export const SEGMENT_OPTIONS = {
       cost: 2.00,
       distance: 3,
       riskScore: 0,
-      icon: Bus,
+      iconId: ICON_IDS.BUS,
       color: 'text-brand-dark', // updated color usage
       bgColor: 'bg-brand-light', // updated color usage
       lineColor: '#0f766e',
@@ -38,7 +44,7 @@ export const SEGMENT_OPTIONS = {
       desc: 'Best balance.',
       nextBusIn: 12,
       segments: [
-        { mode: 'bus', label: 'Bus', lineColor: '#0f766e', icon: Bus, time: 23, to: 'Leeds Station' }
+        { mode: 'bus', label: 'Bus', lineColor: '#0f766e', iconId: ICON_IDS.BUS, time: 23, to: 'Leeds Station' }
       ]
     },
     {
@@ -49,13 +55,13 @@ export const SEGMENT_OPTIONS = {
       cost: 24.89,
       distance: 3,
       riskScore: 0,
-      icon: Car,
+      iconId: ICON_IDS.CAR,
       color: 'text-zinc-800',
       bgColor: 'bg-zinc-100',
       lineColor: '#3f3f46',
       desc: 'Flexibility.',
       segments: [
-        { mode: 'car', label: 'Drive', lineColor: '#3f3f46', icon: Car, time: 15, to: 'Leeds Station' }
+        { mode: 'car', label: 'Drive', lineColor: '#3f3f46', iconId: ICON_IDS.CAR, time: 15, to: 'Leeds Station' }
       ]
     },
     {
@@ -66,14 +72,14 @@ export const SEGMENT_OPTIONS = {
       cost: 3.40,
       distance: 3,
       riskScore: 2, // Walk(+1) + Train(+1)
-      icon: Footprints,
+      iconId: ICON_IDS.FOOTPRINTS,
       color: 'text-slate-600',
       bgColor: 'bg-slate-100',
       lineColor: '#1d4ed8',
       desc: 'Walking transfer.',
       segments: [
-        { mode: 'walk', label: 'Walk', lineColor: '#475569', icon: Footprints, time: 18, to: 'Headingley Station' },
-        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', icon: Train, time: 10, to: 'Leeds Station' }
+        { mode: 'walk', label: 'Walk', lineColor: '#475569', iconId: ICON_IDS.FOOTPRINTS, time: 18, to: 'Headingley Station' },
+        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', iconId: ICON_IDS.TRAIN, time: 10, to: 'Leeds Station' }
       ]
     },
     {
@@ -84,15 +90,15 @@ export const SEGMENT_OPTIONS = {
       cost: 9.32,
       distance: 3,
       riskScore: 1, // Uber(0) + Train(+1)
-      icon: Car,
+      iconId: ICON_IDS.CAR,
       color: 'text-slate-600',
       bgColor: 'bg-slate-100',
       lineColor: '#1d4ed8',
       desc: 'Fast transfer.',
       waitTime: 3,
       segments: [
-        { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 5, to: 'Headingley Station' },
-        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', icon: Train, time: 10, to: 'Leeds Station' }
+        { mode: 'taxi', label: 'Uber', lineColor: '#000000', iconId: ICON_IDS.CAR, time: 5, to: 'Headingley Station' },
+        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', iconId: ICON_IDS.TRAIN, time: 10, to: 'Leeds Station' }
       ]
     },
     {
@@ -103,13 +109,13 @@ export const SEGMENT_OPTIONS = {
       cost: 0.00,
       distance: 3,
       riskScore: 1, // Cycle(+1)
-      icon: Bike,
+      iconId: ICON_IDS.BIKE,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
       lineColor: '#3b82f6',
       desc: 'Zero emissions.',
       segments: [
-        { mode: 'bike', label: 'Bike', lineColor: '#3b82f6', icon: Bike, time: 17, to: 'Leeds Station' }
+        { mode: 'bike', label: 'Bike', lineColor: '#3b82f6', iconId: ICON_IDS.BIKE, time: 17, to: 'Leeds Station' }
       ]
     }
   ],
@@ -121,13 +127,13 @@ export const SEGMENT_OPTIONS = {
     cost: 25.70,
     distance: 80,
     riskScore: 1, // Train(+1)
-    icon: Train,
+    iconId: ICON_IDS.TRAIN,
     color: 'text-[#713e8d]',
     bgColor: 'bg-indigo-100',
     lineColor: '#713e8d',
     platform: 4,
     segments: [
-      { mode: 'train', label: 'CrossCountry', lineColor: '#713e8d', icon: Train, time: 102, to: 'Loughborough Station' }
+      { mode: 'train', label: 'CrossCountry', lineColor: '#713e8d', iconId: ICON_IDS.TRAIN, time: 102, to: 'Loughborough Station' }
     ]
   },
   lastMile: [
@@ -139,13 +145,13 @@ export const SEGMENT_OPTIONS = {
       cost: 14.89,
       distance: 5,
       riskScore: 0,
-      icon: Car,
+      iconId: ICON_IDS.CAR,
       color: 'text-black',
       bgColor: 'bg-zinc-100',
       lineColor: '#000000',
       desc: 'Reliable final leg.',
       segments: [
-        { mode: 'taxi', label: 'Uber', lineColor: '#000000', icon: Car, time: 10, to: 'East Leake' }
+        { mode: 'taxi', label: 'Uber', lineColor: '#000000', iconId: ICON_IDS.CAR, time: 10, to: 'East Leake' }
       ]
     },
     {
@@ -156,14 +162,14 @@ export const SEGMENT_OPTIONS = {
       cost: 3.00,
       distance: 5,
       riskScore: 2, // Bus Loughborough (+2)
-      icon: Bus,
+      iconId: ICON_IDS.BUS,
       color: 'text-brand-dark',
       bgColor: 'bg-brand-light',
       lineColor: '#0f766e',
       recommended: true,
       desc: 'Short walk required.',
       segments: [
-        { mode: 'bus', label: 'Bus', lineColor: '#0f766e', icon: Bus, time: 14, to: 'East Leake' }
+        { mode: 'bus', label: 'Bus', lineColor: '#0f766e', iconId: ICON_IDS.BUS, time: 14, to: 'East Leake' }
       ]
     },
     {
@@ -174,50 +180,50 @@ export const SEGMENT_OPTIONS = {
       cost: 0.00,
       distance: 5,
       riskScore: 1, // Cycle (+1)
-      icon: Bike,
+      iconId: ICON_IDS.BIKE,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
       lineColor: '#3b82f6',
       desc: 'Scenic route.',
       segments: [
-        { mode: 'bike', label: 'Bike', lineColor: '#3b82f6', icon: Bike, time: 24, to: 'East Leake' }
+        { mode: 'bike', label: 'Bike', lineColor: '#3b82f6', iconId: ICON_IDS.BIKE, time: 24, to: 'East Leake' }
       ]
     }
   ]
 };
 
-export const DIRECT_DRIVE = {
+const DIRECT_DRIVE = {
   time: 110, // 1h 50m
   cost: 39.15, // 87 miles * 45p
   distance: 87
 };
 
-export const MOCK_PATH = [
+const MOCK_PATH = [
   [53.8008, -1.5491], // Leeds
   [52.7698, -1.2062]  // East Leake
 ];
 
-export const formatDuration = (minutes) => {
+const formatDuration = (minutes) => {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
   if (h === 0) return `${m} min`;
   return `${h}hr ${m}`;
 };
 
-export const formatTimeRange = (startDate, durationMinutes) => {
+const formatTimeRange = (startDate, durationMinutes) => {
   const end = new Date(startDate.getTime() + durationMinutes * 60000);
   return `${startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 };
 
-export const getStationBuffer = () => {
+const getStationBuffer = () => {
   return 10;
 };
 
-export const getLegEmission = (leg) => {
+const getLegEmission = (leg) => {
   let factor = 0;
-  if (leg.icon === Train) factor = 0.06;
-  else if (leg.icon === Bus) factor = 0.10;
-  else if (leg.icon === Car) factor = 0.27; // Taxi/Drive
+  if (leg.iconId === ICON_IDS.TRAIN) factor = 0.06;
+  else if (leg.iconId === ICON_IDS.BUS) factor = 0.10;
+  else if (leg.iconId === ICON_IDS.CAR) factor = 0.27; // Taxi/Drive
 
   // Check specific IDs or segments for finer grain if needed, but icon is a good proxy for this demo
   // Or iterate segments
@@ -227,7 +233,7 @@ export const getLegEmission = (leg) => {
   return legDist * factor;
 };
 
-export const calculateTotalStats = (leg1, leg3) => {
+const calculateTotalStats = (leg1, leg3) => {
   const buffer = getStationBuffer(leg1.id);
   const cost = leg1.cost + SEGMENT_OPTIONS.mainLeg.cost + leg3.cost;
   const time = leg1.time + buffer + SEGMENT_OPTIONS.mainLeg.time + leg3.time;
@@ -251,7 +257,7 @@ export const calculateTotalStats = (leg1, leg3) => {
   return { cost, time, buffer, risk, emissions };
 };
 
-export const getAllCombinations = () => {
+const getAllCombinations = () => {
   const combos = [];
   SEGMENT_OPTIONS.firstMile.forEach(l1 => {
     SEGMENT_OPTIONS.lastMile.forEach(l3 => {
@@ -267,23 +273,26 @@ export const getAllCombinations = () => {
   return combos;
 };
 
-export const getTop3Results = (tab, selectedModes) => {
+const getTop3Results = (tab, selectedModes) => {
   let combos = getAllCombinations();
 
-  // Filter based on selected modes
-  combos = combos.filter(combo => {
-    const allSegments = [
-      ...(combo.leg1.segments || []),
-      ...(SEGMENT_OPTIONS.mainLeg.segments || []),
-      ...(combo.leg3.segments || [])
-    ];
-    // Check if every segment in the journey is allowed by selectedModes
-    return allSegments.every(seg => {
-      if (seg.mode === 'walk') return true; // Always allow walking
-      if (seg.mode === 'taxi') return selectedModes.taxi;
-      return selectedModes[seg.mode];
-    });
-  });
+  // Filter based on selectedModes
+  // selectedModes is expected to be an object like { train: true, bus: true, ... }
+  if (selectedModes) {
+      combos = combos.filter(combo => {
+        const allSegments = [
+          ...(combo.leg1.segments || []),
+          ...(SEGMENT_OPTIONS.mainLeg.segments || []),
+          ...(combo.leg3.segments || [])
+        ];
+        // Check if every segment in the journey is allowed by selectedModes
+        return allSegments.every(seg => {
+          if (seg.mode === 'walk') return true; // Always allow walking
+          if (seg.mode === 'taxi') return selectedModes.taxi;
+          return selectedModes[seg.mode];
+        });
+      });
+  }
 
   if (tab === 'fastest') {
     return combos.sort((a, b) => a.time - b.time).slice(0, 3);
@@ -299,10 +308,25 @@ export const getTop3Results = (tab, selectedModes) => {
   }
 };
 
-export const getFlattenedSegments = (leg1, leg3) => {
+const getFlattenedSegments = (leg1, leg3) => {
   return [
     ...(leg1.segments || []),
     ...(SEGMENT_OPTIONS.mainLeg.segments || []),
     ...(leg3.segments || [])
   ];
+};
+
+module.exports = {
+    SEGMENT_OPTIONS,
+    DIRECT_DRIVE,
+    MOCK_PATH,
+    ICON_IDS,
+    formatDuration,
+    formatTimeRange,
+    getStationBuffer,
+    getLegEmission,
+    calculateTotalStats,
+    getAllCombinations,
+    getTop3Results,
+    getFlattenedSegments
 };
