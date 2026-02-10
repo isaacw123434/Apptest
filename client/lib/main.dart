@@ -24,9 +24,8 @@ class JourneyPlannerApp extends StatelessWidget {
         fontFamily: 'Roboto', // Default, can be changed
         scaffoldBackgroundColor: const Color(0xFFF8FAFC), // Slate 50
       ),
-      initialRoute: '/',
+      home: const HomePage(),
       routes: {
-        '/': (context) => const HomePage(),
         '/direct-drive': (context) => const DirectDrivePage(),
       },
     );
