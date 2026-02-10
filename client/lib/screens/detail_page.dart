@@ -515,7 +515,6 @@ class _DetailPageState extends State<DetailPage> {
         final isLast = i == segments.length - 1;
 
         Color lineColor = _parseColor(seg.lineColor);
-        Color nextColor = isLast ? Colors.grey : _parseColor(segments[i + 1].lineColor);
 
         // If this is the last segment of this leg, we need to know the NEXT leg's first segment color for the node?
         // Actually, _buildNode handles prevColor and nextColor for the node itself.
