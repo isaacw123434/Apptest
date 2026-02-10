@@ -18,8 +18,6 @@ import {
   formatTimeRange,
   getStationBuffer,
   getLegEmission,
-  calculateTotalStats,
-  getAllCombinations,
   getTop3Results,
   getFlattenedSegments
 } from './services/journeyService';
