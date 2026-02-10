@@ -15,7 +15,7 @@ class ApiService {
 
     // Mock path for Direct Drive (Leeds to East Leake)
     final directDriveRoute = rawRoutesData.firstWhere(
-      (r) => r['name'] == 'Direct Drive: St Chads View to East Leake',
+      (r) => r['id'] == 'direct_drive',
       orElse: () => {'polyline': ''},
     );
 
@@ -128,17 +128,17 @@ class ApiService {
     Map<String, List<LatLng>> routePolylines = {};
     for (var route in rawRoutesData) {
       if (route['polyline'] != null && (route['polyline'] as String).isNotEmpty) {
-        routePolylines[route['name']] = decodePolyline(route['polyline']);
+        routePolylines[route['id']] = decodePolyline(route['polyline']);
       }
     }
 
-    List<LatLng>? getPoints(String? routeName) {
-      if (routeName == null) return null;
-      return routePolylines[routeName];
+    List<LatLng>? getPoints(String? routeId) {
+      if (routeId == null) return null;
+      return routePolylines[routeId];
     }
 
     // Helper to attach path
-    void attachPath(Map<String, dynamic> leg, String? routeNameOverride) {
+    void attachPath(Map<String, dynamic> leg, String? routeIdOverride) {
       String id = leg['id'];
       List segments = leg['segments'] as List;
 
@@ -148,7 +148,7 @@ class ApiService {
           var sMap = Map<String, dynamic>.from(s);
           String mode = sMap['mode'] ?? '';
           if (mode == 'walk') {
-            sMap['path'] = getPoints(routesMap['cycle']); // Approximation
+            sMap['path'] = getPoints(routesMap['cycle']); // Approximation using cycle path for walk
           } else if (mode == 'train') {
             sMap['path'] = getPoints(routesMap['train_walk_headingley']);
           }
@@ -169,24 +169,24 @@ class ApiService {
         return;
       }
 
-      String? routeName;
-      if (routeNameOverride != null) {
-        routeName = routeNameOverride;
+      String? routeId;
+      if (routeIdOverride != null) {
+        routeId = routeIdOverride;
       } else {
         if (id == 'uber') {
-          routeName = routesMap['uber'];
+          routeId = routesMap['uber'];
         } else if (id == 'bus') {
-          routeName = routesMap['bus'];
+          routeId = routesMap['bus'];
         } else if (id == 'cycle') {
-          routeName = routesMap['cycle'];
+          routeId = routesMap['cycle'];
         } else if (id == 'train_main') {
-          routeName = routesMap['train_main'];
+          routeId = routesMap['train_main'];
         } else if (id == 'drive_park') {
-          routeName = routesMap['uber'];
+          routeId = routesMap['uber']; // Approximation
         }
       }
 
-      final points = getPoints(routeName);
+      final points = getPoints(routeId);
 
       if (points != null) {
         leg['segments'] = segments.map((s) {
@@ -194,19 +194,25 @@ class ApiService {
 
           // Logic to decide if we should attach path to this segment
           String mode = sMap['mode'] ?? '';
-          String routeNameLower = routeName!.toLowerCase();
+          String routeIdString = routeId!.toLowerCase();
           bool shouldAttach = false;
 
-          if (routeNameLower.contains('train') && mode == 'train') {
+          // Check keywords in the ID
+          if (routeIdString.contains('train') && mode == 'train') {
             shouldAttach = true;
-          } else if ((routeNameLower.contains('drive') || routeNameLower.contains('uber')) &&
+          } else if ((routeIdString.contains('drive') || routeIdString.contains('uber')) &&
               (mode == 'car' || mode == 'taxi')) {
             shouldAttach = true;
-          } else if (routeNameLower.contains('bus') && mode == 'bus') {
+          } else if (routeIdString.contains('bus') && mode == 'bus') {
             shouldAttach = true;
-          } else if (routeNameLower.contains('cycle') && mode == 'bike') {
+          } else if (routeIdString.contains('cycle') && mode == 'bike') {
             shouldAttach = true;
-          } else if (routeNameLower.contains('direct drive') && mode == 'car') {
+          } else if (routeIdString.contains('direct_drive') && mode == 'car') {
+             // direct_drive contains 'drive', so the second condition might catch it,
+             // but 'direct_drive' mode might be different?
+             // Actually direct drive mode is 'car' usually.
+             // But direct drive is handled via fetchInitData directDrive prop, not here usually.
+             // However, checking just in case.
             shouldAttach = true;
           }
 
@@ -228,17 +234,17 @@ class ApiService {
 
     // Process Last Mile
     for (var leg in data['lastMile']) {
-        String? routeName;
+        String? routeId;
         String id = leg['id'];
         if (id == 'uber') {
-          routeName = routesMap['last_uber'];
+          routeId = routesMap['last_uber'];
         } else if (id == 'bus') {
-          routeName = routesMap['last_bus'];
+          routeId = routesMap['last_bus'];
         } else if (id == 'cycle') {
-          routeName = routesMap['last_cycle'];
+          routeId = routesMap['last_cycle'];
         }
 
-        attachPath(leg, routeName);
+        attachPath(leg, routeId);
     }
 
     return SegmentOptions.fromJson(data);
