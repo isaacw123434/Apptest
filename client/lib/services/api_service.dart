@@ -137,6 +137,10 @@ class ApiService {
           routeName = routesMap['train_walk_headingley'];
         } else if (id == 'train_main') {
           routeName = routesMap['train_main'];
+        } else if (id == 'drive_park') {
+          routeName = routesMap['uber'];
+        } else if (id == 'train_uber_headingley') {
+          routeName = routesMap['train_walk_headingley'];
         }
       }
 

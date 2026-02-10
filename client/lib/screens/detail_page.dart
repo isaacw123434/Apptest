@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../services/api_service.dart';
+import 'jigsaw_timeline.dart';
 
 class DetailPage extends StatefulWidget {
   final JourneyResult? journeyResult;
@@ -114,6 +115,9 @@ class _DetailPageState extends State<DetailPage> {
               options: MapOptions(
                 initialCenter: LatLng(53.28, -1.37), // Approximate midpoint
                 initialZoom: 9.0,
+                interactionOptions: const InteractionOptions(
+                  flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                ),
               ),
               children: [
                 TileLayer(
@@ -146,6 +150,8 @@ class _DetailPageState extends State<DetailPage> {
             initialChildSize: 0.35,
             minChildSize: 0.25,
             maxChildSize: 0.9,
+            snap: true,
+            snapSizes: const [0.25, 0.35, 0.9],
             builder: (context, scrollController) {
               return Container(
                 decoration: const BoxDecoration(
@@ -330,44 +336,39 @@ class _DetailPageState extends State<DetailPage> {
     bool isEnd = false,
     bool isBuffer = false,
   }) {
-    return IntrinsicHeight(
+    // Determine colors
+    Color border = _parseColor(lineColor);
+    Color bg = Colors.white;
+    if (isBuffer) bg = Colors.grey[100]!;
+
+    return JigsawSegment(
+      isFirst: isStart,
+      isLast: isEnd,
+      backgroundColor: bg,
+      borderColor: border,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // Time
           SizedBox(
-            width: 60,
+            width: 50,
             child: Text(
               time,
-              textAlign: TextAlign.right,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
+                fontSize: 12,
                 color: isBuffer ? Colors.grey : Colors.black,
               ),
             ),
           ),
-          const SizedBox(width: 16),
-          Column(
-            children: [
-              if (!isStart) Expanded(child: Container(width: 2, color: _parseColor(lineColor))),
-              Container(
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(
-                  color: isStart || isEnd ? (isEnd ? Colors.black : Colors.white) : Colors.white,
-                  border: Border.all(color: isEnd ? Colors.black : _parseColor(lineColor), width: 2),
-                  shape: BoxShape.circle,
-                ),
-              ),
-              if (!isEnd) Expanded(child: Container(width: 2, color: _parseColor(lineColor))),
-            ],
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 24),
-              child: content,
-            ),
-          ),
+          const SizedBox(width: 8),
+          // Icon
+          if (icon != null) ...[
+            Icon(icon, size: 20, color: border),
+            const SizedBox(width: 8),
+          ],
+          // Content
+          Expanded(child: content),
         ],
       ),
     );
