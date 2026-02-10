@@ -1,4 +1,10 @@
-node_modules
-dist
+server/node_modules/
+client/build/
+client/.dart_tool/
+client/.flutter-plugins
+client/.flutter-plugins-dependencies
+client/linux/flutter/ephemeral/
+client/macos/Flutter/ephemeral/
+client/windows/flutter/ephemeral/
 .DS_Store
-.env
+*.log

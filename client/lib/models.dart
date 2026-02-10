@@ -1,0 +1,227 @@
+class Segment {
+  final String mode;
+  final String label;
+  final String lineColor;
+  final String iconId;
+  final int time;
+  final String? to;
+  final String? detail;
+
+  Segment({
+    required this.mode,
+    required this.label,
+    required this.lineColor,
+    required this.iconId,
+    required this.time,
+    this.to,
+    this.detail,
+  });
+
+  factory Segment.fromJson(Map<String, dynamic> json) {
+    return Segment(
+      mode: json['mode'] ?? '',
+      label: json['label'] ?? '',
+      lineColor: json['lineColor'] ?? '#000000',
+      iconId: json['iconId'] ?? '',
+      time: json['time'] ?? 0,
+      to: json['to'],
+      detail: json['detail'],
+    );
+  }
+}
+
+class Leg {
+  final String id;
+  final String label;
+  final String? detail;
+  final int time;
+  final double cost;
+  final double distance;
+  final int riskScore;
+  final String iconId;
+  final String? color;
+  final String? bgColor;
+  final String lineColor;
+  final String? desc;
+  final int? waitTime;
+  final int? nextBusIn;
+  final bool? recommended;
+  final int? platform;
+  final List<Segment> segments;
+
+  Leg({
+    required this.id,
+    required this.label,
+    this.detail,
+    required this.time,
+    required this.cost,
+    required this.distance,
+    required this.riskScore,
+    required this.iconId,
+    this.color,
+    this.bgColor,
+    required this.lineColor,
+    this.desc,
+    this.waitTime,
+    this.nextBusIn,
+    this.recommended,
+    this.platform,
+    required this.segments,
+  });
+
+  factory Leg.fromJson(Map<String, dynamic> json) {
+    var segmentsList = json['segments'] as List?;
+    List<Segment> segments = segmentsList != null
+        ? segmentsList.map((i) => Segment.fromJson(i)).toList()
+        : [];
+
+    return Leg(
+      id: json['id'] ?? '',
+      label: json['label'] ?? '',
+      detail: json['detail'],
+      time: json['time'] ?? 0,
+      cost: (json['cost'] ?? 0).toDouble(),
+      distance: (json['distance'] ?? 0).toDouble(),
+      riskScore: json['riskScore'] ?? 0,
+      iconId: json['iconId'] ?? '',
+      color: json['color'],
+      bgColor: json['bgColor'],
+      lineColor: json['lineColor'] ?? '#000000',
+      desc: json['desc'],
+      waitTime: json['waitTime'],
+      nextBusIn: json['nextBusIn'],
+      recommended: json['recommended'],
+      platform: json['platform'],
+      segments: segments,
+    );
+  }
+}
+
+class SegmentOptions {
+  final List<Leg> firstMile;
+  final Leg mainLeg;
+  final List<Leg> lastMile;
+
+  SegmentOptions({
+    required this.firstMile,
+    required this.mainLeg,
+    required this.lastMile,
+  });
+
+  factory SegmentOptions.fromJson(Map<String, dynamic> json) {
+    return SegmentOptions(
+      firstMile: (json['firstMile'] as List)
+          .map((i) => Leg.fromJson(i))
+          .toList(),
+      mainLeg: Leg.fromJson(json['mainLeg']),
+      lastMile: (json['lastMile'] as List)
+          .map((i) => Leg.fromJson(i))
+          .toList(),
+    );
+  }
+}
+
+class DirectDrive {
+  final int time;
+  final double cost;
+  final double distance;
+
+  DirectDrive({
+    required this.time,
+    required this.cost,
+    required this.distance,
+  });
+
+  factory DirectDrive.fromJson(Map<String, dynamic> json) {
+    return DirectDrive(
+      time: json['time'] ?? 0,
+      cost: (json['cost'] ?? 0).toDouble(),
+      distance: (json['distance'] ?? 0).toDouble(),
+    );
+  }
+}
+
+class Emissions {
+  final double val;
+  final int percent;
+  final String? text;
+
+  Emissions({
+    required this.val,
+    required this.percent,
+    this.text,
+  });
+
+  factory Emissions.fromJson(Map<String, dynamic> json) {
+    return Emissions(
+      val: (json['val'] ?? 0).toDouble(),
+      percent: json['percent'] ?? 0,
+      text: json['text'],
+    );
+  }
+}
+
+class JourneyResult {
+  final String id;
+  final Leg leg1;
+  final Leg leg3;
+  final double cost;
+  final int time;
+  final int buffer;
+  final int risk;
+  final Emissions emissions;
+
+  JourneyResult({
+    required this.id,
+    required this.leg1,
+    required this.leg3,
+    required this.cost,
+    required this.time,
+    required this.buffer,
+    required this.risk,
+    required this.emissions,
+  });
+
+  factory JourneyResult.fromJson(Map<String, dynamic> json) {
+    return JourneyResult(
+      id: json['id'] ?? '',
+      leg1: Leg.fromJson(json['leg1']),
+      leg3: Leg.fromJson(json['leg3']),
+      cost: (json['cost'] ?? 0).toDouble(),
+      time: json['time'] ?? 0,
+      buffer: json['buffer'] ?? 0,
+      risk: json['risk'] ?? 0,
+      emissions: Emissions.fromJson(json['emissions']),
+    );
+  }
+}
+
+class InitData {
+  final SegmentOptions segmentOptions;
+  final DirectDrive directDrive;
+  final List<List<double>> mockPath;
+
+  InitData({
+    required this.segmentOptions,
+    required this.directDrive,
+    required this.mockPath,
+  });
+
+  factory InitData.fromJson(Map<String, dynamic> json) {
+    var pathList = json['mockPath'] as List?;
+    List<List<double>> mockPath = [];
+    if (pathList != null) {
+      for (var point in pathList) {
+        if (point is List) {
+          mockPath.add(point.map((e) => (e as num).toDouble()).toList());
+        }
+      }
+    }
+
+    return InitData(
+      segmentOptions: SegmentOptions.fromJson(json['segmentOptions']),
+      directDrive: DirectDrive.fromJson(json['directDrive']),
+      mockPath: mockPath,
+    );
+  }
+}
