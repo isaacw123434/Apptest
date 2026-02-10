@@ -23,11 +23,15 @@ class Segment {
     var pathList = json['path'] as List?;
     List<List<double>>? path;
     if (pathList != null) {
-      path = [];
-      for (var point in pathList) {
-        if (point is List) {
-          path.add(point.map((e) => (e as num).toDouble()).toList());
+      try {
+        path = [];
+        for (var point in pathList) {
+          if (point is List) {
+            path.add(point.map((e) => (e as num).toDouble()).toList());
+          }
         }
+      } catch (e) {
+        path = null;
       }
     }
 
@@ -225,10 +229,14 @@ class InitData {
     var pathList = json['mockPath'] as List?;
     List<List<double>> mockPath = [];
     if (pathList != null) {
-      for (var point in pathList) {
-        if (point is List) {
-          mockPath.add(point.map((e) => (e as num).toDouble()).toList());
+      try {
+        for (var point in pathList) {
+          if (point is List) {
+            mockPath.add(point.map((e) => (e as num).toDouble()).toList());
+          }
         }
+      } catch (e) {
+        mockPath = [];
       }
     }
 
