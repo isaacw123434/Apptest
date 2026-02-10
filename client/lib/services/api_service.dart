@@ -166,7 +166,27 @@ class ApiService {
              List segments = leg['segments'] as List;
              leg['segments'] = segments.map((s) {
                var sMap = Map<String, dynamic>.from(s);
-               sMap['path'] = points; // Inject List<LatLng> directly
+
+               // Logic to decide if we should attach path to this segment
+               String mode = sMap['mode'] ?? '';
+               String routeNameLower = routeName!.toLowerCase();
+               bool shouldAttach = false;
+
+               if (routeNameLower.contains('train') && mode == 'train') {
+                 shouldAttach = true;
+               } else if ((routeNameLower.contains('drive') || routeNameLower.contains('uber')) && (mode == 'car' || mode == 'taxi')) {
+                 shouldAttach = true;
+               } else if (routeNameLower.contains('bus') && mode == 'bus') {
+                 shouldAttach = true;
+               } else if (routeNameLower.contains('cycle') && mode == 'bike') {
+                 shouldAttach = true;
+               } else if (routeNameLower.contains('direct drive') && mode == 'car') {
+                 shouldAttach = true;
+               }
+
+               if (shouldAttach) {
+                 sMap['path'] = points;
+               }
                return sMap;
              }).toList();
           }
