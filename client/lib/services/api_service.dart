@@ -1,5 +1,6 @@
 import 'package:latlong2/latlong.dart';
 import '../models.dart';
+import '../utils/emission_utils.dart';
 import 'mock_data.dart';
 import '../utils/polyline.dart';
 
@@ -57,9 +58,9 @@ class ApiService {
         double directDriveDist = directDriveData['distance'] as double;
         double carEmission = directDriveDist * 0.27; // direct drive distance * factor
 
-        double totalEmission = (l1.distance * _getEmissionFactor(l1.iconId)) +
-            (options.mainLeg.distance * _getEmissionFactor(options.mainLeg.iconId)) +
-            (l3.distance * _getEmissionFactor(l3.iconId));
+        double totalEmission = (l1.distance * getEmissionFactor(l1.iconId)) +
+            (options.mainLeg.distance * getEmissionFactor(options.mainLeg.iconId)) +
+            (l3.distance * getEmissionFactor(l3.iconId));
 
         double savings = carEmission - totalEmission;
         int savingsPercent = 0;
@@ -113,13 +114,6 @@ class ApiService {
     }
 
     return combos.take(3).toList();
-  }
-
-  double _getEmissionFactor(String iconId) {
-    if (iconId == IconIds.train) return 0.06;
-    if (iconId == IconIds.bus) return 0.10;
-    if (iconId == IconIds.car) return 0.27;
-    return 0.0;
   }
 
   SegmentOptions _getSegmentOptionsWithPaths() {
