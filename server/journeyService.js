@@ -1,3 +1,6 @@
+const polyline = require('@mapbox/polyline');
+const routesData = require('./polylines');
+
 // Converted from src/services/journeyService.js
 
 const ICON_IDS = {
@@ -7,6 +10,35 @@ const ICON_IDS = {
   BIKE: 'bike',
   FOOTPRINTS: 'footprints'
 };
+
+const ROUTES_MAP = {
+  'uber': 'Drive (Uber): St Chads View to Leeds Station',
+  'bus': 'Bus (Line 24): St Chads View to Leeds Station',
+  'cycle': 'Cycle: St Chads View to Leeds Station',
+  'train_walk_headingley': 'Train (Northern): St Chads View to Leeds Station via Headingley',
+  // 'train_uber_headingley': // Missing in routesData, or we reuse partials?
+  'train_main': 'Train: Leeds Station to Loughborough',
+  'last_uber': 'Drive (Uber): Loughborough to East Leake',
+  'last_bus': 'Bus (Line 1): Loughborough to East Leake',
+  'last_cycle': 'Cycle: Loughborough to East Leake'
+};
+
+// Map last mile IDs manually since they clash with first mile IDs in SEGMENT_OPTIONS logic if not careful
+// Actually, SEGMENT_OPTIONS has distinct objects, so we can modify them in place.
+
+const findRoute = (name) => routesData.find(r => r.name === name);
+
+const decodePath = (name) => {
+  const route = findRoute(name);
+  if (!route) return null;
+  return polyline.decode(route.polyline);
+};
+
+const getRouteColor = (name) => {
+  const route = findRoute(name);
+  return route ? route.color : null;
+};
+
 
 const SEGMENT_OPTIONS = {
   firstMile: [
@@ -21,7 +53,7 @@ const SEGMENT_OPTIONS = {
       iconId: ICON_IDS.CAR,
       color: 'text-black',
       bgColor: 'bg-zinc-100',
-      lineColor: '#000000',
+      lineColor: '#000000', // Enforced Black
       desc: 'Fastest door-to-door.',
       waitTime: 4,
       segments: [
@@ -37,14 +69,14 @@ const SEGMENT_OPTIONS = {
       distance: 3,
       riskScore: 0,
       iconId: ICON_IDS.BUS,
-      color: 'text-brand-dark', // updated color usage
-      bgColor: 'bg-brand-light', // updated color usage
-      lineColor: '#0f766e',
+      color: 'text-brand-dark',
+      bgColor: 'bg-brand-light',
+      lineColor: '#30227d', // Updated from Data
       recommended: true,
       desc: 'Best balance.',
       nextBusIn: 12,
       segments: [
-        { mode: 'bus', label: 'Bus', lineColor: '#0f766e', iconId: ICON_IDS.BUS, time: 23, to: 'Leeds Station' }
+        { mode: 'bus', label: 'Bus', lineColor: '#30227d', iconId: ICON_IDS.BUS, time: 23, to: 'Leeds Station' }
       ]
     },
     {
@@ -75,11 +107,11 @@ const SEGMENT_OPTIONS = {
       iconId: ICON_IDS.FOOTPRINTS,
       color: 'text-slate-600',
       bgColor: 'bg-slate-100',
-      lineColor: '#1d4ed8',
+      lineColor: '#262262', // Updated from Data (Northern)
       desc: 'Walking transfer.',
       segments: [
         { mode: 'walk', label: 'Walk', lineColor: '#475569', iconId: ICON_IDS.FOOTPRINTS, time: 18, to: 'Headingley Station' },
-        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', iconId: ICON_IDS.TRAIN, time: 10, to: 'Leeds Station' }
+        { mode: 'train', label: 'Northern', lineColor: '#262262', iconId: ICON_IDS.TRAIN, time: 10, to: 'Leeds Station' }
       ]
     },
     {
@@ -93,12 +125,12 @@ const SEGMENT_OPTIONS = {
       iconId: ICON_IDS.CAR,
       color: 'text-slate-600',
       bgColor: 'bg-slate-100',
-      lineColor: '#1d4ed8',
+      lineColor: '#262262', // Using Northern color
       desc: 'Fast transfer.',
       waitTime: 3,
       segments: [
         { mode: 'taxi', label: 'Uber', lineColor: '#000000', iconId: ICON_IDS.CAR, time: 5, to: 'Headingley Station' },
-        { mode: 'train', label: 'Northern', lineColor: '#1d4ed8', iconId: ICON_IDS.TRAIN, time: 10, to: 'Leeds Station' }
+        { mode: 'train', label: 'Northern', lineColor: '#262262', iconId: ICON_IDS.TRAIN, time: 10, to: 'Leeds Station' }
       ]
     },
     {
@@ -112,10 +144,10 @@ const SEGMENT_OPTIONS = {
       iconId: ICON_IDS.BIKE,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
-      lineColor: '#3b82f6',
+      lineColor: '#00FF00', // Updated from Data
       desc: 'Zero emissions.',
       segments: [
-        { mode: 'bike', label: 'Bike', lineColor: '#3b82f6', iconId: ICON_IDS.BIKE, time: 17, to: 'Leeds Station' }
+        { mode: 'bike', label: 'Bike', lineColor: '#00FF00', iconId: ICON_IDS.BIKE, time: 17, to: 'Leeds Station' }
       ]
     }
   ],
@@ -130,10 +162,10 @@ const SEGMENT_OPTIONS = {
     iconId: ICON_IDS.TRAIN,
     color: 'text-[#713e8d]',
     bgColor: 'bg-indigo-100',
-    lineColor: '#713e8d',
+    lineColor: '#880038', // Updated from Data (Main Train)
     platform: 4,
     segments: [
-      { mode: 'train', label: 'CrossCountry', lineColor: '#713e8d', iconId: ICON_IDS.TRAIN, time: 102, to: 'Loughborough Station' }
+      { mode: 'train', label: 'CrossCountry', lineColor: '#880038', iconId: ICON_IDS.TRAIN, time: 102, to: 'Loughborough Station' }
     ]
   },
   lastMile: [
@@ -148,7 +180,7 @@ const SEGMENT_OPTIONS = {
       iconId: ICON_IDS.CAR,
       color: 'text-black',
       bgColor: 'bg-zinc-100',
-      lineColor: '#000000',
+      lineColor: '#000000', // Enforced Black
       desc: 'Reliable final leg.',
       segments: [
         { mode: 'taxi', label: 'Uber', lineColor: '#000000', iconId: ICON_IDS.CAR, time: 10, to: 'East Leake' }
@@ -165,11 +197,11 @@ const SEGMENT_OPTIONS = {
       iconId: ICON_IDS.BUS,
       color: 'text-brand-dark',
       bgColor: 'bg-brand-light',
-      lineColor: '#0f766e',
+      lineColor: '#002663', // Updated from Data
       recommended: true,
       desc: 'Short walk required.',
       segments: [
-        { mode: 'bus', label: 'Bus', lineColor: '#0f766e', iconId: ICON_IDS.BUS, time: 14, to: 'East Leake' }
+        { mode: 'bus', label: 'Bus', lineColor: '#002663', iconId: ICON_IDS.BUS, time: 14, to: 'East Leake' }
       ]
     },
     {
@@ -183,14 +215,67 @@ const SEGMENT_OPTIONS = {
       iconId: ICON_IDS.BIKE,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
-      lineColor: '#3b82f6',
+      lineColor: '#00FF00', // Updated from Data
       desc: 'Scenic route.',
       segments: [
-        { mode: 'bike', label: 'Bike', lineColor: '#3b82f6', iconId: ICON_IDS.BIKE, time: 24, to: 'East Leake' }
+        { mode: 'bike', label: 'Bike', lineColor: '#00FF00', iconId: ICON_IDS.BIKE, time: 24, to: 'East Leake' }
       ]
     }
   ]
 };
+
+// Attach paths
+SEGMENT_OPTIONS.firstMile.forEach(leg => {
+  let routeName;
+  if (leg.id === 'uber') routeName = ROUTES_MAP['uber'];
+  else if (leg.id === 'bus') routeName = ROUTES_MAP['bus'];
+  else if (leg.id === 'cycle') routeName = ROUTES_MAP['cycle'];
+  else if (leg.id === 'train_walk_headingley') routeName = ROUTES_MAP['train_walk_headingley'];
+  // Fallbacks or others
+  if (routeName) {
+    const path = decodePath(routeName);
+    if (path) leg.segments.forEach(s => s.path = path); // Attach path to segments? Or Leg?
+    // Plan said attach to Leg.
+    // But Leg object structure in JS here doesn't matter much as long as JSON matches Dart.
+    // Dart Leg class has 'path' now? No, I added it to JourneyResult...
+    // Wait, I updated my plan to add it to Leg in Dart.
+    // Let's check if I actually updated Dart Leg model.
+    // I did: "Update client/lib/models.dart". But the diff I applied was to `JourneyResult`.
+    // I missed updating `Leg` in the diff!
+    // I need to update `Leg` in `client/lib/models.dart` as well.
+  }
+});
+
+// Main Leg
+const mainRouteName = ROUTES_MAP['train_main'];
+const mainPath = decodePath(mainRouteName);
+if (mainPath) {
+  // SEGMENT_OPTIONS.mainLeg.path = mainPath; // To Leg
+  SEGMENT_OPTIONS.mainLeg.segments.forEach(s => s.path = mainPath); // To Segment?
+}
+
+// Last Mile
+SEGMENT_OPTIONS.lastMile.forEach(leg => {
+  let routeName;
+  if (leg.id === 'uber') routeName = ROUTES_MAP['last_uber'];
+  else if (leg.id === 'bus') routeName = ROUTES_MAP['last_bus'];
+  else if (leg.id === 'cycle') routeName = ROUTES_MAP['last_cycle'];
+
+  if (routeName) {
+    const path = decodePath(routeName);
+    if (path) leg.segments.forEach(s => s.path = path);
+  }
+});
+
+// I need to decide: Path on Leg or Path on Segment?
+// In Dart `Leg` has `segments`.
+// If I put path on Segment, I can have different paths for different segments (e.g. Walk then Train).
+// But provided data is per-Leg (mostly).
+// If I put path on Segment, I can assign the same path to the main segment of the leg.
+// Let's put it on `Segment` to be flexible and since `Leg` is a container.
+// Wait, `Leg` in Dart needs to be updated or `Segment` in Dart needs to be updated.
+// In the previous step I updated `JourneyResult` with `path`. I did NOT update `Leg` or `Segment`.
+// I need to fix `client/lib/models.dart` to add `path` to `Segment`.
 
 const DIRECT_DRIVE = {
   time: 110, // 1h 50m
@@ -262,10 +347,12 @@ const getAllCombinations = () => {
   SEGMENT_OPTIONS.firstMile.forEach(l1 => {
     SEGMENT_OPTIONS.lastMile.forEach(l3 => {
       const stats = calculateTotalStats(l1, l3);
+      const id = `${l1.id}-${l3.id}`;
       combos.push({
-        id: `${l1.id}-${l3.id}`,
+        id: id,
         leg1: l1,
         leg3: l3,
+        // path: ... // Removed top-level path as per plan, assuming segments have paths
         ...stats
       });
     });

@@ -6,6 +6,7 @@ class Segment {
   final int time;
   final String? to;
   final String? detail;
+  final List<List<double>>? path;
 
   Segment({
     required this.mode,
@@ -15,9 +16,21 @@ class Segment {
     required this.time,
     this.to,
     this.detail,
+    this.path,
   });
 
   factory Segment.fromJson(Map<String, dynamic> json) {
+    var pathList = json['path'] as List?;
+    List<List<double>>? path;
+    if (pathList != null) {
+      path = [];
+      for (var point in pathList) {
+        if (point is List) {
+          path.add(point.map((e) => (e as num).toDouble()).toList());
+        }
+      }
+    }
+
     return Segment(
       mode: json['mode'] ?? '',
       label: json['label'] ?? '',
@@ -26,6 +39,7 @@ class Segment {
       time: json['time'] ?? 0,
       to: json['to'],
       detail: json['detail'],
+      path: path,
     );
   }
 }

@@ -17,23 +17,81 @@ class DetailPage extends StatefulWidget {
 class _DetailPageState extends State<DetailPage> {
   final ApiService _apiService = ApiService();
   InitData? _initData;
-  List<LatLng> _routePoints = [];
+  List<Polyline> _polylines = [];
 
   @override
   void initState() {
     super.initState();
+    // Build initial polylines from available journey result data
+    if (widget.journeyResult != null) {
+      _updatePolylines();
+    }
     _fetchData();
   }
 
   Future<void> _fetchData() async {
     try {
       final data = await _apiService.fetchInitData();
-      setState(() {
-        _initData = data;
-        _routePoints = data.mockPath.map((p) => LatLng(p[0], p[1])).toList();
-      });
+      if (mounted) {
+        setState(() {
+          _initData = data;
+          _updatePolylines();
+        });
+      }
     } catch (e) {
       debugPrint('Error fetching data: $e');
+    }
+  }
+
+  void _updatePolylines() {
+    if (widget.journeyResult == null) return;
+
+    final result = widget.journeyResult!;
+    List<Polyline> lines = [];
+
+    // Helper to add segments
+    void addSegments(Leg leg) {
+      for (var seg in leg.segments) {
+        if (seg.path != null && seg.path!.isNotEmpty) {
+          lines.add(Polyline(
+            points: seg.path!.map((p) => LatLng(p[0], p[1])).toList(),
+            color: _parseColor(seg.lineColor),
+            strokeWidth: 4.0,
+          ));
+        }
+      }
+    }
+
+    // Leg 1
+    addSegments(result.leg1);
+
+    // Main Leg
+    if (_initData != null) {
+      addSegments(_initData!.segmentOptions.mainLeg);
+    }
+
+    // Leg 3
+    addSegments(result.leg3);
+
+    // Fallback if no lines generated yet, try mock path
+    if (lines.isEmpty && _initData != null && _initData!.mockPath.isNotEmpty) {
+       lines.add(Polyline(
+         points: _initData!.mockPath.map((p) => LatLng(p[0], p[1])).toList(),
+         color: Colors.blue,
+         strokeWidth: 4.0,
+       ));
+    }
+
+    setState(() {
+      _polylines = lines;
+    });
+  }
+
+  Color _parseColor(String lineColor) {
+    try {
+      return Color(int.parse(lineColor.replaceAll('#', ''), radix: 16) + 0xFF000000);
+    } catch (e) {
+      return Colors.grey;
     }
   }
 
@@ -51,7 +109,7 @@ class _DetailPageState extends State<DetailPage> {
       body: Stack(
         children: [
           // 1. Map Background
-          if (_routePoints.isNotEmpty)
+          if (_polylines.isNotEmpty)
             FlutterMap(
               options: MapOptions(
                 initialCenter: LatLng(53.28, -1.37), // Approximate midpoint
@@ -63,13 +121,7 @@ class _DetailPageState extends State<DetailPage> {
                   userAgentPackageName: 'com.example.app',
                 ),
                 PolylineLayer(
-                  polylines: [
-                    Polyline(
-                      points: _routePoints,
-                      color: Colors.blue,
-                      strokeWidth: 4.0,
-                    ),
-                  ],
+                  polylines: _polylines,
                 ),
               ],
             )
@@ -278,13 +330,6 @@ class _DetailPageState extends State<DetailPage> {
     bool isEnd = false,
     bool isBuffer = false,
   }) {
-    Color color;
-    try {
-      color = Color(int.parse(lineColor.replaceAll('#', ''), radix: 16) + 0xFF000000);
-    } catch (e) {
-      color = Colors.grey;
-    }
-
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -303,17 +348,17 @@ class _DetailPageState extends State<DetailPage> {
           const SizedBox(width: 16),
           Column(
             children: [
-              if (!isStart) Expanded(child: Container(width: 2, color: color)),
+              if (!isStart) Expanded(child: Container(width: 2, color: _parseColor(lineColor))),
               Container(
                 width: 16,
                 height: 16,
                 decoration: BoxDecoration(
                   color: isStart || isEnd ? (isEnd ? Colors.black : Colors.white) : Colors.white,
-                  border: Border.all(color: isEnd ? Colors.black : color, width: 2),
+                  border: Border.all(color: isEnd ? Colors.black : _parseColor(lineColor), width: 2),
                   shape: BoxShape.circle,
                 ),
               ),
-              if (!isEnd) Expanded(child: Container(width: 2, color: color)),
+              if (!isEnd) Expanded(child: Container(width: 2, color: _parseColor(lineColor))),
             ],
           ),
           const SizedBox(width: 16),
