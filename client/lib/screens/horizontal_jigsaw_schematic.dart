@@ -81,8 +81,9 @@ class HorizontalJigsawSchematic extends StatelessWidget {
         double totalTimeVal = totalTime;
         if (totalTimeVal <= 0) {
           totalTimeVal = segments.fold(0.0, (sum, s) => sum + s.time);
-          if (totalTimeVal <= 0)
+          if (totalTimeVal <= 0) {
             totalTimeVal = segments.length.toDouble(); // Fallback
+          }
         }
 
         Set<Segment> fixedSegments = {};
