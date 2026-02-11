@@ -38,9 +38,9 @@ class _DetailPageState extends State<DetailPage> {
       if (mounted) {
         setState(() {
           _initData = data;
-          // If we didn't have a result passed in (unlikely), or to ensure mainLeg is correct
-          _updatePolylines();
         });
+        // Explicitly call this AFTER _initData is set to refresh the map
+        _updatePolylines();
       }
     } catch (e) {
       debugPrint('Error fetching data: $e');

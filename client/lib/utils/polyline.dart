@@ -12,6 +12,7 @@ List<LatLng> decodePolyline(String encoded) {
   while (index < len) {
     int b, shift = 0, result = 0;
     do {
+      if (index >= len) break;
       b = encoded.codeUnitAt(index++) - 63;
       result |= (b & 0x1f) << shift;
       shift += 5;
@@ -22,6 +23,7 @@ List<LatLng> decodePolyline(String encoded) {
     shift = 0;
     result = 0;
     do {
+      if (index >= len) break;
       b = encoded.codeUnitAt(index++) - 63;
       result |= (b & 0x1f) << shift;
       shift += 5;
