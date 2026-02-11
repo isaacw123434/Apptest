@@ -52,7 +52,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
             maxLines: 1,
           )..layout();
 
-          double minW = paddingLeft + contentBase + textPainter.width + paddingRight;
+          double minW = (paddingLeft + contentBase + textPainter.width + paddingRight).ceilToDouble();
           minWidths[i] = minW;
           totalMinWidth += minW;
         }
