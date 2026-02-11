@@ -638,7 +638,7 @@ class _SummaryPageState extends State<SummaryPage> {
             margin: const EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(color: const Color(0xFFE2E8F0)), // Slate 200
               boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
             ),
@@ -666,11 +666,6 @@ class _SummaryPageState extends State<SummaryPage> {
                                   color: Color(0xFF0F172A), // Slate 900
                                 ),
                               ),
-                              if (result.buffer > 0)
-                                Text(
-                                  'incl. ${result.buffer}m wait',
-                                  style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
-                                ),
                             ],
                           ),
                           Column(
@@ -991,8 +986,7 @@ class _SummaryPageState extends State<SummaryPage> {
     return Text.rich(
       TextSpan(children: spans),
       style: const TextStyle(fontSize: 10), // Small font as requested indirectly by "under the diagram"
-      overflow: TextOverflow.ellipsis,
-      maxLines: 1,
+      maxLines: 2,
     );
   }
 
