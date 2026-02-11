@@ -105,10 +105,10 @@ class ApiService {
     } else if (tab == 'cheapest') {
       combos.sort((a, b) => a.cost.compareTo(b.cost));
     } else {
-      // Smart: Cost + 0.3 * Time
+      // Smart: Cost + 0.3 * Time + 5 * Risk
       combos.sort((a, b) {
-        double scoreA = a.cost + (a.time * 0.3);
-        double scoreB = b.cost + (b.time * 0.3);
+        double scoreA = a.cost + (a.time * 0.3) + (a.risk * 5.0);
+        double scoreB = b.cost + (b.time * 0.3) + (b.risk * 5.0);
         return scoreA.compareTo(scoreB);
       });
     }
