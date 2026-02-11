@@ -128,11 +128,11 @@ class _DetailPageState extends State<DetailPage> {
       // We need direct drive data to calculate savings properly, but for now we can just update the object
       // Assuming directDriveData is constant or we can get it from InitData if we passed it fully.
       // InitData has directDrive.
-      double carEmission = (_initData!.directDrive.distance) * 0.27;
+      double carEmission = _initData!.directDrive.co2 ?? (_initData!.directDrive.distance * 0.27);
 
-      double totalEmission = (leg1.distance * getEmissionFactor(leg1.iconId)) +
-          (mainLeg.distance * getEmissionFactor(mainLeg.iconId)) +
-          (leg3.distance * getEmissionFactor(leg3.iconId));
+      double totalEmission = (leg1.co2 ?? leg1.distance * getEmissionFactor(leg1.iconId)) +
+          (mainLeg.co2 ?? mainLeg.distance * getEmissionFactor(mainLeg.iconId)) +
+          (leg3.co2 ?? leg3.distance * getEmissionFactor(leg3.iconId));
 
       double savings = carEmission - totalEmission;
       int savingsPercent = 0;
@@ -682,7 +682,9 @@ class _DetailPageState extends State<DetailPage> {
     double? distance,
     String? extraDetails,
   }) {
-    final emission = distance != null ? calculateEmission(distance, segment.iconId) : 0.0;
+    // Prefer segment.distance if available
+    final displayDistance = segment.distance ?? distance;
+    final emission = segment.co2 ?? (displayDistance != null ? calculateEmission(displayDistance, segment.iconId) : 0.0);
     Color lineColor = _parseColor(segment.lineColor);
 
     return IntrinsicHeight(
@@ -731,10 +733,10 @@ class _DetailPageState extends State<DetailPage> {
                         Text(segment.label,
                             style: const TextStyle(fontWeight: FontWeight.bold)),
                         Text(
-                          '${segment.time} min${distance != null ? ' • ${distance.toStringAsFixed(1)} miles' : ''}',
+                          '${segment.time} min${displayDistance != null ? ' • ${displayDistance.toStringAsFixed(1)} miles' : ''}',
                           style: const TextStyle(fontSize: 12, color: Colors.grey),
                         ),
-                        if (distance != null)
+                        if (displayDistance != null || emission > 0)
                           Row(
                             children: [
                               const Icon(LucideIcons.leaf,
