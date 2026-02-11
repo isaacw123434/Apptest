@@ -105,10 +105,16 @@ class ApiService {
     } else if (tab == 'cheapest') {
       combos.sort((a, b) => a.cost.compareTo(b.cost));
     } else {
-      // Smart: Cost + 0.3 * Time + 5 * Risk
+      // Smart: Cost + 0.3 * Time + 20 * (Risk - MinRisk)
+      // Prioritize lowest risk by giving it a baseline of 0 and penalizing excess risk heavily.
+      int minRisk = 0;
+      if (combos.isNotEmpty) {
+        minRisk = combos.map((c) => c.risk).reduce((a, b) => a < b ? a : b);
+      }
+
       combos.sort((a, b) {
-        double scoreA = a.cost + (a.time * 0.3) + (a.risk * 5.0);
-        double scoreB = b.cost + (b.time * 0.3) + (b.risk * 5.0);
+        double scoreA = a.cost + (a.time * 0.3) + ((a.risk - minRisk) * 20.0);
+        double scoreB = b.cost + (b.time * 0.3) + ((b.risk - minRisk) * 20.0);
         return scoreA.compareTo(scoreB);
       });
     }
