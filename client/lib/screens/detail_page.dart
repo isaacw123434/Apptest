@@ -340,7 +340,7 @@ class _DetailPageState extends State<DetailPage> {
               children: [
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.app',
+                  userAgentPackageName: 'com.endmile.app',
                 ),
                 PolylineLayer(
                   polylines: _polylines,
