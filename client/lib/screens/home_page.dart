@@ -148,11 +148,7 @@ class _HomePageState extends State<HomePage> {
                           color: Color(0xFF64748B), // Slate 500
                         ),
                         icon: const Icon(LucideIcons.chevronDown, size: 14, color: Color(0xFF94A3B8)),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            _timeType = newValue!;
-                          });
-                        },
+                        onChanged: null,
                         items: <String>['Depart', 'Arrive']
                             .map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
@@ -166,7 +162,6 @@ class _HomePageState extends State<HomePage> {
                         child: TextField(
                           controller: _timeController,
                           readOnly: true,
-                          onTap: _selectTime,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,

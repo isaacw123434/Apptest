@@ -308,11 +308,7 @@ class _SummaryPageState extends State<SummaryPage> {
                             color: Colors.grey[600],
                           ),
                           icon: const Icon(LucideIcons.chevronDown, size: 14, color: Colors.grey),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _timeType = newValue!;
-                            });
-                          },
+                          onChanged: null,
                           items: <String>['Depart', 'Arrive']
                               .map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
@@ -326,7 +322,6 @@ class _SummaryPageState extends State<SummaryPage> {
                           child: TextField(
                             controller: _timeController,
                             readOnly: true,
-                            onTap: _selectTime,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
