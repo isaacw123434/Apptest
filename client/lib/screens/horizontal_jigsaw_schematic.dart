@@ -22,138 +22,67 @@ class HorizontalJigsawSchematic extends StatelessWidget {
             ? availableWidth
             : 1000.0;
 
-        // Font size Fallback: If the sum of all "Snug Minimums" exceeds the screen width, decrease the font size until it fits
-        double fontSize = 10.0;
-        const double minFontSize = 8.0;
+        const double fontSize = 10.0;
+        const double overlap = 12.0;
 
-        // Map to store snug minimum widths
-        Map<Segment, double> snugMinimums = {};
+        // 1. Measure Minimum Widths
+        List<double> minWidths = List.filled(segments.length, 0.0);
+        double totalMinWidth = 0.0;
 
-        // Helper to calculate snug minimum for a segment given a font size
-        double calculateSnugMinimum(Segment seg, double fs) {
-          int index = segments.indexOf(seg);
-          bool isFirst = index == 0;
-          bool isLast = index == segments.length - 1;
-          // Overlap used in HorizontalJigsawSegment
-          const double overlap = 12.0;
+        for (int i = 0; i < segments.length; i++) {
+          final seg = segments[i];
+          bool isFirst = i == 0;
+          bool isLast = i == segments.length - 1;
 
-          // Padding logic matches HorizontalJigsawSegment
-          double paddingLeft = isFirst ? 20.0 : (overlap + 4.0);
-          double paddingRight = isLast ? 20.0 : (overlap + 4.0);
+          double paddingLeft = isFirst ? 16.0 : (overlap + 4.0);
+          double paddingRight = isLast ? 16.0 : (overlap + 4.0);
 
           // Icon (16) + Spacing (4)
           double contentBase = 16.0 + 4.0;
 
-          // Measure Text
           final textPainter = TextPainter(
             text: TextSpan(
               text: seg.label,
-              style: TextStyle(fontSize: fs, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             textDirection: TextDirection.ltr,
             maxLines: 1,
           )..layout();
 
-          return paddingLeft + contentBase + textPainter.width + paddingRight;
+          double minW = paddingLeft + contentBase + textPainter.width + paddingRight;
+          minWidths[i] = minW;
+          totalMinWidth += minW;
         }
 
-        // 1. Determine Font Size
-        while (fontSize >= minFontSize) {
-          double totalSnugWidth = 0.0;
-          snugMinimums.clear();
-          for (var seg in segments) {
-            double w = calculateSnugMinimum(seg, fontSize);
-            snugMinimums[seg] = w;
-            totalSnugWidth += w;
+        // 2. Check Constraint
+        bool scrollNeeded = totalMinWidth > effectiveWidth;
+        List<double> segmentWidths = List.filled(segments.length, 0.0);
+
+        if (scrollNeeded) {
+          // Use minWidth for every segment
+          for (int i = 0; i < segments.length; i++) {
+            segmentWidths[i] = minWidths[i];
           }
+        } else {
+          // 3. Distribute Bonus Space
+          double bonusSpace = effectiveWidth - totalMinWidth;
 
-          if (totalSnugWidth <= effectiveWidth) {
-            break; // Fits!
-          }
-          fontSize -= 1.0;
-        }
+          // Calculate sum of time for segments to distribute bonus proportionally
+          double timeSum = segments.fold(0.0, (sum, s) => sum + s.time);
+          if (timeSum <= 0) timeSum = 1.0; // Avoid division by zero
 
-        // 2. Proportional Distribution
-        Map<Segment, double> segmentWidths = {};
-
-        // Handle edge case where totalTime is 0 or missing
-        // Use totalTime prop as authoritative if > 0, else sum segments
-        double totalTimeVal = totalTime;
-        if (totalTimeVal <= 0) {
-          totalTimeVal = segments.fold(0.0, (sum, s) => sum + s.time);
-          if (totalTimeVal <= 0) {
-            totalTimeVal = segments.length.toDouble(); // Fallback
-          }
-        }
-
-        Set<Segment> fixedSegments = {};
-        Set<Segment> flexibleSegments = segments.toSet();
-
-        // Initialize widths
-        for (var seg in segments) {
-          segmentWidths[seg] = 0.0;
-        }
-
-        // Iterative distribution loop
-        while (flexibleSegments.isNotEmpty) {
-          // Calculate remaining available width
-          double fixedWidthSum = fixedSegments.fold(
-            0.0,
-            (sum, s) => sum + segmentWidths[s]!,
-          );
-          double availableForFlexible = effectiveWidth - fixedWidthSum;
-
-          // Calculate total time of flexible segments
-          // If totalTime was provided, we assume segments are proportional to it.
-          // Wait, if we use totalTimeVal from prop, but we only sum flexible segments' times,
-          // we are effectively renormalizing the flexible segments to fit the available space.
-          // This is what we want: "Re-distribution: ... subtract that stolen width from the larger segments".
-          double flexibleTimeSum = flexibleSegments.fold(
-            0.0,
-            (sum, s) => sum + (totalTime > 0 ? s.time : 1),
-          );
-
-          List<Segment> newlyFixed = [];
-
-          // If flexibleTimeSum is 0 (all remaining flexible segments have 0 time), distribute equally
-          if (flexibleTimeSum <= 0) {
-            double equalShare = availableForFlexible / flexibleSegments.length;
-            for (var seg in flexibleSegments) {
-              double minW = snugMinimums[seg]!;
-              if (equalShare < minW) {
-                segmentWidths[seg] = minW;
-                newlyFixed.add(seg);
-              } else {
-                segmentWidths[seg] = equalShare;
-              }
-            }
-          } else {
-            // Distribute proportionally
-            for (var seg in flexibleSegments) {
-              double segTime = (totalTime > 0 ? seg.time.toDouble() : 1.0);
-              double share = (segTime / flexibleTimeSum) * availableForFlexible;
-              double minW = snugMinimums[seg]!;
-
-              if (share < minW) {
-                segmentWidths[seg] = minW;
-                newlyFixed.add(seg);
-              } else {
-                segmentWidths[seg] = share;
-              }
-            }
-          }
-
-          if (newlyFixed.isEmpty) {
-            break; // Stable
-          }
-
-          for (var s in newlyFixed) {
-            fixedSegments.add(s);
-            flexibleSegments.remove(s);
+          for (int i = 0; i < segments.length; i++) {
+            final seg = segments[i];
+            double proportion = seg.time / timeSum;
+            double share = proportion * bonusSpace;
+            segmentWidths[i] = minWidths[i] + share;
           }
         }
 
-        return Row(
+        Widget content = Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: segments.asMap().entries.map((entry) {
             final index = entry.key;
@@ -161,7 +90,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
             final isFirst = index == 0;
             final isLast = index == segments.length - 1;
 
-            double width = segmentWidths[seg] ?? snugMinimums[seg] ?? 75.0;
+            double width = segmentWidths[index];
 
             Color color;
             try {
@@ -184,7 +113,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
                 isLast: isLast,
                 backgroundColor: color,
                 borderColor: Colors.white,
-                overlap: 12.0,
+                overlap: overlap,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -194,7 +123,6 @@ class HorizontalJigsawSchematic extends StatelessWidget {
                       child: Text(
                         seg.label,
                         maxLines: 1,
-                        // overflow: TextOverflow.ellipsis, // REMOVED
                         style: TextStyle(
                           color: textColor,
                           fontSize: fontSize,
@@ -208,6 +136,15 @@ class HorizontalJigsawSchematic extends StatelessWidget {
             );
           }).toList(),
         );
+
+        if (scrollNeeded) {
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: content,
+          );
+        }
+
+        return content;
       },
     );
   }
@@ -260,8 +197,8 @@ class HorizontalJigsawSegment extends StatelessWidget {
       ),
       child: Padding(
         padding: EdgeInsets.only(
-          left: isFirst ? 20 : (overlap + 4),
-          right: isLast ? 20 : (overlap + 4),
+          left: isFirst ? 16 : (overlap + 4),
+          right: isLast ? 16 : (overlap + 4),
           top: 1,
           bottom: 1,
         ),
@@ -310,7 +247,7 @@ class _HorizontalJigsawPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final o = overlap;
-    final r = 10.0; // Fixed radius for rounded rectangle ends
+    final r = 8.0; // Fixed radius for rounded rectangle ends
 
     // Start Left
     if (isFirst) {
