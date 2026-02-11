@@ -102,22 +102,25 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Direct Drive',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF0F172A),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Direct Drive',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF0F172A),
+                                ),
                               ),
-                            ),
-                            const Text(
-                              'St Chads → East Leake',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ],
+                              const Text(
+                                'St Chads → East Leake',
+                                style: TextStyle(color: Colors.grey),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
                         ),
                         Container(
                           padding: const EdgeInsets.all(12),
@@ -133,11 +136,11 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
                     Row(
                       children: [
                         Expanded(child: _buildInfoBox('Cost', '£${_initData!.directDrive.cost.toStringAsFixed(2)}')),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
                         Expanded(child: _buildInfoBox('Time', '${(_initData!.directDrive.time / 60).floor()}hr ${_initData!.directDrive.time % 60}m')),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
                         Expanded(child: _buildInfoBox('Distance', '${_initData!.directDrive.distance} mi')),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
                         Expanded(child: _buildInfoBox('CO₂', '${(_initData!.directDrive.co2 ?? calculateEmission(_initData!.directDrive.distance, IconIds.car)).toStringAsFixed(2)} kg')),
                       ],
                     ),
@@ -167,7 +170,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
 
   Widget _buildInfoBox(String label, String value) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC), // Slate 50
         borderRadius: BorderRadius.circular(12),
@@ -184,12 +187,16 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF0F172A), // Slate 900
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              maxLines: 1,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F172A), // Slate 900
+              ),
             ),
           ),
         ],
