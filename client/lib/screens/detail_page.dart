@@ -520,7 +520,13 @@ class _DetailPageState extends State<DetailPage> {
 
         // Calculate Distance
         double? distance;
-        if (seg.path != null && seg.path!.isNotEmpty) {
+
+        // Prefer curated leg distance for single-segment legs
+        if (leg.segments.length == 1) {
+          distance = leg.distance;
+        }
+
+        if (distance == null && seg.path != null && seg.path!.isNotEmpty) {
           double totalMeters = 0;
           for (int j = 0; j < seg.path!.length - 1; j++) {
             totalMeters += _distance.as(LengthUnit.Meter, seg.path![j], seg.path![j + 1]);
