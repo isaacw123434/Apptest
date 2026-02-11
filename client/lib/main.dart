@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'screens/home_page.dart';
 import 'screens/direct_drive_page.dart';
 
@@ -21,7 +22,7 @@ class JourneyPlannerApp extends StatelessWidget {
           secondary: const Color(0xFF0F766E), // Teal
         ),
         useMaterial3: true,
-        fontFamily: 'Roboto', // Default, can be changed
+        textTheme: GoogleFonts.interTextTheme(),
         scaffoldBackgroundColor: const Color(0xFFF8FAFC), // Slate 50
       ),
       home: const HomePage(),

@@ -987,6 +987,7 @@ class _SummaryPageState extends State<SummaryPage> {
       TextSpan(children: spans),
       style: const TextStyle(fontSize: 10), // Small font as requested indirectly by "under the diagram"
       maxLines: 2,
+      textAlign: TextAlign.center,
     );
   }
 
