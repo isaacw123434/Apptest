@@ -147,24 +147,6 @@ class _SummaryPageState extends State<SummaryPage> {
     }
   }
 
-  Future<void> _selectTime() async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-      builder: (BuildContext context, Widget? child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null) {
-      setState(() {
-        _timeController.text =
-            '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -308,11 +290,7 @@ class _SummaryPageState extends State<SummaryPage> {
                             color: Colors.grey[600],
                           ),
                           icon: const Icon(LucideIcons.chevronDown, size: 14, color: Colors.grey),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _timeType = newValue!;
-                            });
-                          },
+                          onChanged: null,
                           items: <String>['Depart', 'Arrive']
                               .map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
@@ -326,7 +304,6 @@ class _SummaryPageState extends State<SummaryPage> {
                           child: TextField(
                             controller: _timeController,
                             readOnly: true,
-                            onTap: _selectTime,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
