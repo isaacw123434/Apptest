@@ -27,9 +27,9 @@ void main() {
 
      final Padding paddingWidget = tester.widget(paddingFinder);
      // Since there is only one segment, isFirst=true, isLast=true.
-     // left: 20, right: 20.
+     // left: 16, right: 16.
      // top: 1, bottom: 1.
-     expect(paddingWidget.padding, const EdgeInsets.only(left: 20, right: 20, top: 1, bottom: 1));
+     expect(paddingWidget.padding, const EdgeInsets.only(left: 16, right: 16, top: 1, bottom: 1));
   });
 
   testWidgets('HorizontalJigsawSchematic layouts multiple segments', (WidgetTester tester) async {
@@ -54,7 +54,7 @@ void main() {
 
      // Verify paddings for multi-segment
      // 1. Walk: isFirst=true, isLast=false
-     // left: 20, right: 4
+     // left: 16, right: 2
      final walkSegment = find.ancestor(
        of: find.text('Walk'),
        matching: find.byType(HorizontalJigsawSegment),
@@ -62,10 +62,10 @@ void main() {
      final walkPadding = tester.widget<Padding>(
        find.descendant(of: walkSegment, matching: find.byType(Padding))
      );
-     expect(walkPadding.padding, const EdgeInsets.only(left: 20, right: 4, top: 1, bottom: 1));
+     expect(walkPadding.padding, const EdgeInsets.only(left: 16, right: 2, top: 1, bottom: 1));
 
      // 2. Bus: isFirst=false, isLast=true
-     // left: 16, right: 20
+     // left: 16, right: 16
      final busSegment = find.ancestor(
        of: find.text('Bus'),
        matching: find.byType(HorizontalJigsawSegment),
@@ -73,6 +73,6 @@ void main() {
      final busPadding = tester.widget<Padding>(
        find.descendant(of: busSegment, matching: find.byType(Padding))
      );
-     expect(busPadding.padding, const EdgeInsets.only(left: 16, right: 20, top: 1, bottom: 1));
+     expect(busPadding.padding, const EdgeInsets.only(left: 16, right: 16, top: 1, bottom: 1));
   });
 }
