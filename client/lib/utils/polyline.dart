@@ -1,6 +1,9 @@
 import 'package:latlong2/latlong.dart';
 
 /// Decodes an encoded polyline string into a list of LatLng points.
+///
+/// Uses a robust implementation compatible with Dart Web (JavaScript numbers)
+/// by ensuring explicit double conversion when dividing by 1E5.
 List<LatLng> decodePolyline(String encoded) {
   List<LatLng> points = [];
   int index = 0, len = encoded.length;
@@ -26,7 +29,7 @@ List<LatLng> decodePolyline(String encoded) {
     int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
     lng += dlng;
 
-    points.add(LatLng(lat / 1E5, lng / 1E5));
+    points.add(LatLng(lat.toDouble() / 1E5, lng.toDouble() / 1E5));
   }
   return points;
 }
