@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:latlong2/latlong.dart';
-import '../lib/utils/polyline.dart';
+import 'package:client/utils/polyline.dart';
 
 void main() {
   group('Polyline Decoding', () {

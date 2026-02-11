@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/services/mock_data.dart';
-import '../lib/utils/polyline.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:client/services/mock_data.dart';
+import 'package:client/utils/polyline.dart';
 
 void main() {
   group('Mock Data Validity', () {
