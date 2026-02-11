@@ -56,35 +56,20 @@ class _DetailPageState extends State<DetailPage> {
 
     // Helper to add segments
     void addSegments(Leg leg) {
-      debugPrint('Processing leg ${leg.id} with ${leg.segments.length} segments');
       for (var seg in leg.segments) {
         if (seg.path != null && seg.path!.isNotEmpty) {
-          debugPrint('Segment ${seg.label} has path with ${seg.path!.length} points');
           // Filter out invalid coordinates to prevent map crashes
           final validPoints = seg.path!.where((p) => p.latitude.abs() <= 90).toList();
           if (validPoints.isNotEmpty) {
-            debugPrint('Adding polyline with ${validPoints.length} points for segment ${seg.label}');
             lines.add(Polyline(
               points: validPoints,
               color: _parseColor(seg.lineColor),
-              strokeWidth: 4.0,
+              strokeWidth: 6.0,
             ));
-          } else {
-            debugPrint('Segment ${seg.label} has NO valid points');
           }
-        } else {
-          debugPrint('Segment ${seg.label} has NO path');
         }
       }
     }
-
-    // Debug line
-    debugPrint('Adding debug line: Leeds (53.8, -1.5) to Loughborough (52.7, -1.2)');
-    lines.add(Polyline(
-      points: [const LatLng(53.8, -1.5), const LatLng(52.7, -1.2)],
-      color: Colors.red,
-      strokeWidth: 10.0,
-    ));
 
     // Leg 1
     addSegments(result.leg1);
@@ -115,7 +100,7 @@ class _DetailPageState extends State<DetailPage> {
     try {
       return Color(int.parse(lineColor.replaceAll('#', ''), radix: 16) + 0xFF000000);
     } catch (e) {
-      return Colors.grey;
+      return const Color(0xFF4F46E5); // Brand Blue as fallback
     }
   }
 
