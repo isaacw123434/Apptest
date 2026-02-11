@@ -18,55 +18,138 @@ class HorizontalJigsawSchematic extends StatelessWidget {
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
         // If availableWidth is infinite (e.g. in scroll view), use a default or screen width
-        final double effectiveWidth = availableWidth.isFinite ? availableWidth : 1000.0;
+        final double effectiveWidth = availableWidth.isFinite
+            ? availableWidth
+            : 1000.0;
 
-        // Minimal width for icon + text
-        const double minSegmentWidth = 75.0;
+        // Font size Fallback: If the sum of all "Snug Minimums" exceeds the screen width, decrease the font size until it fits
+        double fontSize = 10.0;
+        const double minFontSize = 8.0;
 
-        // Calculate widths
+        // Map to store snug minimum widths
+        Map<Segment, double> snugMinimums = {};
+
+        // Helper to calculate snug minimum for a segment given a font size
+        double calculateSnugMinimum(Segment seg, double fs) {
+          int index = segments.indexOf(seg);
+          bool isFirst = index == 0;
+          bool isLast = index == segments.length - 1;
+          // Overlap used in HorizontalJigsawSegment
+          const double overlap = 12.0;
+
+          // Padding logic matches HorizontalJigsawSegment
+          double paddingLeft = isFirst ? 20.0 : (overlap + 4.0);
+          double paddingRight = isLast ? 20.0 : (overlap + 4.0);
+
+          // Icon (16) + Spacing (4)
+          double contentBase = 16.0 + 4.0;
+
+          // Measure Text
+          final textPainter = TextPainter(
+            text: TextSpan(
+              text: seg.label,
+              style: TextStyle(fontSize: fs, fontWeight: FontWeight.bold),
+            ),
+            textDirection: TextDirection.ltr,
+            maxLines: 1,
+          )..layout();
+
+          return paddingLeft + contentBase + textPainter.width + paddingRight;
+        }
+
+        // 1. Determine Font Size
+        while (fontSize >= minFontSize) {
+          double totalSnugWidth = 0.0;
+          snugMinimums.clear();
+          for (var seg in segments) {
+            double w = calculateSnugMinimum(seg, fontSize);
+            snugMinimums[seg] = w;
+            totalSnugWidth += w;
+          }
+
+          if (totalSnugWidth <= effectiveWidth) {
+            break; // Fits!
+          }
+          fontSize -= 1.0;
+        }
+
+        // 2. Proportional Distribution
         Map<Segment, double> segmentWidths = {};
 
-        double totalMinWidth = segments.length * minSegmentWidth;
+        // Handle edge case where totalTime is 0 or missing
+        // Use totalTime prop as authoritative if > 0, else sum segments
+        double totalTimeVal = totalTime;
+        if (totalTimeVal <= 0) {
+          totalTimeVal = segments.fold(0.0, (sum, s) => sum + s.time);
+          if (totalTimeVal <= 0)
+            totalTimeVal = segments.length.toDouble(); // Fallback
+        }
 
-        if (totalMinWidth > effectiveWidth) {
-           // If we can't fit even with min width, distribute equally
-           for (var seg in segments) {
-             segmentWidths[seg] = effectiveWidth / segments.length;
-           }
-        } else {
-           // Iterative distribution
-           // 1. Sort segments by time to handle smallest first
-           List<Segment> sortedSegments = List.from(segments);
-           sortedSegments.sort((a, b) => a.time.compareTo(b.time));
+        Set<Segment> fixedSegments = {};
+        Set<Segment> flexibleSegments = segments.toSet();
 
-           double remainingWidth = effectiveWidth;
-           double remainingTime = totalTime > 0 ? totalTime : 1;
-           Set<Segment> handled = {};
+        // Initialize widths
+        for (var seg in segments) {
+          segmentWidths[seg] = 0.0;
+        }
 
-           // Pass 1: Assign min width to small segments
-           for (var seg in sortedSegments) {
-              if (remainingTime <= 0) break;
-              double propWidth = (seg.time / remainingTime) * remainingWidth;
+        // Iterative distribution loop
+        while (flexibleSegments.isNotEmpty) {
+          // Calculate remaining available width
+          double fixedWidthSum = fixedSegments.fold(
+            0.0,
+            (sum, s) => sum + segmentWidths[s]!,
+          );
+          double availableForFlexible = effectiveWidth - fixedWidthSum;
 
-              // Ideally, if propWidth < minSegmentWidth, we give it minSegmentWidth.
-              // But we must check if remaining space allows it.
-              // Actually, since we know totalMinWidth <= effectiveWidth, we have enough space for everyone to be at least minSegmentWidth.
+          // Calculate total time of flexible segments
+          // If totalTime was provided, we assume segments are proportional to it.
+          // Wait, if we use totalTimeVal from prop, but we only sum flexible segments' times,
+          // we are effectively renormalizing the flexible segments to fit the available space.
+          // This is what we want: "Re-distribution: ... subtract that stolen width from the larger segments".
+          double flexibleTimeSum = flexibleSegments.fold(
+            0.0,
+            (sum, s) => sum + (totalTime > 0 ? s.time : 1),
+          );
 
-              if (propWidth < minSegmentWidth) {
-                 segmentWidths[seg] = minSegmentWidth;
-                 remainingWidth -= minSegmentWidth;
-                 remainingTime -= seg.time;
-                 handled.add(seg);
+          List<Segment> newlyFixed = [];
+
+          // If flexibleTimeSum is 0 (all remaining flexible segments have 0 time), distribute equally
+          if (flexibleTimeSum <= 0) {
+            double equalShare = availableForFlexible / flexibleSegments.length;
+            for (var seg in flexibleSegments) {
+              double minW = snugMinimums[seg]!;
+              if (equalShare < minW) {
+                segmentWidths[seg] = minW;
+                newlyFixed.add(seg);
+              } else {
+                segmentWidths[seg] = equalShare;
               }
-           }
+            }
+          } else {
+            // Distribute proportionally
+            for (var seg in flexibleSegments) {
+              double segTime = (totalTime > 0 ? seg.time.toDouble() : 1.0);
+              double share = (segTime / flexibleTimeSum) * availableForFlexible;
+              double minW = snugMinimums[seg]!;
 
-           // Pass 2: Distribute remaining width to others
-           for (var seg in segments) {
-              if (!handled.contains(seg)) {
-                 double w = (seg.time / remainingTime) * remainingWidth;
-                 segmentWidths[seg] = w;
+              if (share < minW) {
+                segmentWidths[seg] = minW;
+                newlyFixed.add(seg);
+              } else {
+                segmentWidths[seg] = share;
               }
-           }
+            }
+          }
+
+          if (newlyFixed.isEmpty) {
+            break; // Stable
+          }
+
+          for (var s in newlyFixed) {
+            fixedSegments.add(s);
+            flexibleSegments.remove(s);
+          }
         }
 
         return Row(
@@ -77,11 +160,14 @@ class HorizontalJigsawSchematic extends StatelessWidget {
             final isFirst = index == 0;
             final isLast = index == segments.length - 1;
 
-            double width = segmentWidths[seg] ?? minSegmentWidth;
+            double width = segmentWidths[seg] ?? snugMinimums[seg] ?? 75.0;
 
             Color color;
             try {
-              color = Color(int.parse(seg.lineColor.replaceAll('#', ''), radix: 16) + 0xFF000000);
+              color = Color(
+                int.parse(seg.lineColor.replaceAll('#', ''), radix: 16) +
+                    0xFF000000,
+              );
             } catch (e) {
               color = Colors.grey;
             }
@@ -101,20 +187,16 @@ class HorizontalJigsawSchematic extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      _getIconData(seg.iconId),
-                      color: textColor,
-                      size: 16,
-                    ),
+                    Icon(_getIconData(seg.iconId), color: textColor, size: 16),
                     const SizedBox(width: 4),
                     Flexible(
                       child: Text(
                         seg.label,
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        // overflow: TextOverflow.ellipsis, // REMOVED
                         style: TextStyle(
                           color: textColor,
-                          fontSize: 10,
+                          fontSize: fontSize,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -131,12 +213,18 @@ class HorizontalJigsawSchematic extends StatelessWidget {
 
   IconData _getIconData(String iconId) {
     switch (iconId) {
-      case 'train': return LucideIcons.train;
-      case 'bus': return LucideIcons.bus;
-      case 'car': return LucideIcons.car;
-      case 'bike': return LucideIcons.bike;
-      case 'footprints': return LucideIcons.footprints;
-      default: return LucideIcons.circle;
+      case 'train':
+        return LucideIcons.train;
+      case 'bus':
+        return LucideIcons.bus;
+      case 'car':
+        return LucideIcons.car;
+      case 'bike':
+        return LucideIcons.bike;
+      case 'footprints':
+        return LucideIcons.footprints;
+      default:
+        return LucideIcons.circle;
     }
   }
 }
@@ -221,11 +309,12 @@ class _HorizontalJigsawPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final o = overlap;
-    final r = h / 2; // Fully rounded ends
+    final r = 10.0; // Fixed radius for rounded rectangle ends
 
     // Start Left
     if (isFirst) {
-      path.moveTo(r, 0);
+      path.moveTo(0, r);
+      path.arcToPoint(Offset(r, 0), radius: Radius.circular(r));
     } else {
       path.moveTo(0, 0);
     }
@@ -233,42 +322,35 @@ class _HorizontalJigsawPainter extends CustomPainter {
     // Top Edge
     if (isLast) {
       path.lineTo(w - r, 0);
+      path.arcToPoint(Offset(w, r), radius: Radius.circular(r));
     } else {
       path.lineTo(w, 0);
     }
 
     // Right Edge
     if (isLast) {
-      // Fully rounded end (semi-circle)
-      path.arcToPoint(
-        Offset(w - r, h),
-        radius: Radius.circular(r),
-        clockwise: true,
-      );
+      path.lineTo(w, h - r);
+      path.arcToPoint(Offset(w - r, h), radius: Radius.circular(r));
     } else {
       // Convex Right (Bubble Out)
       // Bezier curve sticking out to w + o
       // We start at (w, 0)
       // End at (w, h)
-      // Control point around (w + o * 1.5, h / 2)
+      // Control point around (w + o * 1.5, h / 2) - original was (w+o, h/2)
       path.quadraticBezierTo(w + o, h / 2, w, h);
     }
 
     // Bottom Edge
     if (isFirst) {
       path.lineTo(r, h);
+      path.arcToPoint(Offset(0, h - r), radius: Radius.circular(r));
     } else {
       path.lineTo(0, h);
     }
 
     // Left Edge
     if (isFirst) {
-      // Fully rounded start (semi-circle)
-      path.arcToPoint(
-        Offset(r, 0),
-        radius: Radius.circular(r),
-        clockwise: true,
-      );
+      path.lineTo(0, r); // Close loop
     } else {
       // Concave Left (Bubble In / Slot)
       // Matches the Convex Right of previous.
