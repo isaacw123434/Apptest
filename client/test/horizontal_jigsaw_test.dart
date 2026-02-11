@@ -75,7 +75,7 @@ void main() {
      expect(walkPadding.padding, const EdgeInsets.only(left: 6, right: 2, top: 1, bottom: 1));
 
      // 2. Bus: isFirst=false, isLast=true
-     // left: 16, right: 6
+     // left: 13 (overlap + 1), right: 6
      final busSegment = find.ancestor(
        of: find.text('Bus'),
        matching: find.byType(HorizontalJigsawSegment),
@@ -83,6 +83,6 @@ void main() {
      final busPadding = tester.widget<Padding>(
        find.descendant(of: busSegment, matching: find.byType(Padding))
      );
-     expect(busPadding.padding, const EdgeInsets.only(left: 16, right: 6, top: 1, bottom: 1));
+     expect(busPadding.padding, const EdgeInsets.only(left: 13, right: 6, top: 1, bottom: 1));
   });
 }
