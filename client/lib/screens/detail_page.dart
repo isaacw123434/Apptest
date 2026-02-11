@@ -625,39 +625,58 @@ class _DetailPageState extends State<DetailPage> {
     Color? prevColor,
     Color? nextColor,
   }) {
-    return Row(
-      children: [
-        Column(
-          children: [
-            // Line above (if not start)
-            if (!isStart)
-              Container(width: 4, height: 10, color: prevColor ?? Colors.grey[300]),
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: 16,
+            child: Column(
+              children: [
+                // Line above (if not start)
+                Expanded(
+                  child: isStart
+                      ? const SizedBox()
+                      : Container(
+                          width: 4,
+                          color: prevColor ?? Colors.grey[300],
+                        ),
+                ),
 
-            // Dot
-            Container(
-              width: 16,
-              height: 16,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF0F172A), width: 3),
-              ),
+                // Dot
+                Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFF0F172A), width: 3),
+                  ),
+                ),
+
+                // Line below (if not end)
+                Expanded(
+                  child: isEnd
+                      ? const SizedBox()
+                      : Container(
+                          width: 4,
+                          color: nextColor ?? Colors.grey[300],
+                        ),
+                ),
+              ],
             ),
-
-            // Line below (if not end)
-            if (!isEnd)
-              Container(width: 4, height: 10, color: nextColor ?? Colors.grey[300]),
-          ],
-        ),
-        const SizedBox(width: 24),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(time, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ],
+          ),
+          const SizedBox(width: 24),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(time, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
