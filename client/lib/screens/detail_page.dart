@@ -16,6 +16,7 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
+  final Distance _distance = const Distance();
   final ApiService _apiService = ApiService();
   InitData? _initData;
   List<Polyline> _polylines = [];
@@ -508,7 +509,8 @@ class _DetailPageState extends State<DetailPage> {
     List<Widget> children = [];
 
     // Helper to add segments
-    void addSegments(List<Segment> segments, {bool isEditable = false, required VoidCallback? onEdit}) {
+    void addSegments(Leg leg, {bool isEditable = false, required VoidCallback? onEdit}) {
+      final segments = leg.segments;
       for (int i = 0; i < segments.length; i++) {
         final seg = segments[i];
         final isFirst = i == 0;
@@ -516,87 +518,80 @@ class _DetailPageState extends State<DetailPage> {
 
         Color lineColor = _parseColor(seg.lineColor);
 
-        // If this is the last segment of this leg, we need to know the NEXT leg's first segment color for the node?
-        // Actually, _buildNode handles prevColor and nextColor for the node itself.
-        // Here we build the CONNECTION.
+        // Calculate Distance
+        double? distance;
+        if (seg.path != null && seg.path!.isNotEmpty) {
+          double totalMeters = 0;
+          for (int j = 0; j < seg.path!.length - 1; j++) {
+            totalMeters += _distance.as(LengthUnit.Meter, seg.path![j], seg.path![j + 1]);
+          }
+          distance = totalMeters / 1609.34; // Convert to miles
+        }
+
+        // Determine extra details
+        String? extraDetails;
+        if (seg.iconId == 'train' && leg.platform != null) {
+          extraDetails = 'Platform ${leg.platform}';
+        } else if (seg.iconId == 'bus' && leg.nextBusIn != null) {
+          extraDetails = 'Bus every ${leg.nextBusIn} mins';
+        } else if ((seg.iconId == 'car' || seg.mode == 'taxi') && leg.waitTime != null) {
+          extraDetails = 'Est wait: ${leg.waitTime} min';
+        } else if (seg.iconId == 'bike' && leg.desc != null) {
+          extraDetails = leg.desc;
+        }
 
         children.add(_buildSegmentConnection(
           segment: seg,
           isEditable: isEditable && isFirst, // Only first segment gets edit button
           onEdit: onEdit,
+          distance: distance,
+          extraDetails: extraDetails,
         ));
 
         currentMinutes += seg.time;
 
-        // Add Node after segment
-        // If this is the last segment of Leg 1, the next node is Leeds (Transfer).
-        // If it's intermediate, it's a stop.
-
-        // We will add the node MANUALLY after calling addSegments for the leg transitions,
-        // so we only add intermediate nodes here?
-        // Actually, we should output: [Node] -> [Segment] -> [Node] -> [Segment] -> [Node]...
-
-        // Wait, the structure is:
-        // Node (Start)
-        // Segment 1
-        // Node (Stop 1)
-        // Segment 2
-        // Node (End Leg)
-
-        // So inside this loop, we add connection, then if not last, add intermediate node.
         if (!isLast) {
-             children.add(_buildNode(
-               seg.to ?? 'Stop',
-               _formatMinutes(currentMinutes),
-               prevColor: lineColor,
-               nextColor: _parseColor(segments[i+1].lineColor)
-             ));
+          children.add(_buildNode(
+              seg.to ?? 'Stop',
+              _formatMinutes(currentMinutes),
+              prevColor: lineColor,
+              nextColor: _parseColor(segments[i + 1].lineColor)));
         }
       }
     }
 
     // --- Start Node ---
     Color leg1FirstColor = _parseColor(result.leg1.segments.first.lineColor);
-    children.add(_buildNode(
-      'Start Journey',
-      _formatMinutes(currentMinutes),
-      isStart: true,
-      nextColor: leg1FirstColor
-    ));
+    children.add(_buildNode('Start Journey', _formatMinutes(currentMinutes),
+        isStart: true, nextColor: leg1FirstColor));
 
     // --- Leg 1 ---
-    addSegments(result.leg1.segments, isEditable: true, onEdit: () => _showEditModal('firstMile'));
+    addSegments(result.leg1, isEditable: true, onEdit: () => _showEditModal('firstMile'));
 
     // --- Leeds Node ---
     // Time range: Arrival - Depart
-    String leedsTimeStr = '${_formatMinutes(currentMinutes)} - ${_formatMinutes(currentMinutes + result.buffer)}';
+    String leedsTimeStr =
+        '${_formatMinutes(currentMinutes)} - ${_formatMinutes(currentMinutes + result.buffer)}';
     Color leg1LastColor = _parseColor(result.leg1.segments.last.lineColor);
     Color mainLegColor = _parseColor(_initData!.segmentOptions.mainLeg.segments.first.lineColor);
 
-    children.add(_buildNode(
-      'Leeds Station',
-      leedsTimeStr,
-      prevColor: leg1LastColor,
-      nextColor: mainLegColor
-    ));
+    children.add(_buildNode('Leeds Station', leedsTimeStr,
+        prevColor: leg1LastColor, nextColor: mainLegColor));
     currentMinutes += result.buffer;
 
     // --- Main Leg ---
-    addSegments(_initData!.segmentOptions.mainLeg.segments, isEditable: false, onEdit: null);
+    addSegments(_initData!.segmentOptions.mainLeg, isEditable: false, onEdit: null);
 
     // --- Loughborough Node ---
-    Color mainLegLastColor = _parseColor(_initData!.segmentOptions.mainLeg.segments.last.lineColor);
+    Color mainLegLastColor =
+        _parseColor(_initData!.segmentOptions.mainLeg.segments.last.lineColor);
     Color leg3FirstColor = _parseColor(result.leg3.segments.first.lineColor);
 
-    children.add(_buildNode(
-      'Loughborough Station',
-      _formatMinutes(currentMinutes),
-      prevColor: mainLegLastColor,
-      nextColor: leg3FirstColor
-    ));
+    children.add(_buildNode('Loughborough Station', _formatMinutes(currentMinutes),
+        prevColor: mainLegLastColor, nextColor: leg3FirstColor));
 
     // --- Leg 3 ---
-    addSegments(result.leg3.segments, isEditable: true, onEdit: () => _showEditModal('lastMile'));
+    addSegments(result.leg3, isEditable: true, onEdit: () => _showEditModal('lastMile'));
 
     // --- End Node ---
     Color leg3LastColor = _parseColor(result.leg3.segments.last.lineColor);
@@ -684,7 +679,8 @@ class _DetailPageState extends State<DetailPage> {
     required Segment segment,
     bool isEditable = false,
     VoidCallback? onEdit,
-    double? distance
+    double? distance,
+    String? extraDetails,
   }) {
     final emission = distance != null ? calculateEmission(distance, segment.iconId) : 0.0;
     Color lineColor = _parseColor(segment.lineColor);
@@ -718,7 +714,10 @@ class _DetailPageState extends State<DetailPage> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.grey[200]!),
                 boxShadow: [
-                   BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 4, offset: const Offset(0, 2))
+                  BoxShadow(
+                      color: Colors.black.withAlpha(10),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2))
                 ],
               ),
               child: Row(
@@ -729,7 +728,8 @@ class _DetailPageState extends State<DetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(segment.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text(segment.label,
+                            style: const TextStyle(fontWeight: FontWeight.bold)),
                         Text(
                           '${segment.time} min${distance != null ? ' • ${distance.toStringAsFixed(1)} miles' : ''}',
                           style: const TextStyle(fontSize: 12, color: Colors.grey),
@@ -737,14 +737,28 @@ class _DetailPageState extends State<DetailPage> {
                         if (distance != null)
                           Row(
                             children: [
-                              const Icon(LucideIcons.leaf, size: 10, color: Colors.green),
+                              const Icon(LucideIcons.leaf,
+                                  size: 10, color: Colors.green),
                               const SizedBox(width: 4),
                               Text(
                                 '${emission.toStringAsFixed(2)} kg CO₂',
-                                style: const TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
+                        if (extraDetails != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            extraDetails,
+                            style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.blueGrey,
+                                fontStyle: FontStyle.italic),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -755,7 +769,8 @@ class _DetailPageState extends State<DetailPage> {
                       label: const Text('Edit'),
                       style: TextButton.styleFrom(
                         foregroundColor: const Color(0xFF4F46E5),
-                        textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                        textStyle:
+                            const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                     ),
                 ],
