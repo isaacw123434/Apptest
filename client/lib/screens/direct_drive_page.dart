@@ -4,6 +4,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../services/api_service.dart';
+import '../utils/emission_utils.dart';
+import '../services/mock_data.dart';
 
 class DirectDrivePage extends StatefulWidget {
   const DirectDrivePage({super.key});
@@ -135,6 +137,8 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
                         Expanded(child: _buildInfoBox('Time', '${(_initData!.directDrive.time / 60).floor()}hr ${_initData!.directDrive.time % 60}m')),
                         const SizedBox(width: 12),
                         Expanded(child: _buildInfoBox('Distance', '${_initData!.directDrive.distance} mi')),
+                        const SizedBox(width: 12),
+                        Expanded(child: _buildInfoBox('CO₂', '${calculateEmission(_initData!.directDrive.distance, IconIds.car).toStringAsFixed(2)} kg')),
                       ],
                     ),
                     const SizedBox(height: 24),
