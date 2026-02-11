@@ -30,6 +30,16 @@ void main() {
      // left: 6, right: 6.
      // top: 1, bottom: 1.
      expect(paddingWidget.padding, const EdgeInsets.only(left: 6, right: 6, top: 1, bottom: 1));
+
+     // Check internal spacing between Icon and Text
+     final rowFinder = find.descendant(of: segmentFinder, matching: find.byType(Row));
+     final sizedBoxFinder = find.descendant(of: rowFinder, matching: find.byType(SizedBox));
+     // The Row contains [Icon, SizedBox(width: 4), Flexible(Text)]
+     // However, `find.byType(SizedBox)` might find other SizedBoxes if any.
+     // The first SizedBox is likely the Icon (size 16). The second one is the spacer (size 2).
+     final sizedBoxes = sizedBoxFinder.evaluate().map((e) => e.widget as SizedBox).toList();
+     // We expect to find a SizedBox with width 2.0
+     expect(sizedBoxes.any((box) => box.width == 2.0), isTrue, reason: 'Expected to find a SizedBox with width 2.0');
   });
 
   testWidgets('HorizontalJigsawSchematic layouts multiple segments', (WidgetTester tester) async {

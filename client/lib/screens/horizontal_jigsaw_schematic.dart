@@ -37,8 +37,8 @@ class HorizontalJigsawSchematic extends StatelessWidget {
           double paddingLeft = isFirst ? 6.0 : (overlap + 4.0);
           double paddingRight = isLast ? 6.0 : 2.0;
 
-          // Icon (16) + Spacing (4)
-          double contentBase = 16.0 + 4.0;
+          // Icon (16) + Spacing (2)
+          double contentBase = 16.0 + 2.0;
 
           final textPainter = TextPainter(
             text: TextSpan(
@@ -118,7 +118,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(_getIconData(seg.iconId), color: textColor, size: 16),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 2),
                     Flexible(
                       child: Text(
                         seg.label,
