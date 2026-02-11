@@ -27,8 +27,29 @@ void main() {
 
      final Padding paddingWidget = tester.widget(paddingFinder);
      // Since there is only one segment, isFirst=true, isLast=true.
-     // left: 20, right: 20.
+     // left: 16, right: 16.
      // top: 1, bottom: 1.
-     expect(paddingWidget.padding, const EdgeInsets.only(left: 20, right: 20, top: 1, bottom: 1));
+     expect(paddingWidget.padding, const EdgeInsets.only(left: 16, right: 16, top: 1, bottom: 1));
+  });
+
+  testWidgets('HorizontalJigsawSchematic layouts multiple segments', (WidgetTester tester) async {
+     final segments = [
+       Segment(mode: 'walk', label: 'Walk', lineColor: '#000000', iconId: 'footprints', time: 5),
+       Segment(mode: 'bus', label: 'Bus', lineColor: '#FF0000', iconId: 'bus', time: 20),
+     ];
+
+     await tester.pumpWidget(MaterialApp(
+       home: Scaffold(
+         body: SizedBox(
+            width: 500,
+            height: 100,
+            child: HorizontalJigsawSchematic(segments: segments, totalTime: 25)
+         ),
+       ),
+     ));
+
+     expect(find.byType(HorizontalJigsawSegment), findsNWidgets(2));
+     expect(find.text('Walk'), findsOneWidget);
+     expect(find.text('Bus'), findsOneWidget);
   });
 }
