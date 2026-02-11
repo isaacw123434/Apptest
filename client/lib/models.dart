@@ -9,6 +9,8 @@ class Segment {
   final String? to;
   final String? detail;
   final List<LatLng>? path;
+  final double? co2;
+  final double? distance;
 
   Segment({
     required this.mode,
@@ -19,6 +21,8 @@ class Segment {
     this.to,
     this.detail,
     this.path,
+    this.co2,
+    this.distance,
   });
 
   factory Segment.fromJson(Map<String, dynamic> json) {
@@ -48,6 +52,8 @@ class Segment {
       to: json['to'],
       detail: json['detail'],
       path: path,
+      co2: json['co2'] != null ? (json['co2'] as num).toDouble() : null,
+      distance: json['distance'] != null ? (json['distance'] as num).toDouble() : null,
     );
   }
 }
@@ -70,6 +76,7 @@ class Leg {
   final bool? recommended;
   final int? platform;
   final List<Segment> segments;
+  final double? co2;
 
   Leg({
     required this.id,
@@ -89,6 +96,7 @@ class Leg {
     this.recommended,
     this.platform,
     required this.segments,
+    this.co2,
   });
 
   factory Leg.fromJson(Map<String, dynamic> json) {
@@ -115,6 +123,7 @@ class Leg {
       recommended: json['recommended'],
       platform: json['platform'],
       segments: segments,
+      co2: json['co2'] != null ? (json['co2'] as num).toDouble() : null,
     );
   }
 }
@@ -147,11 +156,13 @@ class DirectDrive {
   final int time;
   final double cost;
   final double distance;
+  final double? co2;
 
   DirectDrive({
     required this.time,
     required this.cost,
     required this.distance,
+    this.co2,
   });
 
   factory DirectDrive.fromJson(Map<String, dynamic> json) {
@@ -159,6 +170,7 @@ class DirectDrive {
       time: json['time'] ?? 0,
       cost: (json['cost'] ?? 0).toDouble(),
       distance: (json['distance'] ?? 0).toDouble(),
+      co2: json['co2'] != null ? (json['co2'] as num).toDouble() : null,
     );
   }
 }

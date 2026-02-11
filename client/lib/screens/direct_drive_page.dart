@@ -138,7 +138,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
                         const SizedBox(width: 12),
                         Expanded(child: _buildInfoBox('Distance', '${_initData!.directDrive.distance} mi')),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildInfoBox('CO₂', '${calculateEmission(_initData!.directDrive.distance, IconIds.car).toStringAsFixed(2)} kg')),
+                        Expanded(child: _buildInfoBox('CO₂', '${(_initData!.directDrive.co2 ?? calculateEmission(_initData!.directDrive.distance, IconIds.car)).toStringAsFixed(2)} kg')),
                       ],
                     ),
                     const SizedBox(height: 24),
