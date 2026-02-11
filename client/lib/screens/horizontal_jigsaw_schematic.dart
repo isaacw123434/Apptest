@@ -21,7 +21,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
         final double effectiveWidth = availableWidth.isFinite ? availableWidth : 1000.0;
 
         // Minimal width for icon + text
-        const double minSegmentWidth = 70.0;
+        const double minSegmentWidth = 95.0;
 
         // Calculate widths
         Map<Segment, double> segmentWidths = {};
