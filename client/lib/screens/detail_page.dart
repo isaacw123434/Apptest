@@ -63,6 +63,7 @@ class _DetailPageState extends State<DetailPage> {
           // Filter out invalid coordinates to prevent map crashes
           final validPoints = seg.path!.where((p) => p.latitude.abs() <= 90).toList();
           if (validPoints.isNotEmpty) {
+            debugPrint('Adding polyline with ${validPoints.length} points for segment ${seg.label}');
             lines.add(Polyline(
               points: validPoints,
               color: _parseColor(seg.lineColor),
@@ -76,6 +77,14 @@ class _DetailPageState extends State<DetailPage> {
         }
       }
     }
+
+    // Debug line
+    debugPrint('Adding debug line: Leeds (53.8, -1.5) to Loughborough (52.7, -1.2)');
+    lines.add(Polyline(
+      points: [const LatLng(53.8, -1.5), const LatLng(52.7, -1.2)],
+      color: Colors.red,
+      strokeWidth: 10.0,
+    ));
 
     // Leg 1
     addSegments(result.leg1);
