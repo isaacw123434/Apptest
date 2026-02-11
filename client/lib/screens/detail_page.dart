@@ -314,6 +314,10 @@ class _DetailPageState extends State<DetailPage> {
       return const Scaffold(body: Center(child: Text('No journey selected')));
     }
 
+    if (_initData == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     final result = _currentResult!;
     final totalCost = result.cost;
     final totalTime = result.time;
