@@ -21,6 +21,7 @@ class _DetailPageState extends State<DetailPage> {
   InitData? _initData;
   List<Polyline> _polylines = [];
   JourneyResult? _currentResult;
+  String _debugInfo = 'Initializing...';
 
   @override
   void initState() {
@@ -48,28 +49,47 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   void _updatePolylines() {
-    debugPrint('Updating polylines for result: ${_currentResult?.id}');
-    if (_currentResult == null) return;
+    if (_currentResult == null) {
+      setState(() => _debugInfo = 'No Result selected');
+      return;
+    }
 
     final result = _currentResult!;
     List<Polyline> lines = [];
+    StringBuffer debug = StringBuffer();
+    debug.writeln('Res: ${_currentResult?.id}, Init: ${_initData != null}');
 
     // Helper to add segments
     void addSegments(Leg leg) {
+      debug.writeln('Leg ${leg.id}: ${leg.segments.length} segs');
       for (var seg in leg.segments) {
-        if (seg.path != null && seg.path!.isNotEmpty) {
-          // Filter out invalid coordinates to prevent map crashes
+        int pathLen = seg.path?.length ?? 0;
+        if (pathLen > 0) {
           final validPoints = seg.path!.where((p) => p.latitude.abs() <= 90).toList();
           if (validPoints.isNotEmpty) {
+            Color c = _parseColor(seg.lineColor);
+            debug.writeln('  +Seg ${seg.label}: ${validPoints.length}pts, Color: $c');
             lines.add(Polyline(
               points: validPoints,
-              color: _parseColor(seg.lineColor),
+              color: c,
               strokeWidth: 6.0,
             ));
+          } else {
+            debug.writeln('  -Seg ${seg.label}: 0 valid pts (raw: $pathLen)');
           }
+        } else {
+          debug.writeln('  -Seg ${seg.label}: No path');
         }
       }
     }
+
+    // Debug line
+    lines.add(Polyline(
+      points: [const LatLng(53.8, -1.5), const LatLng(52.7, -1.2)],
+      color: Colors.red,
+      strokeWidth: 10.0,
+    ));
+    debug.writeln('+Debug Line: Red (2 pts)');
 
     // Leg 1
     addSegments(result.leg1);
@@ -77,13 +97,16 @@ class _DetailPageState extends State<DetailPage> {
     // Main Leg
     if (_initData != null) {
       addSegments(_initData!.segmentOptions.mainLeg);
+    } else {
+      debug.writeln('Skipping Main Leg (InitData null)');
     }
 
     // Leg 3
     addSegments(result.leg3);
 
-    // Fallback if no lines generated yet, try mock path
-    if (lines.isEmpty && _initData != null && _initData!.mockPath.isNotEmpty) {
+    // Fallback
+    if (lines.length <= 1 && _initData != null && _initData!.mockPath.isNotEmpty) {
+       debug.writeln('Adding Fallback Path');
        lines.add(Polyline(
          points: _initData!.mockPath,
          color: Colors.blue,
@@ -93,6 +116,7 @@ class _DetailPageState extends State<DetailPage> {
 
     setState(() {
       _polylines = lines;
+      _debugInfo = debug.toString();
     });
   }
 
@@ -354,6 +378,21 @@ class _DetailPageState extends State<DetailPage> {
               backgroundColor: Colors.white,
               foregroundColor: Colors.black,
               child: const Icon(LucideIcons.chevronLeft),
+            ),
+          ),
+
+          // Debug Info Overlay
+          Positioned(
+            top: 100,
+            left: 20,
+            right: 20,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              color: Colors.black87,
+              child: Text(
+                _debugInfo,
+                style: const TextStyle(color: Colors.white, fontSize: 10, fontFamily: 'monospace'),
+              ),
             ),
           ),
 
