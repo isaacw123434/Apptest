@@ -22,4 +22,27 @@ void main() {
     expect(mainSegment.path, isNotNull);
     expect(mainSegment.path!.isNotEmpty, isTrue);
   });
+
+  test('searchJourneys smart tab sorting', () async {
+    final apiService = ApiService();
+    final selectedModes = {
+      'train': true,
+      'bus': true,
+      'car': true,
+      'taxi': true,
+      'bike': true,
+    };
+
+    final results = await apiService.searchJourneys(
+      tab: 'smart',
+      selectedModes: selectedModes,
+    );
+
+    // Check if sorted by current logic
+    for (int i = 0; i < results.length - 1; i++) {
+        double scoreA = results[i].cost + (results[i].time * 0.3) + (results[i].risk * 5.0);
+        double scoreB = results[i+1].cost + (results[i+1].time * 0.3) + (results[i+1].risk * 5.0);
+        expect(scoreA <= scoreB, isTrue, reason: 'Results should be sorted by score');
+    }
+  });
 }
