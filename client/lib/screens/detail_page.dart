@@ -48,7 +48,6 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   void _updatePolylines() {
-    debugPrint('Updating polylines for result: ${_currentResult?.id}');
     if (_currentResult == null) return;
 
     final result = _currentResult!;
