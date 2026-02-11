@@ -13,7 +13,7 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _fromController = TextEditingController(text: 'St Chads, Leeds');
   final TextEditingController _toController = TextEditingController(text: 'East Leake, Loughborough');
   final TextEditingController _timeController = TextEditingController(text: '09:00');
-  String _timeType = 'Depart';
+  final String _timeType = 'Depart';
 
   bool _isModeDropdownOpen = false;
   final Map<String, bool> _selectedModes = {
@@ -47,24 +47,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _selectTime() async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-      builder: (BuildContext context, Widget? child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null) {
-      setState(() {
-        _timeController.text =
-            '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
