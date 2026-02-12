@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:client/services/api_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test('ApiService attaches paths correctly', () async {
     final apiService = ApiService();
     final initData = await apiService.fetchInitData();
