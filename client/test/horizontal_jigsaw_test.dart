@@ -54,12 +54,15 @@ void main() {
 
      // Verify paddings for multi-segment
      // 1. Walk: isFirst=true, isLast=false
-     // left: 6, right: 1.5
+     // left: 6, right: 0.0 (was 1.5)
      final segmentsWidgets = tester.widgetList<HorizontalJigsawSegment>(find.byType(HorizontalJigsawSegment)).toList();
      final walkPadding = tester.widget<Padding>(
        find.descendant(of: find.byWidget(segmentsWidgets[0]), matching: find.byType(Padding))
      );
-     expect(walkPadding.padding, const EdgeInsets.only(left: 6, right: 1.5, top: 1, bottom: 1));
+     expect(walkPadding.padding, const EdgeInsets.only(left: 6, right: 0.0, top: 1, bottom: 1));
+
+     // Check for OverflowBox for negative padding effect
+     expect(find.descendant(of: find.byWidget(segmentsWidgets[0]), matching: find.byType(OverflowBox)), findsOneWidget);
 
      // 2. Bus: isFirst=false, isLast=true
      // left: 9.75 ((overlap + 1) * 0.75), right: 6
