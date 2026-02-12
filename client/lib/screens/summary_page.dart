@@ -672,12 +672,9 @@ class _SummaryPageState extends State<SummaryPage> {
                       const SizedBox(height: 16),
                       // Schematic
                       SizedBox(
-                        height: 40,
+                        height: 60,
                         child: _buildSchematic(result),
                       ),
-                      const SizedBox(height: 8),
-                      // Timeline text
-                      _buildTimelineText(result),
                       const SizedBox(height: 16),
                       Row(
                         children: [
@@ -1008,76 +1005,6 @@ class _SummaryPageState extends State<SummaryPage> {
     }
 
     return finalPass;
-  }
-
-  Widget _buildTimelineText(JourneyResult result) {
-    List<Segment> allSegments = [];
-    allSegments.addAll(result.leg1.segments);
-
-    // Add buffer segment
-    if (result.buffer > 0) {
-      allSegments.add(Segment(
-        mode: 'wait',
-        label: 'Transfer',
-        lineColor: '#000000',
-        iconId: '',
-        time: result.buffer,
-      ));
-    }
-
-    if (_mainLeg != null) {
-      allSegments.addAll(_mainLeg!.segments);
-    } else {
-      allSegments.add(Segment(
-        mode: 'train',
-        label: 'CrossCountry',
-        lineColor: '#713e8d',
-        iconId: 'train',
-        time: 102,
-      ));
-    }
-
-    allSegments.addAll(result.leg3.segments);
-
-    // Calculate start time based on 8:03 AM Main Leg Departure logic
-    TimeOfDay startTime = _calculateJourneyTimes(result)['start']!;
-
-    List<InlineSpan> spans = [];
-    int currentMinutes = startTime.hour * 60 + startTime.minute;
-
-    for (int i = 0; i < allSegments.length; i++) {
-      final seg = allSegments[i];
-
-      String timeStr = '${(currentMinutes ~/ 60 % 24).toString().padLeft(2, '0')}:${(currentMinutes % 60).toString().padLeft(2, '0')}';
-
-      String durationStr;
-      if (seg.time >= 60) {
-        durationStr = '${seg.time ~/ 60}hr ${seg.time % 60}';
-      } else {
-        durationStr = '${seg.time} min';
-      }
-
-      spans.add(TextSpan(
-        text: '$timeStr ${seg.label} ($durationStr)',
-        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
-      ));
-
-      if (i < allSegments.length - 1) {
-        spans.add(const TextSpan(
-          text: ' > ',
-          style: TextStyle(color: Colors.grey),
-        ));
-      }
-
-      currentMinutes += seg.time;
-    }
-
-    return Text.rich(
-      TextSpan(children: spans),
-      style: const TextStyle(fontSize: 10), // Small font as requested indirectly by "under the diagram"
-      maxLines: 2,
-      textAlign: TextAlign.center,
-    );
   }
 
   Map<String, TimeOfDay> _calculateJourneyTimes(JourneyResult result) {

@@ -54,7 +54,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
           final textPainter = TextPainter(
             text: TextSpan(
               text: displayText,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: fontSize,
                 fontWeight: FontWeight.bold,
               ),
@@ -63,7 +63,30 @@ class HorizontalJigsawSchematic extends StatelessWidget {
             maxLines: 1,
           )..layout();
 
-          double minW = (paddingLeft + contentBase + (displayText.isNotEmpty ? textPainter.width : 0) + paddingRight + 0.5).ceilToDouble() + 0.5 + 0.25;
+          String durationText;
+          if (seg.time >= 60) {
+            durationText = '${seg.time ~/ 60}h ${seg.time % 60}m';
+          } else {
+            durationText = '${seg.time} min';
+          }
+
+          final durationPainter = TextPainter(
+            text: TextSpan(
+              text: durationText,
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            textDirection: TextDirection.ltr,
+            maxLines: 1,
+          )..layout();
+
+          double topContentWidth = contentBase + (displayText.isNotEmpty ? textPainter.width : 0);
+          double bottomContentWidth = durationPainter.width;
+          double maxContentWidth = topContentWidth > bottomContentWidth ? topContentWidth : bottomContentWidth;
+
+          double minW = (paddingLeft + maxContentWidth + paddingRight + 0.5).ceilToDouble() + 0.5 + 0.25;
           minWidths[i] = minW;
           totalMinWidth += minW;
         }
@@ -126,6 +149,13 @@ class HorizontalJigsawSchematic extends StatelessWidget {
 
             IconData? iconData = _getIconData(seg.iconId);
 
+            String durationText;
+            if (seg.time >= 60) {
+              durationText = '${seg.time ~/ 60}h ${seg.time % 60}m';
+            } else {
+              durationText = '${seg.time} min';
+            }
+
             return SizedBox(
               width: width,
               child: HorizontalJigsawSegment(
@@ -134,25 +164,40 @@ class HorizontalJigsawSchematic extends StatelessWidget {
                 backgroundColor: color,
                 borderColor: Colors.white,
                 overlap: overlap,
-                child: Row(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (iconData != null)
-                      Icon(iconData, color: textColor, size: 16),
-                    if (displayText.isNotEmpty) ...[
-                        if (iconData != null) const SizedBox(width: 2),
-                        Flexible(
-                          child: Text(
-                            displayText,
-                            maxLines: 1,
-                            style: TextStyle(
-                              color: textColor,
-                              fontSize: fontSize,
-                              fontWeight: FontWeight.bold,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (iconData != null)
+                          Icon(iconData, color: textColor, size: 16),
+                        if (displayText.isNotEmpty) ...[
+                            if (iconData != null) const SizedBox(width: 2),
+                            Flexible(
+                              child: Text(
+                                displayText,
+                                maxLines: 1,
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontSize: fontSize,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                    ]
+                        ]
+                      ],
+                    ),
+                    Text(
+                      durationText,
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),
