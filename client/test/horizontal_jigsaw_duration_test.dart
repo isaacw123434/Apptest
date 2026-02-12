@@ -40,5 +40,12 @@ void main() {
      final col2 = find.descendant(of: find.byWidget(segmentsWidgets[1]), matching: find.byType(Column));
      expect(col2, findsOneWidget);
      expect(find.descendant(of: col2, matching: find.text('1h 5m')), findsOneWidget);
+
+     // Check font size
+     final Text text1 = tester.widget(find.text('5 min'));
+     expect(text1.style?.fontSize, 8.0);
+
+     final Text text2 = tester.widget(find.text('1h 5m'));
+     expect(text2.style?.fontSize, 8.0);
   });
 }

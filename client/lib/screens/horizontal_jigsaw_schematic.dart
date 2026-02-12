@@ -23,6 +23,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
             : 1000.0;
 
         const double fontSize = 10.0;
+        const double durationFontSize = 8.0;
         const double overlap = 12.0;
 
         // 1. Measure Minimum Widths
@@ -74,7 +75,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
             text: TextSpan(
               text: durationText,
               style: TextStyle(
-                fontSize: fontSize,
+                fontSize: durationFontSize,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -194,7 +195,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
                       maxLines: 1,
                       style: TextStyle(
                         color: textColor,
-                        fontSize: fontSize,
+                        fontSize: durationFontSize,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
