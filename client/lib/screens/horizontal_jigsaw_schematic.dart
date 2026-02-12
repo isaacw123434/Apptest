@@ -14,6 +14,8 @@ class HorizontalJigsawSchematic extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool hasShownWalkLabel = false;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
@@ -40,9 +42,21 @@ class HorizontalJigsawSchematic extends StatelessWidget {
           // Icon (16) + Spacing (2)
           double contentBase = 16.0 + 2.0;
 
+          String displayText = seg.label;
+          bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
+
+          if (isWalk) {
+             if (hasShownWalkLabel) {
+                 displayText = ''; // Hide label
+                 contentBase = 16.0; // Just icon
+             } else {
+                 hasShownWalkLabel = true;
+             }
+          }
+
           final textPainter = TextPainter(
             text: TextSpan(
-              text: seg.label,
+              text: displayText,
               style: const TextStyle(
                 fontSize: fontSize,
                 fontWeight: FontWeight.bold,
@@ -52,10 +66,13 @@ class HorizontalJigsawSchematic extends StatelessWidget {
             maxLines: 1,
           )..layout();
 
-          double minW = (paddingLeft + contentBase + textPainter.width + paddingRight + 0.5).ceilToDouble();
+          double minW = (paddingLeft + contentBase + (displayText.isNotEmpty ? textPainter.width : 0) + paddingRight + 0.5).ceilToDouble();
           minWidths[i] = minW;
           totalMinWidth += minW;
         }
+
+        // Reset for actual build
+        hasShownWalkLabel = false;
 
         // 2. Check Constraint
         bool scrollNeeded = totalMinWidth > effectiveWidth;
@@ -106,6 +123,17 @@ class HorizontalJigsawSchematic extends StatelessWidget {
             final isBright = color.computeLuminance() > 0.5;
             final textColor = isBright ? Colors.black : Colors.white;
 
+            String displayText = seg.label;
+            bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
+
+            if (isWalk) {
+               if (hasShownWalkLabel) {
+                   displayText = '';
+               } else {
+                   hasShownWalkLabel = true;
+               }
+            }
+
             return SizedBox(
               width: width,
               child: HorizontalJigsawSegment(
@@ -118,18 +146,20 @@ class HorizontalJigsawSchematic extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(_getIconData(seg.iconId), color: textColor, size: 16),
-                    const SizedBox(width: 2),
-                    Flexible(
-                      child: Text(
-                        seg.label,
-                        maxLines: 1,
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: fontSize,
-                          fontWeight: FontWeight.bold,
+                    if (displayText.isNotEmpty) ...[
+                        const SizedBox(width: 2),
+                        Flexible(
+                          child: Text(
+                            displayText,
+                            maxLines: 1,
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: fontSize,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                    ]
                   ],
                 ),
               ),

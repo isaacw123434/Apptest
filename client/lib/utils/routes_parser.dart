@@ -82,63 +82,81 @@ Leg _parseOptionToLeg(Map<String, dynamic> option) {
   String name = option['name'] ?? 'Unknown';
   List<dynamic> jsonLegs = option['legs'] ?? [];
 
-  List<Segment> segments = [];
-  double totalDistMeters = 0;
-  int totalDurationSeconds = 0;
+  List<Segment> rawSegments = [];
 
   for (var jsonLeg in jsonLegs) {
-    Segment newSeg = _parseSegment(jsonLeg);
-
-    if (segments.isNotEmpty) {
-      Segment lastSeg = segments.last;
-      if (_shouldMerge(lastSeg, newSeg)) {
-        segments.last = _mergeSegments(lastSeg, newSeg);
-        totalDistMeters += (jsonLeg['distance_value'] as num).toDouble();
-        totalDurationSeconds += (jsonLeg['duration_value'] as num).toInt();
-        continue;
-      }
-    }
-
-    segments.add(newSeg);
-    totalDistMeters += (jsonLeg['distance_value'] as num).toDouble();
-    totalDurationSeconds += (jsonLeg['duration_value'] as num).toInt();
+    rawSegments.add(_parseSegment(jsonLeg, optionName: name));
   }
 
-  double totalDistMiles = totalDistMeters / 1609.34;
-  String id = _generateId(name);
-  String iconId = _mapIconId(name, segments);
+  // Filter short walks between trains
+  List<Segment> filteredSegments = [];
+  for (int i = 0; i < rawSegments.length; i++) {
+    Segment seg = rawSegments[i];
+    bool remove = false;
+    if (seg.mode == 'walk' && seg.time <= 1) {
+       // Check if between trains
+       if (i > 0 && i < rawSegments.length - 1) {
+           Segment prev = rawSegments[i-1];
+           Segment next = rawSegments[i+1];
+           if (prev.mode == 'train' && next.mode == 'train') {
+               remove = true;
+           }
+       }
+    }
+    if (!remove) {
+        filteredSegments.add(seg);
+    }
+  }
 
-  // Calculate total CO2 based on segments
+  // Merge consecutive segments
+  List<Segment> mergedSegments = [];
+  for (var seg in filteredSegments) {
+      if (mergedSegments.isNotEmpty) {
+          Segment last = mergedSegments.last;
+          if (_shouldMerge(last, seg)) {
+              mergedSegments.last = _mergeSegments(last, seg);
+              continue;
+          }
+      }
+      mergedSegments.add(seg);
+  }
+
+  // Recalculate totals
+  double finalDistMiles = 0;
+  int finalTime = 0;
   double totalCo2 = 0;
-  for (var seg in segments) {
+
+  for (var seg in mergedSegments) {
+      finalDistMiles += seg.distance ?? 0;
+      finalTime += seg.time;
       if (seg.co2 != null) {
         totalCo2 += seg.co2!;
       } else {
-          // Estimate
-          totalCo2 += calculateEmission(seg.distance ?? 0, seg.iconId);
+         totalCo2 += calculateEmission(seg.distance ?? 0, seg.iconId);
       }
   }
+
+  String id = _generateId(name);
+  String iconId = _mapIconId(name, mergedSegments);
 
   return Leg(
     id: id,
     label: name,
-    time: (totalDurationSeconds / 60).round(),
-    cost: _estimateCost(name, totalDistMiles, segments),
-    distance: double.parse(totalDistMiles.toStringAsFixed(2)),
+    time: finalTime,
+    cost: _estimateCost(name, finalDistMiles, mergedSegments),
+    distance: double.parse(finalDistMiles.toStringAsFixed(2)),
     riskScore: 0,
     iconId: iconId,
-    lineColor: _mapLineColor(name, segments),
-    segments: segments,
+    lineColor: _mapLineColor(name, mergedSegments),
+    segments: mergedSegments,
     co2: double.parse(totalCo2.toStringAsFixed(2)),
-    detail: _generateDetail(segments),
+    detail: _generateDetail(mergedSegments),
   );
 }
 
 bool _shouldMerge(Segment a, Segment b) {
-  // Always merge consecutive segments of the same mode/label for walking/cycling/driving
+  // Always merge consecutive segments of the same mode/label
   if (a.mode == b.mode && a.label == b.label) {
-    // Optionally exclude 'bus'/'train' if we want to show stops,
-    // but usually consecutive transit legs mean "stay on vehicle" if label is same.
     return true;
   }
   return false;
@@ -168,7 +186,7 @@ Segment _mergeSegments(Segment a, Segment b) {
   );
 }
 
-Segment _parseSegment(Map<String, dynamic> jsonSegment) {
+Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = ''}) {
   String rawMode = jsonSegment['mode'] ?? '';
   String mode = _mapMode(rawMode, jsonSegment['transit_details']);
   String polyline = jsonSegment['polyline'] ?? '';
@@ -187,12 +205,23 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment) {
 
       if (mode == 'bus') iconId = IconIds.bus;
       if (mode == 'train') iconId = IconIds.train;
+
+      // If label is just a number and mode is bus, prepend "Bus "
+      if (mode == 'bus' && RegExp(r'^\d+$').hasMatch(label)) {
+          label = 'Bus $label';
+      }
       // Also set lineColor for bus/train if not present in transit_details (though it usually is)
   } else {
       // Defaults
       if (mode == 'car' || mode == 'taxi') {
           iconId = IconIds.car;
-          lineColor = '#0000FF';
+          if (optionName.toLowerCase().contains('uber')) {
+             label = 'Uber';
+             lineColor = '#000000'; // Black for Uber
+          } else {
+             label = 'Drive';
+             lineColor = '#0000FF';
+          }
       } else if (mode == 'bike') {
           iconId = IconIds.bike;
           lineColor = '#00FF00';
@@ -200,6 +229,11 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment) {
           iconId = IconIds.footprints;
           lineColor = '#475569';
       }
+  }
+
+  // Capitalize label
+  if (label.isNotEmpty) {
+      label = label[0].toUpperCase() + label.substring(1);
   }
 
   double distMiles = (jsonSegment['distance_value'] as num).toDouble() / 1609.34;
@@ -296,15 +330,56 @@ String _generateDetail(List<Segment> segments) {
 
 double _estimateCost(String name, double distanceMiles, List<Segment> segments) {
     String lower = name.toLowerCase();
-    if (lower.contains('uber') || lower.contains('drive')) {
-        // Uber: Base £2.50 + £1.25/mile
-        return 2.50 + (1.25 * distanceMiles);
+    if (lower.contains('uber')) {
+        // Uber
+        if (lower.contains('train')) {
+            // "Uber + Train" option.
+            // Explicitly Headingley route.
+            return 9.32;
+        }
+        // First mile (Leeds ~3.2 miles) -> £8.97
+        if (distanceMiles >= 2 && distanceMiles < 4) {
+            return 8.97;
+        }
+        // Last mile (Loughborough ~4.5 miles) -> £14.89
+        if (distanceMiles >= 4) {
+            return 14.89;
+        }
+
+        return 2.50 + (2.50 * distanceMiles); // Fallback
+    }
+    if (lower.contains('drive') || lower.contains('parking')) {
+         // HMRC rate 45p/mile
+         if (distanceMiles < 10) { // Local drive to station
+            return 23.00 + (0.45 * distanceMiles); // £23 parking + mileage
+         }
+         return 0.45 * distanceMiles; // Long distance
     }
     if (lower.contains('bus')) {
-        return 2.00; // Flat fare
+        // Check segments for label?
+        for (var seg in segments) {
+            if (seg.label.contains('Line 1') || seg.label.contains('1')) {
+                return 3.00; // Line 1 Loughborough
+            }
+        }
+        return 2.00; // Default (Line 24 Leeds)
     }
     if (lower.contains('train')) {
-        return 5.00 + (0.5 * distanceMiles);
+        // If distance > 50 miles, assume it's the main leg
+        if (distanceMiles > 50) {
+            return 25.70;
+        }
+        // Short hop (Headingley -> Leeds)
+        if (distanceMiles < 10) {
+            if (lower.contains('uber')) {
+                // This shouldn't be reached if 'uber' check matches first,
+                // but if option name is "Uber + Train", it matches 'uber' first.
+                // So this block is for "Walk + Train" or other train options.
+                return 9.32;
+            }
+            return 3.40;
+        }
+        return 3.00 + (0.50 * distanceMiles);
     }
     if (lower.contains('cycle') || lower.contains('walk')) {
         return 0.00;
