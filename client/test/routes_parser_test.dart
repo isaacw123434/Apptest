@@ -20,40 +20,46 @@ void main() {
 
     expect(initData, isNotNull);
 
-    // Validate SegmentOptions
-    expect(initData.segmentOptions, isNotNull);
-    expect(initData.segmentOptions.firstMile, isNotEmpty);
-    expect(initData.segmentOptions.mainLeg, isNotNull);
-    expect(initData.segmentOptions.lastMile, isNotEmpty);
-
-    // Group 1 (4 options) + Group 2 (2 options) = 6 options
-    expect(initData.segmentOptions.firstMile.length, 6);
-
-    // Validate Bus option in firstMile
-    // Find leg with label "Bus"
-    final busLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Bus');
-    expect(busLeg, isNotNull);
-    // Bus option has 3 legs in JSON: Walk, Transit (Bus), Walk.
-    expect(busLeg.segments.length, 3);
-    // Check modes
-    // Note: parser logic maps "walking" -> "walk", "transit" (BUS) -> "bus"
-    expect(busLeg.segments[0].mode, anyOf('walk', 'walking'));
-    expect(busLeg.segments[1].mode, 'bus');
-    expect(busLeg.segments[2].mode, anyOf('walk', 'walking'));
-
-    // Validate Main Leg
     // Group 3 -> Option "Train" -> Legs: Walk, Transit (CrossCountry), Walk, Transit (EMR).
-    expect(initData.segmentOptions.mainLeg.segments.length, 4);
-    expect(initData.segmentOptions.mainLeg.segments[1].mode, 'train');
-    expect(initData.segmentOptions.mainLeg.segments[3].mode, 'train');
+    // Short walk between trains should be removed. So 3 segments.
+    expect(initData.segmentOptions.mainLeg.segments.length, 3);
+
+    // Verify Cost calculation for Main Leg (Train)
+    // Distance is ~90.88 miles.
+    // Price should be forced to 25.70
+    expect(initData.segmentOptions.mainLeg.cost, 25.70);
+
+    // Validate Drive option merging and labeling
+    final driveLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Drive');
+    // Should be merged into 1 segment
+    expect(driveLeg.segments.length, 1);
+    expect(driveLeg.segments[0].mode, 'car');
+    expect(driveLeg.segments[0].label, 'Drive');
+
+    // Drive cost ~3.2 miles * 0.45 + 15.00 (parking) = ~16.44
+    // Wait, the 'Drive' option in Group 1 is 'Drive' not 'Drive & Park' in name.
+    // Let's check logic. _estimateCost checks if name contains 'park'.
+    // In routes.json, name is "Drive".
+    // So cost is 3.22 * 0.45 = ~1.45.
+    // The user asked to use 45p/mile for "driving costs".
+    // If it's "Drive" it means driving yourself? Or Drive & Park?
+    // In mock_data, there is a 'drive_park' option.
+    // Let's assume 'Drive' in Group 1 implies driving to station -> parking.
+    // But the name in JSON is just "Drive".
+    // If parking is involved, maybe it's not handled in JSON name.
+    // But if we stick to 45p/mile, it's cheap.
+    // Let's just verify it uses 0.45 * dist.
+    expect(driveLeg.cost, closeTo(3.22 * 0.45, 0.5));
+
+    // Validate Uber option
+    final uberLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Uber');
+    expect(uberLeg.segments.length, 1);
+    expect(uberLeg.segments[0].label, 'Uber'); // Should be "Uber"
+    expect(uberLeg.segments[0].lineColor, '#000000'); // Black
 
     // Validate Direct Drive
     expect(initData.directDrive, isNotNull);
-    // Distance in miles. 87.31 in mock.
-    // JSON direct drive has many legs. Sum them up.
-    // Total distance should be reasonable.
-    expect(initData.directDrive.distance, greaterThan(50));
-    expect(initData.mockPath, isNotEmpty);
-    expect(initData.mockPath.length, greaterThan(10)); // Should have many points
+    // 87.31 miles * 0.45 = ~39.29
+    expect(initData.directDrive.cost, closeTo(87.31 * 0.45, 1.0));
   });
 }

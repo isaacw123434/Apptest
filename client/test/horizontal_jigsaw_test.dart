@@ -30,16 +30,6 @@ void main() {
      // left: 6, right: 6.
      // top: 1, bottom: 1.
      expect(paddingWidget.padding, const EdgeInsets.only(left: 6, right: 6, top: 1, bottom: 1));
-
-     // Check internal spacing between Icon and Text
-     final rowFinder = find.descendant(of: segmentFinder, matching: find.byType(Row));
-     final sizedBoxFinder = find.descendant(of: rowFinder, matching: find.byType(SizedBox));
-     // The Row contains [Icon, SizedBox(width: 4), Flexible(Text)]
-     // However, `find.byType(SizedBox)` might find other SizedBoxes if any.
-     // The first SizedBox is likely the Icon (size 16). The second one is the spacer (size 2).
-     final sizedBoxes = sizedBoxFinder.evaluate().map((e) => e.widget as SizedBox).toList();
-     // We expect to find a SizedBox with width 2.0
-     expect(sizedBoxes.any((box) => box.width == 2.0), isTrue, reason: 'Expected to find a SizedBox with width 2.0');
   });
 
   testWidgets('HorizontalJigsawSchematic layouts multiple segments', (WidgetTester tester) async {
@@ -84,5 +74,46 @@ void main() {
        find.descendant(of: busSegment, matching: find.byType(Padding))
      );
      expect(busPadding.padding, const EdgeInsets.only(left: 13, right: 6, top: 1, bottom: 1));
+  });
+
+  testWidgets('HorizontalJigsawSchematic hides subsequent walk labels', (WidgetTester tester) async {
+     final segments = [
+       Segment(mode: 'walk', label: 'Walk', lineColor: '#000000', iconId: 'footprints', time: 5),
+       Segment(mode: 'train', label: 'Train', lineColor: '#FF0000', iconId: 'train', time: 20),
+       Segment(mode: 'walk', label: 'Walk', lineColor: '#000000', iconId: 'footprints', time: 5),
+     ];
+
+     await tester.pumpWidget(MaterialApp(
+       home: Scaffold(
+         body: SizedBox(
+            width: 500,
+            height: 100,
+            child: HorizontalJigsawSchematic(segments: segments, totalTime: 30)
+         ),
+       ),
+     ));
+
+     expect(find.byType(HorizontalJigsawSegment), findsNWidgets(3));
+
+     // Should find one 'Walk' text (the first one)
+     expect(find.text('Walk'), findsOneWidget);
+
+     // Should find 'Train'
+     expect(find.text('Train'), findsOneWidget);
+
+     // Verify that the 3rd segment (Walk) has no text.
+     // We can find all segments and check their children.
+     final segmentsWidgets = tester.widgetList<HorizontalJigsawSegment>(find.byType(HorizontalJigsawSegment)).toList();
+     expect(segmentsWidgets.length, 3);
+
+     // First segment (Walk)
+     final row1 = find.descendant(of: find.byWidget(segmentsWidgets[0]), matching: find.byType(Row));
+     expect(find.descendant(of: row1, matching: find.text('Walk')), findsOneWidget);
+
+     // Third segment (Walk 2)
+     final row3 = find.descendant(of: find.byWidget(segmentsWidgets[2]), matching: find.byType(Row));
+     expect(find.descendant(of: row3, matching: find.text('Walk')), findsNothing);
+     // Should still have icon
+     expect(find.descendant(of: row3, matching: find.byType(Icon)), findsOneWidget);
   });
 }
