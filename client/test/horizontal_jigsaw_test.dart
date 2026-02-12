@@ -49,18 +49,15 @@ void main() {
      ));
 
      expect(find.byType(HorizontalJigsawSegment), findsNWidgets(2));
-     expect(find.text('Walk'), findsOneWidget);
+     expect(find.text('Walk'), findsNothing); // Walk label is now hidden
      expect(find.text('Bus'), findsOneWidget);
 
      // Verify paddings for multi-segment
      // 1. Walk: isFirst=true, isLast=false
      // left: 6, right: 2
-     final walkSegment = find.ancestor(
-       of: find.text('Walk'),
-       matching: find.byType(HorizontalJigsawSegment),
-     );
+     final segmentsWidgets = tester.widgetList<HorizontalJigsawSegment>(find.byType(HorizontalJigsawSegment)).toList();
      final walkPadding = tester.widget<Padding>(
-       find.descendant(of: walkSegment, matching: find.byType(Padding))
+       find.descendant(of: find.byWidget(segmentsWidgets[0]), matching: find.byType(Padding))
      );
      expect(walkPadding.padding, const EdgeInsets.only(left: 6, right: 2, top: 1, bottom: 1));
 
@@ -76,7 +73,7 @@ void main() {
      expect(busPadding.padding, const EdgeInsets.only(left: 13, right: 6, top: 1, bottom: 1));
   });
 
-  testWidgets('HorizontalJigsawSchematic hides subsequent walk labels', (WidgetTester tester) async {
+  testWidgets('HorizontalJigsawSchematic hides all walk labels', (WidgetTester tester) async {
      final segments = [
        Segment(mode: 'walk', label: 'Walk', lineColor: '#000000', iconId: 'footprints', time: 5),
        Segment(mode: 'train', label: 'Train', lineColor: '#FF0000', iconId: 'train', time: 20),
@@ -95,20 +92,20 @@ void main() {
 
      expect(find.byType(HorizontalJigsawSegment), findsNWidgets(3));
 
-     // Should find one 'Walk' text (the first one)
-     expect(find.text('Walk'), findsOneWidget);
+     // Should find NO 'Walk' text (even for the first one)
+     expect(find.text('Walk'), findsNothing);
 
      // Should find 'Train'
      expect(find.text('Train'), findsOneWidget);
 
-     // Verify that the 3rd segment (Walk) has no text.
-     // We can find all segments and check their children.
+     // Verify segments have icons but no text
      final segmentsWidgets = tester.widgetList<HorizontalJigsawSegment>(find.byType(HorizontalJigsawSegment)).toList();
      expect(segmentsWidgets.length, 3);
 
      // First segment (Walk)
      final row1 = find.descendant(of: find.byWidget(segmentsWidgets[0]), matching: find.byType(Row));
-     expect(find.descendant(of: row1, matching: find.text('Walk')), findsOneWidget);
+     expect(find.descendant(of: row1, matching: find.text('Walk')), findsNothing);
+     expect(find.descendant(of: row1, matching: find.byType(Icon)), findsOneWidget);
 
      // Third segment (Walk 2)
      final row3 = find.descendant(of: find.byWidget(segmentsWidgets[2]), matching: find.byType(Row));

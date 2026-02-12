@@ -14,8 +14,6 @@ class HorizontalJigsawSchematic extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool hasShownWalkLabel = false;
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
@@ -49,12 +47,8 @@ class HorizontalJigsawSchematic extends StatelessWidget {
           bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
 
           if (isWalk) {
-             if (hasShownWalkLabel) {
-                 displayText = ''; // Hide label
-                 contentBase = hasIcon ? 16.0 : 0.0; // Just icon
-             } else {
-                 hasShownWalkLabel = true;
-             }
+             displayText = ''; // Hide label for all walks
+             contentBase = hasIcon ? 16.0 : 0.0; // Just icon
           }
 
           final textPainter = TextPainter(
@@ -73,9 +67,6 @@ class HorizontalJigsawSchematic extends StatelessWidget {
           minWidths[i] = minW;
           totalMinWidth += minW;
         }
-
-        // Reset for actual build
-        hasShownWalkLabel = false;
 
         // 2. Check Constraint
         bool scrollNeeded = totalMinWidth > effectiveWidth;
@@ -130,11 +121,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
             bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
 
             if (isWalk) {
-               if (hasShownWalkLabel) {
-                   displayText = '';
-               } else {
-                   hasShownWalkLabel = true;
-               }
+               displayText = '';
             }
 
             IconData? iconData = _getIconData(seg.iconId);
