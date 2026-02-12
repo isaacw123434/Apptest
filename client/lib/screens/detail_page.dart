@@ -282,142 +282,14 @@ class _DetailPageState extends State<DetailPage> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 12),
-                width: 48,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(3),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'Choose ${legType == 'firstMile' ? 'First Mile' : 'Last Mile'}',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  itemCount: options.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final option = options[index];
-                    final isSelected = option.id == currentLeg.id;
-
-                    // Calculate diffs
-                    double priceDiff = option.cost - currentLeg.cost;
-                    int timeDiff = option.time - currentLeg.time;
-
-                    return GestureDetector(
-                      onTap: () {
-                        _updateLeg(legType, option);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFEFF6FF) : Colors.white,
-                          border: Border.all(
-                            color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0),
-                            width: isSelected ? 2 : 1,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            // Icon
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(_getIconData(option.iconId), size: 24, color: Colors.black87),
-                            ),
-                            const SizedBox(width: 16),
-                            // Info
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    option.label,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                  ),
-                                  Text(
-                                    option.detail ?? '',
-                                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // Metrics
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                // Price
-                                Row(
-                                  children: [
-                                    if (!isSelected && priceDiff != 0)
-                                      Icon(
-                                        priceDiff > 0 ? LucideIcons.arrowUp : LucideIcons.arrowDown,
-                                        size: 12,
-                                        color: priceDiff > 0 ? Colors.red : Colors.green,
-                                      ),
-                                    Text(
-                                      isSelected
-                                          ? '£${option.cost.toStringAsFixed(2)}'
-                                          : (priceDiff > 0 ? '+£${priceDiff.abs().toStringAsFixed(2)}' : '-£${priceDiff.abs().toStringAsFixed(2)}'),
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: isSelected ? Colors.black : (priceDiff > 0 ? Colors.red : Colors.green),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                // Time
-                                Row(
-                                  children: [
-                                    if (!isSelected && timeDiff != 0)
-                                      Icon(
-                                        timeDiff > 0 ? LucideIcons.arrowUp : LucideIcons.arrowDown,
-                                        size: 12,
-                                        color: timeDiff > 0 ? Colors.red : Colors.green,
-                                      ),
-                                    Text(
-                                      isSelected
-                                          ? '${option.time} min'
-                                          : (timeDiff > 0 ? '+${timeDiff.abs()} min' : '-${timeDiff.abs()} min'),
-                                      style: TextStyle(
-                                        color: isSelected ? Colors.grey : (timeDiff > 0 ? Colors.red : Colors.green),
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+        return EditLegModal(
+          options: options,
+          currentLeg: currentLeg,
+          legType: legType,
+          onSelect: (Leg selectedLeg) {
+            _updateLeg(legType, selectedLeg);
+            Navigator.pop(context);
+          },
         );
       },
     );
@@ -961,5 +833,292 @@ class _DetailPageState extends State<DetailPage> {
         bottom: bottomPadding + 50,
       ),
     ));
+  }
+}
+
+class EditLegModal extends StatefulWidget {
+  final List<Leg> options;
+  final Leg currentLeg;
+  final String legType;
+  final Function(Leg) onSelect;
+
+  const EditLegModal({
+    super.key,
+    required this.options,
+    required this.currentLeg,
+    required this.legType,
+    required this.onSelect,
+  });
+
+  @override
+  State<EditLegModal> createState() => _EditLegModalState();
+}
+
+class _EditLegModalState extends State<EditLegModal> {
+  String _sortOption = 'Best Value';
+  Leg? _walkLeg;
+  Leg? _uberLeg;
+
+  List<Leg> _getSortedOptions() {
+    List<Leg> displayOptions = [];
+    _walkLeg = null;
+    _uberLeg = null;
+
+    bool hasWalk = false;
+    bool hasUber = false;
+
+    for (var option in widget.options) {
+      if (option.id == 'train_walk_headingley') {
+        _walkLeg = option;
+        hasWalk = true;
+      } else if (option.id == 'train_uber_headingley') {
+        _uberLeg = option;
+        hasUber = true;
+      } else {
+        displayOptions.add(option);
+      }
+    }
+
+    if (hasWalk && hasUber) {
+       displayOptions.add(Leg(
+         id: 'headingley_merged',
+         label: 'To Headingley Station',
+         detail: 'Walk or Uber',
+         time: _walkLeg!.time,
+         cost: _walkLeg!.cost,
+         distance: _walkLeg!.distance,
+         riskScore: _walkLeg!.riskScore,
+         iconId: 'train',
+         lineColor: _walkLeg!.lineColor,
+         segments: _walkLeg!.segments,
+         co2: _walkLeg!.co2,
+         desc: _walkLeg!.desc,
+         waitTime: _walkLeg!.waitTime,
+         nextBusIn: _walkLeg!.nextBusIn,
+         recommended: _walkLeg!.recommended,
+         platform: _walkLeg!.platform,
+       ));
+    } else {
+       if (hasWalk) displayOptions.add(_walkLeg!);
+       if (hasUber) displayOptions.add(_uberLeg!);
+    }
+
+    displayOptions.sort((a, b) {
+      if (_sortOption == 'Lowest Cost') {
+        return a.cost.compareTo(b.cost);
+      } else if (_sortOption == 'Lowest Time') {
+        return a.time.compareTo(b.time);
+      } else {
+         double scoreA = a.cost + (a.time * 0.15);
+         double scoreB = b.cost + (b.time * 0.15);
+         return scoreA.compareTo(scoreB);
+      }
+    });
+
+    return displayOptions;
+  }
+
+  IconData _getIconData(String iconId) {
+    switch (iconId) {
+      case 'train': return LucideIcons.train;
+      case 'bus': return LucideIcons.bus;
+      case 'car': return LucideIcons.car;
+      case 'bike': return LucideIcons.bike;
+      case 'footprints': return LucideIcons.footprints;
+      default: return LucideIcons.circle;
+    }
+  }
+
+  void _handleSelection(BuildContext context, Leg option) {
+      if (option.id == 'headingley_merged') {
+          showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                  title: const Text('How to get to Headingley Station?'),
+                  content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                          ListTile(
+                              leading: const Icon(LucideIcons.footprints),
+                              title: const Text('Walk'),
+                              subtitle: Text('${_walkLeg?.time} min • £${_walkLeg?.cost.toStringAsFixed(2)}'),
+                              onTap: () {
+                                  Navigator.pop(ctx);
+                                  widget.onSelect(_walkLeg!);
+                              },
+                          ),
+                          ListTile(
+                              leading: const Icon(LucideIcons.car),
+                              title: const Text('Uber'),
+                              subtitle: Text('${_uberLeg?.time} min • £${_uberLeg?.cost.toStringAsFixed(2)}'),
+                              onTap: () {
+                                  Navigator.pop(ctx);
+                                  widget.onSelect(_uberLeg!);
+                              },
+                          ),
+                      ],
+                  ),
+              ),
+          );
+      } else {
+          widget.onSelect(option);
+      }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+      final sortedOptions = _getSortedOptions();
+
+      return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+               Container(
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                width: 48,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                        Text(
+                          'Choose ${widget.legType == 'firstMile' ? 'First Mile' : 'Last Mile'}',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        DropdownButton<String>(
+                            value: _sortOption,
+                            items: const [
+                                DropdownMenuItem(value: 'Best Value', child: Text('Best Value')),
+                                DropdownMenuItem(value: 'Lowest Cost', child: Text('Lowest Cost')),
+                                DropdownMenuItem(value: 'Lowest Time', child: Text('Lowest Time')),
+                            ],
+                            onChanged: (val) {
+                                if (val != null) setState(() => _sortOption = val);
+                            },
+                            underline: Container(),
+                            icon: const Icon(LucideIcons.arrowUpDown, size: 16),
+                        ),
+                    ],
+                ),
+              ),
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  itemCount: sortedOptions.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final option = sortedOptions[index];
+                    bool isSelected = false;
+                    if (option.id == 'headingley_merged') {
+                         isSelected = widget.currentLeg.id == 'train_walk_headingley' || widget.currentLeg.id == 'train_uber_headingley';
+                    } else {
+                         isSelected = option.id == widget.currentLeg.id;
+                    }
+
+                    double priceDiff = option.cost - widget.currentLeg.cost;
+                    int timeDiff = option.time - widget.currentLeg.time;
+
+                    return GestureDetector(
+                      onTap: () => _handleSelection(context, option),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: isSelected ? const Color(0xFFEFF6FF) : Colors.white,
+                          border: Border.all(
+                            color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0),
+                            width: isSelected ? 2 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(_getIconData(option.iconId), size: 24, color: Colors.black87),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    option.label,
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                                  Text(
+                                    option.detail ?? '',
+                                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Row(
+                                  children: [
+                                    if (!isSelected && priceDiff != 0)
+                                      Icon(
+                                        priceDiff > 0 ? LucideIcons.arrowUp : LucideIcons.arrowDown,
+                                        size: 12,
+                                        color: priceDiff > 0 ? Colors.red : Colors.green,
+                                      ),
+                                    Text(
+                                      isSelected
+                                          ? '£${option.cost.toStringAsFixed(2)}'
+                                          : (priceDiff > 0 ? '+£${priceDiff.abs().toStringAsFixed(2)}' : '-£${priceDiff.abs().toStringAsFixed(2)}'),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: isSelected ? Colors.black : (priceDiff > 0 ? Colors.red : Colors.green),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    if (!isSelected && timeDiff != 0)
+                                      Icon(
+                                        timeDiff > 0 ? LucideIcons.arrowUp : LucideIcons.arrowDown,
+                                        size: 12,
+                                        color: timeDiff > 0 ? Colors.red : Colors.green,
+                                      ),
+                                    Text(
+                                      isSelected
+                                          ? '${option.time} min'
+                                          : (timeDiff > 0 ? '+${timeDiff.abs()} min' : '-${timeDiff.abs()} min'),
+                                      style: TextStyle(
+                                        color: isSelected ? Colors.grey : (timeDiff > 0 ? Colors.red : Colors.green),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
   }
 }
