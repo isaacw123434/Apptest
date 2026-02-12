@@ -187,14 +187,14 @@ String _mapMode(String rawMode, Map<String, dynamic>? transitDetails) {
 
 String _generateId(String name) {
     String lower = name.toLowerCase();
-    if (lower.contains('uber')) return 'uber';
-    if (lower.contains('bus')) return 'bus';
-    if (lower.contains('cycle')) return 'cycle';
     if (lower.contains('train')) {
         if (lower.contains('walk')) return 'train_walk_headingley';
         if (lower.contains('uber')) return 'train_uber_headingley';
         return 'train_main';
     }
+    if (lower.contains('uber')) return 'uber';
+    if (lower.contains('bus')) return 'bus';
+    if (lower.contains('cycle')) return 'cycle';
     if (lower.contains('drive')) return 'direct_drive'; // or drive_park
     return name.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_').toLowerCase();
 }

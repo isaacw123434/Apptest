@@ -7,14 +7,16 @@ import '../services/api_service.dart';
 import '../utils/emission_utils.dart';
 
 class DirectDrivePage extends StatefulWidget {
-  const DirectDrivePage({super.key});
+  final ApiService? apiService;
+
+  const DirectDrivePage({super.key, this.apiService});
 
   @override
   State<DirectDrivePage> createState() => _DirectDrivePageState();
 }
 
 class _DirectDrivePageState extends State<DirectDrivePage> {
-  final ApiService _apiService = ApiService();
+  late final ApiService _apiService;
   InitData? _initData;
   MapController? _mapController;
   List<LatLng> _routePoints = [];
@@ -22,6 +24,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
   @override
   void initState() {
     super.initState();
+    _apiService = widget.apiService ?? ApiService();
     _mapController = MapController();
     _fetchData();
   }
@@ -29,13 +32,15 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
   Future<void> _fetchData() async {
     try {
       final data = await _apiService.fetchInitData();
-      setState(() {
-        _initData = data;
-        _routePoints = data.mockPath;
-      });
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-         _zoomToFit();
-      });
+      if (mounted) {
+        setState(() {
+          _initData = data;
+          _routePoints = data.mockPath;
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+           _zoomToFit();
+        });
+      }
     } catch (e) {
       debugPrint('Error fetching data: $e');
     }
