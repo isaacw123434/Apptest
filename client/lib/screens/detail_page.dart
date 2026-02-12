@@ -8,8 +8,9 @@ import '../utils/emission_utils.dart';
 
 class DetailPage extends StatefulWidget {
   final JourneyResult? journeyResult;
+  final ApiService? apiService;
 
-  const DetailPage({super.key, this.journeyResult});
+  const DetailPage({super.key, this.journeyResult, this.apiService});
 
   @override
   State<DetailPage> createState() => _DetailPageState();
@@ -17,7 +18,7 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   final Distance _distance = const Distance();
-  final ApiService _apiService = ApiService();
+  late final ApiService _apiService;
   InitData? _initData;
   MapController? _mapController;
   List<Polyline> _polylines = [];
@@ -28,6 +29,7 @@ class _DetailPageState extends State<DetailPage> {
   @override
   void initState() {
     super.initState();
+    _apiService = widget.apiService ?? ApiService();
     _mapController = MapController();
     if (widget.journeyResult != null) {
       _currentResult = widget.journeyResult;
@@ -117,7 +119,7 @@ class _DetailPageState extends State<DetailPage> {
         bool isMainLeg = _initData != null && _initData!.segmentOptions.mainLeg.segments.contains(seg);
         if (isMainLeg) {
            bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
-           if (isWalk && seg.time <= 2) {
+           if (isWalk && seg.time <= 1) {
              continue; // Skip
            }
         }
@@ -508,11 +510,11 @@ class _DetailPageState extends State<DetailPage> {
         final isFirst = i == 0;
         final isLast = i == segments.length - 1;
 
-        // Filter out short walks (<= 2 mins) inside Main Leg
+        // Filter out short walks (under 1.5 mins) inside Main Leg
         bool isMainLeg = _initData != null && leg == _initData!.segmentOptions.mainLeg;
         if (isMainLeg) {
            bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
-           if (isWalk && seg.time <= 2) {
+           if (isWalk && seg.time <= 1) {
              currentMinutes += seg.time;
              continue;
            }
