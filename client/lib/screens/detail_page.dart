@@ -21,6 +21,7 @@ class _DetailPageState extends State<DetailPage> {
   InitData? _initData;
   MapController? _mapController;
   List<Polyline> _polylines = [];
+  List<Marker> _markers = [];
   JourneyResult? _currentResult;
 
   @override
@@ -54,6 +55,7 @@ class _DetailPageState extends State<DetailPage> {
 
     final result = _currentResult!;
     List<Polyline> lines = [];
+    List<Marker> markers = [];
 
     // Helper to add segments
     void addSegments(Leg leg) {
@@ -63,17 +65,20 @@ class _DetailPageState extends State<DetailPage> {
           final validPoints = seg.path!.where((p) => p.latitude.abs() <= 90).toList();
           if (validPoints.isNotEmpty) {
             final points = validPoints.map((p) => LatLng(p.latitude, p.longitude)).toList();
+            final isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
 
             lines.add(Polyline(
               points: points,
               color: _parseColor(seg.lineColor),
               strokeWidth: 6.0,
+              pattern: isWalk ? const StrokePattern.dotted() : const StrokePattern.solid(),
             ));
           }
         }
       }
     }
 
+    // Add Polylines
     // Leg 1
     addSegments(result.leg1);
 
@@ -95,13 +100,114 @@ class _DetailPageState extends State<DetailPage> {
        ));
     }
 
+    // --- Generate Markers ---
+    List<Segment> allSegments = [];
+    // Collect all segments in order
+    allSegments.addAll(result.leg1.segments);
+    if (_initData != null) {
+      allSegments.addAll(_initData!.segmentOptions.mainLeg.segments);
+    }
+    allSegments.addAll(result.leg3.segments);
+
+    // Filter segments (same logic as timeline)
+    List<Segment> filteredSegments = [];
+    for (var seg in allSegments) {
+        // Check if it's a short walk inside Main Leg
+        bool isMainLeg = _initData != null && _initData!.segmentOptions.mainLeg.segments.contains(seg);
+        if (isMainLeg) {
+           bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
+           if (isWalk && seg.time <= 2) {
+             continue; // Skip
+           }
+        }
+        if (seg.path != null && seg.path!.isNotEmpty) {
+             filteredSegments.add(seg);
+        }
+    }
+
+    if (filteredSegments.isNotEmpty) {
+      // Start Marker
+      final startSeg = filteredSegments.first;
+      if (startSeg.path!.isNotEmpty) {
+        markers.add(Marker(
+          point: LatLng(startSeg.path!.first.latitude, startSeg.path!.first.longitude),
+          width: 24,
+          height: 24,
+          child: _buildMarkerWidget(isStart: true),
+        ));
+      }
+
+      // End Marker
+      final endSeg = filteredSegments.last;
+      if (endSeg.path!.isNotEmpty) {
+        markers.add(Marker(
+          point: LatLng(endSeg.path!.last.latitude, endSeg.path!.last.longitude),
+          width: 24,
+          height: 24,
+          child: _buildMarkerWidget(isEnd: true),
+        ));
+      }
+
+      // Mode Change Nodes
+      for (int i = 0; i < filteredSegments.length - 1; i++) {
+        final current = filteredSegments[i];
+
+        if (current.path!.isNotEmpty) {
+            markers.add(Marker(
+              point: LatLng(current.path!.last.latitude, current.path!.last.longitude),
+              width: 12,
+              height: 12,
+              child: _buildMarkerWidget(),
+            ));
+        }
+      }
+    }
+
     setState(() {
       _polylines = lines;
+      _markers = markers;
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
        _zoomToFit();
     });
+  }
+
+  Widget _buildMarkerWidget({bool isStart = false, bool isEnd = false}) {
+    if (isStart) {
+      return Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF10B981), // Emerald 500
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 2),
+          boxShadow: const [
+             BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))
+          ]
+        ),
+        child: const Icon(LucideIcons.play, size: 12, color: Colors.white),
+      );
+    } else if (isEnd) {
+      return Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A), // Slate 900
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 2),
+          boxShadow: const [
+             BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))
+          ]
+        ),
+        child: const Icon(LucideIcons.flag, size: 12, color: Colors.white),
+      );
+    } else {
+      // Node
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: const Color(0xFF0F172A), width: 2),
+        ),
+      );
+    }
   }
 
   Color _parseColor(String lineColor) {
@@ -352,6 +458,9 @@ class _DetailPageState extends State<DetailPage> {
               ),
               PolylineLayer(
                 polylines: _polylines,
+              ),
+              MarkerLayer(
+                markers: _markers,
               ),
             ],
           ),
