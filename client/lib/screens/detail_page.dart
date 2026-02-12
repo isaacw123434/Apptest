@@ -170,7 +170,10 @@ class _DetailPageState extends State<DetailPage> {
     });
 
     if (_isMapReady) {
-      _zoomToFit();
+      // Delay to ensure map is fully rendered before fitting bounds
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (mounted) _zoomToFit();
+      });
     }
   }
 
@@ -324,7 +327,10 @@ class _DetailPageState extends State<DetailPage> {
               ),
               onMapReady: () {
                 _isMapReady = true;
-                _zoomToFit();
+                // Delay to ensure map is fully rendered before fitting bounds
+                Future.delayed(const Duration(milliseconds: 200), () {
+                  if (mounted) _zoomToFit();
+                });
               },
             ),
             children: [
