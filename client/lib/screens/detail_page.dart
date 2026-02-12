@@ -23,6 +23,7 @@ class _DetailPageState extends State<DetailPage> {
   List<Polyline> _polylines = [];
   List<Marker> _markers = [];
   JourneyResult? _currentResult;
+  bool _isMapReady = false;
 
   @override
   void initState() {
@@ -168,9 +169,9 @@ class _DetailPageState extends State<DetailPage> {
       _markers = markers;
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-       _zoomToFit();
-    });
+    if (_isMapReady) {
+      _zoomToFit();
+    }
   }
 
   Widget _buildMarkerWidget({bool isStart = false, bool isEnd = false}) {
@@ -322,6 +323,7 @@ class _DetailPageState extends State<DetailPage> {
                 flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
               ),
               onMapReady: () {
+                _isMapReady = true;
                 _zoomToFit();
               },
             ),
