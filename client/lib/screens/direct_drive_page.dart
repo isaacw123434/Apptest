@@ -53,10 +53,14 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
             options: MapOptions(
               initialCenter: const LatLng(53.28, -1.37),
               initialZoom: 9.0,
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+              ),
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'com.example.app',
               ),
               if (_routePoints.isNotEmpty)
@@ -82,19 +86,6 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
               backgroundColor: Colors.white,
               foregroundColor: Colors.black,
               child: const Icon(LucideIcons.chevronLeft),
-            ),
-          ),
-
-          // Debug Button
-          Positioned(
-            top: 40,
-            right: 16,
-            child: FloatingActionButton.small(
-              heroTag: 'debug_fab',
-              onPressed: _showDebugInfo,
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              child: const Icon(LucideIcons.bug),
             ),
           ),
 
@@ -216,44 +207,6 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
           ),
         ],
       ),
-    );
-  }
-
-  void _showDebugInfo() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Debug Info'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Points: ${_routePoints.length}'),
-                const Divider(),
-                if (_routePoints.isNotEmpty)
-                  Text('First: ${_routePoints.first.latitude.toStringAsFixed(4)}, ${_routePoints.first.longitude.toStringAsFixed(4)}'),
-                if (_routePoints.isNotEmpty)
-                  Text('Last: ${_routePoints.last.latitude.toStringAsFixed(4)}, ${_routePoints.last.longitude.toStringAsFixed(4)}'),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _zoomToFit();
-              },
-              child: const Text('Zoom to Fit'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
     );
   }
 
