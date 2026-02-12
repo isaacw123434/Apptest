@@ -18,6 +18,7 @@ class DetailPage extends StatefulWidget {
 class _DetailPageState extends State<DetailPage> {
   final Distance _distance = const Distance();
   final ApiService _apiService = ApiService();
+  final DraggableScrollableController _sheetController = DraggableScrollableController();
   InitData? _initData;
   MapController? _mapController;
   List<Polyline> _polylines = [];
@@ -355,6 +356,7 @@ class _DetailPageState extends State<DetailPage> {
 
           // 2. Sliding Sheet
           DraggableScrollableSheet(
+            controller: _sheetController,
             initialChildSize: 0.35,
             minChildSize: 0.25,
             maxChildSize: 0.9,
@@ -544,6 +546,7 @@ class _DetailPageState extends State<DetailPage> {
           segment: seg,
           isEditable: isEditable && isFirst, // Only first segment gets edit button
           onEdit: onEdit,
+          onTap: () => _zoomToSegment(seg),
           distance: distance,
           extraDetails: extraDetails,
         ));
@@ -679,6 +682,7 @@ class _DetailPageState extends State<DetailPage> {
     required Segment segment,
     bool isEditable = false,
     VoidCallback? onEdit,
+    VoidCallback? onTap,
     double? distance,
     String? extraDetails,
   }) {
@@ -708,74 +712,77 @@ class _DetailPageState extends State<DetailPage> {
           const SizedBox(width: 24),
           // Content
           Expanded(
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[200]!),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black.withAlpha(10),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2))
-                ],
-              ),
-              child: Row(
-                children: [
-                  Icon(_getIconData(segment.iconId), color: lineColor, size: 24),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(segment.label,
-                            style: const TextStyle(fontWeight: FontWeight.bold)),
-                        Text(
-                          '${segment.time} min${displayDistance != null ? ' • ${displayDistance.toStringAsFixed(1)} miles' : ''}',
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                        if (displayDistance != null || emission > 0)
-                          Row(
-                            children: [
-                              const Icon(LucideIcons.leaf,
-                                  size: 10, color: Colors.green),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${emission.toStringAsFixed(2)} kg CO₂',
-                                style: const TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        if (extraDetails != null) ...[
-                          const SizedBox(height: 2),
+            child: GestureDetector(
+              onTap: onTap,
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[200]!),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withAlpha(10),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2))
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Icon(_getIconData(segment.iconId), color: lineColor, size: 24),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(segment.label,
+                              style: const TextStyle(fontWeight: FontWeight.bold)),
                           Text(
-                            extraDetails,
-                            style: const TextStyle(
-                                fontSize: 11,
-                                color: Colors.blueGrey,
-                                fontStyle: FontStyle.italic),
+                            '${segment.time} min${displayDistance != null ? ' • ${displayDistance.toStringAsFixed(1)} miles' : ''}',
+                            style: const TextStyle(fontSize: 12, color: Colors.grey),
                           ),
+                          if (displayDistance != null || emission > 0)
+                            Row(
+                              children: [
+                                const Icon(LucideIcons.leaf,
+                                    size: 10, color: Colors.green),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${emission.toStringAsFixed(2)} kg CO₂',
+                                  style: const TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          if (extraDetails != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              extraDetails,
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.blueGrey,
+                                  fontStyle: FontStyle.italic),
+                            ),
+                          ],
                         ],
-                      ],
-                    ),
-                  ),
-                  if (isEditable)
-                    TextButton.icon(
-                      onPressed: onEdit,
-                      icon: const Icon(LucideIcons.pencil, size: 14),
-                      label: const Text('Edit'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFF4F46E5),
-                        textStyle:
-                            const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                     ),
-                ],
+                    if (isEditable)
+                      TextButton.icon(
+                        onPressed: onEdit,
+                        icon: const Icon(LucideIcons.pencil, size: 14),
+                        label: const Text('Edit'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color(0xFF4F46E5),
+                          textStyle:
+                              const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -836,6 +843,51 @@ class _DetailPageState extends State<DetailPage> {
         bottom: bottomPadding + 50,
       ),
     ));
+  }
+
+  void _zoomToSegment(Segment segment) {
+    if (!mounted || _mapController == null) return;
+    if (segment.path == null || segment.path!.isEmpty) return;
+
+    final points = segment.path!;
+
+    double minLat = points.first.latitude;
+    double maxLat = points.first.latitude;
+    double minLng = points.first.longitude;
+    double maxLng = points.first.longitude;
+
+    for (var point in points) {
+      if (point.latitude < minLat) minLat = point.latitude;
+      if (point.latitude > maxLat) maxLat = point.latitude;
+      if (point.longitude < minLng) minLng = point.longitude;
+      if (point.longitude > maxLng) maxLng = point.longitude;
+    }
+
+    final bounds = LatLngBounds(
+      LatLng(minLat, minLng),
+      LatLng(maxLat, maxLng),
+    );
+
+    // Calculate padding. Min sheet size is 0.25
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomPadding = screenHeight * 0.25;
+
+    _mapController!.fitCamera(CameraFit.bounds(
+      bounds: bounds,
+      padding: EdgeInsets.only(
+        top: 50,
+        left: 50,
+        right: 50,
+        bottom: bottomPadding + 50,
+      ),
+    ));
+
+    // Minimize sheet
+    _sheetController.animateTo(
+      0.25,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 }
 
