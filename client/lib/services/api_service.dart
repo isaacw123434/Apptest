@@ -155,6 +155,8 @@ class ApiService {
           String mode = sMap['mode'] ?? '';
           if (mode == 'train') {
             sMap['path'] = getPoints(routesMap['train_walk_headingley']);
+          } else {
+            sMap.remove('path');
           }
           return sMap;
         }).toList();
@@ -165,6 +167,8 @@ class ApiService {
           String mode = sMap['mode'] ?? '';
           if (mode == 'train') {
             sMap['path'] = getPoints(routesMap['train_walk_headingley']);
+          } else {
+            sMap.remove('path');
           }
           return sMap;
         }).toList();
