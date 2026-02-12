@@ -20,6 +20,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
   InitData? _initData;
   MapController? _mapController;
   List<LatLng> _routePoints = [];
+  List<Marker> _markers = [];
 
   @override
   void initState() {
@@ -33,9 +34,26 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
     try {
       final data = await _apiService.fetchInitData();
       if (mounted) {
+        List<Marker> markers = [];
+        if (data.mockPath.isNotEmpty) {
+           markers.add(Marker(
+             point: data.mockPath.first,
+             width: 24,
+             height: 24,
+             child: _buildMarkerWidget(isStart: true),
+           ));
+           markers.add(Marker(
+             point: data.mockPath.last,
+             width: 24,
+             height: 24,
+             child: _buildMarkerWidget(isEnd: true),
+           ));
+        }
+
         setState(() {
           _initData = data;
           _routePoints = data.mockPath;
+          _markers = markers;
         });
         WidgetsBinding.instance.addPostFrameCallback((_) {
            _zoomToFit();
@@ -76,6 +94,10 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
                       strokeWidth: 4.0,
                     )
                   ],
+                ),
+              if (_markers.isNotEmpty)
+                MarkerLayer(
+                  markers: _markers,
                 ),
             ],
           ),
@@ -176,6 +198,36 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
         ],
       ),
     );
+  }
+
+  Widget _buildMarkerWidget({bool isStart = false, bool isEnd = false}) {
+    if (isStart) {
+      return Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF10B981), // Emerald 500
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 2),
+          boxShadow: const [
+             BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))
+          ]
+        ),
+        child: const Icon(LucideIcons.play, size: 12, color: Colors.white),
+      );
+    } else if (isEnd) {
+      return Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A), // Slate 900
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 2),
+          boxShadow: const [
+             BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))
+          ]
+        ),
+        child: const Icon(LucideIcons.flag, size: 12, color: Colors.white),
+      );
+    } else {
+      return const SizedBox();
+    }
   }
 
   Widget _buildInfoBox(String label, String value) {
