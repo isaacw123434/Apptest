@@ -22,6 +22,7 @@ class _DetailPageState extends State<DetailPage> {
   InitData? _initData;
   MapController? _mapController;
   final DraggableScrollableController _sheetController = DraggableScrollableController();
+  ScrollController? _innerScrollController;
   List<Polyline> _polylines = [];
   List<Marker> _markers = [];
   JourneyResult? _currentResult;
@@ -211,6 +212,15 @@ class _DetailPageState extends State<DetailPage> {
     if (_sheetController.isAttached) {
       _sheetController.animateTo(
         0.25,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+
+    // Reset scroll position to top
+    if (_innerScrollController != null && _innerScrollController!.hasClients) {
+      _innerScrollController!.animateTo(
+        0,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
@@ -425,6 +435,7 @@ class _DetailPageState extends State<DetailPage> {
             snap: true,
             snapSizes: const [0.25, 0.35, 0.9],
             builder: (context, scrollController) {
+              _innerScrollController = scrollController;
               return Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
