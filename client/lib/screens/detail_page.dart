@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:latlong2/latlong.dart' as latlong;
 import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../services/api_service.dart';
@@ -16,10 +16,10 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
-  final Distance _distance = const Distance();
+  final latlong.Distance _distance = const latlong.Distance();
   final ApiService _apiService = ApiService();
   InitData? _initData;
-  List<Polyline> _polylines = [];
+  Set<Polyline> _polylines = {};
   JourneyResult? _currentResult;
 
   @override
@@ -51,7 +51,8 @@ class _DetailPageState extends State<DetailPage> {
     if (_currentResult == null) return;
 
     final result = _currentResult!;
-    List<Polyline> lines = [];
+    Set<Polyline> lines = {};
+    int polylineCounter = 0;
 
     // Helper to add segments
     void addSegments(Leg leg) {
@@ -60,10 +61,13 @@ class _DetailPageState extends State<DetailPage> {
           // Filter out invalid coordinates to prevent map crashes
           final validPoints = seg.path!.where((p) => p.latitude.abs() <= 90).toList();
           if (validPoints.isNotEmpty) {
+            final points = validPoints.map((p) => LatLng(p.latitude, p.longitude)).toList();
+
             lines.add(Polyline(
-              points: validPoints,
+              polylineId: PolylineId('poly_${polylineCounter++}'),
+              points: points,
               color: _parseColor(seg.lineColor),
-              strokeWidth: 6.0,
+              width: 6,
             ));
           }
         }
@@ -83,10 +87,12 @@ class _DetailPageState extends State<DetailPage> {
 
     // Fallback if no lines generated yet, try mock path
     if (lines.isEmpty && _initData != null && _initData!.mockPath.isNotEmpty) {
+       final mockPoints = _initData!.mockPath.map((p) => LatLng(p.latitude, p.longitude)).toList();
        lines.add(Polyline(
-         points: _initData!.mockPath,
+         polylineId: const PolylineId('mock_path'),
+         points: mockPoints,
          color: Colors.blue,
-         strokeWidth: 4.0,
+         width: 4,
        ));
     }
 
@@ -327,23 +333,14 @@ class _DetailPageState extends State<DetailPage> {
         children: [
           // 1. Map Background
           if (_polylines.isNotEmpty)
-            FlutterMap(
-              options: MapOptions(
-                initialCenter: LatLng(53.28, -1.37), // Approximate midpoint
-                initialZoom: 9.0,
-                interactionOptions: const InteractionOptions(
-                  flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-                ),
+            GoogleMap(
+              initialCameraPosition: const CameraPosition(
+                target: LatLng(53.28, -1.37),
+                zoom: 9.0,
               ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.endmile.app',
-                ),
-                PolylineLayer(
-                  polylines: _polylines,
-                ),
-              ],
+              polylines: _polylines,
+              mapType: MapType.normal,
+              rotateGesturesEnabled: false,
             )
           else
             const Center(child: CircularProgressIndicator()),
@@ -520,7 +517,7 @@ class _DetailPageState extends State<DetailPage> {
         if (seg.path != null && seg.path!.isNotEmpty) {
           double totalMeters = 0;
           for (int j = 0; j < seg.path!.length - 1; j++) {
-            totalMeters += _distance.as(LengthUnit.Meter, seg.path![j], seg.path![j + 1]);
+            totalMeters += _distance.as(latlong.LengthUnit.Meter, seg.path![j], seg.path![j + 1]);
           }
           distance = totalMeters / 1609.34; // Convert to miles
         }

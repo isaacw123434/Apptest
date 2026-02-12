@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:latlong2/latlong.dart' as latlong;
 import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../services/api_service.dart';
@@ -17,7 +17,7 @@ class DirectDrivePage extends StatefulWidget {
 class _DirectDrivePageState extends State<DirectDrivePage> {
   final ApiService _apiService = ApiService();
   InitData? _initData;
-  List<LatLng> _routePoints = [];
+  List<latlong.LatLng> _routePoints = [];
 
   @override
   void initState() {
@@ -44,29 +44,21 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
         children: [
           // 1. Map Background
           if (_routePoints.isNotEmpty)
-            FlutterMap(
-              options: MapOptions(
-                initialCenter: LatLng(53.28, -1.37), // Approximate midpoint
-                initialZoom: 9.0,
-                interactionOptions: const InteractionOptions(
-                  flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-                ),
+            GoogleMap(
+              initialCameraPosition: const CameraPosition(
+                target: LatLng(53.28, -1.37),
+                zoom: 9.0,
               ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.app',
-                ),
-                PolylineLayer(
-                  polylines: [
-                    Polyline(
-                      points: _routePoints,
-                      color: Colors.blue,
-                      strokeWidth: 4.0,
-                    ),
-                  ],
-                ),
-              ],
+              polylines: {
+                Polyline(
+                  polylineId: const PolylineId('direct_drive'),
+                  points: _routePoints.map((p) => LatLng(p.latitude, p.longitude)).toList(),
+                  color: Colors.blue,
+                  width: 4,
+                )
+              },
+              mapType: MapType.normal,
+              rotateGesturesEnabled: false,
             )
           else
             const Center(child: CircularProgressIndicator()),
