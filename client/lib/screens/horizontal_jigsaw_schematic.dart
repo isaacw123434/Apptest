@@ -35,7 +35,8 @@ class HorizontalJigsawSchematic extends StatelessWidget {
           bool isLast = i == segments.length - 1;
 
           double paddingLeft = isFirst ? 6.0 : (overlap + 1.0) * 0.75;
-          double paddingRight = isLast ? 6.0 : 2.0 * 0.75;
+          // Reduce right padding for non-last segments to allow text to extend into the curve
+          double paddingRight = isLast ? 6.0 : -2.0;
 
           IconData? iconData = _getIconData(seg.iconId);
           bool hasIcon = iconData != null;
@@ -210,6 +211,29 @@ class HorizontalJigsawSegment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Reduce right padding for non-last segments to allow text to extend into the curve
+    double rightPad = isLast ? 6.0 : -2.0;
+    double actualRightPad = rightPad > 0 ? rightPad : 0;
+    double overflow = rightPad < 0 ? -rightPad : 0;
+
+    Widget content = child;
+
+    if (overflow > 0) {
+      content = LayoutBuilder(
+        builder: (context, constraints) {
+          return OverflowBox(
+            alignment: Alignment.centerLeft,
+            minWidth: 0,
+            maxWidth: constraints.maxWidth + overflow,
+            child: SizedBox(
+              width: constraints.maxWidth + overflow,
+              child: child,
+            ),
+          );
+        },
+      );
+    }
+
     return CustomPaint(
       painter: _HorizontalJigsawPainter(
         isFirst: isFirst,
@@ -221,11 +245,11 @@ class HorizontalJigsawSegment extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.only(
           left: isFirst ? 6 : (overlap + 1.0) * 0.75,
-          right: isLast ? 6 : 2.0 * 0.75,
+          right: actualRightPad,
           top: 1,
           bottom: 1,
         ),
-        child: child,
+        child: content,
       ),
     );
   }
