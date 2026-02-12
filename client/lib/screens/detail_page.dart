@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:latlong2/latlong.dart' as latlong;
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../services/api_service.dart';
@@ -16,16 +16,17 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
-  final latlong.Distance _distance = const latlong.Distance();
+  final Distance _distance = const Distance();
   final ApiService _apiService = ApiService();
   InitData? _initData;
-  GoogleMapController? _mapController;
-  Set<Polyline> _polylines = {};
+  MapController? _mapController;
+  List<Polyline> _polylines = [];
   JourneyResult? _currentResult;
 
   @override
   void initState() {
     super.initState();
+    _mapController = MapController();
     if (widget.journeyResult != null) {
       _currentResult = widget.journeyResult;
       _updatePolylines();
@@ -52,23 +53,21 @@ class _DetailPageState extends State<DetailPage> {
     if (_currentResult == null) return;
 
     final result = _currentResult!;
-    Set<Polyline> lines = {};
-    int polylineCounter = 0;
+    List<Polyline> lines = [];
 
     // Helper to add segments
     void addSegments(Leg leg) {
       for (var seg in leg.segments) {
         if (seg.path != null && seg.path!.isNotEmpty) {
-          // Filter out invalid coordinates to prevent map crashes
+          // Filter out invalid coordinates
           final validPoints = seg.path!.where((p) => p.latitude.abs() <= 90).toList();
           if (validPoints.isNotEmpty) {
             final points = validPoints.map((p) => LatLng(p.latitude, p.longitude)).toList();
 
             lines.add(Polyline(
-              polylineId: PolylineId('poly_${polylineCounter++}'),
               points: points,
               color: _parseColor(seg.lineColor),
-              width: 6,
+              strokeWidth: 6.0,
             ));
           }
         }
@@ -90,15 +89,18 @@ class _DetailPageState extends State<DetailPage> {
     if (lines.isEmpty && _initData != null && _initData!.mockPath.isNotEmpty) {
        final mockPoints = _initData!.mockPath.map((p) => LatLng(p.latitude, p.longitude)).toList();
        lines.add(Polyline(
-         polylineId: const PolylineId('mock_path'),
          points: mockPoints,
          color: Colors.blue,
-         width: 4,
+         strokeWidth: 4.0,
        ));
     }
 
     setState(() {
       _polylines = lines;
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+       _zoomToFit();
     });
   }
 
@@ -333,19 +335,22 @@ class _DetailPageState extends State<DetailPage> {
       body: Stack(
         children: [
           // 1. Map Background
-          if (_polylines.isNotEmpty)
-            GoogleMap(
-              initialCameraPosition: const CameraPosition(
-                target: LatLng(53.28, -1.37),
-                zoom: 9.0,
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: const LatLng(53.28, -1.37),
+              initialZoom: 9.0,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.app',
               ),
-              onMapCreated: (controller) => _mapController = controller,
-              polylines: _polylines,
-              mapType: MapType.normal,
-              rotateGesturesEnabled: false,
-            )
-          else
-            const Center(child: CircularProgressIndicator()),
+              PolylineLayer(
+                polylines: _polylines,
+              ),
+            ],
+          ),
 
           // Back Button
           Positioned(
@@ -533,7 +538,7 @@ class _DetailPageState extends State<DetailPage> {
         if (seg.path != null && seg.path!.isNotEmpty) {
           double totalMeters = 0;
           for (int j = 0; j < seg.path!.length - 1; j++) {
-            totalMeters += _distance.as(latlong.LengthUnit.Meter, seg.path![j], seg.path![j + 1]);
+            totalMeters += _distance.as(LengthUnit.Meter, seg.path![j], seg.path![j + 1]);
           }
           distance = totalMeters / 1609.34; // Convert to miles
         }
@@ -821,7 +826,6 @@ class _DetailPageState extends State<DetailPage> {
                 ..._polylines.map((p) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('ID: ${p.polylineId.value}', style: const TextStyle(fontWeight: FontWeight.bold)),
                     Text('Points: ${p.points.length}'),
                     if (p.points.isNotEmpty)
                       Text('First: ${p.points.first.latitude.toStringAsFixed(4)}, ${p.points.first.longitude.toStringAsFixed(4)}'),
@@ -872,10 +876,10 @@ class _DetailPageState extends State<DetailPage> {
     }
 
     final bounds = LatLngBounds(
-      southwest: LatLng(minLat, minLng),
-      northeast: LatLng(maxLat, maxLng),
+      LatLng(minLat, minLng),
+      LatLng(maxLat, maxLng),
     );
 
-    _mapController!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+    _mapController!.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)));
   }
 }
