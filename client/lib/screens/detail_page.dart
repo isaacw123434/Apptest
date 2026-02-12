@@ -21,6 +21,7 @@ class _DetailPageState extends State<DetailPage> {
   late final ApiService _apiService;
   InitData? _initData;
   MapController? _mapController;
+  final DraggableScrollableController _sheetController = DraggableScrollableController();
   List<Polyline> _polylines = [];
   List<Marker> _markers = [];
   JourneyResult? _currentResult;
@@ -36,6 +37,12 @@ class _DetailPageState extends State<DetailPage> {
       _updatePolylines();
     }
     _fetchData();
+  }
+
+  @override
+  void dispose() {
+    _sheetController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchData() async {
@@ -174,6 +181,52 @@ class _DetailPageState extends State<DetailPage> {
     if (_isMapReady) {
       _zoomToFit();
     }
+  }
+
+  void _zoomToSegment(Segment segment) {
+    if (!mounted || _mapController == null || segment.path == null || segment.path!.isEmpty) return;
+
+    final points = segment.path!;
+    double minLat = points.first.latitude;
+    double maxLat = points.first.latitude;
+    double minLng = points.first.longitude;
+    double maxLng = points.first.longitude;
+
+    for (var point in points) {
+      if (point.latitude < minLat) minLat = point.latitude;
+      if (point.latitude > maxLat) maxLat = point.latitude;
+      if (point.longitude < minLng) minLng = point.longitude;
+      if (point.longitude > maxLng) maxLng = point.longitude;
+    }
+
+    final bounds = LatLngBounds(
+      LatLng(minLat, minLng),
+      LatLng(maxLat, maxLng),
+    );
+
+    // Animate sheet down to reveal map
+    if (_sheetController.isAttached) {
+      _sheetController.animateTo(
+        0.25,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+
+    // Fit camera
+    // Calculate padding to account for bottom sheet (25% of screen height)
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomPadding = screenHeight * 0.25;
+
+    _mapController!.fitCamera(CameraFit.bounds(
+      bounds: bounds,
+      padding: EdgeInsets.only(
+        top: 50,
+        left: 50,
+        right: 50,
+        bottom: bottomPadding + 50,
+      ),
+    ));
   }
 
   Widget _buildMarkerWidget({bool isStart = false, bool isEnd = false}) {
@@ -359,6 +412,7 @@ class _DetailPageState extends State<DetailPage> {
 
           // 2. Sliding Sheet
           DraggableScrollableSheet(
+            controller: _sheetController,
             initialChildSize: 0.35,
             minChildSize: 0.25,
             maxChildSize: 0.9,
@@ -548,6 +602,7 @@ class _DetailPageState extends State<DetailPage> {
           segment: seg,
           isEditable: isEditable && isFirst, // Only first segment gets edit button
           onEdit: onEdit,
+          onTap: () => _zoomToSegment(seg),
           distance: distance,
           extraDetails: extraDetails,
         ));
@@ -683,6 +738,7 @@ class _DetailPageState extends State<DetailPage> {
     required Segment segment,
     bool isEditable = false,
     VoidCallback? onEdit,
+    VoidCallback? onTap,
     double? distance,
     String? extraDetails,
   }) {
@@ -712,10 +768,12 @@ class _DetailPageState extends State<DetailPage> {
           const SizedBox(width: 24),
           // Content
           Expanded(
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
+            child: GestureDetector(
+              onTap: onTap,
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.grey[200]!),
@@ -782,7 +840,7 @@ class _DetailPageState extends State<DetailPage> {
                 ],
               ),
             ),
-          ),
+          )),
         ],
       ),
     );
