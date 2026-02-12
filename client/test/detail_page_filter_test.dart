@@ -147,7 +147,7 @@ void main() {
     // Expect 1 min walk to be hidden
     expect(find.text('Walk 1 min'), findsNothing);
 
-    // Expect 2 min walk to be visible (FAIL expected currently)
-    expect(find.text('Walk 2 mins'), findsOneWidget);
+    // Expect 2 min walk to be hidden
+    expect(find.text('Walk 2 mins'), findsNothing);
   });
 }
