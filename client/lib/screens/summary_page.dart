@@ -945,7 +945,7 @@ class _SummaryPageState extends State<SummaryPage> {
     }
     processed = mergedWalks;
 
-    // 3. Merge Consecutive Trains
+    // 3. Merge Consecutive Trains (CrossCountry + EMR only)
     List<Segment> mergedTrains = [];
     i = 0;
     while (i < processed.length) {
@@ -954,22 +954,29 @@ class _SummaryPageState extends State<SummaryPage> {
 
       if (isTrain && i + 1 < processed.length) {
          final next = processed[i + 1];
-         if (next.iconId == 'train') {
-           // Merge
+         bool isNextTrain = next.iconId == 'train';
+
+         if (isNextTrain) {
            String label1 = seg.label.replaceAll('E M R', 'EMR');
            String label2 = next.label.replaceAll('E M R', 'EMR');
 
-           mergedTrains.add(Segment(
-             mode: 'train',
-             label: '$label1 + $label2',
-             lineColor: seg.lineColor,
-             iconId: 'train',
-             time: seg.time + next.time,
-             to: next.to,
-             detail: seg.detail,
-           ));
-           i += 2;
-           continue;
+           bool isMergeable = (label1.contains('CrossCountry') && label2.contains('EMR')) ||
+                              (label1.contains('EMR') && label2.contains('CrossCountry'));
+
+           if (isMergeable) {
+             // Merge
+             mergedTrains.add(Segment(
+               mode: 'train',
+               label: '$label1 + $label2',
+               lineColor: seg.lineColor,
+               iconId: 'train',
+               time: seg.time + next.time,
+               to: next.to,
+               detail: seg.detail,
+             ));
+             i += 2;
+             continue;
+           }
          }
       }
       mergedTrains.add(seg);
@@ -977,23 +984,17 @@ class _SummaryPageState extends State<SummaryPage> {
     }
     processed = mergedTrains;
 
-    // 4. Final pass: Fix EMR labels (if not merged) and Hide Icon for Short Walks (<= 4 min)
+    // 4. Final pass: Fix EMR labels (if not merged)
     List<Segment> finalPass = [];
     for (var seg in processed) {
       String label = seg.label.replaceAll('E M R', 'EMR');
-      String iconId = seg.iconId;
-      bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
 
-      if (isWalk && seg.time <= 4) {
-        iconId = ''; // Hide icon
-      }
-
-      if (label != seg.label || iconId != seg.iconId) {
+      if (label != seg.label) {
         finalPass.add(Segment(
           mode: seg.mode,
           label: label,
           lineColor: seg.lineColor,
-          iconId: iconId,
+          iconId: seg.iconId,
           time: seg.time,
           to: seg.to,
           detail: seg.detail,
