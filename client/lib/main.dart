@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'screens/home_page.dart';
 import 'screens/direct_drive_page.dart';
-import 'utils/google_maps_config_stub.dart' if (dart.library.html) 'utils/google_maps_config_web.dart';
 
 void main() {
-  setupGoogleMaps();
   runApp(const JourneyPlannerApp());
 }
 

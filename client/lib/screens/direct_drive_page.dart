@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:latlong2/latlong.dart' as latlong;
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../services/api_service.dart';
@@ -17,12 +17,13 @@ class DirectDrivePage extends StatefulWidget {
 class _DirectDrivePageState extends State<DirectDrivePage> {
   final ApiService _apiService = ApiService();
   InitData? _initData;
-  GoogleMapController? _mapController;
-  List<latlong.LatLng> _routePoints = [];
+  MapController? _mapController;
+  List<LatLng> _routePoints = [];
 
   @override
   void initState() {
     super.initState();
+    _mapController = MapController();
     _fetchData();
   }
 
@@ -32,6 +33,9 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
       setState(() {
         _initData = data;
         _routePoints = data.mockPath;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+         _zoomToFit();
       });
     } catch (e) {
       debugPrint('Error fetching data: $e');
@@ -44,26 +48,29 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
       body: Stack(
         children: [
           // 1. Map Background
-          if (_routePoints.isNotEmpty)
-            GoogleMap(
-              initialCameraPosition: const CameraPosition(
-                target: LatLng(53.28, -1.37),
-                zoom: 9.0,
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: const LatLng(53.28, -1.37),
+              initialZoom: 9.0,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.app',
               ),
-              onMapCreated: (controller) => _mapController = controller,
-              polylines: {
-                Polyline(
-                  polylineId: const PolylineId('direct_drive'),
-                  points: _routePoints.map((p) => LatLng(p.latitude, p.longitude)).toList(),
-                  color: Colors.blue,
-                  width: 4,
-                )
-              },
-              mapType: MapType.normal,
-              rotateGesturesEnabled: false,
-            )
-          else
-            const Center(child: CircularProgressIndicator()),
+              if (_routePoints.isNotEmpty)
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: _routePoints,
+                      color: Colors.blue,
+                      strokeWidth: 4.0,
+                    )
+                  ],
+                ),
+            ],
+          ),
 
           // Back Button
           Positioned(
@@ -266,10 +273,10 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
     }
 
     final bounds = LatLngBounds(
-      southwest: LatLng(minLat, minLng),
-      northeast: LatLng(maxLat, maxLng),
+      LatLng(minLat, minLng),
+      LatLng(maxLat, maxLng),
     );
 
-    _mapController!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+    _mapController!.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)));
   }
 }
