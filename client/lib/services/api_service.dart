@@ -153,9 +153,7 @@ class ApiService {
         leg['segments'] = segments.map((s) {
           var sMap = Map<String, dynamic>.from(s);
           String mode = sMap['mode'] ?? '';
-          if (mode == 'walk') {
-            sMap['path'] = getPoints(routesMap['cycle']); // Approximation using cycle path for walk
-          } else if (mode == 'train') {
+          if (mode == 'train') {
             sMap['path'] = getPoints(routesMap['train_walk_headingley']);
           }
           return sMap;
@@ -165,9 +163,7 @@ class ApiService {
         leg['segments'] = segments.map((s) {
           var sMap = Map<String, dynamic>.from(s);
           String mode = sMap['mode'] ?? '';
-          if (mode == 'taxi') {
-            sMap['path'] = getPoints(routesMap['uber']); // Approximation
-          } else if (mode == 'train') {
+          if (mode == 'train') {
             sMap['path'] = getPoints(routesMap['train_walk_headingley']);
           }
           return sMap;

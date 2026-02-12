@@ -340,10 +340,14 @@ class _DetailPageState extends State<DetailPage> {
             options: MapOptions(
               initialCenter: const LatLng(53.28, -1.37),
               initialZoom: 9.0,
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+              ),
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'com.example.app',
               ),
               PolylineLayer(
@@ -362,19 +366,6 @@ class _DetailPageState extends State<DetailPage> {
               backgroundColor: Colors.white,
               foregroundColor: Colors.black,
               child: const Icon(LucideIcons.chevronLeft),
-            ),
-          ),
-
-          // Debug Button
-          Positioned(
-            top: 40,
-            right: 16,
-            child: FloatingActionButton.small(
-              heroTag: 'debug_fab',
-              onPressed: _showDebugInfo,
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              child: const Icon(LucideIcons.bug),
             ),
           ),
 
@@ -808,49 +799,6 @@ class _DetailPageState extends State<DetailPage> {
       case 'footprints': return LucideIcons.footprints;
       default: return LucideIcons.circle;
     }
-  }
-
-  void _showDebugInfo() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Debug Info'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Polylines: ${_polylines.length}'),
-                const Divider(),
-                ..._polylines.map((p) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Points: ${p.points.length}'),
-                    if (p.points.isNotEmpty)
-                      Text('First: ${p.points.first.latitude.toStringAsFixed(4)}, ${p.points.first.longitude.toStringAsFixed(4)}'),
-                    const SizedBox(height: 8),
-                  ],
-                )),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _zoomToFit();
-              },
-              child: const Text('Zoom to Fit'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void _zoomToFit() {
