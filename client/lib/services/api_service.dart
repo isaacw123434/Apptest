@@ -2,6 +2,7 @@ import 'package:latlong2/latlong.dart';
 import '../models.dart';
 import '../utils/emission_utils.dart';
 import 'mock_data.dart';
+import 'new_mock_data.dart';
 import '../utils/polyline.dart';
 
 class ApiService {
@@ -130,123 +131,74 @@ class ApiService {
     data['lastMile'] = (data['lastMile'] as List).map((e) => Map<String, dynamic>.from(e)).toList();
     data['mainLeg'] = Map<String, dynamic>.from(data['mainLeg']);
 
-    // Pre-fetch all routes
-    Map<String, List<LatLng>> routePolylines = {};
-    for (var route in rawRoutesData) {
-      if (route['polyline'] != null && (route['polyline'] as String).isNotEmpty) {
-        routePolylines[route['id']] = decodePolyline(route['polyline']);
-      }
-    }
+    // Helper to extract path and color from a specific leg of a journey
+    void attachFromJourney(Map<String, dynamic> optionLeg, String journeyName, List<int> legIndices) {
+       final journey = newRoutesData.firstWhere(
+          (j) => (j['name'] as String).startsWith(journeyName),
+          orElse: () => {},
+       );
 
-    List<LatLng>? getPoints(String? routeId) {
-      if (routeId == null) return null;
-      return routePolylines[routeId];
-    }
+       if (journey.isEmpty || journey['legs'] == null) return;
 
-    // Helper to attach path
-    void attachPath(Map<String, dynamic> leg, String? routeIdOverride) {
-      String id = leg['id'];
-      List segments = leg['segments'] as List;
+       List legs = journey['legs'] as List;
+       List segments = optionLeg['segments'] as List;
 
-      // Special handling for multi-segment legs
-      if (id == 'train_walk_headingley') {
-        leg['segments'] = segments.map((s) {
-          var sMap = Map<String, dynamic>.from(s);
-          String mode = sMap['mode'] ?? '';
-          if (mode == 'train') {
-            sMap['path'] = getPoints(routesMap['train_walk_headingley']);
+       List<Map<String, dynamic>> newSegments = [];
+       for (int i = 0; i < segments.length; i++) {
+          var sMap = Map<String, dynamic>.from(segments[i]);
+
+          if (i < legIndices.length) {
+             int legIndex = legIndices[i];
+             if (legIndex < legs.length) {
+                var legData = legs[legIndex];
+                String polyline = legData['polyline'];
+                String color = legData['color'];
+
+                sMap['path'] = decodePolyline(polyline);
+                sMap['lineColor'] = color;
+             }
           }
-          return sMap;
-        }).toList();
-        return;
-      } else if (id == 'train_uber_headingley') {
-        leg['segments'] = segments.map((s) {
-          var sMap = Map<String, dynamic>.from(s);
-          String mode = sMap['mode'] ?? '';
-          if (mode == 'train') {
-            sMap['path'] = getPoints(routesMap['train_walk_headingley']);
-          }
-          return sMap;
-        }).toList();
-        return;
-      }
-
-      String? routeId;
-      if (routeIdOverride != null) {
-        routeId = routeIdOverride;
-      } else {
-        if (id == 'uber') {
-          routeId = routesMap['uber'];
-        } else if (id == 'bus') {
-          routeId = routesMap['bus'];
-        } else if (id == 'cycle') {
-          routeId = routesMap['cycle'];
-        } else if (id == 'train_main') {
-          routeId = routesMap['train_main'];
-        } else if (id == 'drive_park') {
-          routeId = routesMap['uber']; // Approximation
-        }
-      }
-
-      final points = getPoints(routeId);
-
-      if (points != null) {
-        leg['segments'] = segments.map((s) {
-          var sMap = Map<String, dynamic>.from(s);
-
-          // Logic to decide if we should attach path to this segment
-          String mode = sMap['mode'] ?? '';
-          String routeIdString = routeId!.toLowerCase();
-          bool shouldAttach = false;
-
-          // Check keywords in the ID
-          if (routeIdString.contains('train') && mode == 'train') {
-            shouldAttach = true;
-          } else if ((routeIdString.contains('drive') || routeIdString.contains('uber')) &&
-              (mode == 'car' || mode == 'taxi')) {
-            shouldAttach = true;
-          } else if (routeIdString.contains('bus') && mode == 'bus') {
-            shouldAttach = true;
-          } else if (routeIdString.contains('cycle') && mode == 'bike') {
-            shouldAttach = true;
-          } else if (routeIdString.contains('direct_drive') && mode == 'car') {
-             // direct_drive contains 'drive', so the second condition might catch it,
-             // but 'direct_drive' mode might be different?
-             // Actually direct drive mode is 'car' usually.
-             // But direct drive is handled via fetchInitData directDrive prop, not here usually.
-             // However, checking just in case.
-            shouldAttach = true;
-          }
-
-          if (shouldAttach) {
-            sMap['path'] = points;
-          }
-          return sMap;
-        }).toList();
-      }
+          newSegments.add(sMap);
+       }
+       optionLeg['segments'] = newSegments;
     }
 
     // Process First Mile
     for (var leg in data['firstMile']) {
-      attachPath(leg, null);
+       String id = leg['id'];
+       if (id == 'cycle') {
+          attachFromJourney(leg, "Cycle to Station", [0]);
+       } else if (id == 'bus') {
+          attachFromJourney(leg, "Bus to Station", [0]);
+       } else if (id == 'drive_park') {
+          attachFromJourney(leg, "Drive to Station", [0]);
+       } else if (id == 'uber') {
+           // Reuse Drive to Station leg 0 as approximation for Uber to Station
+           attachFromJourney(leg, "Drive to Station", [0]);
+       } else if (id == 'train_walk_headingley') {
+          attachFromJourney(leg, "Walk/Train + Train + Cycle", [0, 1]);
+       } else if (id == 'train_uber_headingley') {
+          attachFromJourney(leg, "Uber/Train + Train + Walk/Bus", [0, 1]);
+       }
     }
 
     // Process Main Leg
-    attachPath(data['mainLeg'], routesMap['train_main']);
+    // "Cycle to Station + Train + Bus" has Main Leg at index 1
+    attachFromJourney(data['mainLeg'], "Cycle to Station", [1]);
 
     // Process Last Mile
     for (var leg in data['lastMile']) {
-        String? routeId;
-        String id = leg['id'];
-        if (id == 'uber') {
-          routeId = routesMap['last_uber'];
-        } else if (id == 'bus') {
-          routeId = routesMap['last_bus'];
-        } else if (id == 'cycle') {
-          routeId = routesMap['last_cycle'];
-        }
-
-        attachPath(leg, routeId);
+       String id = leg['id'];
+       if (id == 'uber') {
+          // "Drive to Station + Train + Uber" -> Leg 2 is Uber
+          attachFromJourney(leg, "Drive to Station", [2]);
+       } else if (id == 'bus') {
+          // "Cycle to Station + Train + Bus" -> Leg 2 is Bus
+          attachFromJourney(leg, "Cycle to Station", [2]);
+       } else if (id == 'cycle') {
+          // "Walk/Train + Train + Cycle" -> Leg 3 is Cycle
+          attachFromJourney(leg, "Walk/Train", [3]);
+       }
     }
 
     return SegmentOptions.fromJson(data);
