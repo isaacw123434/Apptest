@@ -127,7 +127,7 @@ class _DetailPageState extends State<DetailPage> {
         bool isMainLeg = _initData != null && _initData!.segmentOptions.mainLeg.segments.contains(seg);
         if (isMainLeg) {
            bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
-           if (isWalk && seg.time <= 1) {
+           if (isWalk && seg.time <= 2) {
              continue; // Skip
            }
         }
@@ -585,7 +585,7 @@ class _DetailPageState extends State<DetailPage> {
         bool isMainLeg = _initData != null && leg == _initData!.segmentOptions.mainLeg;
         if (isMainLeg) {
            bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
-           if (isWalk && seg.time <= 1) {
+           if (isWalk && seg.time <= 2) {
              currentMinutes += seg.time;
              continue;
            }
