@@ -921,6 +921,7 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   void _zoomToFit() {
+    if (!mounted) return;
     if (_mapController == null || _polylines.isEmpty) return;
 
     List<LatLng> allPoints = [];
@@ -947,6 +948,18 @@ class _DetailPageState extends State<DetailPage> {
       LatLng(maxLat, maxLng),
     );
 
-    _mapController!.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)));
+    // Calculate padding to account for bottom sheet (35% of screen height)
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomPadding = screenHeight * 0.35;
+
+    _mapController!.fitCamera(CameraFit.bounds(
+      bounds: bounds,
+      padding: EdgeInsets.only(
+        top: 50,
+        left: 50,
+        right: 50,
+        bottom: bottomPadding + 50,
+      ),
+    ));
   }
 }
