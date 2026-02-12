@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:client/models.dart';
 import 'package:client/screens/detail_page.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 
 void main() {
   testWidgets('EditLegModal merges Headingley options and handles interaction', (WidgetTester tester) async {
