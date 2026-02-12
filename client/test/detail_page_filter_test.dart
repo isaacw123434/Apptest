@@ -149,5 +149,8 @@ void main() {
 
     // Expect 2 min walk to be hidden
     expect(find.text('Walk 2 mins'), findsNothing);
+
+    // Pump to allow any lingering timers (e.g. map debouncers) to complete
+    await tester.pump(const Duration(seconds: 1));
   });
 }
