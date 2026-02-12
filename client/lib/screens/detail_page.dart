@@ -27,6 +27,9 @@ class _DetailPageState extends State<DetailPage> {
   List<Marker> _markers = [];
   JourneyResult? _currentResult;
   bool _isMapReady = false;
+  // Threshold to filter short walks (in minutes).
+  // If no preset time is available, use 2.5 minutes.
+  final double _walkThreshold = 2.5;
 
   @override
   void initState() {
@@ -127,7 +130,7 @@ class _DetailPageState extends State<DetailPage> {
         bool isMainLeg = _initData != null && _initData!.segmentOptions.mainLeg.segments.contains(seg);
         if (isMainLeg) {
            bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
-           if (isWalk && seg.time <= 2) {
+           if (isWalk && seg.time < _walkThreshold) {
              continue; // Skip
            }
         }
@@ -581,11 +584,11 @@ class _DetailPageState extends State<DetailPage> {
         final isFirst = i == 0;
         final isLast = i == segments.length - 1;
 
-        // Filter out short walks (under 1.5 mins) inside Main Leg
+        // Filter out short walks (under set time, or 2.5 mins default) inside Main Leg
         bool isMainLeg = _initData != null && leg == _initData!.segmentOptions.mainLeg;
         if (isMainLeg) {
            bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
-           if (isWalk && seg.time <= 2) {
+           if (isWalk && seg.time < _walkThreshold) {
              currentMinutes += seg.time;
              continue;
            }

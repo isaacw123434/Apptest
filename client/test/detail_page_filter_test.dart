@@ -25,6 +25,15 @@ class MockApiService extends ApiService {
       path: [],
     );
 
+    final walk3Min = Segment(
+      mode: 'walk',
+      label: 'Walk 3 mins',
+      lineColor: '#000000',
+      iconId: 'footprints',
+      time: 3,
+      path: [],
+    );
+
     final walk10Min = Segment(
       mode: 'walk',
       label: 'Walk 10 mins',
@@ -43,7 +52,7 @@ class MockApiService extends ApiService {
       riskScore: 0,
       iconId: 'train',
       lineColor: '#000000',
-      segments: [walk1Min, walk2Min, walk10Min],
+      segments: [walk1Min, walk2Min, walk3Min, walk10Min],
     );
 
     final firstMile = Leg(
@@ -143,6 +152,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Walk 10 mins'), findsOneWidget);
+
+    // Expect 3 min walk to be visible (3 >= 2.5)
+    expect(find.text('Walk 3 mins'), findsOneWidget);
 
     // Expect 1 min walk to be hidden
     expect(find.text('Walk 1 min'), findsNothing);
