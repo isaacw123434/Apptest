@@ -39,8 +39,11 @@ class HorizontalJigsawSchematic extends StatelessWidget {
           double paddingLeft = isFirst ? 6.0 : (overlap + 1.0);
           double paddingRight = isLast ? 6.0 : 2.0;
 
+          IconData? iconData = _getIconData(seg.iconId);
+          bool hasIcon = iconData != null;
+
           // Icon (16) + Spacing (2)
-          double contentBase = 16.0 + 2.0;
+          double contentBase = hasIcon ? (16.0 + 2.0) : 0.0;
 
           String displayText = seg.label;
           bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
@@ -48,7 +51,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
           if (isWalk) {
              if (hasShownWalkLabel) {
                  displayText = ''; // Hide label
-                 contentBase = 16.0; // Just icon
+                 contentBase = hasIcon ? 16.0 : 0.0; // Just icon
              } else {
                  hasShownWalkLabel = true;
              }
@@ -134,6 +137,8 @@ class HorizontalJigsawSchematic extends StatelessWidget {
                }
             }
 
+            IconData? iconData = _getIconData(seg.iconId);
+
             return SizedBox(
               width: width,
               child: HorizontalJigsawSegment(
@@ -145,9 +150,10 @@ class HorizontalJigsawSchematic extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(_getIconData(seg.iconId), color: textColor, size: 16),
+                    if (iconData != null)
+                      Icon(iconData, color: textColor, size: 16),
                     if (displayText.isNotEmpty) ...[
-                        const SizedBox(width: 2),
+                        if (iconData != null) const SizedBox(width: 2),
                         Flexible(
                           child: Text(
                             displayText,
@@ -179,7 +185,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
     );
   }
 
-  IconData _getIconData(String iconId) {
+  IconData? _getIconData(String iconId) {
     switch (iconId) {
       case 'train':
         return LucideIcons.train;
@@ -192,7 +198,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
       case 'footprints':
         return LucideIcons.footprints;
       default:
-        return LucideIcons.circle;
+        return null;
     }
   }
 }

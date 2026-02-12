@@ -888,14 +888,125 @@ class _SummaryPageState extends State<SummaryPage> {
     // Leg 3
     allSegments.addAll(result.leg3.segments);
 
+    final processedSegments = _processSegments(allSegments);
+
     double totalTime = result.time.toDouble();
     // Safety check for totalTime
     if (totalTime == 0) totalTime = 1;
 
     return HorizontalJigsawSchematic(
-      segments: allSegments,
+      segments: processedSegments,
       totalTime: totalTime,
     );
+  }
+
+  List<Segment> _processSegments(List<Segment> rawSegments) {
+    List<Segment> processed = [];
+
+    // 1. Filter out short walks (<= 2 mins)
+    for (var seg in rawSegments) {
+      bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
+      if (isWalk && seg.time <= 2) {
+        continue;
+      }
+      processed.add(seg);
+    }
+
+    // 2. Merge Walk - Transfer - Walk
+    List<Segment> mergedWalks = [];
+    int i = 0;
+    while (i < processed.length) {
+      final seg = processed[i];
+      bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
+
+      if (isWalk && i + 2 < processed.length) {
+        final next = processed[i + 1];
+        final nextNext = processed[i + 2];
+        bool isNextWait = next.mode.toLowerCase() == 'wait' || next.label.toLowerCase() == 'transfer';
+        bool isNextNextWalk = nextNext.mode.toLowerCase() == 'walk' || nextNext.iconId == 'footprints';
+
+        if (isNextWait && isNextNextWalk) {
+          // Merge
+          mergedWalks.add(Segment(
+            mode: 'walk',
+            label: 'Walk',
+            lineColor: seg.lineColor,
+            iconId: seg.iconId,
+            time: seg.time + next.time + nextNext.time,
+            to: nextNext.to,
+            detail: seg.detail,
+          ));
+          i += 3;
+          continue;
+        }
+      }
+      mergedWalks.add(seg);
+      i++;
+    }
+    processed = mergedWalks;
+
+    // 3. Merge Consecutive Trains
+    List<Segment> mergedTrains = [];
+    i = 0;
+    while (i < processed.length) {
+      final seg = processed[i];
+      bool isTrain = seg.iconId == 'train';
+
+      if (isTrain && i + 1 < processed.length) {
+         final next = processed[i + 1];
+         if (next.iconId == 'train') {
+           // Merge
+           String label1 = seg.label.replaceAll('E M R', 'EMR');
+           String label2 = next.label.replaceAll('E M R', 'EMR');
+
+           mergedTrains.add(Segment(
+             mode: 'train',
+             label: '$label1 + $label2',
+             lineColor: seg.lineColor,
+             iconId: 'train',
+             time: seg.time + next.time,
+             to: next.to,
+             detail: seg.detail,
+           ));
+           i += 2;
+           continue;
+         }
+      }
+      mergedTrains.add(seg);
+      i++;
+    }
+    processed = mergedTrains;
+
+    // 4. Final pass: Fix EMR labels (if not merged) and Hide Icon for Short Walks (<= 4 min)
+    List<Segment> finalPass = [];
+    for (var seg in processed) {
+      String label = seg.label.replaceAll('E M R', 'EMR');
+      String iconId = seg.iconId;
+      bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
+
+      if (isWalk && seg.time <= 4) {
+        iconId = ''; // Hide icon
+      }
+
+      if (label != seg.label || iconId != seg.iconId) {
+        finalPass.add(Segment(
+          mode: seg.mode,
+          label: label,
+          lineColor: seg.lineColor,
+          iconId: iconId,
+          time: seg.time,
+          to: seg.to,
+          detail: seg.detail,
+          path: seg.path,
+          co2: seg.co2,
+          distance: seg.distance,
+        ));
+      } else {
+        finalPass.add(seg);
+      }
+    }
+
+    return finalPass;
   }
 
   Widget _buildTimelineText(JourneyResult result) {
