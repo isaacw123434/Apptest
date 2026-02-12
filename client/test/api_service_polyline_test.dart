@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:client/services/api_service.dart';
-import 'package:client/models.dart';
 
 void main() {
   test('fetchInitData populates segments with correct paths and colors from new data', () async {
