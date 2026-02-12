@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:client/services/api_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test('fetchInitData returns InitData with paths', () async {
     final apiService = ApiService();
     final initData = await apiService.fetchInitData();

@@ -1,12 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
-class IconIds {
-  static const String train = 'train';
-  static const String car = 'car';
-  static const String bus = 'bus';
-  static const String bike = 'bike';
-  static const String footprints = 'footprints';
-}
+import '../models.dart';
 
 final List<Map<String, dynamic>> rawRoutesData = [
   {

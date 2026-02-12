@@ -1,5 +1,14 @@
 import 'package:latlong2/latlong.dart';
 
+// ignore_for_file: constant_identifier_names
+class IconIds {
+  static const String train = 'train';
+  static const String car = 'car';
+  static const String bus = 'bus';
+  static const String bike = 'bike';
+  static const String footprints = 'footprints';
+}
+
 class Segment {
   final String mode;
   final String label;

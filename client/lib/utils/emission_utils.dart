@@ -1,4 +1,4 @@
-import '../services/mock_data.dart';
+import '../models.dart';
 
 double getEmissionFactor(String iconId) {
   if (iconId == IconIds.train) return 0.06;
