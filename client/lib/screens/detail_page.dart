@@ -522,6 +522,16 @@ class _DetailPageState extends State<DetailPage> {
         final isFirst = i == 0;
         final isLast = i == segments.length - 1;
 
+        // Filter out short walks (<= 2 mins) inside Main Leg
+        bool isMainLeg = _initData != null && leg == _initData!.segmentOptions.mainLeg;
+        if (isMainLeg) {
+           bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
+           if (isWalk && seg.time <= 2) {
+             currentMinutes += seg.time;
+             continue;
+           }
+        }
+
         Color lineColor = _parseColor(seg.lineColor);
 
         // Calculate Distance
