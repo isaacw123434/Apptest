@@ -321,6 +321,9 @@ class _DetailPageState extends State<DetailPage> {
               interactionOptions: const InteractionOptions(
                 flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
               ),
+              onMapReady: () {
+                _zoomToFit();
+              },
             ),
             children: [
               TileLayer(
