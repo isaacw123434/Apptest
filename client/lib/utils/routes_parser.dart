@@ -87,7 +87,19 @@ Leg _parseOptionToLeg(Map<String, dynamic> option) {
   int totalDurationSeconds = 0;
 
   for (var jsonLeg in jsonLegs) {
-    segments.add(_parseSegment(jsonLeg));
+    Segment newSeg = _parseSegment(jsonLeg);
+
+    if (segments.isNotEmpty) {
+      Segment lastSeg = segments.last;
+      if (_shouldMerge(lastSeg, newSeg)) {
+        segments.last = _mergeSegments(lastSeg, newSeg);
+        totalDistMeters += (jsonLeg['distance_value'] as num).toDouble();
+        totalDurationSeconds += (jsonLeg['duration_value'] as num).toInt();
+        continue;
+      }
+    }
+
+    segments.add(newSeg);
     totalDistMeters += (jsonLeg['distance_value'] as num).toDouble();
     totalDurationSeconds += (jsonLeg['duration_value'] as num).toInt();
   }
@@ -119,6 +131,40 @@ Leg _parseOptionToLeg(Map<String, dynamic> option) {
     segments: segments,
     co2: double.parse(totalCo2.toStringAsFixed(2)),
     detail: _generateDetail(segments),
+  );
+}
+
+bool _shouldMerge(Segment a, Segment b) {
+  // Always merge consecutive segments of the same mode/label for walking/cycling/driving
+  if (a.mode == b.mode && a.label == b.label) {
+    // Optionally exclude 'bus'/'train' if we want to show stops,
+    // but usually consecutive transit legs mean "stay on vehicle" if label is same.
+    return true;
+  }
+  return false;
+}
+
+Segment _mergeSegments(Segment a, Segment b) {
+  // Concatenate paths
+  List<LatLng> newPath = [];
+  if (a.path != null) newPath.addAll(a.path!);
+  if (b.path != null) newPath.addAll(b.path!);
+
+  // Sum metrics
+  int newTime = a.time + b.time;
+  double newDist = (a.distance ?? 0) + (b.distance ?? 0);
+  double newCo2 = (a.co2 ?? 0) + (b.co2 ?? 0);
+
+  return Segment(
+    mode: a.mode,
+    label: a.label,
+    lineColor: a.lineColor,
+    iconId: a.iconId,
+    time: newTime,
+    path: newPath,
+    distance: newDist,
+    co2: newCo2,
+    detail: a.detail, // Keep original detail or update?
   );
 }
 
