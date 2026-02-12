@@ -65,9 +65,7 @@ InitData parseRoutesJson(String jsonString) {
   // Fallback if missing
   mainLeg ??= Leg(id: 'main_placeholder', label: 'Main', segments: [], time: 0, cost: 0, distance: 0, riskScore: 0, iconId: IconIds.train, lineColor: '#000000');
 
-  if (directDrive == null) {
-      directDrive = DirectDrive(time: 0, cost: 0, distance: 0);
-  }
+  directDrive ??= DirectDrive(time: 0, cost: 0, distance: 0);
 
   return InitData(
     segmentOptions: SegmentOptions(
@@ -101,8 +99,9 @@ Leg _parseOptionToLeg(Map<String, dynamic> option) {
   // Calculate total CO2 based on segments
   double totalCo2 = 0;
   for (var seg in segments) {
-      if (seg.co2 != null) totalCo2 += seg.co2!;
-      else {
+      if (seg.co2 != null) {
+        totalCo2 += seg.co2!;
+      } else {
           // Estimate
           totalCo2 += calculateEmission(seg.distance ?? 0, seg.iconId);
       }
