@@ -981,14 +981,17 @@ class _EditLegModalState extends State<EditLegModal> {
   String _sortOption = 'Best Value';
   Leg? _walkLeg;
   Leg? _uberLeg;
+  Leg? _cycleLeg;
 
   List<Leg> _getSortedOptions() {
     List<Leg> displayOptions = [];
     _walkLeg = null;
     _uberLeg = null;
+    _cycleLeg = null;
 
     bool hasWalk = false;
     bool hasUber = false;
+    bool hasCycle = false;
 
     for (var option in widget.options) {
       if (option.id == 'train_walk_headingley') {
@@ -997,32 +1000,37 @@ class _EditLegModalState extends State<EditLegModal> {
       } else if (option.id == 'train_uber_headingley') {
         _uberLeg = option;
         hasUber = true;
+      } else if (option.id == 'train_cycle_headingley') {
+        _cycleLeg = option;
+        hasCycle = true;
       } else {
         displayOptions.add(option);
       }
     }
 
-    if (hasWalk && hasUber) {
+    if ((hasWalk || hasUber || hasCycle) && (hasWalk ? 1 : 0) + (hasUber ? 1 : 0) + (hasCycle ? 1 : 0) >= 2) {
+       final base = _walkLeg ?? _cycleLeg ?? _uberLeg!;
        displayOptions.add(Leg(
          id: 'headingley_merged',
          label: 'To Headingley Station',
-         detail: 'Walk or Uber',
-         time: _walkLeg!.time,
-         cost: _walkLeg!.cost,
-         distance: _walkLeg!.distance,
-         riskScore: _walkLeg!.riskScore,
+         detail: 'Walk, Cycle or Uber',
+         time: base.time,
+         cost: base.cost,
+         distance: base.distance,
+         riskScore: base.riskScore,
          iconId: 'train',
-         lineColor: _walkLeg!.lineColor,
-         segments: _walkLeg!.segments,
-         co2: _walkLeg!.co2,
-         desc: _walkLeg!.desc,
-         waitTime: _walkLeg!.waitTime,
-         nextBusIn: _walkLeg!.nextBusIn,
-         recommended: _walkLeg!.recommended,
-         platform: _walkLeg!.platform,
+         lineColor: base.lineColor,
+         segments: base.segments,
+         co2: base.co2,
+         desc: base.desc,
+         waitTime: base.waitTime,
+         nextBusIn: base.nextBusIn,
+         recommended: base.recommended,
+         platform: base.platform,
        ));
     } else {
        if (hasWalk) displayOptions.add(_walkLeg!);
+       if (hasCycle) displayOptions.add(_cycleLeg!);
        if (hasUber) displayOptions.add(_uberLeg!);
     }
 
@@ -1061,24 +1069,36 @@ class _EditLegModalState extends State<EditLegModal> {
                   content: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                          ListTile(
-                              leading: const Icon(LucideIcons.footprints),
-                              title: const Text('Walk'),
-                              subtitle: Text('${_walkLeg?.time} min • £${_walkLeg?.cost.toStringAsFixed(2)}'),
-                              onTap: () {
-                                  Navigator.pop(ctx);
-                                  widget.onSelect(_walkLeg!);
-                              },
-                          ),
-                          ListTile(
-                              leading: const Icon(LucideIcons.car),
-                              title: const Text('Uber'),
-                              subtitle: Text('${_uberLeg?.time} min • £${_uberLeg?.cost.toStringAsFixed(2)}'),
-                              onTap: () {
-                                  Navigator.pop(ctx);
-                                  widget.onSelect(_uberLeg!);
-                              },
-                          ),
+                          if (_walkLeg != null)
+                            ListTile(
+                                leading: const Icon(LucideIcons.footprints),
+                                title: const Text('Walk'),
+                                subtitle: Text('${_walkLeg?.time} min • £${_walkLeg?.cost.toStringAsFixed(2)}'),
+                                onTap: () {
+                                    Navigator.pop(ctx);
+                                    widget.onSelect(_walkLeg!);
+                                },
+                            ),
+                          if (_cycleLeg != null)
+                            ListTile(
+                                leading: const Icon(LucideIcons.bike),
+                                title: const Text('Cycle'),
+                                subtitle: Text('${_cycleLeg?.time} min • £${_cycleLeg?.cost.toStringAsFixed(2)}'),
+                                onTap: () {
+                                    Navigator.pop(ctx);
+                                    widget.onSelect(_cycleLeg!);
+                                },
+                            ),
+                          if (_uberLeg != null)
+                            ListTile(
+                                leading: const Icon(LucideIcons.car),
+                                title: const Text('Uber'),
+                                subtitle: Text('${_uberLeg?.time} min • £${_uberLeg?.cost.toStringAsFixed(2)}'),
+                                onTap: () {
+                                    Navigator.pop(ctx);
+                                    widget.onSelect(_uberLeg!);
+                                },
+                            ),
                       ],
                   ),
               ),
@@ -1143,7 +1163,7 @@ class _EditLegModalState extends State<EditLegModal> {
                     final option = sortedOptions[index];
                     bool isSelected = false;
                     if (option.id == 'headingley_merged') {
-                         isSelected = widget.currentLeg.id == 'train_walk_headingley' || widget.currentLeg.id == 'train_uber_headingley';
+                         isSelected = widget.currentLeg.id == 'train_walk_headingley' || widget.currentLeg.id == 'train_uber_headingley' || widget.currentLeg.id == 'train_cycle_headingley';
                     } else {
                          isSelected = option.id == widget.currentLeg.id;
                     }

@@ -1136,6 +1136,194 @@
           ]
         },
         {
+          "name": "Cycle + Train",
+          "legs": [
+            {
+              "mode": "bicycling",
+              "distance_text": "35 m",
+              "distance_value": 35,
+              "duration_text": "1 min",
+              "duration_value": 8,
+              "polyline": "srogItltH[A[?",
+              "start_location": {
+                "lat": 53.8245821,
+                "lng": -1.5842678
+              },
+              "end_location": {
+                "lat": 53.82485639999999,
+                "lng": -1.584256
+              }
+            },
+            {
+              "mode": "bicycling",
+              "distance_text": "0.4 km",
+              "distance_value": 369,
+              "duration_text": "6 mins",
+              "duration_value": 113,
+              "polyline": "ktogIrltHDz@Fn@Lp@FX@^Pp@HVJVRp@b@t@PTPNBBPJ@@@@NHF@JBTFJ?V@F?B?b@?VAJ?|@APCZAH@",
+              "start_location": {
+                "lat": 53.82485639999999,
+                "lng": -1.584256
+              },
+              "end_location": {
+                "lat": 53.8224016,
+                "lng": -1.5867301
+              }
+            },
+            {
+              "mode": "bicycling",
+              "distance_text": "82 m",
+              "distance_value": 82,
+              "duration_text": "1 min",
+              "duration_value": 25,
+              "polyline": "_eogI`|tH@`A?PDd@F`BETEH",
+              "start_location": {
+                "lat": 53.8224016,
+                "lng": -1.5867301
+              },
+              "end_location": {
+                "lat": 53.8223786,
+                "lng": -1.5879916
+              }
+            },
+            {
+              "mode": "bicycling",
+              "distance_text": "0.2 km",
+              "distance_value": 184,
+              "duration_text": "2 mins",
+              "duration_value": 47,
+              "polyline": "{dogI|cuHNfABd@@z@?L@l@?@?JAhB?N?`@?L?L?V?T@H@@BLNTFJ",
+              "start_location": {
+                "lat": 53.8223786,
+                "lng": -1.5879916
+              },
+              "end_location": {
+                "lat": 53.8221114,
+                "lng": -1.5906557
+              }
+            },
+            {
+              "mode": "bicycling",
+              "distance_text": "0.2 km",
+              "distance_value": 217,
+              "duration_text": "3 mins",
+              "duration_value": 51,
+              "polyline": "ecogIrtuHGJENOXAP?J?J@LBRJf@b@fBDNBFLb@Z`APt@D\\JjA@T",
+              "start_location": {
+                "lat": 53.8221114,
+                "lng": -1.5906557
+              },
+              "end_location": {
+                "lat": 53.8215474,
+                "lng": -1.5935666
+              }
+            },
+            {
+              "mode": "bicycling",
+              "distance_text": "0.2 km",
+              "distance_value": 199,
+              "duration_text": "2 mins",
+              "duration_value": 48,
+              "polyline": "u_ogIxfvHlAQJ@RAH?\\AF?J@f@@Z@PBH@D@LBJBH@D@NDB?HN",
+              "start_location": {
+                "lat": 53.8215474,
+                "lng": -1.5935666
+              },
+              "end_location": {
+                "lat": 53.81983469999999,
+                "lng": -1.5937071
+              }
+            },
+            {
+              "mode": "bicycling",
+              "distance_text": "17 m",
+              "distance_value": 17,
+              "duration_text": "1 min",
+              "duration_value": 5,
+              "polyline": "}tngItgvHIL",
+              "start_location": {
+                "lat": 53.81983469999999,
+                "lng": -1.5937071
+              },
+              "end_location": {
+                "lat": 53.8198783,
+                "lng": -1.5937826
+              }
+            },
+            {
+              "mode": "bicycling",
+              "distance_text": "0.2 km",
+              "distance_value": 216,
+              "duration_text": "3 mins",
+              "duration_value": 52,
+              "polyline": "gungIbhvH\\PDBDBTJDBZND@@@ZAb@CD@\\HB@^BB?@?\\DB?J@j@R?X?TFF@@",
+              "start_location": {
+                "lat": 53.8198783,
+                "lng": -1.5937826
+              },
+              "end_location": {
+                "lat": 53.8181362,
+                "lng": -1.5945813
+              }
+            },
+            {
+              "mode": "bicycling",
+              "distance_text": "29 m",
+              "distance_value": 29,
+              "duration_text": "1 min",
+              "duration_value": 0,
+              "polyline": "whngIflvHq@T",
+              "start_location": {
+                "lat": 53.8178772,
+                "lng": -1.5944367
+              },
+              "end_location": {
+                "lat": 53.81812979999999,
+                "lng": -1.5945544
+              }
+            },
+            {
+              "mode": "transit",
+              "distance_text": "5.0 km",
+              "distance_value": 5025,
+              "duration_text": "11 mins",
+              "duration_value": 660,
+              "polyline": "mingItjvHB@ToBBST}A@IX_CVgBHk@Jq@N_ABSTuA@EVuA@OHi@@GHo@Lw@BQFSRaAFWPu@BIViAFSNk@TaAXeAb@}AZkABMRu@T}@ZoATy@Rs@Po@R{@V{@J]V}@ZoAT}@`@yA\\sA\\mA^uA^oA\\aAL]Xo@`@cAVm@NYZi@NWXe@JO|@oAV]@?Z_@\\_@~AuAJIt@i@ZSfAo@BAn@W~Ae@XGfAUDA~@IRCNAp@Cx@@f@?^Bn@FdAR|Ab@THHBxAh@~Ah@ZJDBb@NXJdA^\\LB@JD`@Nb@N`@NFBXJTHh@LD@b@JTDLBb@DJ@VBP@P?b@@T@\\@DAN?b@Ad@Gh@GdAUlA_@hAe@nAo@bAu@n@e@dAeA~AkBv@gA\\o@HMN[FMjAeDV_ARq@Ng@r@_CLa@f@cBJ[f@gBn@wBFQ|AiFf@cBp@{Bj@kBn@yBRo@hAwDTw@XaAj@yB`@sAbAgD^qAp@}B^kA@IPk@Lc@No@Lk@Lm@Ji@Jg@Ja@Hg@F_@Fc@D[BY?EBWBW?E@U@W@Y@[?S?I?]?UA_@Cq@Ce@AAEi@Io@Kq@Kg@Mi@IYUq@Uq@c@qAEO[y@_@kAWw@Sq@I[Ka@G_@Oy@[sB]wBYiBe@uCEYg@iDg@iDmEmF",
+              "start_location": {
+                "lat": 53.817989,
+                "lng": -1.594191
+              },
+              "end_location": {
+                "lat": 53.79563899999999,
+                "lng": -1.54803
+              },
+              "transit_details": {
+                "line_name": "northern",
+                "vehicle_type": "HEAVY_RAIL",
+                "color": "#262262",
+                "text_color": "#ffffff",
+                "agency": "Northern"
+              }
+            },
+            {
+              "mode": "walking",
+              "distance_text": "0.1 km",
+              "distance_value": 127,
+              "duration_text": "1 min",
+              "duration_value": 62,
+              "polyline": "w}igIdjmHcAb@|CV",
+              "start_location": {
+                "lat": 53.79563899999999,
+                "lng": -1.54803
+              },
+              "end_location": {
+                "lat": 53.7951864,
+                "lng": -1.5483254
+              }
+            }
+          ]
+        },
+        {
           "name": "Uber + Train",
           "legs": [
             {

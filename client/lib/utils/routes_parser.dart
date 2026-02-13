@@ -178,6 +178,9 @@ Map<String, dynamic> _calculateRisk(String groupName, String optionName) {
     if (lowerOption.contains('walk') && lowerOption.contains('train')) {
       return {'score': 2, 'reason': 'Timing risk (+1) + Connection risk (+1)'};
     }
+    if (lowerOption.contains('cycle') && lowerOption.contains('train')) {
+      return {'score': 1, 'reason': 'Weather dependent, connection risk'};
+    }
     if (lowerOption.contains('uber') && lowerOption.contains('train')) {
       return {'score': 1, 'reason': 'Connection risk'};
     }
@@ -326,6 +329,7 @@ String _generateId(String name) {
     String lower = name.toLowerCase();
     if (lower.contains('train')) {
         if (lower.contains('walk')) return 'train_walk_headingley';
+        if (lower.contains('cycle')) return 'train_cycle_headingley';
         if (lower.contains('uber')) return 'train_uber_headingley';
         return 'train_main';
     }
@@ -345,6 +349,7 @@ String _mapIconId(String name, List<Segment> segments) {
         // If it's pure train, train. If walk+train, walk? No, icon for the leg usually represents the main mode.
         // Or specific logic.
         if (lower.contains('walk')) return IconIds.footprints; // Based on mock data
+        if (lower.contains('cycle')) return IconIds.bike;
         if (lower.contains('uber')) return IconIds.car;
         return IconIds.train;
     }

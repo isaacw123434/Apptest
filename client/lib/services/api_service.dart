@@ -83,6 +83,24 @@ class ApiService {
       });
     }).toList();
 
+    // Filter Bike Last Mile Restriction
+    combos = combos.where((combo) {
+      bool isLastMileBike = combo.leg3.id.contains('cycle');
+      if (isLastMileBike) {
+        String l1 = combo.leg1.id;
+        // Allowed:
+        // 1. 'cycle' (Cycle Start)
+        // 2. 'direct_drive' (Drive and Park - Group 1 Drive)
+        // 3. 'train_cycle_headingley' (Cycle + Train via Headingley)
+        bool isCycleStart = l1 == 'cycle';
+        bool isDrivePark = l1 == 'direct_drive' || l1 == 'drive_park';
+        bool isHeadingleyCycle = l1 == 'train_cycle_headingley';
+
+        return isCycleStart || isDrivePark || isHeadingleyCycle;
+      }
+      return true;
+    }).toList();
+
     // Sort based on Tab
     if (tab == 'fastest') {
       combos.sort((a, b) => a.time.compareTo(b.time));
