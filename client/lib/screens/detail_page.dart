@@ -704,16 +704,26 @@ class _DetailPageState extends State<DetailPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(
-            width: 16,
+            width: 24,
             child: Column(
               children: [
                 // Line above (if not start)
                 Expanded(
                   child: isStart
                       ? const SizedBox()
-                      : Container(
-                          width: 4,
-                          color: prevColor ?? Colors.grey[300],
+                      : Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                                width: 12,
+                                height: double.infinity,
+                                color: Colors.grey[200]),
+                            Container(
+                              width: 6,
+                              height: double.infinity,
+                              color: prevColor ?? Colors.grey[300],
+                            ),
+                          ],
                         ),
                 ),
 
@@ -732,15 +742,25 @@ class _DetailPageState extends State<DetailPage> {
                 Expanded(
                   child: isEnd
                       ? const SizedBox()
-                      : Container(
-                          width: 4,
-                          color: nextColor ?? Colors.grey[300],
+                      : Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                                width: 12,
+                                height: double.infinity,
+                                color: Colors.grey[200]),
+                            Container(
+                              width: 6,
+                              height: double.infinity,
+                              color: nextColor ?? Colors.grey[300],
+                            ),
+                          ],
                         ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 24),
+          const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -767,25 +787,32 @@ class _DetailPageState extends State<DetailPage> {
     final emission = segment.co2 ?? (displayDistance != null ? calculateEmission(displayDistance, segment.iconId) : 0.0);
     Color lineColor = _parseColor(segment.lineColor);
 
+    // FIX 1 & 2: The Grey Track & Thicker Line
+    Widget verticalLine = Stack(
+      alignment: Alignment.center,
+      children: [
+        // The Track (Background)
+        Container(
+          width: 12, // Wider than the color line
+          height: double.infinity,
+          color: Colors.grey[200], // Provides contrast for Neon Green
+        ),
+        // The Route Color (Foreground)
+        Container(
+          width: 6, // Thicker for visibility
+          height: double.infinity,
+          color: lineColor,
+        ),
+      ],
+    );
+
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Vertical Line
-          SizedBox(
-            width: 16,
-            child: Column(
-              children: [
-                Expanded(
-                  child: Container(
-                    width: 4,
-                    color: lineColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 24),
+          SizedBox(width: 24, child: verticalLine), // Fixed width container
+          const SizedBox(width: 16),
           // Content
           Expanded(
             child: GestureDetector(
@@ -806,7 +833,18 @@ class _DetailPageState extends State<DetailPage> {
               ),
               child: Row(
                 children: [
-                  Icon(_getIconData(segment.iconId), color: lineColor, size: 24),
+                  // FIX 3: The Icon Halo
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: lineColor.withValues(alpha: 0.15), // The "Halo"
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(_getIconData(segment.iconId),
+                        color: lineColor, // Keep icon solid
+                        size: 20),
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
