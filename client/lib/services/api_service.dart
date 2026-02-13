@@ -1,29 +1,40 @@
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import '../models.dart';
 import '../utils/emission_utils.dart';
 import '../utils/routes_parser.dart';
 
 class ApiService {
-  // Simulate network delay
-  static const Duration _delay = Duration(milliseconds: 500);
+  final http.Client _client;
+  static const String _apiUrl = 'https://endmilerouting.co.uk/assets/assets/routes.json';
 
-  Future<InitData> _loadRoutes() async {
+  ApiService({http.Client? client}) : _client = client ?? http.Client();
+
+  Future<InitData> _loadRoutesFromAssets() async {
     final jsonString = await rootBundle.loadString('assets/routes.json');
     return parseRoutesJson(jsonString);
   }
 
   Future<InitData> fetchInitData() async {
-    await Future.delayed(_delay);
-    return _loadRoutes();
+    try {
+      final response = await _client.get(Uri.parse(_apiUrl));
+      if (response.statusCode == 200) {
+        return parseRoutesJson(response.body);
+      } else {
+        print('API request failed with status: ${response.statusCode}. Falling back to assets.');
+      }
+    } catch (e) {
+      print('API request failed: $e. Falling back to assets.');
+    }
+
+    return _loadRoutesFromAssets();
   }
 
   Future<List<JourneyResult>> searchJourneys({
     required String tab,
     required Map<String, bool> selectedModes,
   }) async {
-    await Future.delayed(_delay);
-
-    final initData = await _loadRoutes();
+    final initData = await fetchInitData();
     final options = initData.segmentOptions;
     final directDrive = initData.directDrive;
 
