@@ -726,29 +726,11 @@ class _SummaryPageState extends State<SummaryPage> {
                                             ),
                                             child: Column(
                                               children: [
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                  children: [
-                                                    const Text('First Mile', style: TextStyle(color: Color(0xFF64748B))),
-                                                    Text(result.leg1.riskScore.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
-                                                  ],
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                  children: [
-                                                    const Text('Main Leg', style: TextStyle(color: Color(0xFF64748B))),
-                                                    Text((result.risk - result.leg1.riskScore - result.leg3.riskScore).toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
-                                                  ],
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                  children: [
-                                                    const Text('Last Mile', style: TextStyle(color: Color(0xFF64748B))),
-                                                    Text(result.leg3.riskScore.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
-                                                  ],
-                                                ),
+                                                _buildRiskRow('First Mile', result.leg1),
+                                                const SizedBox(height: 12),
+                                                _buildRiskRow('Main Leg', _mainLeg, scoreOverride: result.risk - result.leg1.riskScore - result.leg3.riskScore),
+                                                const SizedBox(height: 12),
+                                                _buildRiskRow('Last Mile', result.leg3),
                                                 const Divider(height: 16),
                                                 Row(
                                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1033,5 +1015,35 @@ class _SummaryPageState extends State<SummaryPage> {
 
   String _formatTime(TimeOfDay time) {
     return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+
+  Widget _buildRiskRow(String title, Leg? leg, {int? scoreOverride}) {
+    final score = scoreOverride ?? leg?.riskScore ?? 0;
+    final reason = leg?.riskReason;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(title, style: const TextStyle(color: Color(0xFF64748B))),
+            Text(score.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        if (reason != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              reason,
+              style: const TextStyle(
+                fontSize: 11,
+                color: Color(0xFF64748B), // Slate 500
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+      ],
+    );
   }
 }
