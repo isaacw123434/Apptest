@@ -15,11 +15,12 @@ class MockClient extends http.BaseClient {
          throw UnimplementedError('Only http.Request supported');
     }
     final response = await _handler(request);
+    final bytes = utf8.encode(response.body);
     return http.StreamedResponse(
-        Stream.value(utf8.encode(response.body)), response.statusCode,
+        Stream.value(bytes), response.statusCode,
         headers: response.headers,
         request: request,
-        contentLength: response.body.length,
+        contentLength: bytes.length,
     );
   }
 }
@@ -115,7 +116,7 @@ void main() {
       final data = await apiService.fetchInitData();
 
       expect(data, isA<InitData>());
-      // Real assets/routes.json has data, so firstMile should not be empty
+      // Real assets/routes.json has data, so firstMile should be empty
       expect(data.segmentOptions.firstMile, isNotEmpty);
     });
   });

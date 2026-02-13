@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import '../models.dart';
@@ -21,10 +22,10 @@ class ApiService {
       if (response.statusCode == 200) {
         return parseRoutesJson(response.body);
       } else {
-        print('API request failed with status: ${response.statusCode}. Falling back to assets.');
+        debugPrint('API request failed with status: ${response.statusCode}. Falling back to assets.');
       }
     } catch (e) {
-      print('API request failed: $e. Falling back to assets.');
+      debugPrint('API request failed: $e. Falling back to assets.');
     }
 
     return _loadRoutesFromAssets();
