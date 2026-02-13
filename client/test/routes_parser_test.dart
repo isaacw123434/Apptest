@@ -88,4 +88,42 @@ void main() {
     expect(walkTrainLeg.cost, 3.40);
 
   });
+
+  test('Parses routes_2.json and generates Walk option for last mile', () async {
+    var file = File('assets/routes_2.json');
+    if (!await file.exists()) {
+       file = File('client/assets/routes_2.json');
+    }
+    if (!await file.exists()) {
+        fail('Could not find routes_2.json');
+    }
+
+    final jsonString = await file.readAsString();
+    final initData = parseRoutesJson(jsonString);
+
+    expect(initData, isNotNull);
+
+    // Check if Walk option exists in lastMile
+    bool hasWalk = initData.segmentOptions.lastMile.any((leg) => leg.label == 'Walk' || leg.id.contains('walk'));
+    expect(hasWalk, true, reason: 'Should have a Walk option in lastMile');
+
+    if (hasWalk) {
+        final walkOption = initData.segmentOptions.lastMile.firstWhere((leg) => leg.label == 'Walk' || leg.id.contains('walk'));
+
+        // Find Cycle option to compare
+        final cycleOption = initData.segmentOptions.lastMile.firstWhere((leg) => leg.label.contains('Cycle') || leg.id.contains('cycle'));
+
+        // Check polyline match (by checking distance roughly or segments count)
+        expect(walkOption.segments.length, cycleOption.segments.length);
+        expect(walkOption.distance, cycleOption.distance);
+
+        // Check time calculation.
+        // Cycle time in routes_2.json for Group 4 Cycle is approx 24 mins.
+        // Distance is approx 7231 meters.
+        // Walking time for 7231 meters at 1.4 m/s: 7231 / 1.4 = 5165 seconds = 86 mins.
+
+        expect(walkOption.time, greaterThan(cycleOption.time));
+        expect(walkOption.time, closeTo(86, 5)); // Allow some margin
+    }
+  });
 }
