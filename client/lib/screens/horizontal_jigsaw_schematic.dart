@@ -33,7 +33,6 @@ class HorizontalJigsawSchematic extends StatelessWidget {
         for (int i = 0; i < segments.length; i++) {
           final seg = segments[i];
           bool isFirst = i == 0;
-          bool isLast = i == segments.length - 1;
 
           double paddingLeft = isFirst ? 6.0 : (overlap + 1.0) * 0.75;
           double paddingRight = 6.0;
