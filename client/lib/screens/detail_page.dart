@@ -838,7 +838,7 @@ class _DetailPageState extends State<DetailPage> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: lineColor.withOpacity(0.15), // The "Halo"
+                      color: lineColor.withValues(alpha: 0.15), // The "Halo"
                       shape: BoxShape.circle,
                     ),
                     child: Icon(_getIconData(segment.iconId),
