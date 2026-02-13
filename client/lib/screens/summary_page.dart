@@ -59,6 +59,13 @@ class _SummaryPageState extends State<SummaryPage> {
   late String _displayTimeType;
   late String _displayTime;
 
+  String? get _routeId {
+    if (_displayFrom.contains('Beverley') || _displayTo.contains('Wellington Place')) {
+      return 'route2';
+    }
+    return null;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -87,7 +94,7 @@ class _SummaryPageState extends State<SummaryPage> {
 
   Future<void> _fetchInitData() async {
     try {
-      final initData = await _apiService.fetchInitData();
+      final initData = await _apiService.fetchInitData(routeId: _routeId);
       if (mounted) {
         setState(() {
           _directDrive = initData.directDrive;
@@ -118,6 +125,7 @@ class _SummaryPageState extends State<SummaryPage> {
       final results = await _apiService.searchJourneys(
         tab: _activeTab,
         selectedModes: _selectedModes,
+        routeId: _routeId,
       );
 
       _resultsCache[_activeTab] = results;
@@ -409,6 +417,7 @@ class _SummaryPageState extends State<SummaryPage> {
                           _isSearchExpanded = false;
                           _resultsCache.clear();
                         });
+                        _fetchInitData();
                         _fetchTabResults();
                       },
                       style: ElevatedButton.styleFrom(

@@ -7,23 +7,28 @@ class ApiService {
   // Simulate network delay
   static const Duration _delay = Duration(milliseconds: 500);
 
-  Future<InitData> _loadRoutes() async {
-    final jsonString = await rootBundle.loadString('assets/routes.json');
+  Future<InitData> _loadRoutes(String? routeId) async {
+    String assetPath = 'assets/routes.json';
+    if (routeId == 'route2') {
+      assetPath = 'assets/routes_2.json';
+    }
+    final jsonString = await rootBundle.loadString(assetPath);
     return parseRoutesJson(jsonString);
   }
 
-  Future<InitData> fetchInitData() async {
+  Future<InitData> fetchInitData({String? routeId}) async {
     await Future.delayed(_delay);
-    return _loadRoutes();
+    return _loadRoutes(routeId);
   }
 
   Future<List<JourneyResult>> searchJourneys({
     required String tab,
     required Map<String, bool> selectedModes,
+    String? routeId,
   }) async {
     await Future.delayed(_delay);
 
-    final initData = await _loadRoutes();
+    final initData = await _loadRoutes(routeId);
     final options = initData.segmentOptions;
     final directDrive = initData.directDrive;
 

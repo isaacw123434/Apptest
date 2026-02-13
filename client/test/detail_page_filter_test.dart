@@ -6,7 +6,7 @@ import 'package:client/services/api_service.dart';
 
 class MockApiService extends ApiService {
   @override
-  Future<InitData> fetchInitData() async {
+  Future<InitData> fetchInitData({String? routeId}) async {
     final walk1Min = Segment(
       mode: 'walk',
       label: 'Walk 1 min',
