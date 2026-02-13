@@ -20,15 +20,15 @@ InitData parseRoutesJson(String jsonString) {
 
     if (name.contains('Group 1') || name.contains('Group 2')) {
       for (var option in options) {
-        firstMile.add(_parseOptionToLeg(option));
+        firstMile.add(_parseOptionToLeg(option, groupName: name));
       }
     } else if (name.contains('Group 3')) {
       if (options.isNotEmpty) {
-        mainLeg = _parseOptionToLeg(options.first);
+        mainLeg = _parseOptionToLeg(options.first, groupName: name);
       }
     } else if (name.contains('Group 4')) {
       for (var option in options) {
-        lastMile.add(_parseOptionToLeg(option));
+        lastMile.add(_parseOptionToLeg(option, groupName: name));
       }
     } else if (name.contains('Group 5')) {
       // Direct Drive
@@ -78,7 +78,7 @@ InitData parseRoutesJson(String jsonString) {
   );
 }
 
-Leg _parseOptionToLeg(Map<String, dynamic> option) {
+Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = ''}) {
   String name = option['name'] ?? 'Unknown';
   List<dynamic> jsonLegs = option['legs'] ?? [];
 
@@ -138,6 +138,7 @@ Leg _parseOptionToLeg(Map<String, dynamic> option) {
 
   String id = _generateId(name);
   String iconId = _mapIconId(name, mergedSegments);
+  final risk = _calculateRisk(groupName, name);
 
   return Leg(
     id: id,
@@ -145,13 +146,69 @@ Leg _parseOptionToLeg(Map<String, dynamic> option) {
     time: finalTime,
     cost: _estimateCost(name, finalDistMiles, mergedSegments),
     distance: double.parse(finalDistMiles.toStringAsFixed(2)),
-    riskScore: 0,
+    riskScore: risk['score'],
+    riskReason: risk['reason'],
     iconId: iconId,
     lineColor: _mapLineColor(name, mergedSegments),
     segments: mergedSegments,
     co2: double.parse(totalCo2.toStringAsFixed(2)),
     detail: _generateDetail(mergedSegments),
   );
+}
+
+Map<String, dynamic> _calculateRisk(String groupName, String optionName) {
+  String lowerGroup = groupName.toLowerCase();
+  String lowerOption = optionName.toLowerCase();
+
+  // Group 1: Access to Leeds Station (First Mile)
+  if (lowerGroup.contains('group 1')) {
+    if (lowerOption.contains('cycle')) {
+      return {'score': 1, 'reason': 'Weather dependent, fitness required'};
+    }
+    if (lowerOption.contains('bus')) {
+      return {'score': 0, 'reason': 'Frequent, reliable'};
+    }
+    if (lowerOption.contains('uber') || lowerOption.contains('drive')) {
+      return {'score': 0, 'reason': 'Most reliable'};
+    }
+  }
+
+  // Group 2: Access via Headingley (First Mile)
+  if (lowerGroup.contains('group 2')) {
+    if (lowerOption.contains('walk') && lowerOption.contains('train')) {
+      return {'score': 2, 'reason': 'Timing risk (+1) + Connection risk (+1)'};
+    }
+    if (lowerOption.contains('uber') && lowerOption.contains('train')) {
+      return {'score': 1, 'reason': 'Connection risk'};
+    }
+  }
+
+  // Group 3: Core Journey (Main Leg)
+  if (lowerGroup.contains('group 3')) {
+    if (lowerOption.contains('train')) {
+      return {'score': 1, 'reason': 'Delay/timing risk'};
+    }
+  }
+
+  // Group 4: Final Mile
+  if (lowerGroup.contains('group 4')) {
+    if (lowerOption.contains('bus')) {
+      return {'score': 2, 'reason': 'Unfamiliar area, less frequent'};
+    }
+    if (lowerOption.contains('uber')) {
+      return {'score': 0, 'reason': 'Most reliable'};
+    }
+    if (lowerOption.contains('cycle')) {
+      return {'score': 1, 'reason': 'Weather dependent, fitness required'};
+    }
+  }
+
+  // Group 5: Direct Option (Direct Drive)
+  if (lowerGroup.contains('group 5')) {
+     return {'score': 0, 'reason': 'Most reliable'};
+  }
+
+  return {'score': 0, 'reason': 'Standard risk'};
 }
 
 bool _shouldMerge(Segment a, Segment b) {

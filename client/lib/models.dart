@@ -75,6 +75,7 @@ class Leg {
   final double cost;
   final double distance;
   final int riskScore;
+  final String? riskReason;
   final String iconId;
   final String? color;
   final String? bgColor;
@@ -95,6 +96,7 @@ class Leg {
     required this.cost,
     required this.distance,
     required this.riskScore,
+    this.riskReason,
     required this.iconId,
     this.color,
     this.bgColor,
@@ -122,6 +124,7 @@ class Leg {
       cost: (json['cost'] ?? 0).toDouble(),
       distance: (json['distance'] ?? 0).toDouble(),
       riskScore: json['riskScore'] ?? 0,
+      riskReason: json['riskReason'],
       iconId: json['iconId'] ?? '',
       color: json['color'],
       bgColor: json['bgColor'],
