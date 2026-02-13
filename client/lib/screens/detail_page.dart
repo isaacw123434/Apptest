@@ -719,7 +719,7 @@ class _DetailPageState extends State<DetailPage> {
                                 height: double.infinity,
                                 color: Colors.grey[200]),
                             Container(
-                              width: 6,
+                              width: 4,
                               height: double.infinity,
                               color: prevColor ?? Colors.grey[300],
                             ),
@@ -750,7 +750,7 @@ class _DetailPageState extends State<DetailPage> {
                                 height: double.infinity,
                                 color: Colors.grey[200]),
                             Container(
-                              width: 6,
+                              width: 4,
                               height: double.infinity,
                               color: nextColor ?? Colors.grey[300],
                             ),
@@ -799,7 +799,7 @@ class _DetailPageState extends State<DetailPage> {
         ),
         // The Route Color (Foreground)
         Container(
-          width: 6, // Thicker for visibility
+          width: 4, // Thicker for visibility
           height: double.infinity,
           color: lineColor,
         ),
