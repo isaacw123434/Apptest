@@ -68,7 +68,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
           if (seg.time >= 60) {
             durationText = '${seg.time ~/ 60}h ${seg.time % 60}m';
           } else {
-            durationText = '${seg.time} min';
+            durationText = isWalk ? '${seg.time}' : '${seg.time} min';
           }
 
           final durationPainter = TextPainter(
@@ -154,7 +154,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
             if (seg.time >= 60) {
               durationText = '${seg.time ~/ 60}h ${seg.time % 60}m';
             } else {
-              durationText = '${seg.time} min';
+              durationText = isWalk ? '${seg.time}' : '${seg.time} min';
             }
 
             return SizedBox(

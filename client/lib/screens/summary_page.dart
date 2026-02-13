@@ -672,7 +672,7 @@ class _SummaryPageState extends State<SummaryPage> {
                       const SizedBox(height: 16),
                       // Schematic
                       SizedBox(
-                        height: 60,
+                        height: 45,
                         child: _buildSchematic(result),
                       ),
                       const SizedBox(height: 16),
