@@ -36,7 +36,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
           bool isLast = i == segments.length - 1;
 
           double paddingLeft = isFirst ? 6.0 : (overlap + 1.0) * 0.75;
-          double paddingRight = isLast ? 6.0 : 2.0 * 0.75;
+          double paddingRight = 6.0;
 
           IconData? iconData = _getIconData(seg.iconId);
           bool hasIcon = iconData != null;
@@ -267,7 +267,7 @@ class HorizontalJigsawSegment extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.only(
           left: isFirst ? 6 : (overlap + 1.0) * 0.75,
-          right: isLast ? 6 : 2.0 * 0.75,
+          right: 6.0,
           top: 1,
           bottom: 1,
         ),
