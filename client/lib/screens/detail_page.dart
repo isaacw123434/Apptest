@@ -9,8 +9,14 @@ import '../utils/emission_utils.dart';
 class DetailPage extends StatefulWidget {
   final JourneyResult? journeyResult;
   final ApiService? apiService;
+  final String? routeId;
 
-  const DetailPage({super.key, this.journeyResult, this.apiService});
+  const DetailPage({
+    super.key,
+    this.journeyResult,
+    this.apiService,
+    this.routeId,
+  });
 
   @override
   State<DetailPage> createState() => _DetailPageState();
@@ -51,7 +57,7 @@ class _DetailPageState extends State<DetailPage> {
 
   Future<void> _fetchData() async {
     try {
-      final data = await _apiService.fetchInitData();
+      final data = await _apiService.fetchInitData(routeId: widget.routeId);
       if (mounted) {
         setState(() {
           _initData = data;

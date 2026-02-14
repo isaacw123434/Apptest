@@ -279,7 +279,19 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = ''}
 
       String? lineName = td['line_name'];
       if (td['line'] != null) {
-         lineName = td['line']['name'] ?? td['line']['short_name'];
+         // FIX: Prioritize short_name (Provider) over name (Route Direction)
+         lineName = td['line']['short_name'];
+
+         // Fallback to agency name if short_name is missing
+         if (lineName == null && td['line']['agencies'] != null) {
+            var agencies = td['line']['agencies'] as List;
+            if (agencies.isNotEmpty) {
+               lineName = agencies[0]['name'];
+            }
+         }
+
+         // Final fallback to the route name
+         lineName ??= td['line']['name'];
       }
 
       String? vehicleType = td['vehicle_type'];
