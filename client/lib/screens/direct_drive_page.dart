@@ -8,8 +8,17 @@ import '../utils/emission_utils.dart';
 
 class DirectDrivePage extends StatefulWidget {
   final ApiService? apiService;
+  final String? routeId;
+  final String? from;
+  final String? to;
 
-  const DirectDrivePage({super.key, this.apiService});
+  const DirectDrivePage({
+    super.key,
+    this.apiService,
+    this.routeId,
+    this.from,
+    this.to,
+  });
 
   @override
   State<DirectDrivePage> createState() => _DirectDrivePageState();
@@ -32,7 +41,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
 
   Future<void> _fetchData() async {
     try {
-      final data = await _apiService.fetchInitData();
+      final data = await _apiService.fetchInitData(routeId: widget.routeId);
       if (mounted) {
         List<Marker> markers = [];
         if (data.mockPath.isNotEmpty) {
@@ -146,9 +155,11 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
                                   color: Color(0xFF0F172A),
                                 ),
                               ),
-                              const Text(
-                                'St Chads → East Leake',
-                                style: TextStyle(color: Colors.grey),
+                              Text(
+                                (widget.from != null && widget.to != null)
+                                    ? '${widget.from} → ${widget.to}'
+                                    : 'St Chads → East Leake',
+                                style: const TextStyle(color: Colors.grey),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],
