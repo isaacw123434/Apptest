@@ -268,37 +268,18 @@
             },
             {
               "mode": "TRANSIT",
-              "polyline": "i`tgIhluAy@v@_@{A_@aBo@eCOa@JWx@sBl@mAlBqCzDyFb@q@Rk@|@cB|@oBJ[b@dAhArFbAhEzAzFF`A@tCBbKBbPRTzAhFrBdHpFbRlB|FjDbJfD~Hv@hB^rAbAvD|DjM|ApFvAdFn@nBr@pBj@vA`ApBx@lAZv@Tx@d@fAjAt@n@p@fAlFRhAZnCJlC@vEGlJOtEa@lEcA|GYhDCl@OhEGpBWhGGpAIpEDfHDnAR~D\\nEl@vG^lDd@fBPr@b@dBRvAT`BVjCXbDd@zEd@pDlCbOZdBh@|E|@dHnA`HxAzHbAvEl@bDp@dFf@jDx@lE`@xBVjChAhJNzA\\rApAdFfB~GfBrHb@~B\\tC`@lHF~ABnC?lFLfFf@zHZpFPxCFtAD?XFfA^nE`BdInCbJhDxGbC~@\\n@NzF_@pM{@~Io@jCWnC~LzGlZ~DfQfB~HnB`JVtA`@|AnA~CvBbEfApB~@`Cl@jBd@lBXpBh@lGtAdNNdCFnCL`G^pIl@rKVrG~@pLz@dK`@pDThEHdEDpMAdEBvFJlCf@~GxAxPj@dGXzBh@nCt@pCpCrIhEnMfDjJtCjHl@dBtAtE~@jEdArFlB~Jx@|ETrB^xFH~B@bCEtE?tDHnHHnHJvBh@`NPlEL|A|@tHjA|JbClRb@jCTpAR|@rAs@fAm@hA]rA_@fB_@~AUlAWrF{AnA]`C[h@E`A]lAq@vB}A|G_GbAo@n@Wn@WfA?lBRdBR^B`@IjBy@hCgAhD_B\\QlCiAn@QvEeAnBy@|@i@bBiAfBkApBsArDuB~FsDzDmCl@g@~@y@b@QjCg@jFyAfDgBhB{@jB]rAMz@@hAFxAR~AHzFFdBDd@Cl@M|@s@h@i@bAcA|AoArC_AjEcBb@Mn@]~@e@Vk@Vm@^gBHyAQsBCSEAGGGOAe@N]JELDDD@B\\{@\\qAVw@z@wA~AcBvBeBbAw@dJyF~@i@`DeBdBw@hBw@fCgAp@SzBo@r@O`LmCfKeCbAc@jAw@v@k@pCmBv@g@fBu@fCiAvKeFj@_@jAe@r@e@Vm@Lk@HURQLAPFJJJTBP@JNh@NP`@@L@vB[jB[hKcBjBWbBG~EUnA]vAm@xEqCdIiErBcAhCsBvAs@@QDAD@BN?DjAt@tDvAf@b@LCx@G`A]bAe@x@IV@VBLM\\kDTqC",
-              "distance_text": "22.8 km",
-              "duration_text": "45 mins",
+              "polyline": "wmsgIngsAIa@FEDEFIDIVg@FMLWZo@\\w@Pc@Te@n@yAL[L[X}@^oAFWX}@^eAn@eBJ[Ps@?AOK~GvAdEvVjMzMtk@~YdSfN`cFm{MBTNGZKn@W|CmAd@Qh@WbAc@d@Sd@O\\OZOVK^OHEHCE[Va@xd@mXHCDPb@YHEXOJEn@Y`@ONGf@Q~@]XIVIb@MPEPGJ@T@D?HBZHXHB?ND\\JB?^Cd@Ef@GFAZEr@Kr@GVETEDATEJALC^MZKjAg@h@U\\QFCjAg@d@QLELE`@MTGVIVIp@QXG`AS@Ad@MFAF@L?Z@f@MZGLCj@MPELE|@[vAe@j@SVKt@Yn@QnA_@LCFC^IpA]REZGRELEn@OREVKP?TEP?Z?L?RBL@JDF?J?N?F?\\GNGNEhAe@fBy@p@WjAq@p@[LGnAm@RK~A}@VMnAq@h@YPKhAm@`@Sp@c@bBgA`Aq@`@Q`AY`Ac@b@QTIPGZKfBu@LEVKNEHCPC`@GHARCRCLANAlAIf@Ab@?J?nCUh@G\\Gh@Gf@I|@OVC\\E`AMz@MRCxASr@IJA^EdAOh@Iz@Id@Eb@GVEfD[tAOx@Gr@ExDm@NAdC]\\If@Q`@MZMLEFAJS@ANC\\Ij@OPEn@IH?JAPCXCp@KTEJCCe@Ca@G_@OYOc@BSJc@^kA@AX]Tg@IQ",
+              "distance_text": "14.2 km",
+              "duration_text": "34 mins",
               "color": "#f03842",
-              "instructions": "Bus towards Brough",
+              "instructions": "Bus towards Hull Interchange",
               "transit_details": {
                 "arrival_stop": {
-                  "location": {
-                    "lat": 53.7268175,
-                    "lng": -0.5781282999999999
-                  },
-                  "name": "Brough"
-                },
-                "arrival_time": {
-                  "text": "6:10\u202fAM",
-                  "time_zone": "Europe/London",
-                  "value": 1771222200
+                  "name": "Hull Interchange"
                 },
                 "departure_stop": {
-                  "location": {
-                    "lat": 53.8424887,
-                    "lng": -0.4228551
-                  },
                   "name": "Beverley Bus Station"
                 },
-                "departure_time": {
-                  "text": "5:25\u202fAM",
-                  "time_zone": "Europe/London",
-                  "value": 1771219500
-                },
-                "headsign": "Brough",
                 "line": {
                   "agencies": [
                     {
@@ -306,19 +287,48 @@
                     }
                   ],
                   "color": "#f03842",
-                  "name": "Beverley - Brough",
-                  "short_name": "X1",
-                  "text_color": "#ffffff",
+                  "name": "Beverley - Hull",
                   "vehicle": {
                     "icon": "//maps.gstatic.com/mapfiles/transit/iw2/6/bus2.png",
                     "name": "Bus",
                     "type": "BUS"
                   }
-                },
-                "num_stops": 15
+                }
               },
-              "distance_value": 22800,
-              "duration_value": 2700
+              "distance_value": 14200,
+              "duration_value": 2040
+            },
+            {
+              "mode": "TRANSIT",
+              "polyline": "a|_gIpobAx@zKFtABfA?|@AbBAj@ARErAI~@QtAA@UhAADQp@GP_@rAYx@IXOp@Ot@CFOd@Qj@EL[xASjAQbAGd@MlAKhAGt@En@En@EjACfA?jAA\\@n@@h@?x@DjBDjA@VJjBLjBBZLxAJjATzBX`CXvB`@lCZjBRlAf@tC`@jB\\xANp@Rx@T~@f@nBp@`CZ~@f@|Al@bBj@~ALZ^`Aj@tAZp@Vl@DL`AxBN\\^z@h@lADJ|@pBn@vAJTJTbA~BdA~B~@vBdA~B`A|Bx@jB|@pBh@lAh@hA\\r@DJNVJNDH^l@d@l@~@dAVTTPZR\\Td@VZN^L|@X`@Hf@Fn@Fx@AF?`@Az@KJAfAKb@Eb@G`AKlAIRAfAAv@FnAXRFf@Pr@^j@\\LHx@p@t@v@h@p@d@r@DFXb@jAvBl@lAHN`AxBlArCz@~B\\~@J\\\\dA@Fd@zAHXJXJ\\\\dADLLb@Rt@Pn@ZfA\\vANn@R~@Lj@Pv@Pz@VjATlAP`ARlAPfARvAXpBPrA\\xCt@pGTnB^nDP|A^dD`@hDBNJ~@TnBTnBXhCb@zDNnANpARhBPzARfBH`ABNHn@ZzCZbDBNVrC\\fD\\hEn@hIf@tHn@|J\\tGBb@FrAVnFHbBLjCVnFBb@ZlG^~GZxF`@~Ff@xGf@fGp@fIj@bGt@bH@NHx@p@rGbArJRhBp@pGLjAh@fF@DRlBr@~GJz@t@bHPpB^pDFv@H|@LtBDx@RfE@f@D~A@XDvB@F?N@d@?HBp@@z@@|@@L@zBAfB?dBIdGAz@A`AMpECXQxDU|DUrDU~CEj@I`AOfBQxBGj@ANGx@Gx@MzAGfAMdBGfAEr@IrAIdBGzAGvAGtBGnBAhACjAClAApACrAApA?jAAhA?xA?\\@`A?tA@x@?`ABlA@lABzA@`A@z@DfBHtCFhCFpBHnCJdDHnCFdCH`CDzA@X@n@DlA?HH|BHfCDvB@\\FtBFrB@bA@|@B`BFzCHlFF`F?FF~EBtQ?tCC|EChGKxJM~JErCCvBC|@CvBAb@Ad@CxBAz@CfAAt@ArACzECrEClECzB?R@\\@X?hA?d@AnC?HAp@?r@CjAAt@A^C`A?VQfLE|BUhIYpIIjDKtDE|AEtAE|@IvBKvBCz@KxBCx@Ez@OrDAXI|Ac@jJMrBm@xKAFWnDGz@El@ALEz@Gz@g@zFGf@u@xHoAvMOxAIx@e@tEmAdMoAdLuA|NwAnNMpA_Dz[OzAiDl\\k@xF_BtOsAtMi@jF{@nIg@zEs@jHQ~AYrCYtCGp@YhC?FMtAQbBKhAOzAEXMpAIx@OvAK|@ALOfBCNGf@B@",
+              "distance_text": "16 km",
+              "duration_text": "12 mins",
+              "color": "#262262",
+              "instructions": "Train towards Brough",
+              "transit_details": {
+                "arrival_stop": {
+                  "name": "Brough"
+                },
+                "departure_stop": {
+                  "name": "Hull"
+                },
+                "line": {
+                  "agencies": [
+                    {
+                      "name": "Northern"
+                    }
+                  ],
+                  "color": "#262262",
+                  "name": "Hull - Brough",
+                  "vehicle": {
+                    "icon": "//maps.gstatic.com/mapfiles/transit/iw2/6/rail2.png",
+                    "name": "Train",
+                    "type": "HEAVY_RAIL"
+                  }
+                }
+              },
+              "distance_value": 16000,
+              "duration_value": 720
             },
             {
               "mode": "TRANSIT",
