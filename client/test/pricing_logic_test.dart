@@ -73,9 +73,9 @@ void main() {
     expect(initData.segmentOptions.mainLeg.cost, closeTo(25.70, 0.01));
 
     // 5. Check Last Mile Bus (Group 4)
-    // User says: £3.00
+    // User says: £3.00. Updated: £2.00
     final busLegLast = initData.segmentOptions.lastMile.firstWhere((leg) => leg.label == 'Bus');
-    expect(busLegLast.cost, closeTo(3.00, 0.01));
+    expect(busLegLast.cost, closeTo(2.00, 0.01));
 
     // 6. Check Last Mile Uber (Group 4)
     // User says: £14.89

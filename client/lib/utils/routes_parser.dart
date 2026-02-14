@@ -334,7 +334,7 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
             mergedSegments[i] = Segment(
                   mode: seg.mode, label: seg.label, lineColor: seg.lineColor, iconId: seg.iconId, time: seg.time,
                   from: seg.from, to: seg.to, detail: seg.detail, path: seg.path, co2: seg.co2, distance: seg.distance,
-                  cost: 2.00
+                  cost: _getBusCost(seg.label)
            );
          }
        }
@@ -363,7 +363,7 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
                 mergedSegments[i] = Segment(
                       mode: seg.mode, label: seg.label, lineColor: seg.lineColor, iconId: seg.iconId, time: seg.time,
                       from: seg.from, to: seg.to, detail: seg.detail, path: seg.path, co2: seg.co2, distance: seg.distance,
-                      cost: 3.00
+                      cost: _getBusCost(seg.label)
                );
              }
            }
@@ -392,14 +392,6 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
           if (mergedSegments[i].mode == 'parking') {
               parkingExists = true;
           }
-          if (mergedSegments[i].mode == 'bus') {
-              var seg = mergedSegments[i];
-              mergedSegments[i] = Segment(
-                  mode: seg.mode, label: seg.label, lineColor: seg.lineColor, iconId: seg.iconId, time: seg.time,
-                  from: seg.from, to: seg.to, detail: seg.detail, path: seg.path, co2: seg.co2, distance: seg.distance,
-                  cost: 0.00
-              );
-          }
       }
 
       if (!parkingExists) {
@@ -411,7 +403,7 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
                      lineColor: '#000000',
                      iconId: IconIds.parking,
                      time: 0,
-                     cost: 5.00,
+                     cost: 0.00,
                ));
           }
       }
@@ -643,7 +635,7 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = '',
          cost = 0.45 * distMiles;
      }
   } else if (mode == 'bus') {
-     cost = 2.00;
+     cost = _getBusCost(label);
   } else if (mode == 'train') {
      cost = 0.00;
   }
@@ -782,4 +774,21 @@ double _estimateCost(String name, double distanceMiles, List<Segment> segments, 
     }
 
     return 0.00;
+}
+
+double _getBusCost(String label) {
+  String lower = label.toLowerCase();
+
+  // X1 and X46 bus are £3
+  if (RegExp(r'\bx1\b').hasMatch(lower) || RegExp(r'\bx46\b').hasMatch(lower)) {
+    return 3.00;
+  }
+
+  // Park and Ride PRx lines are £5
+  if (RegExp(r'\bpr\d+\b').hasMatch(lower)) {
+    return 5.00;
+  }
+
+  // Anything else is £2
+  return 2.00;
 }
