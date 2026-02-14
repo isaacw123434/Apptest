@@ -13,7 +13,7 @@ class ApiService {
       assetPath = 'assets/routes_2.json';
     }
     final jsonString = await rootBundle.loadString(assetPath);
-    return parseRoutesJson(jsonString);
+    return parseRoutesJson(jsonString, routeId: routeId);
   }
 
   Future<InitData> fetchInitData({String? routeId}) async {
@@ -34,43 +34,41 @@ class ApiService {
 
     List<JourneyResult> combos = [];
 
+    // Determine buffer based on routeId
+    // Route 1 (Mock 1): Needs 10 min buffer at Leeds (Main Leg transfer)
+    // Route 2 (Mock 2): Buffer at start is handled by routes_parser. Buffer at Leeds (end) is not needed.
+    int buffer = routeId == 'route2' ? 0 : 10;
+
     // Generate Combinations
     for (var l1 in options.firstMile) {
+      // Fix for Issue 1: Route 2 P&R options already include the last mile walk to destination.
+      bool isRoute2PnR = (routeId == 'route2' &&
+          (l1.id.contains('p_r') ||
+           l1.label.contains('P&R') ||
+           l1.label.contains('Stourton') ||
+           l1.label.contains('Temple Green') ||
+           l1.label.contains('Elland Road')));
+
+      if (isRoute2PnR) {
+         // Create a single combination with empty leg3
+         Leg emptyLeg3 = Leg(
+           id: 'empty_last_mile',
+           label: 'Arrived',
+           segments: [],
+           time: 0,
+           cost: 0,
+           distance: 0,
+           riskScore: 0,
+           iconId: IconIds.footprints,
+           lineColor: '#000000',
+         );
+
+         combos.add(_createJourneyResult(l1, options.mainLeg, emptyLeg3, directDrive, buffer));
+         continue; // Skip inner loop
+      }
+
       for (var l3 in options.lastMile) {
-        // Calculate Stats
-        int buffer = 10; // Hardcoded buffer
-        double cost = l1.cost + options.mainLeg.cost + l3.cost;
-        int time = l1.time + buffer + options.mainLeg.time + l3.time;
-        int risk = l1.riskScore + options.mainLeg.riskScore + l3.riskScore;
-
-        // Calculate Emissions
-        // Use pre-calculated CO2 or calculate on fly
-        double carEmission = directDrive.co2 ?? calculateEmission(directDrive.distance, IconIds.car);
-
-        double totalEmission = (l1.co2 ?? calculateEmission(l1.distance, l1.iconId)) +
-            (options.mainLeg.co2 ?? calculateEmission(options.mainLeg.distance, options.mainLeg.iconId)) +
-            (l3.co2 ?? calculateEmission(l3.distance, l3.iconId));
-
-        double savings = carEmission - totalEmission;
-        int savingsPercent = 0;
-        if (carEmission > 0) {
-           savingsPercent = ((savings / carEmission) * 100).round();
-        }
-
-        combos.add(JourneyResult(
-          id: '${l1.id}-${l3.id}',
-          leg1: l1,
-          leg3: l3,
-          cost: cost,
-          time: time,
-          buffer: buffer,
-          risk: risk,
-          emissions: Emissions(
-            val: savings,
-            percent: savingsPercent,
-            text: savings > 0 ? 'Saves $savingsPercent% CO₂ vs driving' : null
-          ),
-        ));
+        combos.add(_createJourneyResult(l1, options.mainLeg, l3, directDrive, buffer));
       }
     }
 
@@ -126,5 +124,40 @@ class ApiService {
     }
 
     return combos.take(3).toList();
+  }
+
+  JourneyResult _createJourneyResult(Leg l1, Leg mainLeg, Leg l3, DirectDrive directDrive, int buffer) {
+        double cost = l1.cost + mainLeg.cost + l3.cost;
+        int time = l1.time + buffer + mainLeg.time + l3.time;
+        int risk = l1.riskScore + mainLeg.riskScore + l3.riskScore;
+
+        // Calculate Emissions
+        // Use pre-calculated CO2 or calculate on fly
+        double carEmission = directDrive.co2 ?? calculateEmission(directDrive.distance, IconIds.car);
+
+        double totalEmission = (l1.co2 ?? calculateEmission(l1.distance, l1.iconId)) +
+            (mainLeg.co2 ?? calculateEmission(mainLeg.distance, mainLeg.iconId)) +
+            (l3.co2 ?? calculateEmission(l3.distance, l3.iconId));
+
+        double savings = carEmission - totalEmission;
+        int savingsPercent = 0;
+        if (carEmission > 0) {
+           savingsPercent = ((savings / carEmission) * 100).round();
+        }
+
+        return JourneyResult(
+          id: '${l1.id}-${l3.id}',
+          leg1: l1,
+          leg3: l3,
+          cost: cost,
+          time: time,
+          buffer: buffer,
+          risk: risk,
+          emissions: Emissions(
+            val: savings,
+            percent: savingsPercent,
+            text: savings > 0 ? 'Saves $savingsPercent% CO₂ vs driving' : null
+          ),
+        );
   }
 }
