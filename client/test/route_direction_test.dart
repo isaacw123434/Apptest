@@ -25,8 +25,6 @@ void main() {
       expect(eastringtonOptions, isNotEmpty, reason: 'No Eastrington options found');
 
       for (var option in eastringtonOptions) {
-        print('Checking route: ${option.label}');
-
         List<LatLng> fullPath = [];
         for (var seg in option.segments) {
           if (seg.path != null) {
