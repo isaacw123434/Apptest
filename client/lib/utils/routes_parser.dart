@@ -93,7 +93,8 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = ''}) {
   for (int i = 0; i < rawSegments.length; i++) {
     Segment seg = rawSegments[i];
     bool remove = false;
-    if (seg.mode == 'walk' && seg.time <= 1) {
+    // Standardize filter threshold to 2.5 mins (<= 2)
+    if (seg.mode == 'walk' && seg.time <= 2) {
        // Check if between trains
        if (i > 0 && i < rawSegments.length - 1) {
            Segment prev = rawSegments[i-1];
@@ -447,78 +448,35 @@ double _estimateCost(String name, double distanceMiles, List<Segment> segments) 
     // P&R logic
     if (lower.contains('p&r')) {
         // Drive cost + Parking (£5.00)
-        // Assume drive part is most of the distance
         return 5.00 + (0.45 * distanceMiles);
     }
 
     // Train logic (covers Access + Train combinations)
     if (lower.contains('train')) {
-        // Estimate Train part cost.
-        // Simple logic: if distance > 50 -> £25.70.
-        // If "train" alone (Route 1 Core Journey), it's > 50 miles (87 miles).
-        // If "Walk + Train" (Route 1 Headingley), distance < 10. Cost 3.40.
-        // For Route 2:
-        // "Drive to Brough + Train" ~ 46 miles.
-        // Split cost?
-        // Let's assume train is roughly 70% of distance for Route 2? No.
-
-        double trainCost = 0;
-        // Base Train Cost (Approximate)
-        if (distanceMiles > 50) {
-            trainCost = 25.70;
-        } else if (distanceMiles < 10 && !lower.contains('uber') && !lower.contains('drive') && !lower.contains('bus')) {
-            // Short hop (Headingley -> Leeds) for walk/cycle + train
-            return 3.40;
-        } else {
-            trainCost = 3.00 + (0.50 * distanceMiles);
-        }
+        // Generalized Train Cost: Base + Rate
+        double trainCost = 5.00 + (0.30 * distanceMiles);
 
         // Add Access Cost
         if (lower.contains('uber')) {
-            // Headingley (Route 1) hardcoded check:
-            if (distanceMiles < 10) return 9.32; // Preserved
-
-            // Route 2 Uber:
-            return trainCost + 20.00; // Uber is expensive
+            return trainCost + 8.00 + (1.50 * 3); // Approx access
         }
         if (lower.contains('drive')) {
-             // Access drive.
              return trainCost + 5.00; // Fuel/Parking
         }
         if (lower.contains('bus')) {
              return trainCost + 2.00;
         }
-
         return trainCost;
     }
 
     if (lower.contains('uber')) {
-        // First mile (Leeds ~3.2 miles) -> £8.97
-        if (distanceMiles >= 2 && distanceMiles < 4) {
-            return 8.97;
-        }
-        // Last mile (Loughborough ~4.5 miles) -> £14.89
-        if (distanceMiles >= 4) {
-            return 14.89;
-        }
-
-        return 2.50 + (2.50 * distanceMiles); // Fallback
+        return 2.50 + (2.00 * distanceMiles);
     }
-    if (lower.contains('drive') || lower.contains('parking')) {
-         // HMRC rate 45p/mile
-         if (distanceMiles < 10) { // Local drive to station
-            return 23.00 + (0.45 * distanceMiles); // £23 parking + mileage
-         }
-         return 0.45 * distanceMiles; // Long distance
+    if (lower.contains('drive') || lower.contains('parking') || lower.contains('direct drive')) {
+         return 0.45 * distanceMiles;
     }
     if (lower.contains('bus')) {
-        // Check segments for label?
-        for (var seg in segments) {
-            if (seg.label.contains('Line 1') || seg.label.contains('1')) {
-                return 3.00; // Line 1 Loughborough
-            }
-        }
-        return 2.00; // Default (Line 24 Leeds)
+        return 2.00 + (0.10 * distanceMiles);
     }
     if (lower.contains('cycle') || lower.contains('walk')) {
         return 0.00;
