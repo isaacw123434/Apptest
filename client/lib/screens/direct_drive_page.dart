@@ -8,8 +8,9 @@ import '../utils/emission_utils.dart';
 
 class DirectDrivePage extends StatefulWidget {
   final ApiService? apiService;
+  final String? routeId;
 
-  const DirectDrivePage({super.key, this.apiService});
+  const DirectDrivePage({super.key, this.apiService, this.routeId});
 
   @override
   State<DirectDrivePage> createState() => _DirectDrivePageState();
@@ -32,7 +33,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
 
   Future<void> _fetchData() async {
     try {
-      final data = await _apiService.fetchInitData();
+      final data = await _apiService.fetchInitData(routeId: widget.routeId);
       if (mounted) {
         List<Marker> markers = [];
         if (data.mockPath.isNotEmpty) {

@@ -477,7 +477,9 @@ class _SummaryPageState extends State<SummaryPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const DirectDrivePage(),
+            builder: (context) => DirectDrivePage(
+              routeId: widget.routeId,
+            ),
           ),
         );
       },
