@@ -615,7 +615,7 @@ class _DetailPageState extends State<DetailPage> {
       for (int i = 0; i < segments.length; i++) {
         final seg = segments[i];
         final isFirst = i == 0;
-        final isLast = i == segments.length - 1;
+        // final isLast = i == segments.length - 1; // Unused, replaced by checkIsLast logic
 
         bool shouldHide = false;
         bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
@@ -640,7 +640,7 @@ class _DetailPageState extends State<DetailPage> {
              continue;
         }
 
-        Color lineColor = _parseColor(seg.lineColor);
+        // Color lineColor = _parseColor(seg.lineColor); // Unused here, parsed inside build functions
 
         // Check for Transfer
         if (seg.mode == 'wait' && seg.label == 'Transfer') {
@@ -1069,7 +1069,7 @@ class _DetailPageState extends State<DetailPage> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: lineColor.withValues(alpha: 0.15), // The "Halo"
+                      color: lineColor.withOpacity(0.15), // The "Halo"
                       shape: BoxShape.circle,
                     ),
                     child: Icon(_getIconData(segment.iconId),
@@ -1148,7 +1148,6 @@ class _DetailPageState extends State<DetailPage> {
     double? dist1,
     double? dist2,
     String? extraDetails1,
-    String? extraDetails2,
     VoidCallback? onTap,
   }) {
     double totalCost = seg1.cost + seg2.cost;
@@ -1210,7 +1209,7 @@ class _DetailPageState extends State<DetailPage> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: color1.withValues(alpha: 0.15),
+                            color: color1.withOpacity(0.15),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(_getIconData(seg1.iconId), color: color1, size: 20),
@@ -1260,7 +1259,7 @@ class _DetailPageState extends State<DetailPage> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: color2.withValues(alpha: 0.15),
+                            color: color2.withOpacity(0.15),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(_getIconData(seg2.iconId), color: color2, size: 20),
