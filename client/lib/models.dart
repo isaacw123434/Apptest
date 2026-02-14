@@ -7,6 +7,7 @@ class IconIds {
   static const String bus = 'bus';
   static const String bike = 'bike';
   static const String footprints = 'footprints';
+  static const String parking = 'parking';
 }
 
 class Segment {
@@ -21,6 +22,7 @@ class Segment {
   final List<LatLng>? path;
   final double? co2;
   final double? distance;
+  final double cost;
 
   Segment({
     required this.mode,
@@ -34,6 +36,7 @@ class Segment {
     this.path,
     this.co2,
     this.distance,
+    this.cost = 0.0,
   });
 
   factory Segment.fromJson(Map<String, dynamic> json) {
@@ -66,6 +69,7 @@ class Segment {
       path: path,
       co2: json['co2'] != null ? (json['co2'] as num).toDouble() : null,
       distance: json['distance'] != null ? (json['distance'] as num).toDouble() : null,
+      cost: (json['cost'] ?? 0).toDouble(),
     );
   }
 }
