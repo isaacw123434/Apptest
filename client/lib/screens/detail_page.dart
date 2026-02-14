@@ -645,18 +645,7 @@ class _DetailPageState extends State<DetailPage> {
         // Check for Transfer
         if (seg.mode == 'wait' && seg.label == 'Transfer') {
              // 10 mins transfer text
-             children.add(
-               Padding(
-                 padding: const EdgeInsets.only(left: 24+16, bottom: 8, top: 4),
-                 child: Row(
-                   children: const [
-                     Icon(LucideIcons.clock, size: 14, color: Colors.grey),
-                     SizedBox(width: 4),
-                     Text('10 mins transfer', style: TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic)),
-                   ],
-                 ),
-               )
-             );
+             children.add(_buildTransferSegment(seg));
              currentMinutes += seg.time;
              continue; // Skip building regular connection and node
         }
@@ -1135,6 +1124,48 @@ class _DetailPageState extends State<DetailPage> {
               ),
             ),
           )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTransferSegment(Segment segment) {
+    Color lineColor = _parseColor(segment.lineColor);
+
+    Widget verticalLine = Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 12,
+          height: double.infinity,
+          color: Colors.grey[200],
+        ),
+        Container(
+          width: 4,
+          height: double.infinity,
+          color: lineColor,
+        ),
+      ],
+    );
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(width: 24, child: verticalLine),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 8, top: 4),
+              child: Row(
+                children: [
+                  const Icon(LucideIcons.clock, size: 14, color: Colors.grey),
+                  const SizedBox(width: 4),
+                  Text('${segment.time} mins transfer', style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic)),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
