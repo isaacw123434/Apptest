@@ -461,7 +461,43 @@ String _mapMode(String rawMode, Map<String, dynamic>? transitDetails) {
 
 String _generateId(String name) {
     String lower = name.toLowerCase();
+
+    // Extract hub name if possible
+    String? hub;
+    if (lower.contains('brough')) {
+      hub = 'brough';
+    } else if (lower.contains('york')) {
+      hub = 'york';
+    } else if (lower.contains('beverley')) {
+      hub = 'beverley';
+    } else if (lower.contains('hull')) {
+      hub = 'hull';
+    } else if (lower.contains('eastrington')) {
+      hub = 'eastrington';
+    } else if (lower.contains('headingley')) {
+      hub = 'headingley';
+    }
+
+    // P&R
+    if (lower.contains('p&r') || lower.contains('park & ride')) {
+       if (lower.contains('stourton')) return 'drive_stourton_pr';
+       if (lower.contains('temple green')) return 'drive_temple_green_pr';
+       if (lower.contains('elland road')) return 'drive_elland_road_pr';
+       return 'drive_pr'; // fallback
+    }
+
     if (lower.contains('train')) {
+        if (hub != null) {
+             if (lower.contains('walk')) return 'train_walk_$hub';
+             if (lower.contains('cycle')) return 'train_cycle_$hub';
+             if (lower.contains('uber')) return 'train_uber_$hub';
+             if (lower.contains('drive')) return 'train_drive_$hub';
+             if (lower.contains('bus')) return 'train_bus_$hub';
+             return 'train_$hub';
+        }
+
+        // Fallback for Headingley legacy if not explicitly matched above but contained 'headingley' (already handled)
+        // Or if no hub found (e.g. "Train: Leeds to Loughborough" -> train_main)
         if (lower.contains('walk')) return 'train_walk_headingley';
         if (lower.contains('cycle')) return 'train_cycle_headingley';
         if (lower.contains('uber')) return 'train_uber_headingley';
@@ -469,6 +505,7 @@ String _generateId(String name) {
         if (lower.contains('bus')) return 'train_bus';
         return 'train_main';
     }
+
     if (lower.contains('uber')) return 'uber';
     if (lower.contains('bus')) return 'bus';
     if (lower.contains('cycle')) return 'cycle';
