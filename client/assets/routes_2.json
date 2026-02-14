@@ -2803,13 +2803,13 @@
             },
             {
               "mode": "WALKING",
-              "polyline": "m~igIrhlHTp@",
-              "distance_text": "0.4 km",
-              "duration_text": "5 mins",
+              "polyline": "k~igIjhlHo@GLrDFbAJnAL`CBf@Av@Ah@GLM`A[hBYlAKXD@GNAFBBARCAEAKh@s@zAz@vAR^BdACtAGvAIbCCh@F@@NGtAIjAA|@KlAEnAIzBMvB?~@MnDKhBEt@EfAChAC^JVBHH@h@Lf@NI\\?B@F?@@|@@n@",
+              "distance_text": "1.2 km",
+              "duration_text": "16 mins",
               "color": "#9E9E9E",
-              "instructions": "Walk to Leeds Station",
-              "distance_value": 400,
-              "duration_value": 300
+              "instructions": "Walk to Wellington Place, Leeds",
+              "distance_value": 1166,
+              "duration_value": 944
             }
           ]
         },
@@ -2894,13 +2894,13 @@
             },
             {
               "mode": "WALKING",
-              "polyline": "ocjgId{jHxD~mA",
-              "distance_text": "0.9 km",
-              "duration_text": "12 mins",
+              "polyline": "kcjgId{jHA|@?h@B`@@t@EXAp@Dl@A`AB~@EfD?jAGtBB^BH@Ib@xAFPF?DA@Jf@bCLF@JF^?r@EtACZC|@?n@M@CFDfCH`BDb@JfAJdBD|@Ax@Cv@Kz@Ox@Oj@]jBLHIVBBARICKh@Uf@]r@j@bAb@j@@x@?pASxECbAF@@NGtAG\\AjAGz@GpAGxBInAIxA@d@Cr@EtAOdDKvAApAEt@AJFNFPlAXLDKZ@@?D?BBfB@H",
+              "distance_text": "1.6 km",
+              "duration_text": "22 mins",
               "color": "#9E9E9E",
-              "instructions": "Walk to Leeds Station",
-              "distance_value": 900,
-              "duration_value": 720
+              "instructions": "Walk to Wellington Place, Leeds",
+              "distance_value": 1627,
+              "duration_value": 1337
             }
           ]
         },
@@ -2985,13 +2985,13 @@
             },
             {
               "mode": "WALKING",
-              "polyline": "q~igInslHXtU",
-              "distance_text": "0.3 km",
-              "duration_text": "4 mins",
+              "polyline": "u~igIpslHHzABf@Av@Ah@GLM`A[hBYlAKXD@GNAFBBARCAEAKh@s@zAz@vAR^BdACtAGvAIbCCh@F@@NGtAIjAA|@KlAEnAIzBMvB?~@MnDKhBEt@EfAChAC^JVBHH@h@Lf@NI\\?@?B?B@@?@@|@@n@",
+              "distance_text": "1.0 km",
+              "duration_text": "14 mins",
               "color": "#9E9E9E",
-              "instructions": "Walk to Leeds Station",
-              "distance_value": 300,
-              "duration_value": 240
+              "instructions": "Walk to Wellington Place, Leeds",
+              "distance_value": 1007,
+              "duration_value": 814
             }
           ]
         }
@@ -3005,13 +3005,13 @@
           "legs": [
             {
               "mode": "BICYCLING",
-              "polyline": "{qigIpnmHThCJdCFjAJEBLBBFBN?LDJTBTAx@FrAAzCUlJCfDDf@CRIN]VY`@O\\c@mAw@_C]oBAGe@\\s@h@?PEHA@q@f@MPA@A@E?A?i@uCGUICIBUxFM`BEPI^I^Cx@CfAhAdFCXI~@ERKJYB_@CWKMKKSGWA]DgA",
-              "distance_text": "1.3 km",
-              "duration_text": "4 mins",
+              "polyline": "m|igIrnmHADIEK?EBQ^E\\CHIlEYrG@ZLr@`BfJj@hD`A~EDNBPSFQHUNIJq@\\IBWHG\\QVWXUd@hAdFADKrAERKJYB_@Ce@WKSGWA]DgA",
+              "distance_text": "0.9 km",
+              "duration_text": "3 mins",
               "color": "#34A853",
               "instructions": "Bicycling from Leeds Station to Wellington Place, Leeds",
-              "distance_value": 1300,
-              "duration_value": 240
+              "distance_value": 912,
+              "duration_value": 163
             }
           ]
         },
@@ -3020,13 +3020,13 @@
           "legs": [
             {
               "mode": "WALKING",
-              "polyline": "{qigIpnmHThCJdCFjAJEBLBBFBN?LDJTBTAx@FrAAzCUlJCfDDf@CRIN]VY`@O\\c@mAw@_C]oBAGe@\\s@h@?PEHA@q@f@MPA@A@E?A?i@uCGUICIBUxFM`BEPI^I^Cx@CfAhAdFCXI~@ERKJYB_@CWKMKKSGWA]DgA",
-              "distance_text": "1.3 km",
-              "duration_text": "16 mins",
+              "polyline": "m|igIpnmHAAEPOCU\\CXCJAxAIjDU|Ep@fEZhBX|AKFOXQVQJJRD?P?G|@_@rHKd@K^AZElAAb@IFYHC@IVEJ?@?BADGF?~A",
+              "distance_text": "0.7 km",
+              "duration_text": "9 mins",
               "color": "#34A853",
-              "instructions": "Bicycling from Leeds Station to Wellington Place, Leeds",
-              "distance_value": 1300,
-              "duration_value": 970
+              "instructions": "Walking from Leeds Station to Wellington Place, Leeds",
+              "distance_value": 697,
+              "duration_value": 559
             }
           ]
         }
