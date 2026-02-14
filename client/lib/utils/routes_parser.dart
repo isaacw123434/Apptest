@@ -6,7 +6,7 @@ import 'emission_utils.dart';
 
 const Map<String, Map<String, double>> pricing = {
   'brough': {'parking': 5.80, 'uber': 22.58, 'train': 8.10},
-  'york': {'parking': 3.90, 'uber': 46.24, 'train': 5.20},
+  'york': {'parking': 13.90, 'uber': 46.24, 'train': 5.20},
   'beverley': {'parking': 4.40, 'uber': 4.62, 'train': 12.10},
   'hull': {'parking': 6.00, 'uber': 20.63, 'train': 9.60},
   'eastrington': {'parking': 0.00, 'uber': 34.75, 'train': 7.00},
@@ -121,25 +121,6 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
           }
       }
       mergedSegments.add(seg);
-  }
-
-  // Deduplicate Base Fare for Generic Trains (assume single ticket)
-  bool trainBaseApplied = false;
-  for (int i = 0; i < mergedSegments.length; i++) {
-      if (mergedSegments[i].mode == 'train') {
-          if (trainBaseApplied) {
-              double newCost = mergedSegments[i].cost - 5.00;
-              if (newCost < 0) newCost = 0;
-
-              var seg = mergedSegments[i];
-              mergedSegments[i] = Segment(
-                  mode: seg.mode, label: seg.label, lineColor: seg.lineColor, iconId: seg.iconId, time: seg.time,
-                  from: seg.from, to: seg.to, detail: seg.detail, path: seg.path, co2: seg.co2, distance: seg.distance,
-                  cost: newCost
-              );
-          }
-          trainBaseApplied = true;
-      }
   }
 
   // Determine Location for Pricing
@@ -258,20 +239,6 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
                   cost: cost
               );
               uberCostApplied = true;
-          }
-      }
-  }
-
-  // Apply Generic Uber Base Fare (if not covered by specific pricing)
-  if (!specificUberPricing) {
-      for (int i = 0; i < mergedSegments.length; i++) {
-          if (mergedSegments[i].mode == 'car' && mergedSegments[i].label.toLowerCase().contains('uber')) {
-               var seg = mergedSegments[i];
-               mergedSegments[i] = Segment(
-                  mode: seg.mode, label: seg.label, lineColor: seg.lineColor, iconId: seg.iconId, time: seg.time,
-                  from: seg.from, to: seg.to, detail: seg.detail, path: seg.path, co2: seg.co2, distance: seg.distance,
-                  cost: seg.cost + 2.50
-              );
           }
       }
   }
@@ -660,15 +627,14 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = '',
   double cost = 0.0;
   if (mode == 'car') {
      if (label.toLowerCase().contains('uber') || optionName.toLowerCase().contains('uber')) {
-         // Changed from 2.50 + ... to just 2.00 * ... base fare applied in _parseOptionToLeg
-         cost = 2.00 * distMiles;
+         cost = 0.00;
      } else {
          cost = 0.45 * distMiles;
      }
   } else if (mode == 'bus') {
      cost = 2.00;
   } else if (mode == 'train') {
-     cost = 5.00 + (0.30 * distMiles);
+     cost = 0.00;
   }
 
   return Segment(
@@ -800,33 +766,9 @@ double _estimateCost(String name, double distanceMiles, List<Segment> segments, 
         return 5.00 + (0.45 * distanceMiles);
     }
 
-    if (lower.contains('train')) {
-        double trainCost = 5.00 + (0.30 * distanceMiles);
-        if (lower.contains('uber')) {
-            return trainCost + 8.00 + (1.50 * 3);
-        }
-        if (lower.contains('drive')) {
-             return trainCost + 5.00;
-        }
-        if (lower.contains('bus')) {
-             return trainCost + 2.00;
-        }
-        return trainCost;
-    }
-
-    if (lower.contains('uber')) {
-        if (routeId == 'route1') return 8.97;
-        return 2.50 + (2.00 * distanceMiles);
-    }
-    if (lower.contains('drive') || lower.contains('parking') || lower.contains('direct drive')) {
+    if (lower.contains('direct drive') || lower.contains('drive') || lower.contains('parking')) {
          return 0.45 * distanceMiles;
     }
-    if (lower.contains('bus')) {
-        if (routeId == 'route1') return 2.00;
-        return 2.00 + (0.10 * distanceMiles);
-    }
-    if (lower.contains('cycle') || lower.contains('walk')) {
-        return 0.00;
-    }
+
     return 0.00;
 }
