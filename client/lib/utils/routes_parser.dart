@@ -148,6 +148,22 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
       }
   }
 
+  // Fallback: check group name
+  if (location == null) {
+      String lowerGroup = groupName.toLowerCase();
+      if (lowerGroup.contains('brough')) {
+        location = 'brough';
+      } else if (lowerGroup.contains('york')) {
+        location = 'york';
+      } else if (lowerGroup.contains('beverley')) {
+        location = 'beverley';
+      } else if (lowerGroup.contains('hull')) {
+        location = 'hull';
+      } else if (lowerGroup.contains('eastrington')) {
+        location = 'eastrington';
+      }
+  }
+
   // Insert Parking Segment (Generic)
   for (int i = 0; i < mergedSegments.length - 1; i++) {
      Segment current = mergedSegments[i];
@@ -622,14 +638,14 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = '',
   double cost = 0.0;
   if (mode == 'car') {
      if (label.toLowerCase().contains('uber') || optionName.toLowerCase().contains('uber')) {
-         cost = 0.00;
+         cost = 1.20 * distMiles;
      } else {
          cost = 0.45 * distMiles;
      }
   } else if (mode == 'bus') {
      cost = 2.00;
   } else if (mode == 'train') {
-     cost = 0.00;
+     cost = 0.30 * distMiles;
   }
 
   return Segment(
