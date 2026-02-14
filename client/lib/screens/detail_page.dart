@@ -9,8 +9,14 @@ import '../utils/emission_utils.dart';
 class DetailPage extends StatefulWidget {
   final JourneyResult? journeyResult;
   final ApiService? apiService;
+  final String? routeId;
 
-  const DetailPage({super.key, this.journeyResult, this.apiService});
+  const DetailPage({
+    super.key,
+    this.journeyResult,
+    this.apiService,
+    this.routeId,
+  });
 
   @override
   State<DetailPage> createState() => _DetailPageState();
@@ -51,7 +57,7 @@ class _DetailPageState extends State<DetailPage> {
 
   Future<void> _fetchData() async {
     try {
-      final data = await _apiService.fetchInitData();
+      final data = await _apiService.fetchInitData(routeId: widget.routeId);
       if (mounted) {
         setState(() {
           _initData = data;
@@ -979,60 +985,85 @@ class EditLegModal extends StatefulWidget {
 
 class _EditLegModalState extends State<EditLegModal> {
   String _sortOption = 'Best Value';
-  Leg? _walkLeg;
-  Leg? _uberLeg;
-  Leg? _cycleLeg;
+  // Map to store grouped legs. Key is the grouping identifier (e.g. " + Train"), value is list of Legs.
+  final Map<String, List<Leg>> _groupedLegs = {};
 
   List<Leg> _getSortedOptions() {
     List<Leg> displayOptions = [];
-    _walkLeg = null;
-    _uberLeg = null;
-    _cycleLeg = null;
+    _groupedLegs.clear();
 
-    bool hasWalk = false;
-    bool hasUber = false;
-    bool hasCycle = false;
+    // Regex to capture "Access Mode" (group 1) and "Rest" (group 2)
+    // E.g. "Walk + Train" -> "Walk", " + Train"
+    // "Drive to Brough + Train" -> "Drive", " to Brough + Train"
+    final RegExp pattern = RegExp(r'^(Walk|Cycle|Uber|Drive|Bus|Taxi)(.*)', caseSensitive: false);
 
     for (var option in widget.options) {
-      if (option.id == 'train_walk_headingley') {
-        _walkLeg = option;
-        hasWalk = true;
-      } else if (option.id == 'train_uber_headingley') {
-        _uberLeg = option;
-        hasUber = true;
-      } else if (option.id == 'train_cycle_headingley') {
-        _cycleLeg = option;
-        hasCycle = true;
+      final match = pattern.firstMatch(option.label);
+      if (match != null && match.groupCount >= 2) {
+        String suffix = match.group(2)!.trim();
+        // Normalize suffix slightly if needed, but strict match is fine for now
+        if (!_groupedLegs.containsKey(suffix)) {
+          _groupedLegs[suffix] = [];
+        }
+        _groupedLegs[suffix]!.add(option);
       } else {
+        // No match, treat as standalone
         displayOptions.add(option);
       }
     }
 
-    if ((hasWalk || hasUber || hasCycle) && (hasWalk ? 1 : 0) + (hasUber ? 1 : 0) + (hasCycle ? 1 : 0) >= 2) {
-       final base = _walkLeg ?? _cycleLeg ?? _uberLeg!;
-       displayOptions.add(Leg(
-         id: 'headingley_merged',
-         label: 'To Headingley Station',
-         detail: 'Walk, Cycle or Uber',
-         time: base.time,
-         cost: base.cost,
-         distance: base.distance,
-         riskScore: base.riskScore,
-         iconId: 'train',
-         lineColor: base.lineColor,
-         segments: base.segments,
-         co2: base.co2,
-         desc: base.desc,
-         waitTime: base.waitTime,
-         nextBusIn: base.nextBusIn,
-         recommended: base.recommended,
-         platform: base.platform,
-       ));
-    } else {
-       if (hasWalk) displayOptions.add(_walkLeg!);
-       if (hasCycle) displayOptions.add(_cycleLeg!);
-       if (hasUber) displayOptions.add(_uberLeg!);
-    }
+    // Process groups
+    _groupedLegs.forEach((suffix, legs) {
+      if (legs.length > 1) {
+        // Create merged option
+        // Sort legs inside group by cost for default "base" logic?
+        legs.sort((a, b) => a.cost.compareTo(b.cost));
+        final base = legs.first;
+
+        // Construct merged label: "To [Suffix without '+ ' if starts with it]"
+        String mergedLabel = suffix;
+        if (mergedLabel.startsWith('+ ')) {
+           mergedLabel = 'To ${base.segments.last.label}'; // Fallback to destination if generic suffix
+           // Actually, "Walk + Train" -> suffix "+ Train". Label "To Train" is weird.
+           // Route 1 logic was "To Headingley Station". "Headingley" is implied.
+           // Maybe just "Access" + suffix?
+           // "Access + Train"?
+           // Better: "Various options" + suffix?
+           // Let's try to extract destination from the first segment's 'to' or just use "via ..."
+
+           // If suffix starts with "+", it usually implies the main mode.
+           // "Walk + Train" -> Suffix "+ Train".
+           // Let's use "Access" + suffix. -> "Access + Train".
+           // Route 2: "Drive to Brough + Train" -> suffix "to Brough + Train".
+           // "Access to Brough + Train". This reads well.
+           mergedLabel = 'Access $mergedLabel';
+        } else if (mergedLabel.startsWith('to ')) {
+           mergedLabel = 'Access $mergedLabel';
+        }
+
+        displayOptions.add(Leg(
+          id: 'merged_$suffix', // Unique ID for the group
+          label: mergedLabel,
+          detail: legs.map((l) => pattern.firstMatch(l.label)?.group(1)).toSet().join(', '),
+          time: base.time,
+          cost: base.cost,
+          distance: base.distance,
+          riskScore: base.riskScore,
+          iconId: base.iconId, // Use base icon (e.g. train)
+          lineColor: base.lineColor,
+          segments: base.segments,
+          co2: base.co2,
+          desc: base.desc,
+          waitTime: base.waitTime,
+          nextBusIn: base.nextBusIn,
+          recommended: base.recommended,
+          platform: base.platform,
+        ));
+      } else {
+        // Only 1 item, just add it
+        displayOptions.addAll(legs);
+      }
+    });
 
     displayOptions.sort((a, b) {
       if (_sortOption == 'Lowest Cost') {
@@ -1061,45 +1092,40 @@ class _EditLegModalState extends State<EditLegModal> {
   }
 
   void _handleSelection(BuildContext context, Leg option) {
-      if (option.id == 'headingley_merged') {
+      if (option.id.startsWith('merged_')) {
+          String suffix = option.id.replaceFirst('merged_', '');
+          List<Leg> subOptions = _groupedLegs[suffix] ?? [];
+
           showDialog(
               context: context,
               builder: (ctx) => AlertDialog(
-                  title: const Text('How to get to Headingley Station?'),
+                  title: Text(option.label),
                   content: Column(
                       mainAxisSize: MainAxisSize.min,
-                      children: [
-                          if (_walkLeg != null)
-                            ListTile(
-                                leading: const Icon(LucideIcons.footprints),
-                                title: const Text('Walk'),
-                                subtitle: Text('${_walkLeg?.time} min • £${_walkLeg?.cost.toStringAsFixed(2)}'),
+                      children: subOptions.map((leg) {
+                          // Extract mode prefix for display
+                          String label = leg.label;
+                          final RegExp pattern = RegExp(r'^(Walk|Cycle|Uber|Drive|Bus|Taxi)(.*)', caseSensitive: false);
+                          final match = pattern.firstMatch(label);
+                          String modeTitle = match != null ? match.group(1)! : label;
+
+                          // Determine icon
+                          IconData icon = LucideIcons.circle;
+                          if (modeTitle.toLowerCase() == 'walk') icon = LucideIcons.footprints;
+                          if (modeTitle.toLowerCase() == 'cycle') icon = LucideIcons.bike;
+                          if (modeTitle.toLowerCase() == 'uber' || modeTitle.toLowerCase() == 'drive' || modeTitle.toLowerCase() == 'taxi') icon = LucideIcons.car;
+                          if (modeTitle.toLowerCase() == 'bus') icon = LucideIcons.bus;
+
+                          return ListTile(
+                                leading: Icon(icon),
+                                title: Text(modeTitle),
+                                subtitle: Text('${leg.time} min • £${leg.cost.toStringAsFixed(2)}'),
                                 onTap: () {
                                     Navigator.pop(ctx);
-                                    widget.onSelect(_walkLeg!);
+                                    widget.onSelect(leg);
                                 },
-                            ),
-                          if (_cycleLeg != null)
-                            ListTile(
-                                leading: const Icon(LucideIcons.bike),
-                                title: const Text('Cycle'),
-                                subtitle: Text('${_cycleLeg?.time} min • £${_cycleLeg?.cost.toStringAsFixed(2)}'),
-                                onTap: () {
-                                    Navigator.pop(ctx);
-                                    widget.onSelect(_cycleLeg!);
-                                },
-                            ),
-                          if (_uberLeg != null)
-                            ListTile(
-                                leading: const Icon(LucideIcons.car),
-                                title: const Text('Uber'),
-                                subtitle: Text('${_uberLeg?.time} min • £${_uberLeg?.cost.toStringAsFixed(2)}'),
-                                onTap: () {
-                                    Navigator.pop(ctx);
-                                    widget.onSelect(_uberLeg!);
-                                },
-                            ),
-                      ],
+                            );
+                      }).toList(),
                   ),
               ),
           );
@@ -1162,8 +1188,11 @@ class _EditLegModalState extends State<EditLegModal> {
                   itemBuilder: (context, index) {
                     final option = sortedOptions[index];
                     bool isSelected = false;
-                    if (option.id == 'headingley_merged') {
-                         isSelected = widget.currentLeg.id == 'train_walk_headingley' || widget.currentLeg.id == 'train_uber_headingley' || widget.currentLeg.id == 'train_cycle_headingley';
+
+                    if (option.id.startsWith('merged_')) {
+                         String suffix = option.id.replaceFirst('merged_', '');
+                         List<Leg> subOptions = _groupedLegs[suffix] ?? [];
+                         isSelected = subOptions.any((l) => l.id == widget.currentLeg.id);
                     } else {
                          isSelected = option.id == widget.currentLeg.id;
                     }

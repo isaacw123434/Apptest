@@ -12,6 +12,7 @@ class SummaryPage extends StatefulWidget {
   final String timeType;
   final String time;
   final Map<String, bool> selectedModes;
+  final String? routeId;
 
   const SummaryPage({
     super.key,
@@ -20,6 +21,7 @@ class SummaryPage extends StatefulWidget {
     required this.timeType,
     required this.time,
     required this.selectedModes,
+    this.routeId,
   });
 
   @override
@@ -59,13 +61,6 @@ class _SummaryPageState extends State<SummaryPage> {
   late String _displayTimeType;
   late String _displayTime;
 
-  String? get _routeId {
-    if (_displayFrom.contains('Beverley') || _displayTo.contains('Wellington Place')) {
-      return 'route2';
-    }
-    return null;
-  }
-
   @override
   void initState() {
     super.initState();
@@ -94,7 +89,7 @@ class _SummaryPageState extends State<SummaryPage> {
 
   Future<void> _fetchInitData() async {
     try {
-      final initData = await _apiService.fetchInitData(routeId: _routeId);
+      final initData = await _apiService.fetchInitData(routeId: widget.routeId);
       if (mounted) {
         setState(() {
           _directDrive = initData.directDrive;
@@ -125,7 +120,7 @@ class _SummaryPageState extends State<SummaryPage> {
       final results = await _apiService.searchJourneys(
         tab: _activeTab,
         selectedModes: _selectedModes,
-        routeId: _routeId,
+        routeId: widget.routeId,
       );
 
       _resultsCache[_activeTab] = results;
@@ -616,7 +611,10 @@ class _SummaryPageState extends State<SummaryPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => DetailPage(journeyResult: result),
+                builder: (context) => DetailPage(
+                  journeyResult: result,
+                  routeId: widget.routeId,
+                ),
               ),
             );
           },

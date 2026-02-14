@@ -14,6 +14,7 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _toController = TextEditingController(text: 'East Leake, Loughborough');
   final TextEditingController _timeController = TextEditingController(text: '09:00');
   final String _timeType = 'Depart';
+  String? _currentRouteId;
 
   bool _isModeDropdownOpen = false;
   final Map<String, bool> _selectedModes = {
@@ -42,6 +43,7 @@ class _HomePageState extends State<HomePage> {
           timeType: _timeType,
           time: _timeController.text,
           selectedModes: _selectedModes,
+          routeId: _currentRouteId,
         ),
       ),
     );
@@ -171,6 +173,7 @@ class _HomePageState extends State<HomePage> {
                     setState(() {
                       _fromController.text = 'St Chads, Leeds';
                       _toController.text = 'East Leake, Loughborough';
+                      _currentRouteId = null;
                     });
                     _handleSearch();
                   },
@@ -196,6 +199,7 @@ class _HomePageState extends State<HomePage> {
                     setState(() {
                       _fromController.text = 'Hurn View Beverley';
                       _toController.text = 'Wellington Place Leeds';
+                      _currentRouteId = 'route2';
                     });
                     _handleSearch();
                   },
