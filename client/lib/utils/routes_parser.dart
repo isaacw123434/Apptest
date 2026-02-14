@@ -123,6 +123,17 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
       mergedSegments.add(seg);
   }
 
+  // Calculate Costs for Merged Segments (Avoids duplicate base fares)
+  for (int i = 0; i < mergedSegments.length; i++) {
+      var seg = mergedSegments[i];
+      double cost = _calculateSegmentCost(seg, optionName: name);
+      mergedSegments[i] = Segment(
+          mode: seg.mode, label: seg.label, lineColor: seg.lineColor, iconId: seg.iconId, time: seg.time,
+          from: seg.from, to: seg.to, detail: seg.detail, path: seg.path, co2: seg.co2, distance: seg.distance,
+          cost: cost
+      );
+  }
+
   // Deduplicate Base Fare for Generic Trains (assume single ticket)
   // If multiple train segments exist, only the first one should carry the base fare (5.00).
   // _parseSegment adds 5.00 to every train segment.
@@ -505,19 +516,6 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = ''}
 
   double distMiles = (jsonSegment['distance_value'] as num).toDouble() / 1609.34;
 
-  double cost = 0.0;
-  if (mode == 'car') {
-     if (label.toLowerCase().contains('uber') || optionName.toLowerCase().contains('uber')) {
-         cost = 2.50 + (2.00 * distMiles);
-     } else {
-         cost = 0.45 * distMiles;
-     }
-  } else if (mode == 'bus') {
-     cost = 2.00 + (0.10 * distMiles);
-  } else if (mode == 'train') {
-     cost = 5.00 + (0.30 * distMiles);
-  }
-
   return Segment(
     mode: mode,
     label: label,
@@ -529,8 +527,27 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = ''}
     co2: calculateEmission(distMiles, iconId),
     from: from,
     to: to,
-    cost: cost,
+    cost: 0.0, // Cost is calculated after merging
   );
+}
+
+double _calculateSegmentCost(Segment seg, {String optionName = ''}) {
+  double distMiles = seg.distance ?? 0.0;
+  String mode = seg.mode;
+  String label = seg.label;
+
+  if (mode == 'car') {
+     if (label.toLowerCase().contains('uber') || optionName.toLowerCase().contains('uber')) {
+         return 2.50 + (2.00 * distMiles);
+     } else {
+         return 0.45 * distMiles;
+     }
+  } else if (mode == 'bus') {
+     return 2.00 + (0.10 * distMiles);
+  } else if (mode == 'train') {
+     return 5.00 + (0.30 * distMiles);
+  }
+  return 0.0;
 }
 
 String _mapMode(String rawMode, Map<String, dynamic>? transitDetails) {
