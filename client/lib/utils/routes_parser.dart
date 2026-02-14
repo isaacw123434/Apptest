@@ -210,15 +210,10 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
   }
 
   // Apply Specific Pricing (Location based)
-  bool specificUberPricing = false;
   if (location != null && pricing.containsKey(location)) {
       final prices = pricing[location]!;
       bool trainCostApplied = false;
       bool uberCostApplied = false;
-
-      if (prices.containsKey('uber')) {
-          specificUberPricing = true;
-      }
 
       for (int i = 0; i < mergedSegments.length; i++) {
           final seg = mergedSegments[i];
