@@ -615,7 +615,7 @@ class _DetailPageState extends State<DetailPage> {
       for (int i = 0; i < segments.length; i++) {
         final seg = segments[i];
         final isFirst = i == 0;
-        final isLast = i == segments.length - 1;
+        // final isLast = i == segments.length - 1; // Unused, replaced by checkIsLast logic
 
         bool shouldHide = false;
         bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
@@ -640,7 +640,7 @@ class _DetailPageState extends State<DetailPage> {
              continue;
         }
 
-        Color lineColor = _parseColor(seg.lineColor);
+        // Color lineColor = _parseColor(seg.lineColor); // Unused here, parsed inside build functions
 
         // Check for Transfer
         if (seg.mode == 'wait' && seg.label == 'Transfer') {
@@ -685,60 +685,116 @@ class _DetailPageState extends State<DetailPage> {
           extraDetails = seg.detail;
         }
 
-        children.add(_buildSegmentConnection(
-          segment: seg,
-          isEditable: isEditable && isFirst, // Only first segment gets edit button
-          onEdit: onEdit,
-          onTap: () => _zoomToSegment(seg),
-          distance: distance,
-          extraDetails: extraDetails,
-        ));
+        // --- MERGE DETECTION START ---
+        bool merged = false;
+        if (seg.iconId == 'train') {
+             // Look ahead for next train
+             int nextTrainIndex = -1;
+             int waitTime = 0;
 
-        currentMinutes += seg.time;
+             // Check immediate next
+             if (i + 1 < segments.length) {
+                 var next = segments[i+1];
+                 if (next.iconId == 'train') {
+                     nextTrainIndex = i+1;
+                 } else {
+                     // Check if it's a hidden walk
+                     bool isHiddenWalk = false;
+                     bool isWalk = next.mode.toLowerCase() == 'walk' || next.iconId == 'footprints';
+                     if (isWalk && next.time <= 5) {
+                         // Check connection
+                         if (i + 2 < segments.length && segments[i+2].iconId == 'train') {
+                             isHiddenWalk = true;
+                         }
+                     }
+                     // Also check the generic hidden walk threshold
+                     if (!isHiddenWalk && isWalk && next.time < _walkThreshold) {
+                         isHiddenWalk = true;
+                     }
 
-        if (!isLast) {
-          String nodeTitle = seg.to ?? 'Stop';
+                     if (isHiddenWalk) {
+                         waitTime += next.time;
+                         if (i + 2 < segments.length && segments[i+2].iconId == 'train') {
+                             nextTrainIndex = i + 2;
+                         }
+                     }
+                 }
+             }
 
-          // Issue 5: Use "Change at" if switching trains at same station
-          // Note: we are looking at raw segments, so we check next segment
-          // We need to check next VISIBLE segment? Or just next raw segment?
-          // If we filtered out the walk between trains, then we are effectively connecting two trains.
-          // The walk segment logic already passed.
-          // If we are at segment i, we are building node between i and i+1.
+             if (nextTrainIndex != -1) {
+                 final nextSeg = segments[nextTrainIndex];
+                 // Merge detected
+                 merged = true;
 
-          bool currentIsTrain = seg.iconId == 'train';
-          bool nextIsTrain = i < segments.length - 1 && segments[i+1].iconId == 'train';
+                 String changeLabel = 'Change at ${seg.to ?? 'Station'}';
 
-          if (currentIsTrain && nextIsTrain) {
-              nodeTitle = 'Change at ${seg.to ?? 'Station'}';
-          }
+                 // Calculate distances for merging
+                 double? dist1 = distance;
+                 double? dist2;
+                 if (nextSeg.path != null && nextSeg.path!.isNotEmpty) {
+                   double totalMeters = 0;
+                   for (int j = 0; j < nextSeg.path!.length - 1; j++) {
+                     totalMeters += _distance.as(LengthUnit.Meter, nextSeg.path![j], nextSeg.path![j + 1]);
+                   }
+                   dist2 = totalMeters / 1609.34;
+                 }
 
-          // What if we filtered out a walk between them?
-          // i is train. i+1 is walk (filtered). i+2 is train.
-          // If we filtered i+1, we already skipped it.
-          // But we are in the loop at i. We add node between i and i+1.
-          // If i+1 is skipped, we don't add node there?
-          // The node logic `children.add(_buildNode...)` is executed if `!isLast`.
-          // If i+1 is skipped, the next iteration will skip `_buildSegmentConnection`.
-          // But the node between i and i+1 is added here.
-          // If i+1 is filtered, we should probably NOT add a node or add a "merged" node?
-          // Actually, if we filter i+1, we still have a node between i and i+1?
-          // No, usually filtering implies we don't show the segment.
-          // If we have Train -> [Walk skipped] -> Train.
-          // We show Train (seg i).
-          // Then we show Node (Stop).
-          // Then loop continues to i+1. Skipped.
-          // Loop continues to i+2. Train.
-          // So we have Train -> Node -> Train.
-          // We need to label this Node correctly.
+                 children.add(_buildMergedSegmentConnection(
+                   seg1: seg,
+                   seg2: nextSeg,
+                   changeLabel: changeLabel,
+                   waitTime: waitTime,
+                   dist1: dist1,
+                   dist2: dist2,
+                   extraDetails1: extraDetails,
+                   // extraDetails2 could be calculated similarly but kept simple for now
+                   onTap: () {
+                     // Maybe zoom to fit both?
+                     // For now just zoom to first segment
+                     _zoomToSegment(seg);
+                   }
+                 ));
+
+                 currentMinutes += seg.time + waitTime + nextSeg.time;
+
+                 // Update index to skip
+                 i = nextTrainIndex;
+             }
+        }
+        // --- MERGE DETECTION END ---
+
+        if (!merged) {
+          children.add(_buildSegmentConnection(
+            segment: seg,
+            isEditable: isEditable && isFirst, // Only first segment gets edit button
+            onEdit: onEdit,
+            onTap: () => _zoomToSegment(seg),
+            distance: distance,
+            extraDetails: extraDetails,
+          ));
+
+          currentMinutes += seg.time;
+        }
+
+        // Node Logic
+        // We check loop index 'i' which might have been updated by merge logic
+        final bool checkIsLast = i >= segments.length - 1;
+
+        if (!checkIsLast) {
+          String nodeTitle = segments[i].to ?? 'Stop';
+          Color prevColor = _parseColor(segments[i].lineColor);
 
           // Lookahead for next visible segment to determine node context
+          // Since we updated 'i', we look from 'i + 1'
           int nextVisibleIndex = -1;
           for (int k = i + 1; k < segments.length; k++) {
-             // Check if segments[k] is visible
              bool hideK = false;
-             // Re-evaluate visibility logic for k
              bool kIsWalk = segments[k].mode.toLowerCase() == 'walk' || segments[k].iconId == 'footprints';
+
+             // Check context for hideK
+             // We need valid prev and next.
+             // prev is segments[k-1].
+             // If k=i+1, segments[k-1] is segments[i] which is valid.
              if (kIsWalk && segments[k].time <= 5) {
                  bool p = k > 0 && segments[k-1].iconId == 'train';
                  bool n = k < segments.length - 1 && segments[k+1].iconId == 'train';
@@ -754,21 +810,27 @@ class _DetailPageState extends State<DetailPage> {
 
           if (nextVisibleIndex != -1) {
              final nextVisible = segments[nextVisibleIndex];
-             if (currentIsTrain && nextVisible.iconId == 'train') {
-                 nodeTitle = 'Change at ${seg.to ?? 'Station'}';
+             // If we just merged (Train A + Train B), segments[i] is Train B.
+             // If nextVisible is Train C, and we have Train B -> Train C,
+             // nodeTitle should be "Change at ..." if applicable.
+
+             if (segments[i].iconId == 'train' && nextVisible.iconId == 'train') {
+                 nodeTitle = 'Change at ${segments[i].to ?? 'Station'}';
              }
 
              children.add(_buildNode(
                 nodeTitle,
                 _formatMinutes(currentMinutes),
-                prevColor: lineColor,
+                prevColor: prevColor,
                 nextColor: _parseColor(nextVisible.lineColor)));
           } else {
+             // No next visible segment?
+             // Fallback to raw next segment if exists, but it might be filtered out walk?
              if (i < segments.length - 1) {
                  children.add(_buildNode(
                     nodeTitle,
                     _formatMinutes(currentMinutes),
-                    prevColor: lineColor,
+                    prevColor: prevColor,
                     nextColor: _parseColor(segments[i + 1].lineColor)));
              }
           }
@@ -1073,6 +1135,185 @@ class _DetailPageState extends State<DetailPage> {
               ),
             ),
           )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMergedSegmentConnection({
+    required Segment seg1,
+    required Segment seg2,
+    required String changeLabel,
+    required int waitTime,
+    double? dist1,
+    double? dist2,
+    String? extraDetails1,
+    VoidCallback? onTap,
+  }) {
+    double totalCost = seg1.cost + seg2.cost;
+    double totalCo2 = (seg1.co2 ?? 0) + (seg2.co2 ?? 0);
+    // If co2 is missing, estimate?
+    if (seg1.co2 == null && dist1 != null) totalCo2 += calculateEmission(dist1, seg1.iconId);
+    if (seg2.co2 == null && dist2 != null) totalCo2 += calculateEmission(dist2, seg2.iconId);
+
+    Color color1 = _parseColor(seg1.lineColor);
+    Color color2 = _parseColor(seg2.lineColor);
+
+    Widget verticalLine = Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 12,
+          height: double.infinity,
+          color: Colors.grey[200],
+        ),
+        Column(
+          children: [
+             Expanded(child: Container(width: 4, color: color1)),
+             Expanded(child: Container(width: 4, color: color2)),
+          ],
+        )
+      ],
+    );
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(width: 24, child: verticalLine),
+          const SizedBox(width: 16),
+          Expanded(
+            child: GestureDetector(
+              onTap: onTap,
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[200]!),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withAlpha(10),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2))
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Seg 1
+                    Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: color1.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(_getIconData(seg1.iconId), color: color1, size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(seg1.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                '${seg1.time} min${dist1 != null ? ' • ${dist1.toStringAsFixed(1)} miles' : ''}',
+                                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                              if (extraDetails1 != null) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  extraDetails1,
+                                  style: const TextStyle(fontSize: 11, color: Colors.blueGrey, fontStyle: FontStyle.italic),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Divider / Change
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
+                      child: Row(
+                        children: [
+                          const Icon(LucideIcons.arrowDown, size: 12, color: Colors.grey),
+                          const SizedBox(width: 8),
+                          Text(
+                             '$changeLabel (${waitTime > 0 ? '$waitTime mins' : 'Immediate'})',
+                             style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic)
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Seg 2
+                    Row(
+                      children: [
+                         Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: color2.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(_getIconData(seg2.iconId), color: color2, size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(seg2.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                '${seg2.time} min${dist2 != null ? ' • ${dist2.toStringAsFixed(1)} miles' : ''}',
+                                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 8),
+                    const Divider(),
+                    const SizedBox(height: 4),
+
+                    // Totals
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                         if (totalCost > 0)
+                           Text(
+                             '£${totalCost.toStringAsFixed(2)}',
+                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
+                           ),
+                         if (totalCo2 > 0)
+                           Row(
+                            children: [
+                              const Icon(LucideIcons.leaf, size: 12, color: Colors.green),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${totalCo2.toStringAsFixed(2)} kg CO₂',
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
