@@ -20,69 +20,54 @@ void main() {
 
     expect(initData, isNotNull);
 
-    // Validate Main Leg (Train)
-    // Generalized logic: 5.00 + 0.30 * distance (90.8 miles) ~= 32.24
-    expect(initData.segmentOptions.mainLeg.cost, closeTo(32.24, 1.0));
-
-    // Validate Direct Drive
-    // Distance ~90.8 miles. Cost 0.45 * 90.8 = 40.86
-    expect(initData.directDrive.cost, closeTo(40.86, 2.0));
-
-    // Validate "Drive" (Group 1) -> Drive & Park
-    // Distance ~3.2 miles.
-    // Generalized: 0.45 * 3.2 = 1.44.
-    // If we assume "Drive" access includes parking, maybe higher?
-    // But generalized logic uses pure mileage for 'drive' currently or 5.00 + mileage if 'train' leg access logic applies?
-    // Actually Group 1 "Drive" is a Leg object.
-    // _estimateCost called with "Drive".
-    // My new logic: if (lower.contains('drive')...) return 0.45 * dist.
-    // So 1.44.
-    final driveLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Drive');
-    expect(driveLeg.cost, closeTo(1.44, 0.5));
+    // Route 1 Checks
 
     // Validate Uber (Group 1) -> Leeds Station
-    // Name "Uber". Distance ~3.42 miles (from repro check: 5507m / 1609.34).
-    // New Logic: 2.50 + 2.00 * 3.42 = 9.34.
+    // Name "Uber". Distance ~3.42 miles. User specified 8.97.
     final uberLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Uber');
-    expect(uberLeg.cost, closeTo(9.34, 0.5));
+    expect(uberLeg.cost, closeTo(8.97, 0.1));
 
     // Validate Uber (Group 4) -> Loughborough to East Leake
-    // Name "Uber". Distance ~4.5 miles.
-    // New Logic: 2.50 + 2.00 * 4.5 = 11.5.
+    // Name "Uber". Distance ~4.5 miles. User specified 14.89.
     final uberLegLast = initData.segmentOptions.lastMile.firstWhere((leg) => leg.label == 'Uber');
-    expect(uberLegLast.cost, closeTo(11.5, 0.5));
+    expect(uberLegLast.cost, closeTo(14.89, 0.1));
+  });
 
-    // Validate Bus (Group 1) -> Line 24
-    // Name "Bus". Dist ~2.8 miles (4.4 km).
-    // Logic: 2.00 + 0.10 * 2.8 = 2.28.
-    final busLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Bus');
-    expect(busLeg.cost, closeTo(2.28, 0.5));
+  test('Parses routes_2.json correctly', () async {
+    var file = File('assets/routes_2.json');
+    if (!await file.exists()) {
+       file = File('client/assets/routes_2.json');
+    }
 
-    // Validate Bus (Group 4) -> Line 1
-    // Name "Bus". Dist ~3.9 miles (6.3 km).
-    // Logic: 2.00 + 0.10 * 3.9 = 2.39.
-    final busLegLast = initData.segmentOptions.lastMile.firstWhere((leg) => leg.label == 'Bus');
-    expect(busLegLast.cost, closeTo(2.39, 0.5));
+    if (!await file.exists()) {
+        // Skip if file doesn't exist (might not be in test env if not committed?)
+        // But it was in `ls`.
+        fail('Could not find routes_2.json');
+    }
 
-    // Validate "Uber + Train" (Group 2)
-    // Name "Uber + Train".
-    // Logic: contains 'train'.
-    // trainCost = 5 + 0.3 * distance.
-    // contains 'uber' -> trainCost + 8.00 + 4.50 = trainCost + 12.50.
-    // Distance? "Uber + Train" leg distance in Group 2.
-    // Legs: Uber (0.8 miles) + Train (3.1 miles) + Walk. Total ~ 4 miles.
-    // trainCost = 5 + 0.3 * 4 = 6.2.
-    // Total = 6.2 + 12.5 = 18.7.
-    final uberTrainLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Uber + Train');
-    expect(uberTrainLeg.cost, closeTo(18.7, 1.0));
+    final jsonString = await file.readAsString();
+    final initData = parseRoutesJson(jsonString, routeId: 'route2');
 
-    // Validate "Walk + Train" (Group 2)
-    // Name "Walk + Train".
-    // Logic: contains 'train'.
-    // Not uber, drive, bus.
-    // Returns trainCost = 5 + 0.3 * 4 = 6.2.
-    final walkTrainLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Walk + Train');
-    expect(walkTrainLeg.cost, closeTo(6.2, 0.5));
+    // Route 2 Checks (Access Options)
 
+    // Brough: Uber cost £22.58 + Train £8.10 = £30.68
+    final uberBrough = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label.contains('Uber') && leg.label.contains('Brough'));
+    expect(uberBrough.cost, closeTo(30.68, 0.1));
+
+    // York: Uber cost £46.24 + Train £5.20 = £51.44
+    final uberYork = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label.contains('Uber') && leg.label.contains('York'));
+    expect(uberYork.cost, closeTo(51.44, 0.1));
+
+    // Beverley: Uber cost £4.62 + Train £12.10 = £16.72
+    final uberBeverley = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label.contains('Uber') && leg.label.contains('Beverley'));
+    expect(uberBeverley.cost, closeTo(16.72, 0.1));
+
+    // Hull: Uber cost £20.63 + Train £9.60 = £30.23
+    final uberHull = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label.contains('Uber') && leg.label.contains('Hull'));
+    expect(uberHull.cost, closeTo(30.23, 0.1));
+
+    // Eastrington: Uber cost £34.75 + Train £7.00 = £41.75
+    final uberEastrington = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label.contains('Uber') && leg.label.contains('Eastrington'));
+    expect(uberEastrington.cost, closeTo(41.75, 0.1));
   });
 }

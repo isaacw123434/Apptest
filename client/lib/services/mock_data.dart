@@ -85,7 +85,7 @@ final Map<String, dynamic> segmentOptionsData = {
       'detail': 'St Chads → Leeds Station',
       'time': 14,
       'cost': 8.97,
-      'distance': 3.22,
+      'distance': 3.2,
       'co2': 0.88,
       'riskScore': 0,
       'iconId': IconIds.car,
@@ -95,7 +95,7 @@ final Map<String, dynamic> segmentOptionsData = {
       'desc': 'Fastest door-to-door.',
       'waitTime': 4,
       'segments': [
-        { 'mode': 'taxi', 'label': 'Uber', 'lineColor': '#000000', 'iconId': IconIds.car, 'time': 14, 'to': 'Leeds Station', 'distance': 3.22, 'co2': 0.88 }
+        { 'mode': 'taxi', 'label': 'Uber', 'lineColor': '#000000', 'iconId': IconIds.car, 'time': 14, 'to': 'Leeds Station', 'distance': 3.2, 'co2': 0.88 }
       ]
     },
     {

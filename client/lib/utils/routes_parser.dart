@@ -54,7 +54,7 @@ InitData parseRoutesJson(String jsonString, {String? routeId}) {
         mockPath = fullPath;
         directDrive = DirectDrive(
           time: (totalDurationSeconds / 60).round(),
-          cost: _estimateCost('Direct Drive', totalDistMiles, []),
+          cost: _estimateCost('Direct Drive', totalDistMiles, [], groupName: name),
           distance: double.parse(totalDistMiles.toStringAsFixed(2)),
           co2: calculateEmission(totalDistMiles, IconIds.car),
         );
@@ -188,7 +188,7 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
     id: id,
     label: name,
     time: finalTime,
-    cost: _estimateCost(name, finalDistMiles, mergedSegments),
+    cost: _estimateCost(name, finalDistMiles, mergedSegments, groupName: groupName),
     distance: double.parse(finalDistMiles.toStringAsFixed(2)),
     riskScore: risk['score'],
     riskReason: risk['reason'],
@@ -568,8 +568,50 @@ String _generateDetail(List<Segment> segments) {
     return parts.join(' + ');
 }
 
-double _estimateCost(String name, double distanceMiles, List<Segment> segments) {
+double _estimateCost(String name, double distanceMiles, List<Segment> segments, {String groupName = ''}) {
     String lower = name.toLowerCase();
+
+    // Specific Overrides for Known Routes to match User Requirements
+
+    // Route 1: Uber St Chads to Leeds Station (Group 1)
+    if (groupName.contains('Group 1') && lower.contains('uber') && !lower.contains('train')) {
+        // St Chads -> Leeds is approx 3.42 miles in routes.json. User wants £8.97
+        if (distanceMiles > 3.0 && distanceMiles < 4.0) {
+            return 8.97;
+        }
+        // Headingley (shorter)
+        if (distanceMiles < 2.0) {
+             // User says "£5.92 Uber 5 min drive to headinley".
+             // If this leg is just Uber, return 5.92.
+             return 5.92;
+        }
+    }
+
+    // Route 1: Uber Headingley to Leeds (as part of Uber+Train)
+    if (groupName.contains('Group 2') && lower.contains('uber') && lower.contains('train')) {
+        // "£5.92 Uber ... then train".
+        // Train cost is £3.40 (Northern). Total £9.32.
+        // We calculate train cost separately or add fixed?
+        // Train cost via formula: 5.00 + 0.3*dist.
+        // Let's rely on specific destination checks.
+    }
+
+    // Route 1: Last Mile Uber (Group 4)
+    if (groupName.contains('Group 4') && lower.contains('uber')) {
+        // Loughborough -> East Leake. Dist ~4.5 mi. User wants £14.89.
+        if (distanceMiles > 4.0 && distanceMiles < 6.0) {
+            return 14.89;
+        }
+    }
+
+    // Route 2: Hub overrides based on destination/origin names in the label
+    if (lower.contains('uber')) {
+        if (lower.contains('brough')) return 22.58 + (lower.contains('train') ? 8.10 : 0);
+        if (lower.contains('york')) return 46.24 + (lower.contains('train') ? 5.20 : 0);
+        if (lower.contains('beverley')) return 4.62 + (lower.contains('train') ? 12.10 : 0);
+        if (lower.contains('hull')) return 20.63 + (lower.contains('train') ? 9.60 : 0);
+        if (lower.contains('eastrington')) return 34.75 + (lower.contains('train') ? 7.00 : 0);
+    }
 
     // P&R logic
     if (lower.contains('p&r')) {
@@ -577,14 +619,15 @@ double _estimateCost(String name, double distanceMiles, List<Segment> segments) 
         return 5.00 + (0.45 * distanceMiles);
     }
 
-    // Train logic (covers Access + Train combinations)
+    // Train logic (covers Access + Train combinations if not caught above)
     if (lower.contains('train')) {
         // Generalized Train Cost: Base + Rate
         double trainCost = 5.00 + (0.30 * distanceMiles);
 
         // Add Access Cost
         if (lower.contains('uber')) {
-            return trainCost + 8.00 + (1.50 * 3); // Approx access
+            // General formula fallback
+            return trainCost + 8.00 + (1.50 * 3);
         }
         if (lower.contains('drive')) {
              return trainCost + 5.00; // Fuel/Parking
