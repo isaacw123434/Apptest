@@ -41,10 +41,10 @@ void main() {
     expect(driveLeg.cost, closeTo(1.44, 0.5));
 
     // Validate Uber (Group 1) -> Leeds Station
-    // Name "Uber". Distance ~3.2 miles.
-    // New Logic: 2.50 + 2.00 * 3.2 = 8.9.
+    // Name "Uber". Distance ~3.42 miles (from repro check: 5507m / 1609.34).
+    // New Logic: 2.50 + 2.00 * 3.42 = 9.34.
     final uberLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Uber');
-    expect(uberLeg.cost, closeTo(8.9, 0.5));
+    expect(uberLeg.cost, closeTo(9.34, 0.5));
 
     // Validate Uber (Group 4) -> Loughborough to East Leake
     // Name "Uber". Distance ~4.5 miles.
