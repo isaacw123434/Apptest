@@ -125,4 +125,43 @@ void main() {
       // Now Cheap (£1) should be first
       expect(tester.getTopLeft(cheapFinder).dy, lessThan(tester.getTopLeft(fastFinder).dy));
   });
+
+  testWidgets('LegSelectorModal uses labelBuilder', (WidgetTester tester) async {
+    final option1 = Leg(
+      id: 'opt1',
+      label: 'Drive to Eastrington + Train',
+      time: 20,
+      cost: 5.0,
+      distance: 1.0,
+      riskScore: 0,
+      iconId: 'footprints',
+      lineColor: '#000000',
+      segments: [],
+    );
+
+    final options = [option1];
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: LegSelectorModal(
+          options: options,
+          currentLeg: option1,
+          title: 'Label Builder Test',
+          onSelect: (_) {},
+          labelBuilder: (leg) {
+             if (leg.label.contains('Eastrington')) {
+                 return 'Eastrington to Leeds';
+             }
+             return leg.label;
+          },
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    // Verify modified label is displayed
+    expect(find.text('Eastrington to Leeds'), findsOneWidget);
+    // Verify original label is NOT displayed
+    expect(find.text('Drive to Eastrington + Train'), findsNothing);
+  });
 }

@@ -426,6 +426,18 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
       totalCost += seg.cost;
   }
 
+  // Filter segments for detail text (simplify if it's a combined leg)
+  List<Segment> detailSegments = mergedSegments;
+  if (name.toLowerCase().contains('+ train')) {
+      detailSegments = mergedSegments.where((s) {
+          // Filter out wait (transfer) and train
+          if (s.mode == 'wait' || s.label == 'Transfer') return false;
+          if (s.mode == 'train' || s.iconId == IconIds.train) return false;
+          if (s.iconId == 'clock') return false;
+          return true;
+      }).toList();
+  }
+
   String id = _generateId(name);
   String iconId = _mapIconId(name, mergedSegments);
   final risk = _calculateRisk(groupName, name);
@@ -442,7 +454,7 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
     lineColor: _mapLineColor(name, mergedSegments),
     segments: mergedSegments,
     co2: double.parse(totalCo2.toStringAsFixed(2)),
-    detail: _generateDetail(mergedSegments),
+    detail: _generateDetail(detailSegments),
   );
 }
 
