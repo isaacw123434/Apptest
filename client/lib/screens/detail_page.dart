@@ -980,6 +980,11 @@ class _DetailPageState extends State<DetailPage> {
                           '${segment.time} min${displayDistance != null ? ' • ${displayDistance.toStringAsFixed(1)} miles' : ''}',
                           style: const TextStyle(fontSize: 12, color: Colors.grey),
                         ),
+                        if (segment.cost > 0)
+                           Text(
+                             '£${segment.cost.toStringAsFixed(2)}',
+                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
+                           ),
                         if (displayDistance != null || emission > 0)
                           Row(
                             children: [
@@ -1036,6 +1041,7 @@ class _DetailPageState extends State<DetailPage> {
       case 'bike': return LucideIcons.bike;
       case 'footprints': return LucideIcons.footprints;
       case 'clock': return LucideIcons.clock; // Added for Transfer
+      case 'parking': return LucideIcons.circle;
       default: return LucideIcons.circle;
     }
   }

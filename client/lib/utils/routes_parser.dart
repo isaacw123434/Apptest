@@ -115,6 +115,29 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
       mergedSegments.add(seg);
   }
 
+  // Insert Parking Segment
+  for (int i = 0; i < mergedSegments.length - 1; i++) {
+     Segment current = mergedSegments[i];
+     Segment next = mergedSegments[i+1];
+
+     if (current.mode == 'car' && next.mode == 'train') {
+         // Check if it's NOT Uber
+         bool isUber = current.label.toLowerCase().contains('uber');
+         if (!isUber) {
+             // Insert Parking
+             mergedSegments.insert(i + 1, Segment(
+                 mode: 'parking',
+                 label: 'Parking',
+                 lineColor: '#000000',
+                 iconId: IconIds.parking,
+                 time: 0,
+                 cost: 5.00,
+             ));
+             i++; // Skip the newly inserted segment
+         }
+     }
+  }
+
   // Inject Transfer Buffer for Route 2 Access Options (Issue 4)
   if (routeId == 'route2' &&
       groupName.contains('Access Options') &&
@@ -266,6 +289,7 @@ Segment _mergeSegments(Segment a, Segment b) {
   int newTime = a.time + b.time;
   double newDist = (a.distance ?? 0) + (b.distance ?? 0);
   double newCo2 = (a.co2 ?? 0) + (b.co2 ?? 0);
+  double newCost = a.cost + b.cost;
 
   return Segment(
     mode: a.mode,
@@ -277,6 +301,7 @@ Segment _mergeSegments(Segment a, Segment b) {
     distance: newDist,
     co2: newCo2,
     detail: a.detail, // Keep original detail or update?
+    cost: newCost,
   );
 }
 
@@ -384,6 +409,19 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = ''}
 
   double distMiles = (jsonSegment['distance_value'] as num).toDouble() / 1609.34;
 
+  double cost = 0.0;
+  if (mode == 'car') {
+     if (label.toLowerCase().contains('uber') || optionName.toLowerCase().contains('uber')) {
+         cost = 2.50 + (2.00 * distMiles);
+     } else {
+         cost = 0.45 * distMiles;
+     }
+  } else if (mode == 'bus') {
+     cost = 2.00 + (0.10 * distMiles);
+  } else if (mode == 'train') {
+     cost = 5.00 + (0.30 * distMiles);
+  }
+
   return Segment(
     mode: mode,
     label: label,
@@ -395,6 +433,7 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = ''}
     co2: calculateEmission(distMiles, iconId),
     from: from,
     to: to,
+    cost: cost,
   );
 }
 
