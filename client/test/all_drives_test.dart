@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:client/utils/routes_parser.dart';
@@ -57,6 +59,8 @@ void main() {
                parkingCost += seg.cost;
              }
            }
+
+           print('      - Calculated: Car Cost £${calculatedCarCost.toStringAsFixed(2)} + Parking Cost £${parkingCost.toStringAsFixed(2)} = £${(calculatedCarCost + parkingCost).toStringAsFixed(2)}');
 
            // Verify if this option matches the user's issue (28.80 cost)
            if ((leg.cost - 28.80).abs() < 0.1) {
