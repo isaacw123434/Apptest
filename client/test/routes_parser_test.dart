@@ -16,63 +16,53 @@ void main() {
 
     final jsonString = await file.readAsString();
 
-    final initData = parseRoutesJson(jsonString);
+    // Use route1 to verify overridden prices as formulas are removed
+    final initData = parseRoutesJson(jsonString, routeId: 'route1');
 
     expect(initData, isNotNull);
 
     // Validate Main Leg (Train)
-    // Generalized logic: 5.00 + 0.30 * distance (90.8 miles) ~= 32.24
-    expect(initData.segmentOptions.mainLeg.cost, closeTo(32.24, 1.0));
+    // Override: 25.70
+    expect(initData.segmentOptions.mainLeg.cost, closeTo(25.70, 0.1));
 
     // Validate Direct Drive
     // Distance ~90.8 miles. Cost 0.45 * 90.8 = 40.86
     expect(initData.directDrive.cost, closeTo(40.86, 2.0));
 
     // Validate "Drive" (Group 1) -> Drive & Park
-    // Distance ~3.2 miles. Cost 0.45 * 3.2 = 1.44
+    // Distance ~3.2 miles. Cost 0.45 * 3.2 = 1.44. PLUS Parking 23.00 (Route 1 Override)
     final driveLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Drive');
-    expect(driveLeg.cost, closeTo(1.44, 0.5));
+    expect(driveLeg.cost, closeTo(24.44, 0.5));
 
     // Validate Uber (Group 1) -> Leeds Station
-    // Name "Uber". Distance ~3.2 miles.
-    // New Logic: 2.50 + 2.00 * 3.2 = 8.9.
+    // Override: 8.97
     final uberLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Uber');
-    expect(uberLeg.cost, closeTo(8.9, 0.5));
+    expect(uberLeg.cost, closeTo(8.97, 0.1));
 
     // Validate Uber (Group 4) -> Loughborough to East Leake
-    // Name "Uber". Distance ~4.5 miles.
-    // New Logic: 2.50 + 2.00 * 4.5 = 11.5.
+    // Override: 14.89
     final uberLegLast = initData.segmentOptions.lastMile.firstWhere((leg) => leg.label == 'Uber');
-    expect(uberLegLast.cost, closeTo(11.5, 0.5));
+    expect(uberLegLast.cost, closeTo(14.89, 0.1));
 
     // Validate Bus (Group 1) -> Line 24
-    // Name "Bus". Dist ~2.8 miles (4.4 km).
-    // Logic: 2.00 + 0.10 * 2.8 = 2.28.
+    // Override: 2.00
     final busLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Bus');
-    expect(busLeg.cost, closeTo(2.28, 0.5));
+    expect(busLeg.cost, closeTo(2.00, 0.1));
 
     // Validate Bus (Group 4) -> Line 1
-    // Name "Bus". Dist ~3.9 miles (6.3 km).
-    // Logic: 2.00 + 0.10 * 3.9 = 2.39.
+    // Override: 3.00
     final busLegLast = initData.segmentOptions.lastMile.firstWhere((leg) => leg.label == 'Bus');
-    expect(busLegLast.cost, closeTo(2.39, 0.5));
+    expect(busLegLast.cost, closeTo(3.00, 0.1));
 
     // Validate "Uber + Train" (Group 2)
-    // Name "Uber + Train".
-    // Logic:
-    // Uber part (~0.8 miles): 2.50 + 2.00 * 0.8 = 4.10
-    // Train part (~3.1 miles): 5.00 + 0.30 * 3.1 = 5.93
-    // Total: 10.03
+    // Override: Uber 5.92 + Train 3.40 = 9.32
     final uberTrainLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Uber + Train');
-    expect(uberTrainLeg.cost, closeTo(10.8, 1.0));
+    expect(uberTrainLeg.cost, closeTo(9.32, 0.1));
 
     // Validate "Walk + Train" (Group 2)
-    // Name "Walk + Train".
-    // Logic: contains 'train'.
-    // Not uber, drive, bus.
-    // Returns trainCost = 5 + 0.3 * distance.
+    // Override: 3.40
     final walkTrainLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Walk + Train');
-    expect(walkTrainLeg.cost, closeTo(6.2, 0.5));
+    expect(walkTrainLeg.cost, closeTo(3.40, 0.1));
 
   });
 }
