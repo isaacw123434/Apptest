@@ -88,21 +88,14 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = ''}) {
     rawSegments.add(_parseSegment(jsonLeg, optionName: name));
   }
 
-  // Filter short walks between trains
+  // Filter short walks
   List<Segment> filteredSegments = [];
   for (int i = 0; i < rawSegments.length; i++) {
     Segment seg = rawSegments[i];
     bool remove = false;
-    // Standardize filter threshold to 2.5 mins (<= 2)
-    if (seg.mode == 'walk' && seg.time <= 2) {
-       // Check if between trains
-       if (i > 0 && i < rawSegments.length - 1) {
-           Segment prev = rawSegments[i-1];
-           Segment next = rawSegments[i+1];
-           if (prev.mode == 'train' && next.mode == 'train') {
-               remove = true;
-           }
-       }
+    // Remove short walks <= 1 min
+    if (seg.mode == 'walk' && seg.time <= 1) {
+       remove = true;
     }
     if (!remove) {
         filteredSegments.add(seg);
@@ -230,6 +223,7 @@ Map<String, dynamic> _calculateRisk(String groupName, String optionName) {
 bool _shouldMerge(Segment a, Segment b) {
   // Always merge consecutive segments of the same mode/label
   if (a.mode == b.mode && a.label == b.label) {
+    if (a.mode == 'train') return false;
     return true;
   }
   return false;
