@@ -30,6 +30,21 @@ InitData parseRoutesJson(String jsonString) {
       for (var option in options) {
         lastMile.add(_parseOptionToLeg(option, groupName: name));
       }
+
+      // If "Walk" option is missing in Last Mile, try to create it from "Cycle"
+      bool hasWalk = lastMile.any((l) => l.label.toLowerCase().contains('walk') || l.id.contains('walk'));
+      if (!hasWalk) {
+          Leg? cycleLeg;
+          try {
+             cycleLeg = lastMile.firstWhere((l) => l.label.toLowerCase().contains('cycle') || l.id.contains('cycle'));
+          } catch (e) {
+             // Not found
+          }
+
+          if (cycleLeg != null) {
+              lastMile.add(_createWalkLegFromCycle(cycleLeg));
+          }
+      }
     } else if (name.contains('Group 5')) {
       // Direct Drive
       if (options.isNotEmpty) {
@@ -75,6 +90,56 @@ InitData parseRoutesJson(String jsonString) {
     ),
     directDrive: directDrive,
     mockPath: mockPath,
+  );
+}
+
+Leg _createWalkLegFromCycle(Leg cycleLeg) {
+  List<Segment> newSegments = [];
+  double totalDistMiles = cycleLeg.distance;
+  int totalTimeSeconds = 0;
+
+  // Iterate segments
+  for (var seg in cycleLeg.segments) {
+    // Seg distance is in miles.
+    // meters = miles * 1609.34
+    double distMeters = (seg.distance ?? 0) * 1609.34;
+
+    // Speed 1.4 m/s.
+    int timeSeconds = (distMeters / 1.4).round();
+    totalTimeSeconds += timeSeconds;
+
+    // Segment time in minutes (for display)
+    int timeMinutes = (timeSeconds / 60).round();
+
+    newSegments.add(Segment(
+      mode: 'walk',
+      label: 'Walk',
+      lineColor: '#475569', // Walk color
+      iconId: IconIds.footprints,
+      time: timeMinutes,
+      path: seg.path, // Reuse path
+      distance: seg.distance,
+      co2: 0.0,
+      detail: seg.detail, // Keep existing detail? Or empty
+    ));
+  }
+
+  return Leg(
+    id: 'walk_generated',
+    label: 'Walk',
+    time: (totalTimeSeconds / 60).round(),
+    cost: 0.0,
+    distance: totalDistMiles,
+    riskScore: 0,
+    riskReason: 'Standard risk',
+    iconId: IconIds.footprints,
+    lineColor: '#475569',
+    segments: newSegments,
+    co2: 0.0,
+    detail: _generateDetail(newSegments),
+    color: 'text-slate-600',
+    bgColor: 'bg-slate-100',
+    desc: 'Walking route',
   );
 }
 
