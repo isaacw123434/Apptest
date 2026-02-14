@@ -4,7 +4,7 @@ import '../models.dart';
 import 'polyline.dart';
 import 'emission_utils.dart';
 
-const Map<String, Map<String, double>> PRICING = {
+const Map<String, Map<String, double>> pricing = {
   'brough': {'parking': 5.80, 'uber': 22.58, 'train': 8.10},
   'york': {'parking': 13.95, 'uber': 46.24, 'train': 5.20},
   'beverley': {'parking': 4.40, 'uber': 4.62, 'train': 12.10},
@@ -158,11 +158,17 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
   // Fallback: check option name
   if (location == null) {
       String lowerName = name.toLowerCase();
-      if (lowerName.contains('brough')) location = 'brough';
-      else if (lowerName.contains('york')) location = 'york';
-      else if (lowerName.contains('beverley')) location = 'beverley';
-      else if (lowerName.contains('hull')) location = 'hull';
-      else if (lowerName.contains('eastrington')) location = 'eastrington';
+      if (lowerName.contains('brough')) {
+        location = 'brough';
+      } else if (lowerName.contains('york')) {
+        location = 'york';
+      } else if (lowerName.contains('beverley')) {
+        location = 'beverley';
+      } else if (lowerName.contains('hull')) {
+        location = 'hull';
+      } else if (lowerName.contains('eastrington')) {
+        location = 'eastrington';
+      }
   }
 
   // Insert Parking Segment
@@ -175,8 +181,8 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
          bool isUber = current.label.toLowerCase().contains('uber');
          if (!isUber) {
              double parkingCost = 5.00;
-             if (location != null && PRICING.containsKey(location)) {
-                 parkingCost = PRICING[location]!['parking'] ?? 5.00;
+             if (location != null && pricing.containsKey(location)) {
+                 parkingCost = pricing[location]!['parking'] ?? 5.00;
              }
 
              // Insert Parking
@@ -221,8 +227,8 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
   }
 
   // Apply Specific Pricing if available
-  if (location != null && PRICING.containsKey(location)) {
-      final prices = PRICING[location]!;
+  if (location != null && pricing.containsKey(location)) {
+      final prices = pricing[location]!;
       bool trainCostApplied = false;
       bool uberCostApplied = false;
 
