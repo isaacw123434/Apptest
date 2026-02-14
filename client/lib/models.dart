@@ -15,6 +15,7 @@ class Segment {
   final String lineColor;
   final String iconId;
   final int time;
+  final String? from;
   final String? to;
   final String? detail;
   final List<LatLng>? path;
@@ -27,6 +28,7 @@ class Segment {
     required this.lineColor,
     required this.iconId,
     required this.time,
+    this.from,
     this.to,
     this.detail,
     this.path,
@@ -58,6 +60,7 @@ class Segment {
       lineColor: json['lineColor'] ?? '#000000',
       iconId: json['iconId'] ?? '',
       time: json['time'] ?? 0,
+      from: json['from'],
       to: json['to'],
       detail: json['detail'],
       path: path,
