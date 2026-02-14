@@ -229,10 +229,15 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
   }
 
   // Apply Specific Pricing (Location based)
+  bool specificUberPricing = false;
   if (location != null && pricing.containsKey(location)) {
       final prices = pricing[location]!;
       bool trainCostApplied = false;
       bool uberCostApplied = false;
+
+      if (prices.containsKey('uber')) {
+          specificUberPricing = true;
+      }
 
       for (int i = 0; i < mergedSegments.length; i++) {
           final seg = mergedSegments[i];
@@ -253,6 +258,20 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
                   cost: cost
               );
               uberCostApplied = true;
+          }
+      }
+  }
+
+  // Apply Generic Uber Base Fare (if not covered by specific pricing)
+  if (!specificUberPricing) {
+      for (int i = 0; i < mergedSegments.length; i++) {
+          if (mergedSegments[i].mode == 'car' && mergedSegments[i].label.toLowerCase().contains('uber')) {
+               var seg = mergedSegments[i];
+               mergedSegments[i] = Segment(
+                  mode: seg.mode, label: seg.label, lineColor: seg.lineColor, iconId: seg.iconId, time: seg.time,
+                  from: seg.from, to: seg.to, detail: seg.detail, path: seg.path, co2: seg.co2, distance: seg.distance,
+                  cost: seg.cost + 2.50
+              );
           }
       }
   }
@@ -339,10 +358,6 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
                   from: seg.from, to: seg.to, detail: seg.detail, path: seg.path, co2: seg.co2, distance: seg.distance,
                   cost: 2.00
            );
-           // Assuming £2 is total for bus journey (even if multiple segments), or per bus? Prompt says "£2 (line 24)".
-           // If multiple bus segments, maybe keep £2 each?
-           // "Any bus after this ... is £2 each" implies per bus.
-           // But line 24 is one bus.
          }
        }
     }
@@ -645,7 +660,8 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = '',
   double cost = 0.0;
   if (mode == 'car') {
      if (label.toLowerCase().contains('uber') || optionName.toLowerCase().contains('uber')) {
-         cost = 2.50 + (2.00 * distMiles);
+         // Changed from 2.50 + ... to just 2.00 * ... base fare applied in _parseOptionToLeg
+         cost = 2.00 * distMiles;
      } else {
          cost = 0.45 * distMiles;
      }

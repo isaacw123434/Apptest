@@ -29,14 +29,7 @@ void main() {
     expect(initData.directDrive.cost, closeTo(40.86, 2.0));
 
     // Validate "Drive" (Group 1) -> Drive & Park
-    // Distance ~3.2 miles.
-    // Generalized: 0.45 * 3.2 = 1.44.
-    // If we assume "Drive" access includes parking, maybe higher?
-    // But generalized logic uses pure mileage for 'drive' currently or 5.00 + mileage if 'train' leg access logic applies?
-    // Actually Group 1 "Drive" is a Leg object.
-    // _estimateCost called with "Drive".
-    // My new logic: if (lower.contains('drive')...) return 0.45 * dist.
-    // So 1.44.
+    // Distance ~3.2 miles. Cost 0.45 * 3.2 = 1.44
     final driveLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Drive');
     expect(driveLeg.cost, closeTo(1.44, 0.5));
 
@@ -66,21 +59,18 @@ void main() {
 
     // Validate "Uber + Train" (Group 2)
     // Name "Uber + Train".
-    // Logic: contains 'train'.
-    // trainCost = 5 + 0.3 * distance.
-    // contains 'uber' -> trainCost + 8.00 + 4.50 = trainCost + 12.50.
-    // Distance? "Uber + Train" leg distance in Group 2.
-    // Legs: Uber (0.8 miles) + Train (3.1 miles) + Walk. Total ~ 4 miles.
-    // trainCost = 5 + 0.3 * 4 = 6.2.
-    // Total = 6.2 + 12.5 = 18.7.
+    // Logic:
+    // Uber part (~0.8 miles): 2.50 + 2.00 * 0.8 = 4.10
+    // Train part (~3.1 miles): 5.00 + 0.30 * 3.1 = 5.93
+    // Total: 10.03
     final uberTrainLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Uber + Train');
-    expect(uberTrainLeg.cost, closeTo(18.7, 1.0));
+    expect(uberTrainLeg.cost, closeTo(10.8, 1.0));
 
     // Validate "Walk + Train" (Group 2)
     // Name "Walk + Train".
     // Logic: contains 'train'.
     // Not uber, drive, bus.
-    // Returns trainCost = 5 + 0.3 * 4 = 6.2.
+    // Returns trainCost = 5 + 0.3 * distance.
     final walkTrainLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Walk + Train');
     expect(walkTrainLeg.cost, closeTo(6.2, 0.5));
 
