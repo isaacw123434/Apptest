@@ -170,7 +170,6 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
   // Insert Parking Segment (Generic)
   for (int i = 0; i < mergedSegments.length - 1; i++) {
      Segment current = mergedSegments[i];
-     Segment next = mergedSegments[i+1];
 
      if (current.mode == 'car') {
          bool connectsToTrain = false;
