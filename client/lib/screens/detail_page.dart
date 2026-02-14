@@ -866,23 +866,26 @@ class _DetailPageState extends State<DetailPage> {
           prevColor: mainLegLastColor, nextColor: leg3FirstColor));
     } else {
       // --- Interchange Node (Direct Connection) ---
-      Color leg1LastColor = result.leg1.segments.isNotEmpty ? _parseColor(result.leg1.segments.last.lineColor) : Colors.grey;
-      Color leg3FirstColor = result.leg3.segments.isNotEmpty ? _parseColor(result.leg3.segments.first.lineColor) : Colors.grey;
+      // Fix: Don't show interchange node if leg3 is empty (Route 2 P&R)
+      if (result.leg3.id != 'empty_last_mile') {
+        Color leg1LastColor = result.leg1.segments.isNotEmpty ? _parseColor(result.leg1.segments.last.lineColor) : Colors.grey;
+        Color leg3FirstColor = result.leg3.segments.isNotEmpty ? _parseColor(result.leg3.segments.first.lineColor) : Colors.grey;
 
-      // Try to determine interchange name
-      String interchangeName = 'Interchange';
-      if (result.leg1.segments.isNotEmpty && result.leg1.segments.last.to != null) {
-         interchangeName = result.leg1.segments.last.to!;
-      } else if (result.leg3.segments.isNotEmpty && result.leg3.segments.first.label.contains('Leeds')) {
-         interchangeName = 'Leeds Station';
+        // Try to determine interchange name
+        String interchangeName = 'Interchange';
+        if (result.leg1.segments.isNotEmpty && result.leg1.segments.last.to != null) {
+           interchangeName = result.leg1.segments.last.to!;
+        } else if (result.leg3.segments.isNotEmpty && result.leg3.segments.first.label.contains('Leeds')) {
+           interchangeName = 'Leeds Station';
+        }
+
+        String timeStr = '${_formatMinutes(currentMinutes)} - ${_formatMinutes(currentMinutes + result.buffer)}';
+
+        children.add(_buildNode(interchangeName, timeStr,
+            prevColor: leg1LastColor, nextColor: leg3FirstColor));
+
+        currentMinutes += result.buffer;
       }
-
-      String timeStr = '${_formatMinutes(currentMinutes)} - ${_formatMinutes(currentMinutes + result.buffer)}';
-
-      children.add(_buildNode(interchangeName, timeStr,
-          prevColor: leg1LastColor, nextColor: leg3FirstColor));
-
-      currentMinutes += result.buffer;
     }
 
     // --- Leg 3 ---
@@ -893,6 +896,13 @@ class _DetailPageState extends State<DetailPage> {
     String endTitle = 'Arrive Destination';
     if (result.leg3.segments.isNotEmpty && result.leg3.segments.last.to != null) {
       endTitle = 'Arrive ${result.leg3.segments.last.to!}';
+    } else if (result.leg3.id == 'empty_last_mile' && result.leg1.segments.isNotEmpty && result.leg1.segments.last.to != null) {
+      // Fix: Fallback to leg1 destination if leg3 is empty (Route 2 P&R)
+      endTitle = 'Arrive ${result.leg1.segments.last.to!}';
+      // Also use leg1 color for connection to end node if leg3 is empty
+      if (result.leg1.segments.isNotEmpty) {
+         leg3LastColor = _parseColor(result.leg1.segments.last.lineColor);
+      }
     }
     children.add(_buildNode(
       endTitle,
