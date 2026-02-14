@@ -23,14 +23,19 @@ void main() {
     // Route 1 Checks
 
     // Validate Uber (Group 1) -> Leeds Station
-    // Name "Uber". Distance ~3.42 miles. User specified 8.97.
+    // Name "Uber". User specified 8.97 (override).
     final uberLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Uber');
     expect(uberLeg.cost, closeTo(8.97, 0.1));
 
     // Validate Uber (Group 4) -> Loughborough to East Leake
-    // Name "Uber". Distance ~4.5 miles. User specified 14.89.
+    // Name "Uber". User specified 14.89 (override).
     final uberLegLast = initData.segmentOptions.lastMile.firstWhere((leg) => leg.label == 'Uber');
     expect(uberLegLast.cost, closeTo(14.89, 0.1));
+
+    // Validate "Uber + Train" (Group 2)
+    // Name "Uber + Train". User specified 5.92 (Uber) + 3.40 (Train) = 9.32.
+    final uberTrainLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Uber + Train');
+    expect(uberTrainLeg.cost, closeTo(9.32, 0.1));
   });
 
   test('Parses routes_2.json correctly', () async {

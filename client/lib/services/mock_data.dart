@@ -124,7 +124,7 @@ final Map<String, dynamic> segmentOptionsData = {
       'detail': 'Drive to Station',
       'time': 15,
       'cost': 24.89,
-      'distance': 4.2,
+      'distance': 3.22,
       'co2': 0.88,
       'riskScore': 0,
       'iconId': IconIds.car,
@@ -133,7 +133,7 @@ final Map<String, dynamic> segmentOptionsData = {
       'lineColor': '#3f3f46',
       'desc': 'Flexibility.',
       'segments': [
-        { 'mode': 'car', 'label': 'Drive', 'lineColor': '#3f3f46', 'iconId': IconIds.car, 'time': 15, 'to': 'Leeds Station', 'distance': 4.2, 'co2': 0.88 }
+        { 'mode': 'car', 'label': 'Drive', 'lineColor': '#3f3f46', 'iconId': IconIds.car, 'time': 15, 'to': 'Leeds Station', 'distance': 3.22, 'co2': 0.88 }
       ]
     },
     {
@@ -181,7 +181,7 @@ final Map<String, dynamic> segmentOptionsData = {
       'detail': 'Cycle to Station',
       'time': 17,
       'cost': 0.00,
-      'distance': 3.2,
+      'distance': 3.54,
       'co2': 0.0,
       'riskScore': 1,
       'iconId': IconIds.bike,
@@ -190,7 +190,7 @@ final Map<String, dynamic> segmentOptionsData = {
       'lineColor': '#00FF00',
       'desc': 'Zero emissions.',
       'segments': [
-        { 'mode': 'bike', 'label': 'Bike', 'lineColor': '#00FF00', 'iconId': IconIds.bike, 'time': 17, 'to': 'Leeds Station', 'distance': 3.2, 'co2': 0.0 }
+        { 'mode': 'bike', 'label': 'Bike', 'lineColor': '#00FF00', 'iconId': IconIds.bike, 'time': 17, 'to': 'Leeds Station', 'distance': 3.54, 'co2': 0.0 }
       ]
     }
   ],
@@ -219,7 +219,7 @@ final Map<String, dynamic> segmentOptionsData = {
       'detail': 'Loughborough → East Leake',
       'time': 10,
       'cost': 14.89,
-      'distance': 4.5,
+      'distance': 4.46,
       'co2': 1.22,
       'riskScore': 0,
       'iconId': IconIds.car,
@@ -228,7 +228,7 @@ final Map<String, dynamic> segmentOptionsData = {
       'lineColor': '#000000',
       'desc': 'Reliable final leg.',
       'segments': [
-        { 'mode': 'taxi', 'label': 'Uber', 'lineColor': '#000000', 'iconId': IconIds.car, 'time': 10, 'to': 'East Leake', 'distance': 4.5, 'co2': 1.22 }
+        { 'mode': 'taxi', 'label': 'Uber', 'lineColor': '#000000', 'iconId': IconIds.car, 'time': 10, 'to': 'East Leake', 'distance': 4.46, 'co2': 1.22 }
       ]
     },
     {
@@ -256,7 +256,7 @@ final Map<String, dynamic> segmentOptionsData = {
       'detail': 'Cycle to Dest',
       'time': 24,
       'cost': 0.00,
-      'distance': 4.5,
+      'distance': 4.49,
       'co2': 0.0,
       'riskScore': 1,
       'iconId': IconIds.bike,
@@ -265,7 +265,7 @@ final Map<String, dynamic> segmentOptionsData = {
       'lineColor': '#00FF00',
       'desc': 'Scenic route.',
       'segments': [
-        { 'mode': 'bike', 'label': 'Bike', 'lineColor': '#00FF00', 'iconId': IconIds.bike, 'time': 24, 'to': 'East Leake', 'distance': 4.5, 'co2': 0.0 }
+        { 'mode': 'bike', 'label': 'Bike', 'lineColor': '#00FF00', 'iconId': IconIds.bike, 'time': 24, 'to': 'East Leake', 'distance': 4.49, 'co2': 0.0 }
       ]
     }
   ]

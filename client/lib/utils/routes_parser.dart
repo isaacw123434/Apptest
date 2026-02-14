@@ -575,33 +575,19 @@ double _estimateCost(String name, double distanceMiles, List<Segment> segments, 
 
     // Route 1: Uber St Chads to Leeds Station (Group 1)
     if (groupName.contains('Group 1') && lower.contains('uber') && !lower.contains('train')) {
-        // St Chads -> Leeds is approx 3.42 miles in routes.json. User wants £8.97
-        if (distanceMiles > 3.0 && distanceMiles < 4.0) {
-            return 8.97;
-        }
-        // Headingley (shorter)
-        if (distanceMiles < 2.0) {
-             // User says "£5.92 Uber 5 min drive to headinley".
-             // If this leg is just Uber, return 5.92.
-             return 5.92;
-        }
+        return 8.97;
     }
 
-    // Route 1: Uber Headingley to Leeds (as part of Uber+Train)
-    if (groupName.contains('Group 2') && lower.contains('uber') && lower.contains('train')) {
-        // "£5.92 Uber ... then train".
-        // Train cost is £3.40 (Northern). Total £9.32.
-        // We calculate train cost separately or add fixed?
-        // Train cost via formula: 5.00 + 0.3*dist.
-        // Let's rely on specific destination checks.
+    // Route 1: Uber Headingley (Group 2, part of Uber+Train)
+    if (groupName.contains('Headingley') && lower.contains('uber') && lower.contains('train')) {
+        // "Uber + Train" leg usually comes here as "Uber + Train".
+        // Train cost £3.40 + Uber £5.92 = £9.32
+        return 9.32;
     }
 
     // Route 1: Last Mile Uber (Group 4)
     if (groupName.contains('Group 4') && lower.contains('uber')) {
-        // Loughborough -> East Leake. Dist ~4.5 mi. User wants £14.89.
-        if (distanceMiles > 4.0 && distanceMiles < 6.0) {
-            return 14.89;
-        }
+        return 14.89;
     }
 
     // Route 2: Hub overrides based on destination/origin names in the label
