@@ -6,7 +6,7 @@ import 'emission_utils.dart';
 
 const Map<String, Map<String, double>> pricing = {
   'brough': {'parking': 5.80, 'uber': 22.58, 'train': 8.10},
-  'york': {'parking': 13.90, 'uber': 46.24, 'train': 5.20},
+  'york': {'parking': 13.80, 'uber': 46.24, 'train': 5.20},
   'beverley': {'parking': 4.40, 'uber': 4.62, 'train': 12.10},
   'hull': {'parking': 6.00, 'uber': 20.63, 'train': 9.60},
   'eastrington': {'parking': 0.00, 'uber': 34.75, 'train': 7.00},
@@ -144,6 +144,22 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
       } else if (lowerName.contains('hull')) {
         location = 'hull';
       } else if (lowerName.contains('eastrington')) {
+        location = 'eastrington';
+      }
+  }
+
+  // Fallback: check group name
+  if (location == null) {
+      String lowerGroup = groupName.toLowerCase();
+      if (lowerGroup.contains('brough')) {
+        location = 'brough';
+      } else if (lowerGroup.contains('york')) {
+        location = 'york';
+      } else if (lowerGroup.contains('beverley')) {
+        location = 'beverley';
+      } else if (lowerGroup.contains('hull')) {
+        location = 'hull';
+      } else if (lowerGroup.contains('eastrington')) {
         location = 'eastrington';
       }
   }
