@@ -647,41 +647,73 @@ class _DetailPageState extends State<DetailPage> {
 
     // --- Start Node ---
     Color leg1FirstColor = _parseColor(result.leg1.segments.first.lineColor);
-    children.add(_buildNode('Start Journey', _formatMinutes(currentMinutes),
+    String startTitle = 'Start Journey';
+    if (result.leg1.segments.isNotEmpty && result.leg1.segments.first.from != null) {
+      startTitle = result.leg1.segments.first.from!;
+    }
+    children.add(_buildNode(startTitle, _formatMinutes(currentMinutes),
         isStart: true, nextColor: leg1FirstColor));
 
     // --- Leg 1 ---
     addSegments(result.leg1, isEditable: true, onEdit: () => _showEditModal('firstMile'));
 
-    // --- Leeds Node ---
-    // Time range: Arrival - Depart
-    String leedsTimeStr =
-        '${_formatMinutes(currentMinutes)} - ${_formatMinutes(currentMinutes + result.buffer)}';
-    Color leg1LastColor = _parseColor(result.leg1.segments.last.lineColor);
-    Color mainLegColor = _parseColor(_initData!.segmentOptions.mainLeg.segments.first.lineColor);
+    // --- Check Main Leg ---
+    bool hasMainLeg = _initData!.segmentOptions.mainLeg.segments.isNotEmpty;
 
-    children.add(_buildNode('Leeds Station', leedsTimeStr,
-        prevColor: leg1LastColor, nextColor: mainLegColor));
-    currentMinutes += result.buffer;
+    if (hasMainLeg) {
+      // --- Leeds Node ---
+      // Time range: Arrival - Depart
+      String leedsTimeStr =
+          '${_formatMinutes(currentMinutes)} - ${_formatMinutes(currentMinutes + result.buffer)}';
+      Color leg1LastColor = _parseColor(result.leg1.segments.last.lineColor);
+      Color mainLegColor = _parseColor(_initData!.segmentOptions.mainLeg.segments.first.lineColor);
 
-    // --- Main Leg ---
-    addSegments(_initData!.segmentOptions.mainLeg, isEditable: false, onEdit: null);
+      children.add(_buildNode('Leeds Station', leedsTimeStr,
+          prevColor: leg1LastColor, nextColor: mainLegColor));
+      currentMinutes += result.buffer;
 
-    // --- Loughborough Node ---
-    Color mainLegLastColor =
-        _parseColor(_initData!.segmentOptions.mainLeg.segments.last.lineColor);
-    Color leg3FirstColor = _parseColor(result.leg3.segments.first.lineColor);
+      // --- Main Leg ---
+      addSegments(_initData!.segmentOptions.mainLeg, isEditable: false, onEdit: null);
 
-    children.add(_buildNode('Loughborough Station', _formatMinutes(currentMinutes),
-        prevColor: mainLegLastColor, nextColor: leg3FirstColor));
+      // --- Loughborough Node ---
+      Color mainLegLastColor =
+          _parseColor(_initData!.segmentOptions.mainLeg.segments.last.lineColor);
+      Color leg3FirstColor = _parseColor(result.leg3.segments.first.lineColor);
+
+      children.add(_buildNode('Loughborough Station', _formatMinutes(currentMinutes),
+          prevColor: mainLegLastColor, nextColor: leg3FirstColor));
+    } else {
+      // --- Interchange Node (Direct Connection) ---
+      Color leg1LastColor = _parseColor(result.leg1.segments.last.lineColor);
+      Color leg3FirstColor = _parseColor(result.leg3.segments.first.lineColor);
+
+      // Try to determine interchange name
+      String interchangeName = 'Interchange';
+      if (result.leg1.segments.isNotEmpty && result.leg1.segments.last.to != null) {
+         interchangeName = result.leg1.segments.last.to!;
+      } else if (result.leg3.segments.isNotEmpty && result.leg3.segments.first.label.contains('Leeds')) {
+         interchangeName = 'Leeds Station';
+      }
+
+      String timeStr = '${_formatMinutes(currentMinutes)} - ${_formatMinutes(currentMinutes + result.buffer)}';
+
+      children.add(_buildNode(interchangeName, timeStr,
+          prevColor: leg1LastColor, nextColor: leg3FirstColor));
+
+      currentMinutes += result.buffer;
+    }
 
     // --- Leg 3 ---
     addSegments(result.leg3, isEditable: true, onEdit: () => _showEditModal('lastMile'));
 
     // --- End Node ---
     Color leg3LastColor = _parseColor(result.leg3.segments.last.lineColor);
+    String endTitle = 'Arrive Destination';
+    if (result.leg3.segments.isNotEmpty && result.leg3.segments.last.to != null) {
+      endTitle = 'Arrive ${result.leg3.segments.last.to!}';
+    }
     children.add(_buildNode(
-      'Arrive East Leake',
+      endTitle,
       _formatMinutes(currentMinutes),
       isEnd: true,
       prevColor: leg3LastColor

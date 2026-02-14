@@ -268,9 +268,18 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = ''}
   String label = mode;
   String lineColor = '#000000';
   String iconId = IconIds.footprints;
+  String? from;
+  String? to;
 
   if (jsonSegment['transit_details'] != null) {
       var td = jsonSegment['transit_details'];
+
+      if (td['departure_stop'] != null) {
+        from = td['departure_stop']['name'];
+      }
+      if (td['arrival_stop'] != null) {
+        to = td['arrival_stop']['name'];
+      }
 
       String? color = td['color'];
       if (td['line'] != null && td['line']['color'] != null) {
@@ -328,6 +337,23 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = ''}
           iconId = IconIds.footprints;
           lineColor = '#475569';
       }
+
+      // Try to parse instructions for From/To if not transit
+      String instructions = jsonSegment['instructions'] ?? '';
+      if (instructions.isNotEmpty) {
+          // "Driving from A to B"
+          // "Walk to B"
+
+          final fromMatch = RegExp(r'from\s+(.*?)(?=\s+to\s+|$)', caseSensitive: false).firstMatch(instructions);
+          if (fromMatch != null) {
+              from ??= fromMatch.group(1);
+          }
+
+          final toMatch = RegExp(r'to\s+(.*?)(?=$)', caseSensitive: false).firstMatch(instructions);
+          if (toMatch != null) {
+              to ??= toMatch.group(1);
+          }
+      }
   }
 
   // Capitalize label
@@ -346,6 +372,8 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = ''}
     path: path,
     distance: distMiles,
     co2: calculateEmission(distMiles, iconId),
+    from: from,
+    to: to,
   );
 }
 
