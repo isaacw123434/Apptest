@@ -410,18 +410,29 @@ class _DetailPageState extends State<DetailPage> {
         : _initData!.segmentOptions.lastMile;
 
     Map<String, List<Leg>> grouped = _groupLegsByStation(allOptions);
-    String currentSuffix = _getStationSuffix(currentLeg.label);
+    // Determine current access mode from first segment
+    String currentAccessMode = currentLeg.segments.isNotEmpty ? currentLeg.segments.first.mode : 'walk';
 
     // Pick representatives
     List<Leg> representatives = [];
     grouped.forEach((suffix, legs) {
-      if (suffix == currentSuffix) {
-        // For the current station, keep the currently selected mode
-        representatives.add(currentLeg);
+      // Find leg matching current access mode
+      Leg? match;
+      try {
+         match = legs.firstWhere((leg) {
+             if (leg.segments.isEmpty) return false;
+             return leg.segments.first.mode == currentAccessMode;
+         });
+      } catch (e) {
+         match = null;
+      }
+
+      if (match != null) {
+          representatives.add(match);
       } else {
-        // For other stations, pick the cheapest/best option
-        legs.sort((a, b) => a.cost.compareTo(b.cost));
-        representatives.add(legs.first);
+          // Fallback: Lowest Cost
+          legs.sort((a, b) => a.cost.compareTo(b.cost));
+          representatives.add(legs.first);
       }
     });
 
@@ -433,6 +444,28 @@ class _DetailPageState extends State<DetailPage> {
           options: representatives,
           currentLeg: currentLeg,
           title: 'Choose Route',
+          labelBuilder: (leg) {
+             // Try to construct "FromStation to ToStation"
+             // Find train segment
+             Segment? trainSeg;
+             try {
+                trainSeg = leg.segments.firstWhere((s) => s.iconId == 'train');
+             } catch (e) {
+                trainSeg = null;
+             }
+
+             if (trainSeg != null && trainSeg.from != null && trainSeg.to != null) {
+                 return '${trainSeg.from} to ${trainSeg.to}';
+             }
+
+             // Fallback: parse label if "Drive to X + Train"
+             final match = RegExp(r'to\s+(.*?)\s+\+\s+Train', caseSensitive: false).firstMatch(leg.label);
+             if (match != null) {
+                 return '${match.group(1)} to Leeds'; // Assume Leeds if implicit
+             }
+
+             return leg.label;
+          },
           onSelect: (Leg selectedLeg) {
             _updateLeg(legType, selectedLeg);
             Navigator.pop(context);
@@ -1508,6 +1541,7 @@ class LegSelectorModal extends StatefulWidget {
   final Leg currentLeg;
   final String title;
   final Function(Leg) onSelect;
+  final String Function(Leg)? labelBuilder;
 
   const LegSelectorModal({
     super.key,
@@ -1515,6 +1549,7 @@ class LegSelectorModal extends StatefulWidget {
     required this.currentLeg,
     required this.title,
     required this.onSelect,
+    this.labelBuilder,
   });
 
   @override
@@ -1639,7 +1674,7 @@ class _LegSelectorModalState extends State<LegSelectorModal> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    option.label,
+                                    widget.labelBuilder != null ? widget.labelBuilder!(option) : option.label,
                                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                   ),
                                   Text(
