@@ -230,10 +230,13 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
   if (location != null && pricing.containsKey(location)) {
       final prices = pricing[location]!;
       bool trainCostApplied = false;
+      // Uber is not a formula, it's a set price per leg usually, but here if we have a set price for the HUB access, we use it.
+      // Assuming only ONE uber leg to the hub.
       bool uberCostApplied = false;
 
       for (int i = 0; i < mergedSegments.length; i++) {
           final seg = mergedSegments[i];
+          // Train pricing: price is for total journey not each train
           if (seg.mode == 'train' && prices.containsKey('train')) {
               double cost = trainCostApplied ? 0.0 : prices['train']!;
               mergedSegments[i] = Segment(
@@ -243,6 +246,7 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
               );
               trainCostApplied = true;
           }
+          // Uber pricing: set price
           if (seg.mode == 'car' && seg.label.toLowerCase().contains('uber') && prices.containsKey('uber')) {
               double cost = uberCostApplied ? 0.0 : prices['uber']!;
               mergedSegments[i] = Segment(
@@ -675,7 +679,16 @@ double _estimateCost(String name, double distanceMiles, List<Segment> segments) 
 
         // Add Access Cost
         if (lower.contains('uber')) {
-            return trainCost + 8.00 + (1.50 * 3); // Approx access
+            // Uber is NOT a formula if we have specific pricing, but this is a fallback.
+            // If specific pricing exists, it should have been applied in _parseOptionToLeg.
+            // If we are here, it might be a generic route without specific location pricing.
+            // The prompt said: "Uber is not a formula, only direct drive to hubs or all the way uses the formula distance * 45p/mile. All other routes use the set prices I have written."
+            // But we only have set prices for Route 2 hubs (Brough, York, etc.).
+            // For Route 1 (St Chads), we have "Uber from st chads view to Leeds station: £8.97".
+            if (lower.contains('st chads')) {
+               return trainCost + 8.97;
+            }
+            return trainCost + 8.00 + (1.50 * 3); // Fallback if no set price
         }
         if (lower.contains('drive')) {
              return trainCost + 5.00; // Fuel/Parking
@@ -687,7 +700,19 @@ double _estimateCost(String name, double distanceMiles, List<Segment> segments) 
     }
 
     if (lower.contains('uber')) {
-        return 2.50 + (2.00 * distanceMiles);
+        // Route 1 Last Mile Uber: £14.89
+        if (lower.contains('east leake')) {
+            return 14.89;
+        }
+        // Route 1 First Mile Uber: £8.97
+        if (lower.contains('st chads')) {
+            return 8.97;
+        }
+
+        // Direct drive or other Uber uses formula? No, prompt says:
+        // "only direct drive to hubs or all the way uses the formula distance * 45p/mile" -> That refers to personal car driving (HMRC rate).
+        // Uber usually has set prices in this mock data context.
+        return 2.50 + (2.00 * distanceMiles); // Fallback formula
     }
     if (lower.contains('drive') || lower.contains('parking') || lower.contains('direct drive')) {
          return 0.45 * distanceMiles;
