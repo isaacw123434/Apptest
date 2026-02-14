@@ -387,33 +387,45 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
 
   // P&R Logic (Route 2)
   if (routeId == 'route2' && (name.toLowerCase().contains('park & ride') || name.toLowerCase().contains('p&r'))) {
-      bool parkingExists = false;
-      for (int i=0; i<mergedSegments.length; i++) {
-          if (mergedSegments[i].mode == 'parking') {
-              parkingExists = true;
-          }
-          if (mergedSegments[i].mode == 'bus') {
-              var seg = mergedSegments[i];
-              mergedSegments[i] = Segment(
-                  mode: seg.mode, label: seg.label, lineColor: seg.lineColor, iconId: seg.iconId, time: seg.time,
-                  from: seg.from, to: seg.to, detail: seg.detail, path: seg.path, co2: seg.co2, distance: seg.distance,
-                  cost: 0.00
-              );
-          }
-      }
+      bool parkingExists = mergedSegments.any((s) => s.mode == 'parking');
 
-      if (!parkingExists) {
-          int lastCarIndex = mergedSegments.lastIndexWhere((s) => s.mode == 'car');
-          if (lastCarIndex != -1) {
-               mergedSegments.insert(lastCarIndex + 1, Segment(
-                     mode: 'parking',
-                     label: 'P&R',
-                     lineColor: '#000000',
-                     iconId: IconIds.parking,
-                     time: 0,
-                     cost: 5.00,
-               ));
+      // Find the bus segment to attach parking cost to
+      int busIndex = mergedSegments.indexWhere((s) => s.mode == 'bus');
+      if (busIndex != -1) {
+          var seg = mergedSegments[busIndex];
+          // Determine if we need to add parking cost
+          double extraCost = 0.0;
+          if (!parkingExists) {
+             // If no explicit parking segment exists (which it shouldn't for P&R based on this logic being hit),
+             // we add the £5.00 to the bus ticket.
+             // We do NOT insert a parking segment.
+             extraCost = 5.00;
           }
+
+          // Base bus cost is 0.00 in P&R logic previously, but let's check.
+          // In the search block above, for route 2 P&R, it sets bus cost to 0.00.
+          // Let's stick to that but add extraCost.
+
+          String newDetail = seg.detail ?? '';
+          if (extraCost > 0) {
+             if (newDetail.isNotEmpty) newDetail += ' ';
+             newDetail += '(Includes Parking)';
+          }
+
+          mergedSegments[busIndex] = Segment(
+              mode: seg.mode,
+              label: seg.label,
+              lineColor: seg.lineColor,
+              iconId: seg.iconId,
+              time: seg.time,
+              from: seg.from,
+              to: seg.to,
+              detail: newDetail.trim(),
+              path: seg.path,
+              co2: seg.co2,
+              distance: seg.distance,
+              cost: 0.00 + extraCost // Bus is free/included, but we add parking cost here
+          );
       }
   }
 

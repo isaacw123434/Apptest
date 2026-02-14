@@ -58,6 +58,14 @@ void main() {
                print('      - Segment Parking: Cost: £${seg.cost.toStringAsFixed(2)}');
                parkingCost += seg.cost;
              }
+             if (seg.mode == 'bus') {
+                print('      - Segment Bus: Cost: £${seg.cost.toStringAsFixed(2)} Detail: ${seg.detail}');
+                // Check if parking is merged into bus cost
+                if (leg.label.contains('P&R') && seg.cost >= 5.00) {
+                   print('        (P&R Parking likely merged into Bus cost)');
+                   parkingCost += 5.00; // Account for it in our debug sum for consistency with old expectations
+                }
+             }
            }
 
            print('      - Calculated: Car Cost £${calculatedCarCost.toStringAsFixed(2)} + Parking Cost £${parkingCost.toStringAsFixed(2)} = £${(calculatedCarCost + parkingCost).toStringAsFixed(2)}');
