@@ -59,7 +59,7 @@ class _SummaryPageState extends State<SummaryPage> {
   late String _displayTimeType;
   late String _displayTime;
 
-  String? get _routeId {
+  String? get _computedRouteId {
     if (_displayFrom.contains('Beverley') || _displayTo.contains('Wellington Place')) {
       return 'route2';
     }
@@ -94,7 +94,7 @@ class _SummaryPageState extends State<SummaryPage> {
 
   Future<void> _fetchInitData() async {
     try {
-      final initData = await _apiService.fetchInitData(routeId: _routeId);
+      final initData = await _apiService.fetchInitData(routeId: _computedRouteId);
       if (mounted) {
         setState(() {
           _directDrive = initData.directDrive;
@@ -125,7 +125,7 @@ class _SummaryPageState extends State<SummaryPage> {
       final results = await _apiService.searchJourneys(
         tab: _activeTab,
         selectedModes: _selectedModes,
-        routeId: _routeId,
+        routeId: _computedRouteId,
       );
 
       _resultsCache[_activeTab] = results;
@@ -483,7 +483,7 @@ class _SummaryPageState extends State<SummaryPage> {
           context,
           MaterialPageRoute(
             builder: (context) => DirectDrivePage(
-              routeId: _routeId,
+              routeId: _computedRouteId,
               from: _displayFrom,
               to: _displayTo,
             ),
