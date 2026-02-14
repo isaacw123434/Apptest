@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../services/api_service.dart';
+import '../utils/risk_helper.dart';
 import 'detail_page.dart';
 import 'direct_drive_page.dart';
 import 'horizontal_jigsaw_schematic.dart';
@@ -733,22 +734,27 @@ class _SummaryPageState extends State<SummaryPage> {
                                               borderRadius: BorderRadius.circular(8),
                                               border: Border.all(color: const Color(0xFFE2E8F0)),
                                             ),
-                                            child: Column(
-                                              children: [
-                                                _buildRiskRow('First Mile', result.leg1),
-                                                const SizedBox(height: 12),
-                                                _buildRiskRow('Main Leg', _mainLeg, scoreOverride: result.risk - result.leg1.riskScore - result.leg3.riskScore),
-                                                const SizedBox(height: 12),
-                                                _buildRiskRow('Last Mile', result.leg3),
-                                                const Divider(height: 16),
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            child: Builder(
+                                              builder: (context) {
+                                                final breakdown = calculateRiskBreakdown(result, _mainLeg, widget.routeId);
+                                                return Column(
                                                   children: [
-                                                    const Text('Total Score', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                    Text(result.risk.toString(), style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF4F46E5))),
+                                                    _buildRiskRow('First Mile', null, scoreOverride: breakdown.firstMileScore, reasonOverride: breakdown.firstMileReason),
+                                                    const SizedBox(height: 12),
+                                                    _buildRiskRow('Main Leg', null, scoreOverride: breakdown.mainLegScore, reasonOverride: breakdown.mainLegReason),
+                                                    const SizedBox(height: 12),
+                                                    _buildRiskRow('Last Mile', null, scoreOverride: breakdown.lastMileScore, reasonOverride: breakdown.lastMileReason),
+                                                    const Divider(height: 16),
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      children: [
+                                                        const Text('Total Score', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        Text(result.risk.toString(), style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF4F46E5))),
+                                                      ],
+                                                    ),
                                                   ],
-                                                ),
-                                              ],
+                                                );
+                                              }
                                             ),
                                           ),
                                           const SizedBox(height: 16),
@@ -1040,9 +1046,9 @@ class _SummaryPageState extends State<SummaryPage> {
     return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
 
-  Widget _buildRiskRow(String title, Leg? leg, {int? scoreOverride}) {
+  Widget _buildRiskRow(String title, Leg? leg, {int? scoreOverride, String? reasonOverride}) {
     final score = scoreOverride ?? leg?.riskScore ?? 0;
-    final reason = leg?.riskReason;
+    final reason = reasonOverride ?? leg?.riskReason;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
