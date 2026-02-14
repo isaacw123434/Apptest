@@ -259,7 +259,7 @@ Segment _mergeSegments(Segment a, Segment b) {
 }
 
 Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = ''}) {
-  String rawMode = jsonSegment['mode'] ?? '';
+  String rawMode = (jsonSegment['mode'] as String? ?? '').toLowerCase();
   String mode = _mapMode(rawMode, jsonSegment['transit_details']);
   String polyline = jsonSegment['polyline'] ?? '';
   List<LatLng> path = decodePolyline(polyline);
@@ -270,10 +270,24 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = ''}
 
   if (jsonSegment['transit_details'] != null) {
       var td = jsonSegment['transit_details'];
+
       String? color = td['color'];
+      if (td['line'] != null && td['line']['color'] != null) {
+        color = td['line']['color'];
+      }
       if (color != null) lineColor = color;
 
-      label = td['line_name'] ?? td['vehicle_type'] ?? mode;
+      String? lineName = td['line_name'];
+      if (td['line'] != null) {
+         lineName = td['line']['name'] ?? td['line']['short_name'];
+      }
+
+      String? vehicleType = td['vehicle_type'];
+      if (td['line'] != null && td['line']['vehicle'] != null) {
+         vehicleType = td['line']['vehicle']['name'];
+      }
+
+      label = lineName ?? vehicleType ?? mode;
 
       if (mode == 'bus') iconId = IconIds.bus;
       if (mode == 'train') iconId = IconIds.train;
@@ -328,7 +342,14 @@ String _mapMode(String rawMode, Map<String, dynamic>? transitDetails) {
     if (rawMode == 'bicycling') return 'bike';
     if (rawMode == 'transit') {
         if (transitDetails != null) {
-            String type = (transitDetails['vehicle_type'] as String?)?.toUpperCase() ?? '';
+            String? type = transitDetails['vehicle_type'] as String?;
+
+            if (type == null && transitDetails['line'] != null && transitDetails['line']['vehicle'] != null) {
+               type = transitDetails['line']['vehicle']['type'];
+            }
+
+            type = type?.toUpperCase() ?? '';
+
             if (type == 'BUS') return 'bus';
             if (type == 'HEAVY_RAIL' || type == 'TRAIN') return 'train';
         }
