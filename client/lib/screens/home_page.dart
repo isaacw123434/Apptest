@@ -173,7 +173,7 @@ class _HomePageState extends State<HomePage> {
                     setState(() {
                       _fromController.text = 'St Chads, Leeds';
                       _toController.text = 'East Leake, Loughborough';
-                      _currentRouteId = null;
+                      _currentRouteId = 'route1';
                     });
                     _handleSearch();
                   },
