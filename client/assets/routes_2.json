@@ -847,89 +847,80 @@
               "duration_value": 360
             },
             {
-              "mode": "WALKING",
-              "polyline": "kasgIrtqAA@QHCDADAFPfBHCNIBPDFJt@NjAHn@NbABTBRA@?@?@?@A??@?@?@?@?@?@?@?@@@?@Mx@EXEXALEPG^ETCH",
-              "distance_text": "0.3 km",
-              "duration_text": "4 mins",
-              "color": "#9E9E9E",
-              "instructions": "Walk to Beverley New Walkergate",
-              "transit_details": null,
-              "distance_value": 300,
-              "duration_value": 240
-            },
-            {
               "mode": "TRANSIT",
-              "polyline": "o`sgIlirANJDULi@Fa@Fe@PgA?AA??AA??AA??A?A?A?AA??A?A?A@??A?A?A?A@??A@??A@??A@?@?@??@@??@@??@@??@?@?@?@@??@?@?@XNVPFDFDTN\\XHLHRL`@DNPz@@FNx@@FDRJf@@FPhADR@F@J@F?H?@?B?BAJAFCHCFGHGFWP?@@@?@?@?@?@A@?@?@A?Ln@Jd@FV@FBFBNBPDR?BF^Hj@PhAJ|@XpBrAk@B?XAJFNLHJT`@FPL`@LZP^Zr@FNBDHDp@|@XZXTb@^b@VZNXL\\LB@PF\\HF@D@JH?C?C@A?C@A?A@?@A@?@?@@?@@@@@?@?@?B?@?@?BA@A@X`@?A@??A?A@??A@?@??A@?@??@@?@??@@??@?@@@?@?@?@?@?@?@RPTTNNdAt@z@b@@@VLRHJ@p@Pd@BTATC\\I\\MvAm@`Ae@z@e@?G@C?AFM?A?C?A?C@G?C@C@C?A@C@A?A@A@A@A@A@A@?@A@?@?@AB?B@@@@?@@@@@@@@@@@@@B?@@B?@@B?B@@?B?B?B?B?B?@?B?@Tr@HN|AnCNXp@pAHPHJDHf@v@b@j@`@j@t@z@NN~@dAHHz@~@`@d@BBt@v@`@b@t@x@TTt@n@DBf@^bB`AfAj@zAv@z@\\b@NRFB@@O`cFm{MBTNGZKn@W|CmAd@Qh@WbAc@d@Sd@S`@O\\OZOVK^OHEHCVMb@Qd@SVIx@a@j@[VQfAu@HGVQn@g@j@a@f@Yz@g@`@Q~BwAPMj@]|CyBNMNKDChC{A~@s@FEbAo@b@YHEXOJEn@Y`@ONGf@Q~@]XIVIb@MPEPGJ@T@D?HBZHXHB?ND\\JB?^Cd@Ef@GFAZEr@Kr@GVETEDATEJALC^MZKjAg@h@U\\QFCjAg@d@QLELE`@MTGVIVIp@QXG`AS@Ad@MFAF@L?Z@f@MZGLCj@MPELE|@[vAe@j@SVKt@Yn@QnA_@LCFC^IpA]REZGRELEn@OREVKP?TEP?Z?L?RBL@JDF?J?N?F?\\GNGNEhAe@fBy@p@WjAq@p@[LGnAm@RK~A}@VMnAq@h@YPKhAm@`@Sp@c@bBgA`Aq@`@Q`AY`Ac@b@QTIPGZKfBu@LEVKNEHCPC`@GHARCRCLANAlAIf@Ab@?J?nCUh@G\\Gh@Gf@I|@OVC\\E`AMz@MRCxASr@IJA^EdAOh@Iz@Id@Eb@GVEfD[tAOx@Gr@ExDm@NAdC]\\If@Q`@MZMLEFAJS@ANC\\Ij@OPEn@IH?JAPCXCp@KTEJCCe@Ca@G_@OYOc@BSJc@^kA@AX]Tg@IQ",
-              "distance_text": "13.9 km",
-              "duration_text": "26 mins",
-              "color": "#f03842",
-              "instructions": "Bus towards Carr Lane (Primark)",
+              "polyline": "qbsgIzqqA?F`AIbAGbAItAKpCUXELATChAQtB[d@IlDk@DA~Cg@rDm@lGcAj@KvHoA`@IZITGh@M`@Kb@OTG@?fA_@v@Y~@a@p@YhAk@|EaC`FaClKiFlCqAzAu@DC~@c@lDeBjIaEvDiB|BiAtAq@t@]XOj@Wl@WNI`A_@`@OvAg@jA_@bBe@vA]dAS^IbDa@fIu@tBSbBOFAzD]`BO|AO|CW\\C`Fc@nBQbCU~@IrBSr@GzAMb@ERC|AM`CUz@I~D]B?j@GbBOb@Cv@Ip@GlBS@?jCUx@GLA|D]bCUt@I~Ec@rBQnCYpGs@~Fk@pBMlCQrD]z@IxCWdAKhIu@tFa@ZCFAfFe@|BUlAMlFe@bCSPCPC^EXEpB[r@KNCfAObC_@pGkBdFcBxDcBbCiAlBaA`@UbAi@@?bB}@BC\\QnAo@RMvAu@LGdB_AnCuAlBcA|BoAjB_A~BoAvC{AjBaAhCsAVO~BmAtAs@vBiA~A{@jCsAn@]bAi@`@UbB{@@?`@U|Ay@DCdB}@^SzEeCrDoBrCyAbDaB^Sb@UrBgARKbB}@\\QfAm@hAo@fAu@`A}@bAeA~@iAp@eA\\g@h@}@j@kARe@d@iA`@gANc@Vy@Lc@VaAZkAVoAHe@PcAHc@R{A\\gCP}AP}ABUHy@Jy@TsB@KHm@PaBXcCHo@JcAZiCh@gFj@sEb@{D^eCV}ADm@Lm@La@Jo@Lk@Z_BFUTiAv@aD`AoDh@gBj@eBn@qBdAaDvAqEnA}DbA_D@E^qA|@iD^}AXyAXaBNcAPeAHk@BQLcAJeAJaAJeABe@Fw@Bi@?AHkABi@B_@Bq@Dy@Bg@@[?q@Ag@AeACu@?GAs@?}@?A@m@HgCJcCNqBNsADUHm@b@{B@CX_A\\eAZgAf@eBHYXy@^sAFQPq@@ETiA@AXqBLoB?EDoA?aCGuBC}@@sA",
+              "distance_text": "13.2 km",
+              "duration_text": "15 mins",
+              "color": "#262262",
+              "instructions": "Train towards Sheffield",
               "transit_details": {
                 "arrival_stop": {
                   "location": {
-                    "lat": 53.74733,
-                    "lng": -0.344682
+                    "lat": 53.7438391,
+                    "lng": -0.3473143
                   },
-                  "name": "Prospect Street A"
+                  "name": "Hull"
                 },
                 "arrival_time": {
-                  "text": "12:06\u202fAM",
+                  "text": "7:13\u202fAM",
                   "time_zone": "Europe/London",
-                  "value": 1771200402
+                  "value": 1771225980
                 },
                 "departure_stop": {
                   "location": {
-                    "lat": 53.842159,
-                    "lng": -0.426626
+                    "lat": 53.8424887,
+                    "lng": -0.4228551
                   },
-                  "name": "Beverley New Walkergate"
+                  "name": "Beverley"
                 },
                 "departure_time": {
-                  "text": "11:40\u202fPM",
+                  "text": "6:58\u202fAM",
                   "time_zone": "Europe/London",
-                  "value": 1771198839
+                  "value": 1771225080
                 },
-                "headsign": "Carr Lane (Primark)",
+                "headsign": "Sheffield",
                 "line": {
                   "agencies": [
                     {
-                      "name": "East Yorkshire",
-                      "url": "https://www.eastyorkshirebuses.co.uk/"
+                      "name": "Northern",
+                      "phone": "011 44 800 200 6060",
+                      "url": "https://www.northernrailway.co.uk/"
                     }
                   ],
-                  "color": "#f03842",
-                  "name": "York - Hull",
-                  "short_name": "X46",
+                  "color": "#262262",
+                  "name": "Bridlington - Sheffield",
+                  "short_name": "northern",
                   "text_color": "#ffffff",
                   "vehicle": {
-                    "icon": "//maps.gstatic.com/mapfiles/transit/iw2/6/bus2.png",
-                    "name": "Bus",
-                    "type": "BUS"
+                    "icon": "//maps.gstatic.com/mapfiles/transit/iw2/6/rail2.png",
+                    "local_icon": "//maps.gstatic.com/mapfiles/transit/iw2/6/uk-rail.png",
+                    "name": "Train",
+                    "type": "HEAVY_RAIL"
                   }
                 },
-                "num_stops": 25
+                "num_stops": 2
               },
-              "distance_value": 13900,
-              "duration_value": 1560
+              "distance_value": 13200,
+              "duration_value": 900
             },
             {
               "mode": "WALKING",
-              "polyline": "oo`gIxibAUf@|@v@hAv@LJFJBLDNFLk@\\BP?HB^j@]PEb@ULMn@_@JITMJIJIp@]JI`@UFCNEJE`@`DvB}@",
-              "distance_text": "0.5 km",
-              "duration_text": "7 mins",
+              "polyline": "_z_gItybATN",
+              "distance_text": "12 m",
+              "duration_text": "1 min",
               "color": "#9E9E9E",
               "instructions": "Walk to Hull",
               "transit_details": null,
-              "distance_value": 500,
-              "duration_value": 420
+              "distance_value": 12,
+              "duration_value": 60
             },
             {
               "mode": "TRANSIT",
-              "polyline": "a|_gIpobAx@zKFtABfA?|@AbBAj@ARErAI~@QtAA@UhAADQp@GP_@rAYx@IXOp@Ot@CFOd@Qj@EL[xASjAQbAGd@MlAKhAGt@En@En@EjACfA?jAA\\@n@@h@?x@DjBDjA@VJjBLjBBZLxAJjATzBX`CXvB`@lCZjBRlAf@tC`@jB\\xANp@Rx@T~@f@nBp@`CZ~@f@|Al@bBj@~ALZ^`Aj@tAZp@Vl@DL`AxBN\\^z@h@lADJ|@pBn@vAJTJTbA~BdA~B~@vBdA~B`A|Bx@jB|@pBh@lAh@hA\\r@DJNVJNDH^l@d@l@~@dAVTTPZR\\Td@VZN^L|@X`@Hf@Fn@Fx@AF?`@Az@KJAfAKb@Eb@G`AKlAIRAfAAv@FnAXRFf@Pr@^j@\\LHx@p@t@v@h@p@d@r@DFXb@jAvBl@lAHN`AxBlArCz@~B\\~@J\\\\dA@Fd@zAHXJXJ\\\\dADLLb@Rt@Pn@ZfA\\vANn@R~@Lj@Pv@Pz@VjATlAP`ARlAPfARvAXpBPrA\\xCt@pGTnB^nDP|A^dD`@hDBNJ~@TnBTnBXhCb@zDNnANpARhBPzARfBH`ABNHn@ZzCZbDBNVrC\\fD\\hEn@hIf@tHn@|J\\tGBb@FrAVnFHbBLjCVnFBb@ZlG^~GZxF`@~Ff@xGf@fGp@fIj@bGt@bH@NHx@p@rGbArJRhBp@pGLjAh@fF@DRlBr@~GJz@t@bHPpB^pDFv@H|@LtBDx@RfE@f@D~A@XDvB@F?N@d@?HBp@@z@@|@@L@zBAfB?dBIdGAz@A`AMpECXQxDU|DUrDU~CEj@I`AOfBQxBGj@ANGx@Gx@MzAGfAMdBGfAEr@IrAIdBGzAGvAGtBGnBAhACjAClAApACrAApA?jAAhA?xA?\\@`A?tA@x@?`ABlA@lABzA@`A@z@DfBHtCFhCFpBHnCJdDHnCFdCH`CDzA@X@n@DlA?HH|BHfCDvB@\\FtBFrB@bA@|@B`BFzCHlFF`F?FF~EBtQ?tCC|EChGKxJM~JErCCvBC|@CvBAb@Ad@CxBAz@CfAAt@ArACzECrEClECzB?R@\\@X?hA?d@AnC?HAp@?r@CjAAt@A^C`A?VQfLE|BUhIYpIIjDKtDE|AEtAE|@IvBKvBCz@KxBCx@Ez@OrDAXI|Ac@jJMrBm@xKAFWnDGz@El@ALEz@Gz@g@zFGf@u@xHoAvMOxAIx@e@tEmAdMoAdLuA|NwAnNMpA_Dz[OzAiDl\\k@xF_BtOsAtMi@jF{@nIg@zEs@jHQ~AYrCYtCGp@YhC?FMtAQbBKhAOzAEXMpAIx@OvAK|@ALOfBCNGf@?@?DIr@Ix@Gn@AHIz@Gj@SpBANIx@Ix@UrBALGl@_@lDGn@KbAIp@WhCe@rEc@pEi@hFWlCABq@zGYpCm@jG_@rD]jD_@hDYpCk@|FYzCShBYvC]jDc@hESfCc@|EUrCUvCSrCC\\QzB[tEO|BOrB_@pFUpDM`BUdDQfCWnDSpCYvDMhBIxAUbDYbEc@fGWnDUnDW~DY|DW`EUhD[zE_@pF]rFSvCYbEQhCCR[zEMnBIlAY`EIrAEj@i@~HQnCaDxf@OvBmBfZa@~FGz@gAbPuA|ROvBY|DYtDMvBAJGl@WxDyBl[]`FMdBiCh_@C`@c@pGc@xGi@jIq@|Ju@lL_Cj^m@|IG~@G~@UfDyArT{Dzj@_Dnc@Cd@kCba@gCl`@OtBEv@WtDAT_@dFCl@i@vHiBlXaCb^i@jIe@zG[`FI~@?Lw@hLKvAEr@Cd@C`@Iz@IrAGx@]`FYnE_@jFAXe@xGOdCSnCK|AC^YpEC`@Gt@_@pFKrAeAdPUdD[`Fe@xGCVQxCMhBIfAANEl@WnDEh@IjA[jFa@zF_@xFc@vGe@~Gg@jH]lF_@tFe@zGe@jHCb@SlCOtBGz@Ez@UpDEn@IfAs@hK{@tMq@tJoAvR_AtMk@~I]xEYnE[pEy@|Ly@`Mu@lLiA`Qw@zKQnCm@nJq@vJe@jHOvBG|@MrBGz@WpDEb@QlC[dF}@xM}@xM_@vFa@dGo@xJcEzm@En@mCv`@UrDABUlDGx@WpDMvB_AjNsBl\\yBt]SnCyCxb@m@fI]dFUpD?D_Edn@mAbPi@bIi@lIiA`Q_AjNe@hHiCz`@}Bh]g@pIw@vLEj@m@hJk@hI_@bGSbDWxDGp@_@vF]nFeAzOa@tGkA~Q{@zMGv@_@|FC^YlEMvBCZC^}@dNo@bKs@bLMlB_ArNGz@Gz@Gx@]lFcAvOWpDMvBOtBGz@Ez@OtBiB`YqChb@Ez@g@nHc@hHm@bJoCfc@k@hIm@zJe@vHCTwE~r@m@~Ig@hHiBlXYhEY|E]`Fa@pG[nEOfCMbBYnE_@xFYjEc@nGSzCOdCg@jH_@bGk@zICZi@hICVa@jG?@m@xIe@rHIhACj@WpDGz@Gv@MxBQ`CEp@k@rI]tFk@xIw@rLAFg@~Hu@fLi@jI_@zFa@`GWjEUzCUrD_@vFc@dHe@|GWvDO~BItA[rEO~BOzB_@vFa@fGUjDYlEOpCO`DKxCADGxBCx@?@GvBA|@AZGxCAz@AFCpBAv@EbDCrA?dBCdCCpB?~B?pB?`C?xB@xBBxBBlC@hCDxCBzBDbB@|@B`BDvB?tDBbA@x@BZ?|@JhE@^D|@DtAN`CRnBRtALx@Jh@RbAJd@X~@DNTn@@DRh@Xr@LVLZHNZl@Xb@?@^h@^d@^b@TRRTb@`@b@`@@?LLNJPLLLXVDD^\\LLVTHHPRRPj@n@~@r@`@XFFVLBBRJj@\\^Vj@\\VNjAt@f@V@@TRz@p@tAfAHHb@b@j@t@PVNRNZVj@Xr@\\fAZtAVfBFx@HvADfBA~AGbBQhBMhAKr@a@nCc@vCU`CIxB@zAFtBPpCHpA@RF|@TzDFx@RxC\\`FHtAP|Bd@tG@HXhE\\jEThDFdAb@nGXfEv@zKNpBTnDHhAHhARrCNlCDf@PfDPfCJ|AB`@JbBHrAJdBB\\LzBH|AJtBJvB@f@D|@BlAFjA@j@V`JNzFFbCVlJRzHLtE@Z@`@?BLtERfIL`GBfABzAB|@?NJ|EFbFBlDBpC?@AH@nB?B?x@ChB?PAp@CvEA^C~ACnBEbCGnE?`@GfFEpCG|DErCGlDGrDIvDE|BEdC]|OO~JCdAYhNAdACxAC|AEfCGdFI|GKdHExBA|@ApAC\\Al@Af@E`DE|ACvCGvDEvCGbFAPCfBApAAx@Ap@AJAd@Al@AhAA|@Ax@A~@EnCEhDEfEGdFEtEEfEEvEGhEElEGvEExDG~EE|DCtCC`CE~CEhDEbDCpDEfECtAClBE|DGpGCrCEvCEdDErC?HEjCE|CGfDGbECpCChAK`HIlGMxHKnHIjFCjBGbE?DIhFGlE?HGfFAt@EhCQtJQtKGtDMtIM~HEvCEtDE|BOlJKdJKrFEhBMjHKfHCrACrAO`JEzDI~EEpCCxACr@GtBI~CMxCKdCM|CQlDQjDQfDQfDOzCYrFMtB]tFCb@C`@WbFShDALQzCGdAGx@Gz@Cl@ADEr@KdCAJIjBEnAa@tHUxD[hGUbE[dG[`GEbAEp@ARC`@KvBQdDe@`JOhCGnAEf@QrDEx@?@SrDQpD?@a@zHOlCQlDQdEMzCIrCGbCGfCGjEEfEAbC?nC?jDBbD?TDzDF~EF`FD|D?@BvBBnB@dA@p@?J@ZBlA?N@z@BxBBlCJhJBxBDbD?@DxCBzCBrC@fEApDEtF?HGrDEtBIbCGrBEz@?BA^El@Ch@AZIlAOvCQlCe@rGe@rGWnDQtBYpD_@bGUdDg@tHEr@Er@[hEYdE_@jFQjCU`D]jDKr@}@pHq@`Fw@rFsA|JEZc@~CObA?BS|Ai@`E[vBADY~BUpBK|@SpBObBQtBQxCIdBExAGvBAFAt@A|@Cx@A|@Ar@C~@?BCnA?h@KrFArAMpHCbAA`AIpEGzDAbAGdEIbGAZIrFCjAGdD?VE`BAj@I~EIxD?\\AZElDGbEGrECvBEjCI~EE~CIjFErE?FKnHAr@ChBEhCA`@CpBGvEALCxBGlDAt@At@E|CCzAC`AClAAd@G|BIlCC`@Ch@I`BI~AIhAOtCCRKlBGbAInAGhAQpC?BUtDMzBUvDOrCGhAKzAYpEOpBEd@M|AIbAQjBQ`BMpAc@bD[|BG`@Kj@g@rCg@zBc@nBi@xBMh@c@fBi@hBg@`BUv@Qj@o@nBO`@Sn@gAvCuAvDIRgB~ESj@_AnCM^[bAUp@Qn@g@fBSr@K`@EPe@fBCLKf@YnAGZUhAI`@UrAe@tC[tBSdBIv@Ef@YzCM~AGn@Gn@SzCKxACZMpB?DIjAEh@MjB_@xFQ`CIrASjC?@_@rFGt@OzBUjDCZStCWpDIdAU`DWvDALe@rFc@`FSfB]dDAFQ~A_@bCMv@Il@Q`AOt@Kh@SbAWnAsAjGc@lB_@hBGZgA~FERId@U|AGd@Ir@M|@Kx@MlAMlAMjAO|AOjBMxAK`BKtAK~BI`BGjBK|CAn@IhBEjACt@KvCMzCAXA`@Ez@GxAExAC|@Ez@IhBKfDOjDQbFCp@MbDGfCQrEOxDMpDSvEIfBKfCIdCQjEQjEOfEKzCAHEnB?BEbBAlAAFAr@?PA`B?bA?F@lA?~A@`@@zABfBFdCDxADdBBv@P~Dd@xHRpCPhCV|CDj@Fr@TjCNdBRdCF~@Z|D^|ETpCXtDRnCTpCTpC?@XpD?HPnBNpBDh@JdBBb@NbC@n@D~@HpBDlBDxBDvB@|AB|BBrCBxCBlBBtC@bC?LD`EBdC@b@@nABdBBdB@RB~AFfBDtADlA?FF~BF`AHpBDj@DfALzBLxBJzA@FLnBPxBTlCPlBXhCX|BZlBRbAPbAPr@XnA`@bBTv@`@vAn@nBr@rBb@dADHTf@Zn@Tf@r@vA@@Xf@LRf@z@\\d@l@z@JJb@h@|@|@p@j@hA~@n@d@l@d@rAdAlErDbAz@hAnAtAjBd@v@r@fAzArCP`@X`ATj@Tr@Vx@Ph@Nn@Np@Ln@FZFZNdAL~@Hr@Hn@JnAJpAp@jIx@zJXjDHxADz@Dt@Bx@@dA?f@@j@AjAAbAEvAGpAK|AMnAOvA]vBOz@Ol@ETYjAUz@Qt@_@|Ak@bCKd@_@zA]|A[lAy@hDy@hDIZw@lDS~@e@pBa@hB_@bBKd@UdAQr@GVI\\Ot@S~@Mj@Ot@Ot@Qt@_@jBMp@ABSr@Qv@Qp@c@fBWdAQv@I^?@I`@Kv@OtAEn@En@GnAALI|BGdBE~@Ah@Cp@?V?P?n@@t@?@@r@B`@?JBn@@V@VBP@PDf@Dh@?BH~@Hr@B\\D\\F`AHbAHz@Fv@Ft@PlBDf@BNDj@Dx@BT@TDp@@\\@ZB^Bn@FfABj@@TBd@BZB^?JDl@Fh@Fh@D`@Ff@BNHh@ZrBBVDTTbBHx@BXBX@VJjA?BDt@F`A@V@VH|BDz@Dr@@h@@R@T@d@@j@B|@?Z@Z@XBl@@d@Bt@Bl@HzAPdDBX}EjA",
-              "distance_text": "83.2 km",
-              "duration_text": "59 mins",
+              "polyline": "iy_gIdzbA?`A@V@j@AxACt@CtAAp@Ct@Ah@A@IjAEd@CPOt@WhAENk@pBADa@pAGP[hAK\\CFOd@Qj@EL[xASjAQbAGd@MlAKhAGt@En@En@EjACfA?jAA\\@n@@h@?x@DjBDjA@VJjBLjBBZLxAJjATzBX`CXvB`@lCZjBRlAf@tC`@jB\\xANp@Rx@T~@f@nBp@`CZ~@f@|Al@bBj@~ALZ^`Aj@tAZp@Vl@DL`AxBN\\^z@h@lADJ|@pBn@vAJTJTbA~BdA~B~@vBdA~B`A|Bx@jB|@pBh@lAh@hA\\r@DJNVJNDH^l@d@l@~@dAVTTPZR\\Td@VZN^L|@X`@Hf@Fn@Fx@AF?`@Az@KJAfAKb@Eb@G`AKlAIRAfAAv@FnAXRFf@Pr@^j@\\LHx@p@t@v@h@p@d@r@DFXb@jAvBl@lAHN`AxBlArCz@~B\\~@J\\\\dA@Fd@zAHXJXJ\\\\dADLLb@Rt@Pn@ZfA\\vANn@R~@Lj@Pv@Pz@VjATlAP`ARlAPfARvAXpBPrA\\xCt@pGTnB^nDP|A^dD`@hDBNJ~@TnBTnBXhCb@zDNnANpARhBPzARfBH`ABNHn@ZzCZbDBNVrC\\fD\\hEn@hIf@tHn@|J\\tGBb@FrAVnFHbBLjCVnFBb@ZlG^~GZxF`@~Ff@xGf@fGp@fIj@bGt@bH@NHx@p@rGbArJRhBp@pGLjAh@fF@DRlBr@~GJz@t@bHPpB^pDFv@H|@LtBDx@RfE@f@D~A@XDvB@F?N@d@?HBp@@z@@|@@L@zBAfB?dBIdGAz@A`AMpECXQxDU|DUrDU~CEj@I`AOfBQxBGj@ANGx@Gx@MzAGfAMdBGfAEr@IrAIdBGzAGvAGtBGnBAhACjAClAApACrAApA?jAAhA?xA?\\@`A?tA@x@?`ABlA@lABzA@`A@z@DfBHtCFhCFpBHnCJdDHnCFdCH`CDzA@X@n@DlA?HH|BHfCDvB@\\FtBFrB@bA@|@B`BFzCHlFF`F?FF~EBtQ?tCC|EChGKxJM~JErCCvBC|@CvBAb@Ad@CxBAz@CfAAt@ArACzECrEClECzB?R@\\@X?hA?d@AnC?HAp@?r@CjAAt@A^C`A?VQfLE|BUhIYpIIjDKtDE|AEtAE|@IvBKvBCz@KxBCx@Ez@OrDAXI|Ac@jJMrBm@xKAFWnDGz@El@ALEz@Gz@g@zFGf@u@xHoAvMOxAIx@e@tEmAdMoAdLuA|NwAnNMpA_Dz[OzAiDl\\k@xF_BtOsAtMi@jF{@nIg@zEs@jHQ~AYrCYtCGp@YhC?FMtAQbBKhAOzAEXMpAIx@OvAK|@ALOfBCNGf@?@?DIr@Ix@Gn@AHIz@Gj@SpBANIx@Ix@UrBALGl@_@lDGn@KbAIp@WhCe@rEc@pEi@hFWlCABq@zGYpCm@jG_@rD]jD_@hDYpCk@|FYzCShBYvC]jDc@hESfCc@|EUrCUvCSrCC\\QzB[tEO|BOrB_@pFUpDM`BUdDQfCWnDSpCYvDMhBIxAUbDYbEc@fGWnDUnDW~DY|DW`EUhD[zE_@pF]rFSvCYbEQhCCR[zEMnBIlAY`EIrAEj@i@~HQnCaDxf@OvBmBfZa@~FGz@gAbPuA|ROvBY|DYtDMvBAJGl@WxDyBl[]`FMdBiCh_@C`@c@pGc@xGi@jIq@|Ju@lL_Cj^m@|IG~@G~@UfDyArT{Dzj@_Dnc@Cd@kCba@gCl`@OtBEv@WtDAT_@dFCl@i@vHiBlXaCb^i@jIe@zGe@`H?Lw@hLKvAEr@Cd@C`@Iz@IrAGx@]`FYnE_@jFAXe@xGOdCSnCK|AC^YpEC`@Gt@_@pFKrAeAdPUdD[`Fe@xGCVQxCMhBIfAANEl@WnDEh@IjA[jFa@zF_@xFc@vGe@~Gg@jH]lF_@tFe@zGe@jHCb@SlCOtBGz@Ez@UpDEn@IfAs@hK{@tMq@tJoAvR_AtMk@~I]xEYnE[pEy@|Ly@`Mu@lLiA`Qw@zKQnCm@nJq@vJe@jHOvBG|@MrBGz@WpDEb@QlC[dF}@xM}@xM_@vFa@dGo@xJcEzm@En@mCv`@UrDABUlDGx@WpDMvB_AjNsBl\\yBt]SnCyCxb@m@fI]dFUpD_Ejn@mAbPi@bIi@lIiA`Q_AjNe@hHiCz`@}Bh]g@pIw@vLEj@m@hJk@hI_@bGSbDWxDGp@_@vF]nFeAzOa@tGkA~Q{@zMGv@_@|FC^YlEMvBCZC^}@dNo@bKs@bLMlB_ArNGz@Gz@Gx@]lFcAvOWpDMvBOtBGz@Ez@OtBiB`YqChb@Ez@g@nHc@hHm@bJoCfc@k@hIm@zJe@vHCTwE~r@m@~Ig@hHiBlXYhEY|E]`Fa@pG[nEOfCMbBYnE_@xFYjEc@nGSzCOdCg@jH_@bGk@zICZi@hICVa@jG?@m@xIe@rHIhACj@WpDGz@Gv@MxBQ`CEp@k@rI]tFk@xIw@rLAFg@~Hu@fLi@jI_@zFa@`GWjEUzCUrD_@vFc@dHe@|GWvDO~BItA[rEO~BOzB_@vFa@fGUjDYlEOpCO`DKxCADGxBCx@?@GvBA|@AZGxCAz@AFCpBAv@EbDCrA?dBCdCCpB?~B?pB?`C?xB@xBBxBBlC@hCDxCBzBDbB@|@B`BDvB?tDBbA@x@BZ?|@JhE@^D|@DtAN`CRnBRtALx@Jh@RbAJd@X~@DNTn@@DRh@Xr@LVLZHNZl@Xb@?@^h@^d@^b@TRRTb@`@b@`@@?LLNJPLLLXVDD^\\LLVTHHPRRPj@n@~@r@`@XFFVLBBRJj@\\^Vj@\\VNjAt@f@V@@TRz@p@tAfAHHb@b@j@t@PVNRNZVj@Xr@\\fAZtAVfBFx@HvADfBA~AGbBQhBMhAKr@a@nCc@vCU`CIxB@zAFtBPpCHpA@RF|@TzDFx@RxC\\`FHtAP|Bd@tG@HXhE\\jEThDFdAb@nGXfEv@zKNpBTnDHhAHhARrCNlCDf@PfDPfCJ|AB`@JbBHrAJdBB\\LzBH|AJtBJvB@f@D|@BlAFjA@j@V`JNzFFbCVlJRzHLtE@Z@`@?BLtERfIL`GBfABzAB|@?NJ|EFbFBlDBpC?@AH@nB?B?x@ChB?PAp@CvEA^C~ACnBEbCGnE?`@GfFEpCG|DErCGlDGrDIvDE|BEdC]|OO~JCdAYhNAdACxAC|AEfCGdFI|GKdHExBA|@ApAC\\Al@Af@E`DE|ACvCGvDEvCGbFAPCfBApAAx@Ap@AJAd@Al@AhAA|@Ax@A~@EnCEhDEfEGdFEtEEfEEvEGhEElEGvEExDG~EE|DCtCC`CE~CEhDEbDCpDEfECtAClBE|DGpGCrCEvCEdDErC?HEjCE|CGfDGbECpCChAK`HIlGMxHKnHIjFCjBGbE?DIhFGlE?HGfFAt@EhCQtJQtKGtDMtIM~HEvCEtDE|BOlJKdJKrFEhBMjHKfHCrACrAO`JEzDI~EEpCCxACr@GtBI~CMxCKdCM|CQlDQjDQfDQfDOzCYrFMtB]tFCb@C`@WbFShDALQzCGdAGx@Gz@Cl@ADEr@KdCAJIjBEnAa@tHUxD[hGUbE[dG[`GEbAEp@ARC`@KvBQdDAFc@xIOhCGnAEf@QrDEx@?@SrDQpD?@a@zHOlCQlDQdEMzCIrCGbCGfCGjEEfEAbC?nC?jDBbD?TDzDF~EF`FD|D?@BvBBnB@dA@p@?J@ZBlA?N@z@BxBBlCJhJBxBDbD?@DxCBzCBrC@fEApDEtF?HGrDEtBIbCGrBEz@?BA^El@Ch@AZIlAOvCQlCe@rGe@rGWnDQtBYpD_@bGUdDg@tHEr@Er@[hEYdE_@jFQjCU`D]jDKr@}@pHq@`Fw@rFsA|JEZc@~CObA?BS|Ai@`E[vBADY~BUpBK|@SpBObBQtBQxCIdBExAGvBAFAt@A|@Cx@A|@Ar@C~@?BCnA?h@KrFArAMpHAp@APA`AIpEGzDAbAGdEIbGAZIrF@|BEfBA~@A|@OrIIfDCpBGlFOrJCfBCfBCjAGbEKdHGjFABGfECfBA`AGpDE|BMfJCnCG~CExCAZA~AO~F?JKxCUxEEn@UrDInAUxEOvBAZUxDYlEMjCWbEUpDGnAKtAQdCAPOnBQtB]dDQdBUfBQtASxAQdAER?@]nBi@hCi@`Cc@fBU|@_@~Ak@pBc@vAMd@Y~@Qh@m@fBUp@e@lAEN{@|BmAhDcApCiA~CIRi@`BGRa@nAQl@ABY`AUz@IZQr@Oh@[rAI^U~@Kj@WlAG^Ov@[dBM~@SpAY~BSdBQdBYdDEr@Gp@Gx@Gz@KzACZOtBG|@OrB?@OxBQpCOxB_@jFKtAKzAQpCEh@SpCUfDCh@ShCGx@KzAa@bGIhA_@vE[pDUjCK|@Gr@SrBGt@WfBK|@Q`AMv@_@dCYxAG^k@jCMj@_@`BkApFi@nCa@pB]hBKl@c@xCe@fEW|Bi@xFW|Ca@dH]bLAVEfAEtAO|DInBIvBObEGhBMrDKhCa@~K]pJWzGE~@]rJW~GIbCSdFCZSbGOvDCdAI~CCrAAz@AzA?xA?|@@xB@r@BzCRvFLpE@ZDt@HlBXlFLjB@LF|@Dj@L`BPhCT|CZdEL`Bf@rGd@`GXzDb@xEb@dGPvBHlALbBRbCDl@Dx@Fv@LzBB^LrCD~@NvEDjCB~DFfHHvGFbG?HD|E@pABzADvCDlBLhFHjCBh@NtDXzFVnE\\vEXlD`@hE`@bDb@xCP`AR~@^`Bz@jDhB~Fd@rAPd@\\t@n@xA@@p@rAXh@Xh@?@v@jAZd@JPn@n@x@|@tAnAv@p@zBdBVRvBbBxBhBbA~@bBjBfA|AbBpCfAxBb@pA^`Al@jBLd@Pl@Np@Ln@Ln@N|@Hn@Hn@Hn@Hz@HdAz@~JdAtMNtBFr@Bl@Dl@?NB`@B~@@jA@`AAz@?z@Aj@Cn@Cp@Ct@En@Gl@KlAMnAOdAQhAYxAe@jBS|@AD_@tA_@dBu@zCGXk@~Bq@tCcBbH{@rDm@vCcAjES|@[pAEVQt@Kb@CPYjAG\\Ov@Ot@Ot@_@lBGZYfAADOh@U|@?B[`ASn@WdAQv@I^?@I`@Kv@OtAEn@En@GnAALI|BGdBE~@Ah@Cp@?V?P?n@@t@?@@r@B`@?JBn@@V@VBP@PDf@Dh@?BH~@Hr@B\\D\\F`AHbAHz@Fv@Ft@PlBDf@BNDj@Dx@BT@TDp@@\\@ZB^Bn@FfABj@@TBd@BZB^?JDl@Fh@Fh@D`@Ff@BNHh@ZrBBVDTTbBHx@BXBX@VJjA?BDt@F`A@V@VH|BDz@Dr@@h@@R@T@d@@j@B|@?Z@Z@XBl@@d@Bt@Bl@HzAPdDBX}EjA",
+              "distance_text": "83.1 km",
+              "duration_text": "1 hour 15 mins",
               "color": "#262262",
-              "instructions": "Train towards Manchester Victoria",
+              "instructions": "Train towards Halifax",
               "transit_details": {
                 "arrival_stop": {
                   "location": {
@@ -939,34 +930,34 @@
                   "name": "Leeds"
                 },
                 "arrival_time": {
-                  "text": "6:02\u202fAM",
+                  "text": "8:35\u202fAM",
                   "time_zone": "Europe/London",
-                  "value": 1771221720
+                  "value": 1771230900
                 },
                 "departure_stop": {
                   "location": {
-                    "lat": 53.74417099999999,
-                    "lng": -0.345686
+                    "lat": 53.7437329,
+                    "lng": -0.347388
                   },
                   "name": "Hull"
                 },
                 "departure_time": {
-                  "text": "5:03\u202fAM",
+                  "text": "7:20\u202fAM",
                   "time_zone": "Europe/London",
-                  "value": 1771218180
+                  "value": 1771226400
                 },
-                "headsign": "Manchester Victoria",
+                "headsign": "Halifax",
                 "line": {
                   "agencies": [
                     {
-                      "name": "TransPennine Express",
-                      "phone": "011 44 345 600 1671",
-                      "url": "http://www.tpexpress.co.uk/"
+                      "name": "Northern",
+                      "phone": "011 44 800 200 6060",
+                      "url": "https://www.northernrailway.co.uk/"
                     }
                   ],
-                  "color": "#30104d",
-                  "name": "Hull - Manchester Victoria",
-                  "short_name": "Transpennine Express",
+                  "color": "#262262",
+                  "name": "Hull - Halifax",
+                  "short_name": "northern",
                   "text_color": "#ffffff",
                   "vehicle": {
                     "icon": "//maps.gstatic.com/mapfiles/transit/iw2/6/rail2.png",
@@ -975,10 +966,10 @@
                     "type": "HEAVY_RAIL"
                   }
                 },
-                "num_stops": 5
+                "num_stops": 8
               },
-              "distance_value": 83200,
-              "duration_value": 3540
+              "distance_value": 83100,
+              "duration_value": 4500
             },
             {
               "mode": "WALKING",
