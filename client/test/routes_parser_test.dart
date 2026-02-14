@@ -66,15 +66,12 @@ void main() {
 
     // Validate "Uber + Train" (Group 2)
     // Name "Uber + Train".
-    // Logic: contains 'train'.
-    // trainCost = 5 + 0.3 * distance.
-    // contains 'uber' -> trainCost + 8.00 + 4.50 = trainCost + 12.50.
-    // Distance? "Uber + Train" leg distance in Group 2.
-    // Legs: Uber (0.8 miles) + Train (3.1 miles) + Walk. Total ~ 4 miles.
-    // trainCost = 5 + 0.3 * 4 = 6.2.
-    // Total = 6.2 + 12.5 = 18.7.
+    // Legs: Uber (~1.2 miles) + Train (~3.1 miles).
+    // Uber cost: 2.50 + 2.00 * 1.2 = 4.9.
+    // Train cost: 5.00 + 0.3 * 3.1 = 5.9.
+    // Total: ~10.8.
     final uberTrainLeg = initData.segmentOptions.firstMile.firstWhere((leg) => leg.label == 'Uber + Train');
-    expect(uberTrainLeg.cost, closeTo(18.7, 1.0));
+    expect(uberTrainLeg.cost, closeTo(10.8, 1.0));
 
     // Validate "Walk + Train" (Group 2)
     // Name "Walk + Train".
