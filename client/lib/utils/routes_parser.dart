@@ -412,7 +412,8 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = ''}
   double cost = 0.0;
   if (mode == 'car') {
      if (label.toLowerCase().contains('uber') || optionName.toLowerCase().contains('uber')) {
-         cost = 2.50 + (2.00 * distMiles);
+         // Only variable cost here. Base fare added in _estimateCost
+         cost = 2.00 * distMiles;
      } else {
          cost = 0.45 * distMiles;
      }
