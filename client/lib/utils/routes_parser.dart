@@ -4,7 +4,7 @@ import '../models.dart';
 import 'polyline.dart';
 import 'emission_utils.dart';
 
-InitData parseRoutesJson(String jsonString) {
+InitData parseRoutesJson(String jsonString, {String? routeId}) {
   final Map<String, dynamic> data = jsonDecode(jsonString);
   final List<dynamic> groups = data['groups'];
 
@@ -20,15 +20,15 @@ InitData parseRoutesJson(String jsonString) {
 
     if (name.contains('Group 1') || name.contains('Group 2')) {
       for (var option in options) {
-        firstMile.add(_parseOptionToLeg(option, groupName: name));
+        firstMile.add(_parseOptionToLeg(option, groupName: name, routeId: routeId));
       }
     } else if (name.contains('Group 3')) {
       if (options.isNotEmpty) {
-        mainLeg = _parseOptionToLeg(options.first, groupName: name);
+        mainLeg = _parseOptionToLeg(options.first, groupName: name, routeId: routeId);
       }
     } else if (name.contains('Group 4')) {
       for (var option in options) {
-        lastMile.add(_parseOptionToLeg(option, groupName: name));
+        lastMile.add(_parseOptionToLeg(option, groupName: name, routeId: routeId));
       }
     } else if (name.contains('Group 5')) {
       // Direct Drive
@@ -78,7 +78,7 @@ InitData parseRoutesJson(String jsonString) {
   );
 }
 
-Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = ''}) {
+Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', String? routeId}) {
   String name = option['name'] ?? 'Unknown';
   List<dynamic> jsonLegs = option['legs'] ?? [];
 
@@ -113,6 +113,33 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = ''}) {
           }
       }
       mergedSegments.add(seg);
+  }
+
+  // Inject Transfer Buffer for Route 2 Access Options (Issue 4)
+  if (routeId == 'route2' &&
+      groupName.contains('Access Options') &&
+      name.toLowerCase().contains('train')) {
+
+        // Find the train segment index
+        int trainIndex = -1;
+        for (int i=0; i<mergedSegments.length; i++) {
+           if (mergedSegments[i].mode == 'train') {
+              trainIndex = i;
+              break;
+           }
+        }
+
+        if (trainIndex != -1) {
+           // Insert Transfer before train
+           mergedSegments.insert(trainIndex, Segment(
+             mode: 'wait',
+             label: 'Transfer',
+             lineColor: '#000000',
+             iconId: 'clock',
+             time: 10,
+             detail: 'Transfer Buffer',
+           ));
+        }
   }
 
   // Recalculate totals
