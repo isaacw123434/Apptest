@@ -304,6 +304,27 @@ class _DetailPageState extends State<DetailPage> {
     }
   }
 
+  Map<String, List<Leg>> _groupLegsByStation(List<Leg> options) {
+    final Map<String, List<Leg>> groupedLegs = {};
+    for (var option in options) {
+      String suffix = _getStationSuffix(option.label);
+      if (!groupedLegs.containsKey(suffix)) {
+        groupedLegs[suffix] = [];
+      }
+      groupedLegs[suffix]!.add(option);
+    }
+    return groupedLegs;
+  }
+
+  String _getStationSuffix(String label) {
+    final RegExp pattern = RegExp(r'^(Walk|Cycle|Uber|Drive|Bus|Taxi)(.*)', caseSensitive: false);
+    final match = pattern.firstMatch(label);
+    if (match != null && match.groupCount >= 2) {
+      return match.group(2)!.trim();
+    }
+    return label;
+  }
+
   void _updateLeg(String legType, Leg newLeg) {
     if (_currentResult == null || _initData == null) return;
 
@@ -350,25 +371,68 @@ class _DetailPageState extends State<DetailPage> {
     });
   }
 
-  void _showEditModal(String legType) {
-    if (_initData == null || _currentResult == null) return;
+  void _showAccessEdit(Leg currentLeg, String legType) {
+    if (_initData == null) return;
 
-    List<Leg> options = legType == 'firstMile'
+    List<Leg> allOptions = legType == 'firstMile'
         ? _initData!.segmentOptions.firstMile
         : _initData!.segmentOptions.lastMile;
 
-    Leg currentLeg = legType == 'firstMile'
-        ? _currentResult!.leg1
-        : _currentResult!.leg3;
+    String currentSuffix = _getStationSuffix(currentLeg.label);
+
+    // Filter options with same suffix
+    List<Leg> filteredOptions = allOptions.where((leg) {
+      return _getStationSuffix(leg.label) == currentSuffix;
+    }).toList();
 
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return EditLegModal(
-          options: options,
+        return LegSelectorModal(
+          options: filteredOptions,
           currentLeg: currentLeg,
-          legType: legType,
+          title: 'Access Options',
+          onSelect: (Leg selectedLeg) {
+            _updateLeg(legType, selectedLeg);
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
+  }
+
+  void _showTrainEdit(Leg currentLeg, String legType) {
+    if (_initData == null) return;
+
+    List<Leg> allOptions = legType == 'firstMile'
+        ? _initData!.segmentOptions.firstMile
+        : _initData!.segmentOptions.lastMile;
+
+    Map<String, List<Leg>> grouped = _groupLegsByStation(allOptions);
+    String currentSuffix = _getStationSuffix(currentLeg.label);
+
+    // Pick representatives
+    List<Leg> representatives = [];
+    grouped.forEach((suffix, legs) {
+      if (suffix == currentSuffix) {
+        // For the current station, keep the currently selected mode
+        representatives.add(currentLeg);
+      } else {
+        // For other stations, pick the cheapest/best option
+        legs.sort((a, b) => a.cost.compareTo(b.cost));
+        representatives.add(legs.first);
+      }
+    });
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return LegSelectorModal(
+          options: representatives,
+          currentLeg: currentLeg,
+          title: 'Choose Route',
           onSelect: (Leg selectedLeg) {
             _updateLeg(legType, selectedLeg);
             Navigator.pop(context);
@@ -588,7 +652,8 @@ class _DetailPageState extends State<DetailPage> {
     List<Widget> children = [];
 
     // Helper to add segments
-    void addSegments(Leg leg, {bool isEditable = false, required VoidCallback? onEdit}) {
+    void addSegments(Leg leg, String legType) {
+      final bool canEdit = legType != 'mainLeg';
       final rawSegments = leg.segments;
       List<Segment> processedSegments = [];
 
@@ -736,6 +801,8 @@ class _DetailPageState extends State<DetailPage> {
                    dist1: dist1,
                    dist2: dist2,
                    extraDetails1: extraDetails,
+                   isEditable: canEdit,
+                   onEdit: () => _showTrainEdit(leg, legType),
                    // extraDetails2 could be calculated similarly but kept simple for now
                    onTap: () {
                      // Maybe zoom to fit both?
@@ -755,8 +822,14 @@ class _DetailPageState extends State<DetailPage> {
         if (!merged) {
           children.add(_buildSegmentConnection(
             segment: seg,
-            isEditable: isEditable && isFirst, // Only first segment gets edit button
-            onEdit: onEdit,
+            isEditable: canEdit && (isFirst || seg.iconId == 'train'),
+            onEdit: () {
+              if (seg.iconId == 'train') {
+                _showTrainEdit(leg, legType);
+              } else {
+                _showAccessEdit(leg, legType);
+              }
+            },
             onTap: () => _zoomToSegment(seg),
             distance: distance,
             extraDetails: extraDetails,
@@ -837,7 +910,7 @@ class _DetailPageState extends State<DetailPage> {
         isStart: true, nextColor: leg1FirstColor));
 
     // --- Leg 1 ---
-    addSegments(result.leg1, isEditable: true, onEdit: () => _showEditModal('firstMile'));
+    addSegments(result.leg1, 'firstMile');
 
     // --- Check Main Leg ---
     bool hasMainLeg = _initData!.segmentOptions.mainLeg.segments.isNotEmpty;
@@ -855,7 +928,7 @@ class _DetailPageState extends State<DetailPage> {
       currentMinutes += result.buffer;
 
       // --- Main Leg ---
-      addSegments(_initData!.segmentOptions.mainLeg, isEditable: false, onEdit: null);
+      addSegments(_initData!.segmentOptions.mainLeg, 'mainLeg');
 
       // --- Loughborough Node ---
       Color mainLegLastColor =
@@ -889,7 +962,7 @@ class _DetailPageState extends State<DetailPage> {
     }
 
     // --- Leg 3 ---
-    addSegments(result.leg3, isEditable: true, onEdit: () => _showEditModal('lastMile'));
+    addSegments(result.leg3, 'lastMile');
 
     // --- End Node ---
     Color leg3LastColor = result.leg3.segments.isNotEmpty ? _parseColor(result.leg3.segments.last.lineColor) : Colors.grey;
@@ -1189,6 +1262,8 @@ class _DetailPageState extends State<DetailPage> {
     double? dist1,
     double? dist2,
     String? extraDetails1,
+    bool isEditable = false,
+    VoidCallback? onEdit,
     VoidCallback? onTap,
   }) {
     double totalCost = seg1.cost + seg2.cost;
@@ -1275,6 +1350,17 @@ class _DetailPageState extends State<DetailPage> {
                             ],
                           ),
                         ),
+                        if (isEditable && onEdit != null)
+                          TextButton.icon(
+                            onPressed: onEdit,
+                            icon: const Icon(LucideIcons.pencil, size: 14),
+                            label: const Text('Edit'),
+                            style: TextButton.styleFrom(
+                              foregroundColor: const Color(0xFF4F46E5),
+                              textStyle:
+                                  const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ),
                       ],
                     ),
 
@@ -1417,96 +1503,29 @@ class _DetailPageState extends State<DetailPage> {
   }
 }
 
-class EditLegModal extends StatefulWidget {
+class LegSelectorModal extends StatefulWidget {
   final List<Leg> options;
   final Leg currentLeg;
-  final String legType;
+  final String title;
   final Function(Leg) onSelect;
 
-  const EditLegModal({
+  const LegSelectorModal({
     super.key,
     required this.options,
     required this.currentLeg,
-    required this.legType,
+    required this.title,
     required this.onSelect,
   });
 
   @override
-  State<EditLegModal> createState() => _EditLegModalState();
+  State<LegSelectorModal> createState() => _LegSelectorModalState();
 }
 
-class _EditLegModalState extends State<EditLegModal> {
+class _LegSelectorModalState extends State<LegSelectorModal> {
   String _sortOption = 'Best Value';
-  // Map to store grouped legs. Key is the grouping identifier (e.g. " + Train"), value is list of Legs.
-  final Map<String, List<Leg>> _groupedLegs = {};
 
   List<Leg> _getSortedOptions() {
-    List<Leg> displayOptions = [];
-    _groupedLegs.clear();
-
-    // Regex to capture "Access Mode" (group 1) and "Rest" (group 2)
-    // E.g. "Walk + Train" -> "Walk", " + Train"
-    // "Drive to Brough + Train" -> "Drive", " to Brough + Train"
-    final RegExp pattern = RegExp(r'^(Walk|Cycle|Uber|Drive|Bus|Taxi)(.*)', caseSensitive: false);
-
-    for (var option in widget.options) {
-      final match = pattern.firstMatch(option.label);
-      if (match != null && match.groupCount >= 2) {
-        String suffix = match.group(2)!.trim();
-        // Normalize suffix slightly if needed, but strict match is fine for now
-        if (!_groupedLegs.containsKey(suffix)) {
-          _groupedLegs[suffix] = [];
-        }
-        _groupedLegs[suffix]!.add(option);
-      } else {
-        // No match, treat as standalone
-        displayOptions.add(option);
-      }
-    }
-
-    // Process groups
-    _groupedLegs.forEach((suffix, legs) {
-      if (legs.length > 1) {
-        // Create merged option
-        // Sort legs inside group by cost for default "base" logic?
-        legs.sort((a, b) => a.cost.compareTo(b.cost));
-        final base = legs.first;
-
-        // Construct merged label: "To [Suffix without '+ ' if starts with it]"
-        String mergedLabel = suffix;
-        if (mergedLabel.startsWith('+ ')) {
-           if (base.segments.isNotEmpty) {
-             mergedLabel = 'To ${base.segments.last.label}'; // Fallback to destination if generic suffix
-           } else {
-             mergedLabel = 'To Destination';
-           }
-        } else if (mergedLabel.startsWith('to ')) {
-           mergedLabel = 'Access $mergedLabel';
-        }
-
-        displayOptions.add(Leg(
-          id: 'merged_$suffix', // Unique ID for the group
-          label: mergedLabel,
-          detail: legs.map((l) => pattern.firstMatch(l.label)?.group(1)).toSet().join(', '),
-          time: base.time,
-          cost: base.cost,
-          distance: base.distance,
-          riskScore: base.riskScore,
-          iconId: base.iconId, // Use base icon (e.g. train)
-          lineColor: base.lineColor,
-          segments: base.segments,
-          co2: base.co2,
-          desc: base.desc,
-          waitTime: base.waitTime,
-          nextBusIn: base.nextBusIn,
-          recommended: base.recommended,
-          platform: base.platform,
-        ));
-      } else {
-        // Only 1 item, just add it
-        displayOptions.addAll(legs);
-      }
-    });
+    List<Leg> displayOptions = List.from(widget.options);
 
     displayOptions.sort((a, b) {
       if (_sortOption == 'Lowest Cost') {
@@ -1532,49 +1551,6 @@ class _EditLegModalState extends State<EditLegModal> {
       case 'footprints': return LucideIcons.footprints;
       default: return LucideIcons.circle;
     }
-  }
-
-  void _handleSelection(BuildContext context, Leg option) {
-      if (option.id.startsWith('merged_')) {
-          String suffix = option.id.replaceFirst('merged_', '');
-          List<Leg> subOptions = _groupedLegs[suffix] ?? [];
-
-          showDialog(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                  title: Text(option.label),
-                  content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: subOptions.map((leg) {
-                          // Extract mode prefix for display
-                          String label = leg.label;
-                          final RegExp pattern = RegExp(r'^(Walk|Cycle|Uber|Drive|Bus|Taxi)(.*)', caseSensitive: false);
-                          final match = pattern.firstMatch(label);
-                          String modeTitle = match != null ? match.group(1)! : label;
-
-                          // Determine icon
-                          IconData icon = LucideIcons.circle;
-                          if (modeTitle.toLowerCase() == 'walk') icon = LucideIcons.footprints;
-                          if (modeTitle.toLowerCase() == 'cycle') icon = LucideIcons.bike;
-                          if (modeTitle.toLowerCase() == 'uber' || modeTitle.toLowerCase() == 'drive' || modeTitle.toLowerCase() == 'taxi') icon = LucideIcons.car;
-                          if (modeTitle.toLowerCase() == 'bus') icon = LucideIcons.bus;
-
-                          return ListTile(
-                                leading: Icon(icon),
-                                title: Text(modeTitle),
-                                subtitle: Text('${leg.time} min • £${leg.cost.toStringAsFixed(2)}'),
-                                onTap: () {
-                                    Navigator.pop(ctx);
-                                    widget.onSelect(leg);
-                                },
-                            );
-                      }).toList(),
-                  ),
-              ),
-          );
-      } else {
-          widget.onSelect(option);
-      }
   }
 
   @override
@@ -1604,7 +1580,7 @@ class _EditLegModalState extends State<EditLegModal> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                         Text(
-                          'Choose ${widget.legType == 'firstMile' ? 'First Mile' : 'Last Mile'}',
+                          widget.title,
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         DropdownButton<String>(
@@ -1630,21 +1606,13 @@ class _EditLegModalState extends State<EditLegModal> {
                   separatorBuilder: (context, index) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final option = sortedOptions[index];
-                    bool isSelected = false;
-
-                    if (option.id.startsWith('merged_')) {
-                         String suffix = option.id.replaceFirst('merged_', '');
-                         List<Leg> subOptions = _groupedLegs[suffix] ?? [];
-                         isSelected = subOptions.any((l) => l.id == widget.currentLeg.id);
-                    } else {
-                         isSelected = option.id == widget.currentLeg.id;
-                    }
+                    final isSelected = option.id == widget.currentLeg.id;
 
                     double priceDiff = option.cost - widget.currentLeg.cost;
                     int timeDiff = option.time - widget.currentLeg.time;
 
                     return GestureDetector(
-                      onTap: () => _handleSelection(context, option),
+                      onTap: () => widget.onSelect(option),
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(

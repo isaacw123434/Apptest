@@ -4,57 +4,39 @@ import 'package:client/models.dart';
 import 'package:client/screens/detail_page.dart';
 
 void main() {
-  testWidgets('EditLegModal merges Headingley options and handles interaction', (WidgetTester tester) async {
-    // Setup Mock Data
-    final walkLeg = Leg(
-      id: 'train_walk_headingley',
-      label: 'Walk + Train',
+  testWidgets('LegSelectorModal displays options and handles selection', (WidgetTester tester) async {
+    final option1 = Leg(
+      id: 'opt1',
+      label: 'Option 1',
       time: 20,
       cost: 5.0,
       distance: 1.0,
       riskScore: 0,
       iconId: 'footprints',
       lineColor: '#000000',
-      segments: [
-        Segment(mode: 'walk', label: 'Walk', lineColor: '#000000', iconId: 'footprints', time: 10),
-        Segment(mode: 'train', label: 'Headingley Station', lineColor: '#000000', iconId: 'train', time: 10),
-      ],
+      segments: [],
     );
-    final uberLeg = Leg(
-      id: 'train_uber_headingley',
-      label: 'Uber + Train',
+    final option2 = Leg(
+      id: 'opt2',
+      label: 'Option 2',
       time: 10,
       cost: 10.0,
       distance: 1.0,
       riskScore: 0,
       iconId: 'car',
       lineColor: '#000000',
-      segments: [
-        Segment(mode: 'car', label: 'Uber', lineColor: '#000000', iconId: 'car', time: 5),
-        Segment(mode: 'train', label: 'Headingley Station', lineColor: '#000000', iconId: 'train', time: 5),
-      ],
-    );
-    final otherLeg = Leg(
-      id: 'bus_option',
-      label: 'Bus',
-      time: 30,
-      cost: 2.0,
-      distance: 1.0,
-      riskScore: 0,
-      iconId: 'bus',
-      lineColor: '#000000',
       segments: [],
     );
 
-    final options = [walkLeg, uberLeg, otherLeg];
+    final options = [option1, option2];
     Leg? selectedLeg;
 
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
-        body: EditLegModal(
+        body: LegSelectorModal(
           options: options,
-          currentLeg: walkLeg,
-          legType: 'firstMile',
+          currentLeg: option1,
+          title: 'Test Modal',
           onSelect: (leg) {
             selectedLeg = leg;
           },
@@ -63,33 +45,23 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    // Verify "To Headingley Station" exists
-    expect(find.text('To Headingley Station'), findsOneWidget);
-    // Verify "Bus" exists
-    expect(find.text('Bus'), findsOneWidget);
-    // Verify original separate options are NOT visible directly (they should be merged)
-    expect(find.text('Walk + Train'), findsNothing);
-    expect(find.text('Uber + Train'), findsNothing);
+    // Verify Title
+    expect(find.text('Test Modal'), findsOneWidget);
 
-    // Tap "To Headingley Station"
-    await tester.tap(find.text('To Headingley Station'));
-    await tester.pumpAndSettle();
+    // Verify Options
+    expect(find.text('Option 1'), findsOneWidget);
+    expect(find.text('Option 2'), findsOneWidget);
 
-    // Verify Dialog appears with "Walk" and "Uber" options
-    expect(find.text('To Headingley Station'), findsWidgets);
-    expect(find.text('Walk'), findsOneWidget);
-    expect(find.text('Uber'), findsOneWidget);
-
-    // Tap "Uber"
-    await tester.tap(find.text('Uber'));
+    // Tap Option 2
+    await tester.tap(find.text('Option 2'));
     await tester.pumpAndSettle();
 
     // Verify selection
     expect(selectedLeg, isNotNull);
-    expect(selectedLeg!.id, 'train_uber_headingley');
+    expect(selectedLeg!.id, 'opt2');
   });
 
-  testWidgets('EditLegModal sorting works', (WidgetTester tester) async {
+  testWidgets('LegSelectorModal sorting works', (WidgetTester tester) async {
       // Create options with distinct costs and times
       final cheapSlow = Leg(
         id: 'cheap',
@@ -118,10 +90,10 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: EditLegModal(
+          body: LegSelectorModal(
             options: options,
             currentLeg: cheapSlow,
-            legType: 'firstMile',
+            title: 'Sort Test',
             onSelect: (_) {},
           ),
         ),
