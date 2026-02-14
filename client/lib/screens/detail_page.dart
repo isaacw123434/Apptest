@@ -1023,20 +1023,11 @@ class _EditLegModalState extends State<EditLegModal> {
         // Construct merged label: "To [Suffix without '+ ' if starts with it]"
         String mergedLabel = suffix;
         if (mergedLabel.startsWith('+ ')) {
-           mergedLabel = 'To ${base.segments.last.label}'; // Fallback to destination if generic suffix
-           // Actually, "Walk + Train" -> suffix "+ Train". Label "To Train" is weird.
-           // Route 1 logic was "To Headingley Station". "Headingley" is implied.
-           // Maybe just "Access" + suffix?
-           // "Access + Train"?
-           // Better: "Various options" + suffix?
-           // Let's try to extract destination from the first segment's 'to' or just use "via ..."
-
-           // If suffix starts with "+", it usually implies the main mode.
-           // "Walk + Train" -> Suffix "+ Train".
-           // Let's use "Access" + suffix. -> "Access + Train".
-           // Route 2: "Drive to Brough + Train" -> suffix "to Brough + Train".
-           // "Access to Brough + Train". This reads well.
-           mergedLabel = 'Access $mergedLabel';
+           if (base.segments.isNotEmpty) {
+             mergedLabel = 'To ${base.segments.last.label}'; // Fallback to destination if generic suffix
+           } else {
+             mergedLabel = 'To Destination';
+           }
         } else if (mergedLabel.startsWith('to ')) {
            mergedLabel = 'Access $mergedLabel';
         }

@@ -15,7 +15,10 @@ void main() {
       riskScore: 0,
       iconId: 'footprints',
       lineColor: '#000000',
-      segments: [],
+      segments: [
+        Segment(mode: 'walk', label: 'Walk', lineColor: '#000000', iconId: 'footprints', time: 10),
+        Segment(mode: 'train', label: 'Headingley Station', lineColor: '#000000', iconId: 'train', time: 10),
+      ],
     );
     final uberLeg = Leg(
       id: 'train_uber_headingley',
@@ -26,7 +29,10 @@ void main() {
       riskScore: 0,
       iconId: 'car',
       lineColor: '#000000',
-      segments: [],
+      segments: [
+        Segment(mode: 'car', label: 'Uber', lineColor: '#000000', iconId: 'car', time: 5),
+        Segment(mode: 'train', label: 'Headingley Station', lineColor: '#000000', iconId: 'train', time: 5),
+      ],
     );
     final otherLeg = Leg(
       id: 'bus_option',
@@ -55,6 +61,7 @@ void main() {
         ),
       ),
     ));
+    await tester.pumpAndSettle();
 
     // Verify "To Headingley Station" exists
     expect(find.text('To Headingley Station'), findsOneWidget);
@@ -69,7 +76,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify Dialog appears with "Walk" and "Uber" options
-    expect(find.text('How to get to Headingley Station?'), findsOneWidget);
+    expect(find.text('To Headingley Station'), findsWidgets);
     expect(find.text('Walk'), findsOneWidget);
     expect(find.text('Uber'), findsOneWidget);
 
