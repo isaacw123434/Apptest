@@ -891,10 +891,24 @@ class _SummaryPageState extends State<SummaryPage> {
   List<Segment> _processSegments(List<Segment> rawSegments) {
     List<Segment> processed = [];
 
-    // 1. Filter out short walks (<= 2 mins)
+    // 1. Filter out short walks (<= 2 mins), Parking, and Transfer
     for (var seg in rawSegments) {
       bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
       if (isWalk && seg.time <= 2) {
+        continue;
+      }
+      if (seg.mode.toLowerCase() == 'parking') {
+        continue;
+      }
+      if (seg.mode.toLowerCase() == 'wait' || seg.label.toLowerCase() == 'transfer') {
+        // Only filter if it's the standalone transfer we added (usually has time 10)
+        // But the request says "Transfer should not show up", so we filter all.
+        // However, we must ensure we don't break the "Walk - Transfer - Walk" merge logic if that relied on a specific transfer segment.
+        // The merge logic below runs on 'processed' list. If we filter here, the merge logic won't see it.
+        // But "Walk - Transfer - Walk" usually implies an interchange within the journey.
+        // If we filter it here, we might end up with Walk - Walk.
+        // The request specifically talks about the "Transfer" box (probably the 10 min one).
+        // Let's filter it.
         continue;
       }
       processed.add(seg);

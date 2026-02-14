@@ -589,10 +589,28 @@ class _DetailPageState extends State<DetailPage> {
 
     // Helper to add segments
     void addSegments(Leg leg, {bool isEditable = false, required VoidCallback? onEdit}) {
-      final segments = leg.segments;
-      // Use filtered segments here as well to match map
-      // But we need to keep time calculation correct.
-      // If we skip a segment in visualization, we must add its time to currentMinutes.
+      final rawSegments = leg.segments;
+      List<Segment> processedSegments = [];
+
+      // Pre-process for Parking Merging
+      for (var seg in rawSegments) {
+        if (seg.mode == 'parking') {
+          // Merge cost to previous if car
+          if (processedSegments.isNotEmpty && (processedSegments.last.mode == 'car' || processedSegments.last.iconId == 'car')) {
+             var last = processedSegments.last;
+             processedSegments.last = Segment(
+               mode: last.mode, label: last.label, lineColor: last.lineColor, iconId: last.iconId,
+               time: last.time, from: last.from, to: last.to, detail: last.detail, path: last.path,
+               co2: last.co2, distance: last.distance,
+               cost: last.cost + seg.cost
+             );
+          }
+          continue; // Skip adding parking segment to list
+        }
+        processedSegments.add(seg);
+      }
+
+      final segments = processedSegments;
 
       for (int i = 0; i < segments.length; i++) {
         final seg = segments[i];
@@ -623,6 +641,25 @@ class _DetailPageState extends State<DetailPage> {
         }
 
         Color lineColor = _parseColor(seg.lineColor);
+
+        // Check for Transfer
+        if (seg.mode == 'wait' && seg.label == 'Transfer') {
+             // 10 mins transfer text
+             children.add(
+               Padding(
+                 padding: const EdgeInsets.only(left: 24+16, bottom: 8, top: 4),
+                 child: Row(
+                   children: const [
+                     Icon(LucideIcons.clock, size: 14, color: Colors.grey),
+                     SizedBox(width: 4),
+                     Text('10 mins transfer', style: TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic)),
+                   ],
+                 ),
+               )
+             );
+             currentMinutes += seg.time;
+             continue; // Skip building regular connection and node
+        }
 
         // Calculate Distance
         double? distance;
@@ -720,13 +757,21 @@ class _DetailPageState extends State<DetailPage> {
              if (currentIsTrain && nextVisible.iconId == 'train') {
                  nodeTitle = 'Change at ${seg.to ?? 'Station'}';
              }
-          }
 
-          children.add(_buildNode(
-              nodeTitle,
-              _formatMinutes(currentMinutes),
-              prevColor: lineColor,
-              nextColor: _parseColor(segments[i + 1].lineColor))); // This might use the hidden segment's color, which is usually fine (walking is grey)
+             children.add(_buildNode(
+                nodeTitle,
+                _formatMinutes(currentMinutes),
+                prevColor: lineColor,
+                nextColor: _parseColor(nextVisible.lineColor)));
+          } else {
+             if (i < segments.length - 1) {
+                 children.add(_buildNode(
+                    nodeTitle,
+                    _formatMinutes(currentMinutes),
+                    prevColor: lineColor,
+                    nextColor: _parseColor(segments[i + 1].lineColor)));
+             }
+          }
         }
       }
     }

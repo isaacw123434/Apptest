@@ -4,6 +4,14 @@ import '../models.dart';
 import 'polyline.dart';
 import 'emission_utils.dart';
 
+const Map<String, Map<String, double>> pricing = {
+  'brough': {'parking': 5.80, 'uber': 22.58, 'train': 8.10},
+  'york': {'parking': 13.95, 'uber': 46.24, 'train': 5.20},
+  'beverley': {'parking': 4.40, 'uber': 4.62, 'train': 12.10},
+  'hull': {'parking': 6.00, 'uber': 20.63, 'train': 9.60},
+  'eastrington': {'parking': 0.00, 'uber': 34.75, 'train': 7.00},
+};
+
 InitData parseRoutesJson(String jsonString, {String? routeId}) {
   final Map<String, dynamic> data = jsonDecode(jsonString);
   final List<dynamic> groups = data['groups'];
@@ -115,6 +123,54 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
       mergedSegments.add(seg);
   }
 
+  // Deduplicate Base Fare for Generic Trains (assume single ticket)
+  // If multiple train segments exist, only the first one should carry the base fare (5.00).
+  // _parseSegment adds 5.00 to every train segment.
+  bool trainBaseApplied = false;
+  for (int i = 0; i < mergedSegments.length; i++) {
+      if (mergedSegments[i].mode == 'train') {
+          if (trainBaseApplied) {
+              // Remove base fare of 5.00
+              double newCost = mergedSegments[i].cost - 5.00;
+              if (newCost < 0) newCost = 0;
+
+              var seg = mergedSegments[i];
+              mergedSegments[i] = Segment(
+                  mode: seg.mode, label: seg.label, lineColor: seg.lineColor, iconId: seg.iconId, time: seg.time,
+                  from: seg.from, to: seg.to, detail: seg.detail, path: seg.path, co2: seg.co2, distance: seg.distance,
+                  cost: newCost
+              );
+          }
+          trainBaseApplied = true;
+      }
+  }
+
+  // Determine Location for Pricing
+  String? location;
+  // Try to find a train segment and get its origin
+  for (var seg in mergedSegments) {
+      if (seg.mode == 'train' && seg.from != null) {
+          location = seg.from!.toLowerCase().split(' ')[0]; // "York (YRK)" -> "york"
+          if (location.contains('eastrington')) location = 'eastrington';
+          break;
+      }
+  }
+  // Fallback: check option name
+  if (location == null) {
+      String lowerName = name.toLowerCase();
+      if (lowerName.contains('brough')) {
+        location = 'brough';
+      } else if (lowerName.contains('york')) {
+        location = 'york';
+      } else if (lowerName.contains('beverley')) {
+        location = 'beverley';
+      } else if (lowerName.contains('hull')) {
+        location = 'hull';
+      } else if (lowerName.contains('eastrington')) {
+        location = 'eastrington';
+      }
+  }
+
   // Insert Parking Segment
   for (int i = 0; i < mergedSegments.length - 1; i++) {
      Segment current = mergedSegments[i];
@@ -124,6 +180,11 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
          // Check if it's NOT Uber
          bool isUber = current.label.toLowerCase().contains('uber');
          if (!isUber) {
+             double parkingCost = 5.00;
+             if (location != null && pricing.containsKey(location)) {
+                 parkingCost = pricing[location]!['parking'] ?? 5.00;
+             }
+
              // Insert Parking
              mergedSegments.insert(i + 1, Segment(
                  mode: 'parking',
@@ -131,7 +192,7 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
                  lineColor: '#000000',
                  iconId: IconIds.parking,
                  time: 0,
-                 cost: 5.00,
+                 cost: parkingCost,
              ));
              i++; // Skip the newly inserted segment
          }
@@ -165,10 +226,40 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
         }
   }
 
+  // Apply Specific Pricing if available
+  if (location != null && pricing.containsKey(location)) {
+      final prices = pricing[location]!;
+      bool trainCostApplied = false;
+      bool uberCostApplied = false;
+
+      for (int i = 0; i < mergedSegments.length; i++) {
+          final seg = mergedSegments[i];
+          if (seg.mode == 'train' && prices.containsKey('train')) {
+              double cost = trainCostApplied ? 0.0 : prices['train']!;
+              mergedSegments[i] = Segment(
+                  mode: seg.mode, label: seg.label, lineColor: seg.lineColor, iconId: seg.iconId, time: seg.time,
+                  from: seg.from, to: seg.to, detail: seg.detail, path: seg.path, co2: seg.co2, distance: seg.distance,
+                  cost: cost
+              );
+              trainCostApplied = true;
+          }
+          if (seg.mode == 'car' && seg.label.toLowerCase().contains('uber') && prices.containsKey('uber')) {
+              double cost = uberCostApplied ? 0.0 : prices['uber']!;
+              mergedSegments[i] = Segment(
+                  mode: seg.mode, label: seg.label, lineColor: seg.lineColor, iconId: seg.iconId, time: seg.time,
+                  from: seg.from, to: seg.to, detail: seg.detail, path: seg.path, co2: seg.co2, distance: seg.distance,
+                  cost: cost
+              );
+              uberCostApplied = true;
+          }
+      }
+  }
+
   // Recalculate totals
   double finalDistMiles = 0;
   int finalTime = 0;
   double totalCo2 = 0;
+  double totalCost = 0;
 
   for (var seg in mergedSegments) {
       finalDistMiles += seg.distance ?? 0;
@@ -178,6 +269,7 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
       } else {
          totalCo2 += calculateEmission(seg.distance ?? 0, seg.iconId);
       }
+      totalCost += seg.cost;
   }
 
   String id = _generateId(name);
@@ -188,7 +280,7 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
     id: id,
     label: name,
     time: finalTime,
-    cost: _estimateCost(name, finalDistMiles, mergedSegments),
+    cost: totalCost, // Use summed cost
     distance: double.parse(finalDistMiles.toStringAsFixed(2)),
     riskScore: risk['score'],
     riskReason: risk['reason'],
