@@ -173,15 +173,27 @@ Map<String, dynamic> _calculateRisk(String groupName, String optionName) {
     }
   }
 
-  // Group 2: Access via Headingley (First Mile)
+  // Group 2: Access via Headingley (First Mile) OR Access Options (Route 2)
   if (lowerGroup.contains('group 2')) {
+    // Route 2: Bus + Train
+    if (lowerOption.contains('bus') && lowerOption.contains('train')) {
+       return {'score': 2, 'reason': 'Bus risk (+1) + Connection risk (+1)'};
+    }
+
+    // Route 2: P&R
+    if (lowerOption.contains('p&r')) {
+       return {'score': 1, 'reason': 'Connection risk'};
+    }
+
+    // Route 1 existing
     if (lowerOption.contains('walk') && lowerOption.contains('train')) {
       return {'score': 2, 'reason': 'Timing risk (+1) + Connection risk (+1)'};
     }
     if (lowerOption.contains('cycle') && lowerOption.contains('train')) {
       return {'score': 1, 'reason': 'Weather dependent, connection risk'};
     }
-    if (lowerOption.contains('uber') && lowerOption.contains('train')) {
+    // Route 1 & 2 Uber/Drive + Train
+    if ((lowerOption.contains('uber') || lowerOption.contains('drive')) && lowerOption.contains('train')) {
       return {'score': 1, 'reason': 'Connection risk'};
     }
   }
@@ -256,7 +268,7 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = ''}
   String lineColor = '#000000';
   String iconId = IconIds.footprints;
 
-  if (jsonSegment.containsKey('transit_details')) {
+  if (jsonSegment['transit_details'] != null) {
       var td = jsonSegment['transit_details'];
       String? color = td['color'];
       if (color != null) lineColor = color;
@@ -331,12 +343,16 @@ String _generateId(String name) {
         if (lower.contains('walk')) return 'train_walk_headingley';
         if (lower.contains('cycle')) return 'train_cycle_headingley';
         if (lower.contains('uber')) return 'train_uber_headingley';
+        if (lower.contains('drive')) return 'train_drive';
+        if (lower.contains('bus')) return 'train_bus';
         return 'train_main';
     }
     if (lower.contains('uber')) return 'uber';
     if (lower.contains('bus')) return 'bus';
     if (lower.contains('cycle')) return 'cycle';
-    if (lower.contains('drive')) return 'direct_drive'; // or drive_park
+    if (lower.contains('direct drive')) return 'direct_drive';
+    if (lower.contains('drive')) return 'drive';
+
     return name.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_').toLowerCase();
 }
 
@@ -351,6 +367,8 @@ String _mapIconId(String name, List<Segment> segments) {
         if (lower.contains('walk')) return IconIds.footprints; // Based on mock data
         if (lower.contains('cycle')) return IconIds.bike;
         if (lower.contains('uber')) return IconIds.car;
+        if (lower.contains('drive')) return IconIds.car;
+        if (lower.contains('bus')) return IconIds.bus;
         return IconIds.train;
     }
     if (lower.contains('walk')) return IconIds.footprints;
@@ -392,13 +410,56 @@ String _generateDetail(List<Segment> segments) {
 
 double _estimateCost(String name, double distanceMiles, List<Segment> segments) {
     String lower = name.toLowerCase();
-    if (lower.contains('uber')) {
-        // Uber
-        if (lower.contains('train')) {
-            // "Uber + Train" option.
-            // Explicitly Headingley route.
-            return 9.32;
+
+    // P&R logic
+    if (lower.contains('p&r')) {
+        // Drive cost + Parking (£5.00)
+        // Assume drive part is most of the distance
+        return 5.00 + (0.45 * distanceMiles);
+    }
+
+    // Train logic (covers Access + Train combinations)
+    if (lower.contains('train')) {
+        // Estimate Train part cost.
+        // Simple logic: if distance > 50 -> £25.70.
+        // If "train" alone (Route 1 Core Journey), it's > 50 miles (87 miles).
+        // If "Walk + Train" (Route 1 Headingley), distance < 10. Cost 3.40.
+        // For Route 2:
+        // "Drive to Brough + Train" ~ 46 miles.
+        // Split cost?
+        // Let's assume train is roughly 70% of distance for Route 2? No.
+
+        double trainCost = 0;
+        // Base Train Cost (Approximate)
+        if (distanceMiles > 50) {
+            trainCost = 25.70;
+        } else if (distanceMiles < 10 && !lower.contains('uber') && !lower.contains('drive') && !lower.contains('bus')) {
+            // Short hop (Headingley -> Leeds) for walk/cycle + train
+            return 3.40;
+        } else {
+            trainCost = 3.00 + (0.50 * distanceMiles);
         }
+
+        // Add Access Cost
+        if (lower.contains('uber')) {
+            // Headingley (Route 1) hardcoded check:
+            if (distanceMiles < 10) return 9.32; // Preserved
+
+            // Route 2 Uber:
+            return trainCost + 20.00; // Uber is expensive
+        }
+        if (lower.contains('drive')) {
+             // Access drive.
+             return trainCost + 5.00; // Fuel/Parking
+        }
+        if (lower.contains('bus')) {
+             return trainCost + 2.00;
+        }
+
+        return trainCost;
+    }
+
+    if (lower.contains('uber')) {
         // First mile (Leeds ~3.2 miles) -> £8.97
         if (distanceMiles >= 2 && distanceMiles < 4) {
             return 8.97;
@@ -425,23 +486,6 @@ double _estimateCost(String name, double distanceMiles, List<Segment> segments) 
             }
         }
         return 2.00; // Default (Line 24 Leeds)
-    }
-    if (lower.contains('train')) {
-        // If distance > 50 miles, assume it's the main leg
-        if (distanceMiles > 50) {
-            return 25.70;
-        }
-        // Short hop (Headingley -> Leeds)
-        if (distanceMiles < 10) {
-            if (lower.contains('uber')) {
-                // This shouldn't be reached if 'uber' check matches first,
-                // but if option name is "Uber + Train", it matches 'uber' first.
-                // So this block is for "Walk + Train" or other train options.
-                return 9.32;
-            }
-            return 3.40;
-        }
-        return 3.00 + (0.50 * distanceMiles);
     }
     if (lower.contains('cycle') || lower.contains('walk')) {
         return 0.00;
