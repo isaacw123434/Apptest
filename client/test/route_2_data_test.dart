@@ -41,6 +41,27 @@ void main() {
     bool hasBusBeverley = busToBeverley.segments.any((seg) => seg.mode.toLowerCase() == 'bus' || seg.iconId == 'bus');
     expect(hasBusBeverley, isTrue, reason: 'Bus to Beverley + Train should contain a bus segment');
 
+    // FIX CHECK: Bus to Beverley should use TRAIN from Beverley.
+    bool usesTrainFromBeverley = busToBeverley.segments.any((seg) =>
+        (seg.from?.contains('Beverley') ?? false) &&
+        seg.mode.toLowerCase() == 'train'
+    );
+    expect(usesTrainFromBeverley, isTrue, reason: 'Bus to Beverley + Train should use a Train departing from Beverley');
+
+
+    // Check "Bus to Hull + Train"
+    final busToHull = initData.segmentOptions.firstMile.firstWhere(
+      (leg) => leg.label == 'Bus to Hull + Train',
+      orElse: () => throw Exception('Bus to Hull + Train not found'),
+    );
+
+    bool usesBusToHull = busToHull.segments.any((seg) =>
+        (seg.to?.contains('Hull') ?? false) &&
+        seg.mode.toLowerCase() == 'bus'
+    );
+    bool hasSubstantialBus = busToHull.segments.any((seg) => seg.mode.toLowerCase() == 'bus' && seg.time > 10);
+    expect(usesBusToHull || hasSubstantialBus, isTrue, reason: 'Bus to Hull + Train should use a Bus to Hull');
+
     // Check "Bus to York + Train"
     final busToYork = initData.segmentOptions.firstMile.firstWhere(
       (leg) => leg.label == 'Bus to York + Train',
