@@ -658,20 +658,75 @@ class _DetailPageState extends State<DetailPage> {
       List<Segment> processedSegments = [];
 
       // Pre-process for Parking Merging
-      for (var seg in rawSegments) {
+      double pendingParkingCost = 0.0;
+
+      for (int i = 0; i < rawSegments.length; i++) {
+        var seg = rawSegments[i];
+
         if (seg.mode == 'parking') {
+          // Check for PRx bus ahead
+          bool isPrxAhead = false;
+          for (int j = i + 1; j < rawSegments.length; j++) {
+            var nextSeg = rawSegments[j];
+            if (nextSeg.mode == 'bus') {
+              if (RegExp(r'\bpr\d+\b', caseSensitive: false)
+                  .hasMatch(nextSeg.label)) {
+                isPrxAhead = true;
+              }
+              break; // Found a bus, stop looking (whether it's PRx or not)
+            }
+            if (nextSeg.mode == 'train' || nextSeg.mode == 'car') {
+              break;
+            }
+          }
+
+          if (isPrxAhead) {
+            pendingParkingCost += seg.cost;
+            continue;
+          }
+
           // Merge cost to previous if car
-          if (processedSegments.isNotEmpty && (processedSegments.last.mode == 'car' || processedSegments.last.iconId == 'car')) {
-             var last = processedSegments.last;
-             processedSegments.last = Segment(
-               mode: last.mode, label: last.label, lineColor: last.lineColor, iconId: last.iconId,
-               time: last.time, from: last.from, to: last.to, detail: last.detail, path: last.path,
-               co2: last.co2, distance: last.distance,
-               cost: last.cost + seg.cost
-             );
+          if (processedSegments.isNotEmpty &&
+              (processedSegments.last.mode == 'car' ||
+                  processedSegments.last.iconId == 'car')) {
+            var last = processedSegments.last;
+            processedSegments.last = Segment(
+                mode: last.mode,
+                label: last.label,
+                lineColor: last.lineColor,
+                iconId: last.iconId,
+                time: last.time,
+                from: last.from,
+                to: last.to,
+                detail: last.detail,
+                path: last.path,
+                co2: last.co2,
+                distance: last.distance,
+                cost: last.cost + seg.cost);
           }
           continue; // Skip adding parking segment to list
         }
+
+        if (seg.mode == 'bus' &&
+            pendingParkingCost > 0 &&
+            RegExp(r'\bpr\d+\b', caseSensitive: false).hasMatch(seg.label)) {
+          processedSegments.add(Segment(
+              mode: seg.mode,
+              label: seg.label,
+              lineColor: seg.lineColor,
+              iconId: seg.iconId,
+              time: seg.time,
+              from: seg.from,
+              to: seg.to,
+              detail: seg.detail,
+              path: seg.path,
+              co2: seg.co2,
+              distance: seg.distance,
+              cost: seg.cost + pendingParkingCost));
+          pendingParkingCost = 0;
+          continue;
+        }
+
         processedSegments.add(seg);
       }
 
