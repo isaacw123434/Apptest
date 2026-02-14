@@ -6,7 +6,7 @@ import 'emission_utils.dart';
 
 const Map<String, Map<String, double>> pricing = {
   'brough': {'parking': 5.80, 'uber': 22.58, 'train': 8.10},
-  'york': {'parking': 13.90, 'uber': 46.24, 'train': 5.20},
+  'york': {'parking': 13.80, 'uber': 46.24, 'train': 5.20},
   'beverley': {'parking': 4.40, 'uber': 4.62, 'train': 12.10},
   'hull': {'parking': 6.00, 'uber': 20.63, 'train': 9.60},
   'eastrington': {'parking': 0.00, 'uber': 34.75, 'train': 7.00},
@@ -638,14 +638,14 @@ Segment _parseSegment(Map<String, dynamic> jsonSegment, {String optionName = '',
   double cost = 0.0;
   if (mode == 'car') {
      if (label.toLowerCase().contains('uber') || optionName.toLowerCase().contains('uber')) {
-         cost = 1.20 * distMiles;
+         cost = 0.00;
      } else {
          cost = 0.45 * distMiles;
      }
   } else if (mode == 'bus') {
      cost = 2.00;
   } else if (mode == 'train') {
-     cost = 0.30 * distMiles;
+     cost = 0.00;
   }
 
   return Segment(
