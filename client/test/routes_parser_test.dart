@@ -50,9 +50,9 @@ void main() {
     expect(busLeg.cost, closeTo(2.00, 0.1));
 
     // Validate Bus (Group 4) -> Line 1
-    // Override: 3.00
+    // Override: 2.00 (Updated rule: anything else is £2)
     final busLegLast = initData.segmentOptions.lastMile.firstWhere((leg) => leg.label == 'Bus');
-    expect(busLegLast.cost, closeTo(3.00, 0.1));
+    expect(busLegLast.cost, closeTo(2.00, 0.1));
 
     // Validate "Uber + Train" (Group 2)
     // Override: Uber 5.92 + Train 3.40 = 9.32
