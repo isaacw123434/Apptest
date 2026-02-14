@@ -52,17 +52,17 @@ RiskBreakdown calculateRiskBreakdown(JourneyResult result, Leg? mainLeg, String?
 
               mainLegScore += 1;
               mainLegReason = _appendReason(mainLegReason, 'Connection risk');
-          } else if (firstMileReason!.contains(' + Connection risk (+1)')) {
+          } else if (firstMileReason.contains(' + Connection risk (+1)')) {
               // Split: e.g. "Bus risk (+1) + Connection risk (+1)"
               firstMileScore -= 1;
-              firstMileReason = firstMileReason!.replaceAll(' + Connection risk (+1)', '');
+              firstMileReason = firstMileReason.replaceAll(' + Connection risk (+1)', '');
 
               mainLegScore += 1;
               mainLegReason = _appendReason(mainLegReason, 'Connection risk');
-          } else if (firstMileReason!.contains('Timing risk (+1) + Connection risk (+1)')) {
+          } else if (firstMileReason.contains('Timing risk (+1) + Connection risk (+1)')) {
                // Split Walk+Train
               firstMileScore -= 1;
-              firstMileReason = firstMileReason!.replaceAll(' + Connection risk (+1)', '');
+              firstMileReason = firstMileReason.replaceAll(' + Connection risk (+1)', '');
 
               mainLegScore += 1;
               mainLegReason = _appendReason(mainLegReason, 'Connection risk');
