@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:client/models.dart';
 import 'package:client/screens/detail_page.dart';
 import 'package:client/services/api_service.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 
 class MockApiService extends ApiService {
   @override
@@ -73,27 +72,6 @@ void main() {
 
     final mockApiService = MockApiService();
 
-    final transferSeg = Segment(
-      mode: 'wait',
-      label: 'Transfer',
-      lineColor: '#000000',
-      iconId: 'clock',
-      time: 10,
-      path: [],
-    );
-
-    final mainLeg = Leg(
-        id: 'main',
-        label: 'Main Leg',
-        time: 10,
-        cost: 0,
-        distance: 0,
-        riskScore: 0,
-        iconId: 'train',
-        lineColor: '#000000',
-        segments: [transferSeg],
-    );
-
     final leg1 = Leg(
         id: 'first',
         label: 'First',
@@ -152,13 +130,13 @@ void main() {
     // The vertical line is a Stack containing two Containers.
 
     // We can find the Row that contains the text.
-    final textWidget = tester.widget<Text>(transferFinder);
-    final textRowFinder = find.ancestor(of: transferFinder, matching: find.byType(Row)).first;
+    // final textWidget = tester.widget<Text>(transferFinder);
+    // final textRowFinder = find.ancestor(of: transferFinder, matching: find.byType(Row)).first;
 
     // Check if we can find the vertical line in the ancestors.
     // We expect the structure: IntrinsicHeight -> Row -> [SizedBox(width: 24, child: Stack), SizedBox(width: 16), Expanded(...)]
 
-    final mainRowFinder = find.ancestor(of: textRowFinder, matching: find.byType(Row)).first;
+    // final mainRowFinder = find.ancestor(of: textRowFinder, matching: find.byType(Row)).first;
 
     // Wait, find.ancestor might find the textRow itself if it matches.
     // But textRow is inside Expanded (in new impl) or Padding (in old impl).
@@ -166,12 +144,12 @@ void main() {
     // Let's try to find the Stack (vertical line) near the transfer text.
     // We can search for a Stack that has a Container with width 12 and color grey[200].
 
-    bool foundVerticalLine = false;
+    // bool foundVerticalLine = false;
 
     // This is a bit tricky to target exactly.
     // Let's assume the new structure and try to find it.
 
-    final stacks = find.byType(Stack);
+    // final stacks = find.byType(Stack);
     // Iterate over stacks to find one that looks like a vertical line and is close to our transfer text.
     // But easier: check if the parent of the text row is Expanded.
 
