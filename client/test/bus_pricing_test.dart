@@ -3,58 +3,6 @@ import 'package:client/utils/routes_parser.dart';
 
 void main() {
   test('Bus pricing logic correct for X1, X46, PRx and others', () {
-    String createJson(String lineName) {
-      return '''
-      {
-        "groups": [
-          {
-            "name": "Test Group",
-            "options": [
-              {
-                "name": "Bus Option",
-                "legs": [
-                  {
-                    "mode": "transit",
-                    "distance_value": 1000,
-                    "duration_value": 600,
-                    "polyline": "encoded_polyline",
-                    "transit_details": {
-                      "line_name": "$lineName",
-                      "vehicle_type": "BUS",
-                      "line": {
-                        "short_name": "$lineName"
-                      }
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-      ''';
-    }
-
-    void verifyCost(String lineName, double expectedCost) {
-      final json = createJson(lineName);
-      final initData = parseRoutesJson(json);
-      final option = initData.segmentOptions.firstMile.first; // Or check where it ends up.
-
-      // Since there is only one group, it goes to firstMile by default logic?
-      // Group logic: "Group 1" or "Group 2" -> firstMile.
-      // "Group 3" -> mainLeg.
-      // "Group 4" -> lastMile.
-      // My createJson uses "Test Group".
-      // routes_parser.dart logic:
-      /*
-        if (name.contains('Group 1') || name.contains('Group 2')) { ... }
-        else if (name.contains('Group 3')) { ... }
-        else if (name.contains('Group 4')) { ... }
-        else if (name.contains('Group 5')) { ... }
-      */
-      // It seems it requires specific Group names.
-      // I should name the group "Group 1: Test" so it goes to firstMile.
-    }
 
     String createJsonGroup1(String lineName) {
       return '''
