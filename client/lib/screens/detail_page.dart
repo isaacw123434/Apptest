@@ -1069,7 +1069,7 @@ class _DetailPageState extends State<DetailPage> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: lineColor.withOpacity(0.15), // The "Halo"
+                      color: lineColor.withValues(alpha: 0.15), // The "Halo"
                       shape: BoxShape.circle,
                     ),
                     child: Icon(_getIconData(segment.iconId),
@@ -1209,7 +1209,7 @@ class _DetailPageState extends State<DetailPage> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: color1.withOpacity(0.15),
+                            color: color1.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(_getIconData(seg1.iconId), color: color1, size: 20),
@@ -1259,7 +1259,7 @@ class _DetailPageState extends State<DetailPage> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: color2.withOpacity(0.15),
+                            color: color2.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(_getIconData(seg2.iconId), color: color2, size: 20),
