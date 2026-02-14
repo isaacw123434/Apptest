@@ -258,89 +258,21 @@
             {
               "mode": "WALKING",
               "polyline": "i`tgIhluAy@v@_@{AKa@S_A_@_BOe@KYLYN_@f@qA`@w@LSh@{@HKb@k@JSHK\\g@BENUr@cANUZc@HKLSFKNU\\i@FOLUXk@LWRe@FIDKRe@Zq@FOEYDIHUHa@JSV_@Vc@JWRYLYZq@JSZo@LUVm@@CVg@q@gBKMIWEOm@wCAWYy@OYGGNQBCZWJI@EFCDEFGFEFGDGFMP_@HMBEHOFOVg@NYPa@f@eAh@oAFa@BIL]Vs@BIXaAH[BIX{@^gAf@uANQFUPq@BMD_@DYHa@F]DYHi@OU?AAA?A?A?A?A?A?A?A?A@??A?A?A@ACSCUOcAIo@OkAKu@EGCQOHIBQgB@G@EBEPI@ACOa@gA",
-              "distance_text": "1.8 km",
-              "duration_text": "24 mins",
+              "distance_text": "0.5 km",
+              "duration_text": "5 mins",
               "color": "#9E9E9E",
-              "instructions": "Walk to Beverley",
+              "instructions": "Walk to Beverley Bus Station",
               "transit_details": null,
-              "distance_value": 1800,
-              "duration_value": 1440
+              "distance_value": 500,
+              "duration_value": 300
             },
             {
               "mode": "TRANSIT",
-              "polyline": "qbsgIzqqA?F`AIbAGbAItAKpCUXELATChAQtB[d@IlDk@DA~Cg@rDm@lGcAj@KvHoA`@IZITGh@M`@Kb@OTG@?fA_@v@Y~@a@p@YhAk@|EaC`FaClKiFlCqAzAu@DC~@c@lDeBjIaEvDiB|BiAtAq@t@]XOj@Wl@WNI`A_@`@OvAg@jA_@bBe@vA]dAS^IbDa@fIu@tBSbBOFAzD]`BO|AO|CW\\C`Fc@nBQbCU~@IrBSr@GzAMb@ERC|AM`CUz@I~D]B?j@GbBOb@Cv@Ip@GlBS@?jCUx@GLA|D]bCUt@I~Ec@rBQnCYpGs@~Fk@pBMlCQrD]z@IxCWdAKhIu@tFa@ZCFAfFe@|BUlAMlFe@bCSPCPC^EXEpB[r@KNCfAObC_@pGkBdFcBxDcBbCiAlBaA`@UbAi@@?bB}@BC\\QnAo@RMvAu@LGdB_AnCuAlBcA|BoAjB_A~BoAvC{AjBaAhCsAVO~BmAtAs@vBiA~A{@jCsAn@]bAi@`@UbB{@@?`@U|Ay@DCdB}@^SzEeCrDoBrCyAbDaB^Sb@UrBgARKbB}@\\QfAm@hAo@fAu@`A}@bAeA~@iAp@eA\\g@h@}@j@kARe@d@iA`@gANc@Vy@Lc@VaAZkAVoAHe@PcAHc@R{A\\gCP}AP}ABUHy@Jy@TsB@KHm@PaBXcCHo@JcAZiCh@gFj@sEb@{D^eCV}ADm@Lm@La@Jo@Lk@Z_BFUTiAv@aD`AoDh@gBj@eBn@qBdAaDvAqEnA}DbA_D@E^qA|@iD^}AXyAXaBNcAPeAHk@BQLcAJeAJaAJeABe@Fw@Bi@?AHkABi@B_@Bq@Dy@Bg@@[?q@Ag@AeACu@?GAs@?}@?A@m@HgCJcCNqBNsADUHm@b@{B@CX_A\\eAZgAf@eBHYXy@^sAFQPq@@ETiA@AXqBLoB?EDoA?aCGuBC}@@sA",
-              "distance_text": "13.2 km",
-              "duration_text": "15 mins",
-              "color": "#262262",
-              "instructions": "Train towards Sheffield",
-              "transit_details": {
-                "arrival_stop": {
-                  "location": {
-                    "lat": 53.7438391,
-                    "lng": -0.3473143
-                  },
-                  "name": "Hull"
-                },
-                "arrival_time": {
-                  "text": "7:13\u202fAM",
-                  "time_zone": "Europe/London",
-                  "value": 1771225980
-                },
-                "departure_stop": {
-                  "location": {
-                    "lat": 53.8424887,
-                    "lng": -0.4228551
-                  },
-                  "name": "Beverley"
-                },
-                "departure_time": {
-                  "text": "6:58\u202fAM",
-                  "time_zone": "Europe/London",
-                  "value": 1771225080
-                },
-                "headsign": "Sheffield",
-                "line": {
-                  "agencies": [
-                    {
-                      "name": "Northern",
-                      "phone": "011 44 800 200 6060",
-                      "url": "https://www.northernrailway.co.uk/"
-                    }
-                  ],
-                  "color": "#262262",
-                  "name": "Bridlington - Sheffield",
-                  "short_name": "northern",
-                  "text_color": "#ffffff",
-                  "vehicle": {
-                    "icon": "//maps.gstatic.com/mapfiles/transit/iw2/6/rail2.png",
-                    "local_icon": "//maps.gstatic.com/mapfiles/transit/iw2/6/uk-rail.png",
-                    "name": "Train",
-                    "type": "HEAVY_RAIL"
-                  }
-                },
-                "num_stops": 2
-              },
-              "distance_value": 13200,
-              "duration_value": 900
-            },
-            {
-              "mode": "WALKING",
-              "polyline": "_z_gItybATN",
-              "distance_text": "12 m",
-              "duration_text": "1 min",
-              "color": "#9E9E9E",
-              "instructions": "Walk to Hull",
-              "transit_details": null,
-              "distance_value": 12,
-              "duration_value": 60
-            },
-            {
-              "mode": "TRANSIT",
-              "polyline": "iy_gIdzbA?`A@V@j@AxACt@CtAAp@Ct@Ah@A@IjAEd@CPOt@WhAENk@pBADa@pAGP[hAK\\CFOd@Qj@EL[xASjAQbAGd@MlAKhAGt@En@En@EjACfA?jAA\\@n@@h@?x@DjBDjA@VJjBLjBBZLxAJjATzBX`CXvB`@lCZjBRlAf@tC`@jB\\xANp@Rx@T~@f@nBp@`CZ~@f@|Al@bBj@~ALZ^`Aj@tAZp@Vl@DL`AxBN\\^z@h@lADJ|@pBn@vAJTJTbA~BdA~B~@vBdA~B`A|Bx@jB|@pBh@lAh@hA\\r@DJNVJNDH^l@d@l@~@dAVTTPZR\\Td@VZN^L|@X`@Hf@Fn@Fx@AF?`@Az@KJAfAKb@Eb@G`AKlAIRAfAAv@FnAXRFf@Pr@^j@\\LHx@p@t@v@h@p@d@r@DFXb@jAvBl@lAHN`AxBlArCz@~B\\~@J\\\\dA@Fd@zAHXJXJ\\\\dADLLb@Rt@Pn@ZfA\\vANn@R~@Lj@Pv@Pz@VjATlAP`ARlAPfARvAXpBPrA\\xCt@pGTnB^nDP|A^dD`@hDBNJ~@TnBTnBXhCb@zDNnANpARhBPzARfBH`ABNHn@ZzCZbDBNVrC\\fD\\hEn@hIf@tHn@|J\\tGBb@FrAVnFHbBLjCVnFBb@ZlG^~GZxF`@~Ff@xGf@fGp@fIj@bGt@bH@NHx@p@rGbArJRhBp@pGLjAh@fF@DRlBr@~GJz@t@bHPpB^pDFv@H|@LtBDx@RfE@f@D~A@XDvB@F?N@d@?HBp@@z@@|@@L@zBAfB?dBIdGAz@A`AMpECXQxDU|DUrDU~CEj@I`AOfBQxBGj@ANGx@Gx@MzAGfAMdBGfAEr@IrAIdBGzAGvAGtBGnBAhACjAClAApACrAApA?jAAhA?xA?\\@`A?tA@x@?`ABlA@lABzA@`A@z@DfBHtCFhCFpBHnCJdDHnCFdCH`CDzA@X@n@DlA?HH|BHfCDvB@\\FtBFrB@bA@|@B`BFzCHlFF`F?FF~EBtQ?tCC|EChGKxJM~JErCCvBC|@CvBAb@Ad@CxBAz@CfAAt@ArACzECrEClECzB?R@\\@X?hA?d@AnC?HAp@?r@CjAAt@A^C`A?VQfLE|BUhIYpIIjDKtDE|AEtAE|@IvBKvBCz@KxBCx@Ez@OrDAXI|Ac@jJMrBm@xKAFWnDGz@El@ALEz@Gz@g@zFGf@u@xHoAvMOxAIx@e@tEmAdMoAdLuA|NwAnNMpA_Dz[OzAiDl\\k@xF_BtOsAtMi@jF{@nIg@zEs@jHQ~AYrCYtCGp@YhC?FMtAQbBKhAOzAEXMpAIx@OvAK|@ALOfBCNGf@B@",
-              "distance_text": "16.7 km",
-              "duration_text": "11 mins",
-              "color": "#262262",
-              "instructions": "Train towards Halifax",
+              "polyline": "i`tgIhluAy@v@_@{A_@aBo@eCOa@JWx@sBl@mAlBqCzDyFb@q@Rk@|@cB|@oBJ[b@dAhArFbAhEzAzFF`A@tCBbKBbPRTzAhFrBdHpFbRlB|FjDbJfD~Hv@hB^rAbAvD|DjM|ApFvAdFn@nBr@pBj@vA`ApBx@lAZv@Tx@d@fAjAt@n@p@fAlFRhAZnCJlC@vEGlJOtEa@lEcA|GYhDCl@OhEGpBWhGGpAIpEDfHDnAR~D\\nEl@vG^lDd@fBPr@b@dBRvAT`BVjCXbDd@zEd@pDlCbOZdBh@|E|@dHnA`HxAzHbAvEl@bDp@dFf@jDx@lE`@xBVjChAhJNzA\\rApAdFfB~GfBrHb@~B\\tC`@lHF~ABnC?lFLfFf@zHZpFPxCFtAD?XFfA^nE`BdInCbJhDxGbC~@\\n@NzF_@pM{@~Io@jCWnC~LzGlZ~DfQfB~HnB`JVtA`@|AnA~CvBbEfApB~@`Cl@jBd@lBXpBh@lGtAdNNdCFnCL`G^pIl@rKVrG~@pLz@dK`@pDThEHdEDpMAdEBvFJlCf@~GxAxPj@dGXzBh@nCt@pCpCrIhEnMfDjJtCjHl@dBtAtE~@jEdArFlB~Jx@|ETrB^xFH~B@bCEtE?tDHnHHnHJvBh@`NPlEL|A|@tHjA|JbClRb@jCTpAR|@rAs@fAm@hA]rA_@fB_@~AUlAWrF{AnA]`C[h@E`A]lAq@vB}A|G_GbAo@n@Wn@WfA?lBRdBR^B`@IjBy@hCgAhD_B\\QlCiAn@QvEeAnBy@|@i@bBiAfBkApBsArDuB~FsDzDmCl@g@~@y@b@QjCg@jFyAfDgBhB{@jB]rAMz@@hAFxAR~AHzFFdBDd@Cl@M|@s@h@i@bAcA|AoArC_AjEcBb@Mn@]~@e@Vk@Vm@^gBHyAQsBCSEAGGGOAe@N]JELDDD@B\\{@\\qAVw@z@wA~AcBvBeBbAw@dJyF~@i@`DeBdBw@hBw@fCgAp@SzBo@r@O`LmCfKeCbAc@jAw@v@k@pCmBv@g@fBu@fCiAvKeFj@_@jAe@r@e@Vm@Lk@HURQLAPFJJJTBP@JNh@NP`@@L@vB[jB[hKcBjBWbBG~EUnA]vAm@xEqCdIiErBcAhCsBvAs@@QDAD@BN?DjAt@tDvAf@b@LCx@G`A]bAe@x@IV@VBLM\\kDTqC",
+              "distance_text": "22.8 km",
+              "duration_text": "45 mins",
+              "color": "#f03842",
+              "instructions": "Bus towards Brough",
               "transit_details": {
                 "arrival_stop": {
                   "location": {
@@ -350,46 +282,43 @@
                   "name": "Brough"
                 },
                 "arrival_time": {
-                  "text": "7:29\u202fAM",
+                  "text": "6:10\u202fAM",
                   "time_zone": "Europe/London",
-                  "value": 1771226940
+                  "value": 1771222200
                 },
                 "departure_stop": {
                   "location": {
-                    "lat": 53.7437329,
-                    "lng": -0.347388
+                    "lat": 53.8424887,
+                    "lng": -0.4228551
                   },
-                  "name": "Hull"
+                  "name": "Beverley Bus Station"
                 },
                 "departure_time": {
-                  "text": "7:18\u202fAM",
+                  "text": "5:25\u202fAM",
                   "time_zone": "Europe/London",
-                  "value": 1771226280
+                  "value": 1771219500
                 },
-                "headsign": "Halifax",
+                "headsign": "Brough",
                 "line": {
                   "agencies": [
                     {
-                      "name": "Northern",
-                      "phone": "011 44 800 200 6060",
-                      "url": "https://www.northernrailway.co.uk/"
+                      "name": "East Yorkshire"
                     }
                   ],
-                  "color": "#262262",
-                  "name": "Hull - Halifax",
-                  "short_name": "northern",
+                  "color": "#f03842",
+                  "name": "Beverley - Brough",
+                  "short_name": "X1",
                   "text_color": "#ffffff",
                   "vehicle": {
-                    "icon": "//maps.gstatic.com/mapfiles/transit/iw2/6/rail2.png",
-                    "local_icon": "//maps.gstatic.com/mapfiles/transit/iw2/6/uk-rail.png",
-                    "name": "Train",
-                    "type": "HEAVY_RAIL"
+                    "icon": "//maps.gstatic.com/mapfiles/transit/iw2/6/bus2.png",
+                    "name": "Bus",
+                    "type": "BUS"
                   }
                 },
-                "num_stops": 1
+                "num_stops": 15
               },
-              "distance_value": 16700,
-              "duration_value": 660
+              "distance_value": 22800,
+              "duration_value": 2700
             },
             {
               "mode": "TRANSIT",
@@ -1381,15 +1310,24 @@
               "duration_value": 900
             },
             {
-              "mode": "WALKING",
+              "mode": "TRANSIT",
               "polyline": "wmsgIngsAIa@FEDEFIDIVg@FMLWZo@\\w@Pc@Te@n@yAL[L[X}@^oAFWX}@^eAn@eBJ[Ps@?AOK",
               "distance_text": "0.4 km",
-              "duration_text": "1 min",
-              "color": "#9E9E9E",
+              "duration_text": "5 mins",
+              "color": "#f03842",
               "instructions": "Bus towards Hull Interchange",
-              "transit_details": null,
+              "transit_details": {
+                "line": {
+                  "vehicle": {
+                    "name": "Bus",
+                    "type": "BUS"
+                  },
+                  "short_name": "121",
+                  "color": "#f03842"
+                }
+              },
               "distance_value": 400,
-              "duration_value": 60
+              "duration_value": 300
             },
             {
               "mode": "WALKING",
