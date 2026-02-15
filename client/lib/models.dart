@@ -23,6 +23,7 @@ class Segment {
   final double? co2;
   final double? distance;
   final double cost;
+  final int? waitTime;
 
   Segment({
     required this.mode,
@@ -37,6 +38,7 @@ class Segment {
     this.co2,
     this.distance,
     this.cost = 0.0,
+    this.waitTime,
   });
 
   factory Segment.fromJson(Map<String, dynamic> json) {
@@ -70,6 +72,7 @@ class Segment {
       co2: json['co2'] != null ? (json['co2'] as num).toDouble() : null,
       distance: json['distance'] != null ? (json['distance'] as num).toDouble() : null,
       cost: (json['cost'] ?? 0).toDouble(),
+      waitTime: json['waitTime'],
     );
   }
 }

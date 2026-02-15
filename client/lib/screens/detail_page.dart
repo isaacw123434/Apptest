@@ -34,9 +34,6 @@ class _DetailPageState extends State<DetailPage> {
   JourneyResult? _currentResult;
   bool _isMapReady = false;
 
-  // Threshold to filter short walks (in minutes) for general cleaning
-  final double _walkThreshold = 2.5;
-
   @override
   void initState() {
     super.initState();
@@ -85,11 +82,8 @@ class _DetailPageState extends State<DetailPage> {
     }
     allSegments.addAll(result.leg3.segments);
 
-    // --- Filter Segments ---
-    List<Segment> filteredSegments = _filterSegments(allSegments);
-
     // --- Generate Polylines ---
-    for (var seg in filteredSegments) {
+    for (var seg in allSegments) {
       if (seg.path != null && seg.path!.isNotEmpty) {
         // Filter out invalid coordinates
         final validPoints = seg.path!.where((p) => p.latitude.abs() <= 90).toList();
@@ -118,9 +112,9 @@ class _DetailPageState extends State<DetailPage> {
     }
 
     // --- Generate Markers ---
-    if (filteredSegments.isNotEmpty) {
+    if (allSegments.isNotEmpty) {
       // Start Marker
-      final startSeg = filteredSegments.first;
+      final startSeg = allSegments.first;
       if (startSeg.path != null && startSeg.path!.isNotEmpty) {
         markers.add(Marker(
           point: LatLng(startSeg.path!.first.latitude, startSeg.path!.first.longitude),
@@ -131,7 +125,7 @@ class _DetailPageState extends State<DetailPage> {
       }
 
       // End Marker
-      final endSeg = filteredSegments.last;
+      final endSeg = allSegments.last;
       if (endSeg.path != null && endSeg.path!.isNotEmpty) {
         markers.add(Marker(
           point: LatLng(endSeg.path!.last.latitude, endSeg.path!.last.longitude),
@@ -142,8 +136,8 @@ class _DetailPageState extends State<DetailPage> {
       }
 
       // Mode Change Nodes
-      for (int i = 0; i < filteredSegments.length - 1; i++) {
-        final current = filteredSegments[i];
+      for (int i = 0; i < allSegments.length - 1; i++) {
+        final current = allSegments[i];
 
         if (current.path != null && current.path!.isNotEmpty) {
             markers.add(Marker(
@@ -167,41 +161,6 @@ class _DetailPageState extends State<DetailPage> {
         if (mounted) _zoomToFit();
       });
     }
-  }
-
-  // Centralized segment filtering logic
-  List<Segment> _filterSegments(List<Segment> segments) {
-    List<Segment> filtered = [];
-    for (int i = 0; i < segments.length; i++) {
-        final seg = segments[i];
-        bool shouldHide = false;
-        bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
-
-        // Issue 2: Filter out 4 mins walk between trains
-        if (isWalk && seg.time <= 5) {
-             bool prevIsTrain = i > 0 && segments[i-1].iconId == 'train';
-             bool nextIsTrain = i < segments.length - 1 && segments[i+1].iconId == 'train';
-
-             if (prevIsTrain && nextIsTrain) {
-                 shouldHide = true;
-             }
-        }
-
-        // Also filter very short walks (legacy logic)
-        if (!shouldHide && isWalk && seg.time < _walkThreshold) {
-             shouldHide = true;
-        }
-
-        if (shouldHide && seg.path == null) {
-             // If path is null, it's definitely just a connector, safe to hide.
-             // If path exists, hiding it removes it from map markers, which is fine.
-        }
-
-        if (!shouldHide) {
-             filtered.add(seg);
-        }
-    }
-    return filtered;
   }
 
   void _zoomToSegment(Segment segment) {
@@ -654,58 +613,11 @@ class _DetailPageState extends State<DetailPage> {
     // Helper to add segments
     void addSegments(Leg leg, String legType) {
       final bool canEdit = legType != 'mainLeg';
-      final rawSegments = leg.segments;
-      List<Segment> processedSegments = [];
-
-      // Pre-process for Parking Merging
-      for (var seg in rawSegments) {
-        if (seg.mode == 'parking') {
-          // Merge cost to previous if car
-          if (processedSegments.isNotEmpty && (processedSegments.last.mode == 'car' || processedSegments.last.iconId == 'car')) {
-             var last = processedSegments.last;
-             processedSegments.last = Segment(
-               mode: last.mode, label: last.label, lineColor: last.lineColor, iconId: last.iconId,
-               time: last.time, from: last.from, to: last.to, detail: last.detail, path: last.path,
-               co2: last.co2, distance: last.distance,
-               cost: last.cost + seg.cost
-             );
-          }
-          continue; // Skip adding parking segment to list
-        }
-        processedSegments.add(seg);
-      }
-
-      final segments = processedSegments;
+      final segments = leg.segments;
 
       for (int i = 0; i < segments.length; i++) {
         final seg = segments[i];
         final isFirst = i == 0;
-        // final isLast = i == segments.length - 1; // Unused, replaced by checkIsLast logic
-
-        bool shouldHide = false;
-        bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
-
-        // Issue 2: Filter out 4 mins walk between trains
-        if (isWalk && seg.time <= 5) {
-             bool prevIsTrain = i > 0 && segments[i-1].iconId == 'train';
-             bool nextIsTrain = i < segments.length - 1 && segments[i+1].iconId == 'train';
-
-             if (prevIsTrain && nextIsTrain) {
-                 shouldHide = true;
-             }
-        }
-
-        // Also filter very short walks
-        if (!shouldHide && isWalk && seg.time < _walkThreshold) {
-             shouldHide = true;
-        }
-
-        if (shouldHide) {
-             currentMinutes += seg.time;
-             continue;
-        }
-
-        // Color lineColor = _parseColor(seg.lineColor); // Unused here, parsed inside build functions
 
         // Check for Transfer
         if (seg.mode == 'wait' && seg.label == 'Transfer') {
@@ -743,78 +655,50 @@ class _DetailPageState extends State<DetailPage> {
         bool merged = false;
         if (seg.iconId == 'train') {
              // Look ahead for next train
-             int nextTrainIndex = -1;
-             int waitTime = 0;
-
-             // Check immediate next
+             // Simplified logic: if next is train, merge.
+             // Pre-processing handled filtered walks and wait times.
              if (i + 1 < segments.length) {
-                 var next = segments[i+1];
-                 if (next.iconId == 'train') {
-                     nextTrainIndex = i+1;
-                 } else {
-                     // Check if it's a hidden walk
-                     bool isHiddenWalk = false;
-                     bool isWalk = next.mode.toLowerCase() == 'walk' || next.iconId == 'footprints';
-                     if (isWalk && next.time <= 5) {
-                         // Check connection
-                         if (i + 2 < segments.length && segments[i+2].iconId == 'train') {
-                             isHiddenWalk = true;
-                         }
-                     }
-                     // Also check the generic hidden walk threshold
-                     if (!isHiddenWalk && isWalk && next.time < _walkThreshold) {
-                         isHiddenWalk = true;
+                 var nextSeg = segments[i+1];
+                 if (nextSeg.iconId == 'train') {
+                     // Merge detected
+                     merged = true;
+
+                     String changeLabel = 'Change at ${seg.to ?? 'Station'}';
+
+                     // Use the waitTime carried over from pre-processing if available
+                     int waitTime = nextSeg.waitTime ?? 0;
+
+                     // Calculate distances for merging
+                     double? dist1 = distance;
+                     double? dist2;
+                     if (nextSeg.path != null && nextSeg.path!.isNotEmpty) {
+                       double totalMeters = 0;
+                       for (int j = 0; j < nextSeg.path!.length - 1; j++) {
+                         totalMeters += _distance.as(LengthUnit.Meter, nextSeg.path![j], nextSeg.path![j + 1]);
+                       }
+                       dist2 = totalMeters / 1609.34;
                      }
 
-                     if (isHiddenWalk) {
-                         waitTime += next.time;
-                         if (i + 2 < segments.length && segments[i+2].iconId == 'train') {
-                             nextTrainIndex = i + 2;
-                         }
-                     }
+                     children.add(_buildMergedSegmentConnection(
+                       seg1: seg,
+                       seg2: nextSeg,
+                       changeLabel: changeLabel,
+                       waitTime: waitTime,
+                       dist1: dist1,
+                       dist2: dist2,
+                       extraDetails1: extraDetails,
+                       isEditable: canEdit,
+                       onEdit: () => _showTrainEdit(leg, legType),
+                       onTap: () {
+                         _zoomToSegment(seg);
+                       }
+                     ));
+
+                     currentMinutes += seg.time + waitTime + nextSeg.time;
+
+                     // Update index to skip
+                     i++;
                  }
-             }
-
-             if (nextTrainIndex != -1) {
-                 final nextSeg = segments[nextTrainIndex];
-                 // Merge detected
-                 merged = true;
-
-                 String changeLabel = 'Change at ${seg.to ?? 'Station'}';
-
-                 // Calculate distances for merging
-                 double? dist1 = distance;
-                 double? dist2;
-                 if (nextSeg.path != null && nextSeg.path!.isNotEmpty) {
-                   double totalMeters = 0;
-                   for (int j = 0; j < nextSeg.path!.length - 1; j++) {
-                     totalMeters += _distance.as(LengthUnit.Meter, nextSeg.path![j], nextSeg.path![j + 1]);
-                   }
-                   dist2 = totalMeters / 1609.34;
-                 }
-
-                 children.add(_buildMergedSegmentConnection(
-                   seg1: seg,
-                   seg2: nextSeg,
-                   changeLabel: changeLabel,
-                   waitTime: waitTime,
-                   dist1: dist1,
-                   dist2: dist2,
-                   extraDetails1: extraDetails,
-                   isEditable: canEdit,
-                   onEdit: () => _showTrainEdit(leg, legType),
-                   // extraDetails2 could be calculated similarly but kept simple for now
-                   onTap: () {
-                     // Maybe zoom to fit both?
-                     // For now just zoom to first segment
-                     _zoomToSegment(seg);
-                   }
-                 ));
-
-                 currentMinutes += seg.time + waitTime + nextSeg.time;
-
-                 // Update index to skip
-                 i = nextTrainIndex;
              }
         }
         // --- MERGE DETECTION END ---
@@ -836,65 +720,34 @@ class _DetailPageState extends State<DetailPage> {
           ));
 
           currentMinutes += seg.time;
+          if (seg.waitTime != null) {
+             currentMinutes += seg.waitTime!;
+          }
         }
 
         // Node Logic
         // We check loop index 'i' which might have been updated by merge logic
-        final bool checkIsLast = i >= segments.length - 1;
-
-        if (!checkIsLast) {
+        if (i < segments.length - 1) {
           String nodeTitle = segments[i].to ?? 'Stop';
           Color prevColor = _parseColor(segments[i].lineColor);
 
-          // Lookahead for next visible segment to determine node context
-          // Since we updated 'i', we look from 'i + 1'
-          int nextVisibleIndex = -1;
-          for (int k = i + 1; k < segments.length; k++) {
-             bool hideK = false;
-             bool kIsWalk = segments[k].mode.toLowerCase() == 'walk' || segments[k].iconId == 'footprints';
+          // Simply look at the next segment
+          // If we merged, i points to the second train segment.
+          // If next exists, it's just the next one in the list.
 
-             // Check context for hideK
-             // We need valid prev and next.
-             // prev is segments[k-1].
-             // If k=i+1, segments[k-1] is segments[i] which is valid.
-             if (kIsWalk && segments[k].time <= 5) {
-                 bool p = k > 0 && segments[k-1].iconId == 'train';
-                 bool n = k < segments.length - 1 && segments[k+1].iconId == 'train';
-                 if (p && n) hideK = true;
-             }
-             if (!hideK && kIsWalk && segments[k].time < _walkThreshold) hideK = true;
+          if (i + 1 < segments.length) {
+               final nextVisible = segments[i + 1];
 
-             if (!hideK) {
-                nextVisibleIndex = k;
-                break;
-             }
-          }
+               if (segments[i].iconId == 'train' && nextVisible.iconId == 'train') {
+                   // This case should be handled by merge logic, but if missed:
+                   nodeTitle = 'Change at ${segments[i].to ?? 'Station'}';
+               }
 
-          if (nextVisibleIndex != -1) {
-             final nextVisible = segments[nextVisibleIndex];
-             // If we just merged (Train A + Train B), segments[i] is Train B.
-             // If nextVisible is Train C, and we have Train B -> Train C,
-             // nodeTitle should be "Change at ..." if applicable.
-
-             if (segments[i].iconId == 'train' && nextVisible.iconId == 'train') {
-                 nodeTitle = 'Change at ${segments[i].to ?? 'Station'}';
-             }
-
-             children.add(_buildNode(
-                nodeTitle,
-                _formatMinutes(currentMinutes),
-                prevColor: prevColor,
-                nextColor: _parseColor(nextVisible.lineColor)));
-          } else {
-             // No next visible segment?
-             // Fallback to raw next segment if exists, but it might be filtered out walk?
-             if (i < segments.length - 1) {
-                 children.add(_buildNode(
-                    nodeTitle,
-                    _formatMinutes(currentMinutes),
-                    prevColor: prevColor,
-                    nextColor: _parseColor(segments[i + 1].lineColor)));
-             }
+               children.add(_buildNode(
+                  nodeTitle,
+                  _formatMinutes(currentMinutes),
+                  prevColor: prevColor,
+                  nextColor: _parseColor(nextVisible.lineColor)));
           }
         }
       }

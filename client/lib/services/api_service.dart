@@ -1,19 +1,20 @@
+import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../models.dart';
 import '../utils/emission_utils.dart';
-import '../utils/routes_parser.dart';
 
 class ApiService {
   // Simulate network delay
   static const Duration _delay = Duration(milliseconds: 500);
 
   Future<InitData> _loadRoutes(String? routeId) async {
-    String assetPath = 'assets/routes.json';
+    String assetPath = 'assets/routes_clean.json';
     if (routeId == 'route2') {
-      assetPath = 'assets/routes_2.json';
+      assetPath = 'assets/routes_2_clean.json';
     }
     final jsonString = await rootBundle.loadString(assetPath);
-    return parseRoutesJson(jsonString, routeId: routeId);
+    final Map<String, dynamic> jsonData = jsonDecode(jsonString);
+    return InitData.fromJson(jsonData);
   }
 
   Future<InitData> fetchInitData({String? routeId}) async {
