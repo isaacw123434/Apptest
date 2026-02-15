@@ -617,6 +617,7 @@ class _SummaryPageState extends State<SummaryPage> {
                 builder: (context) => DetailPage(
                   journeyResult: result,
                   routeId: widget.routeId,
+                  selectedModes: _selectedModes,
                 ),
               ),
             );
