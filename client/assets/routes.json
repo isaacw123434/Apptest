@@ -1539,7 +1539,13 @@
                 "vehicle_type": "HEAVY_RAIL",
                 "color": "#880038",
                 "text_color": "#ffffff",
-                "agency": "CrossCountry"
+                "agency": "CrossCountry",
+                "departure_stop": {
+                  "name": "Leeds Station"
+                },
+                "arrival_stop": {
+                  "name": "Sheffield Station"
+                }
               }
             },
             {
@@ -1578,7 +1584,13 @@
                 "vehicle_type": "HEAVY_RAIL",
                 "color": "#442940",
                 "text_color": "#ffffff",
-                "agency": "E M R"
+                "agency": "E M R",
+                "departure_stop": {
+                  "name": "Sheffield Station"
+                },
+                "arrival_stop": {
+                  "name": "Loughborough Station"
+                }
               }
             }
           ]
