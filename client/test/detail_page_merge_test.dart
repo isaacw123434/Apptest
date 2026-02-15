@@ -19,11 +19,11 @@ class MockApiService extends ApiService {
     );
 
     final walkBetween = Segment(
-      mode: 'walk',
-      label: 'Walk to Platform',
+      mode: 'wait',
+      label: 'Transfer',
       lineColor: '#000000',
-      iconId: 'footprints',
-      time: 4, // Should be hidden and trigger merge
+      iconId: 'clock',
+      time: 4, // Converted to Transfer by Parser
       path: [],
     );
 

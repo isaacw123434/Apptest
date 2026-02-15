@@ -826,13 +826,21 @@ List<Segment> _cleanSegments(List<Segment> segments, String groupName) {
                 shouldRemove = true;
             }
 
-            // Rule 2: Remove walks <= 5 mins between trains
+            // Rule 2: Convert walks <= 5 mins between trains to Transfer
             if (!shouldRemove && seg.time <= 5) {
                  bool prevIsTrain = i > 0 && segments[i-1].iconId == IconIds.train;
                  bool nextIsTrain = i < segments.length - 1 && segments[i+1].iconId == IconIds.train;
 
                  if (prevIsTrain && nextIsTrain) {
                      shouldRemove = true;
+                     cleaned.add(Segment(
+                       mode: 'wait',
+                       label: 'Transfer',
+                       lineColor: '#000000',
+                       iconId: 'clock',
+                       time: seg.time,
+                       detail: 'Transfer',
+                     ));
                  }
             }
 

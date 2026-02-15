@@ -720,6 +720,12 @@ class _DetailPageState extends State<DetailPage> {
                  var next = segments[i+1];
                  if (next.iconId == 'train') {
                      nextTrainIndex = i+1;
+                 } else if (next.mode == 'wait' && next.label == 'Transfer') {
+                     // Check if next is train after transfer
+                     if (i + 2 < segments.length && segments[i+2].iconId == 'train') {
+                         nextTrainIndex = i + 2;
+                         waitTime = next.time;
+                     }
                  }
              }
 

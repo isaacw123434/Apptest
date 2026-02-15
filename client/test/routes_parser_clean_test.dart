@@ -93,14 +93,16 @@ void main() {
 
     // Group 3:
     // Train 10 mins
-    // Walk 4 mins (240s) -> "Between trains". 4 <= 5. Should be removed.
+    // Walk 4 mins (240s) -> "Between trains". 4 <= 5. Should be converted to Transfer.
     // Train 10 mins
 
     final mainLeg = initData.segmentOptions.mainLeg;
-    // Should have 2 segments (Train, Train).
-    expect(mainLeg.segments.length, 2);
+    // Should have 3 segments (Train, Transfer, Train).
+    expect(mainLeg.segments.length, 3);
     expect(mainLeg.segments[0].iconId, IconIds.train);
-    expect(mainLeg.segments[1].iconId, IconIds.train);
+    expect(mainLeg.segments[1].iconId, 'clock'); // Transfer icon
+    expect(mainLeg.segments[1].label, 'Transfer');
+    expect(mainLeg.segments[2].iconId, IconIds.train);
   });
 
   test('Routes Parser cleans leg boundary walks', () {
