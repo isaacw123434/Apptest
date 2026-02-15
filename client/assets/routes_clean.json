@@ -19333,8 +19333,8 @@
           ],
           "distance": 37.643381758981945,
           "co2": 2.2586029055389165,
-          "from": null,
-          "to": null,
+          "from": "Leeds Station",
+          "to": "Sheffield Station",
           "cost": 25.7,
           "waitTime": 2
         },
@@ -27636,8 +27636,8 @@
           ],
           "distance": 53.16589409323077,
           "co2": 3.189953645593846,
-          "from": null,
-          "to": null,
+          "from": "Sheffield Station",
+          "to": "Loughborough Station",
           "cost": 0.0
         }
       ],
