@@ -4,7 +4,7 @@
       {
         "id": "train_drive_brough",
         "label": "Drive to Brough + Train",
-        "detail": "26m car + 10m wait + 63m train",
+        "detail": "26m car + 10m wait + 63m train (Arr 07:49)",
         "time": 99,
         "cost": 20.275284278027016,
         "distance": 55.36,
@@ -6534,7 +6534,7 @@
       {
         "id": "train_uber_brough",
         "label": "Uber to Brough + Train",
-        "detail": "26m car + 10m wait + 63m train",
+        "detail": "26m car + 10m wait + 63m train (Arr 07:49)",
         "time": 99,
         "cost": 30.68,
         "distance": 55.36,
@@ -13064,7 +13064,7 @@
       {
         "id": "train_cycle_brough",
         "label": "Cycle to Brough + Train",
-        "detail": "67m bike + 10m wait + 63m train",
+        "detail": "67m bike + 10m wait + 63m train (Arr 07:49)",
         "time": 140,
         "cost": 8.1,
         "distance": 53.56,
@@ -19598,7 +19598,7 @@
       {
         "id": "train_bus_brough",
         "label": "Bus to Brough + Train",
-        "detail": "5m walk + 45m bus + 10m wait + 63m train",
+        "detail": "5m walk + 45m bus + 10m wait + 63m train (Arr 07:49)",
         "time": 123,
         "cost": 11.1,
         "distance": 55.67,
@@ -26710,7 +26710,7 @@
       {
         "id": "train_drive_york",
         "label": "Drive to York + Train",
-        "detail": "59m car + 10m wait + 25m train",
+        "detail": "59m car + 10m wait + 25m train (Arr 07:49)",
         "time": 94,
         "cost": 32.95292480147141,
         "distance": 56.61,
@@ -32416,7 +32416,7 @@
       {
         "id": "train_uber_york",
         "label": "Uber to York + Train",
-        "detail": "59m car + 10m wait + 25m train",
+        "detail": "59m car + 10m wait + 25m train (Arr 07:49)",
         "time": 94,
         "cost": 51.440000000000005,
         "distance": 56.61,
@@ -38122,7 +38122,7 @@
       {
         "id": "train_cycle_york",
         "label": "Cycle to York + Train",
-        "detail": "183m bike + 10m wait + 25m train",
+        "detail": "183m bike + 10m wait + 25m train (Arr 07:49)",
         "time": 218,
         "cost": 5.2,
         "distance": 61.83,
@@ -43812,7 +43812,7 @@
       {
         "id": "train_bus_york",
         "label": "Bus to York + Train",
-        "detail": "11m walk + 85m bus + 10m wait + 25m train",
+        "detail": "11m walk + 85m bus + 10m wait + 25m train (Arr 07:49)",
         "time": 133,
         "cost": 8.2,
         "distance": 58.41,
@@ -58369,7 +58369,7 @@
       {
         "id": "train_drive_beverley",
         "label": "Drive to Beverley + Train",
-        "detail": "6m car + 10m wait + 15m train + 75m train",
+        "detail": "6m car + 10m wait + 15m train + 75m train (Arr 07:49)",
         "time": 106,
         "cost": 17.003311916686343,
         "distance": 60.96,
@@ -66721,7 +66721,7 @@
       {
         "id": "train_uber_beverley",
         "label": "Uber to Beverley + Train",
-        "detail": "6m car + 10m wait + 15m train + 75m train",
+        "detail": "6m car + 10m wait + 15m train + 75m train (Arr 07:49)",
         "time": 106,
         "cost": 16.72,
         "distance": 60.96,
@@ -75073,7 +75073,7 @@
       {
         "id": "train_cycle_beverley",
         "label": "Cycle to Beverley + Train",
-        "detail": "6m bike + 10m wait + 15m train + 75m train",
+        "detail": "6m bike + 10m wait + 15m train + 75m train (Arr 07:49)",
         "time": 106,
         "cost": 12.1,
         "distance": 60.96,
@@ -83401,7 +83401,7 @@
       {
         "id": "train_bus_beverley",
         "label": "Bus to Beverley + Train",
-        "detail": "3m walk + 10m bus + 10m wait + 15m train + 63m train",
+        "detail": "3m walk + 10m bus + 10m wait + 15m train + 63m train (Arr 07:49)",
         "time": 103,
         "cost": 14.1,
         "distance": 50.46,
@@ -83480,7 +83480,7 @@
       {
         "id": "train_drive_hull",
         "label": "Drive to Hull + Train",
-        "detail": "34m car + 10m wait + 75m train",
+        "detail": "34m car + 10m wait + 75m train (Arr 07:49)",
         "time": 121,
         "cost": 21.164392856699017,
         "distance": 64.0,
@@ -91551,7 +91551,7 @@
       {
         "id": "train_uber_hull",
         "label": "Uber to Hull + Train",
-        "detail": "34m car + 10m wait + 75m train",
+        "detail": "34m car + 10m wait + 75m train (Arr 07:49)",
         "time": 121,
         "cost": 30.229999999999997,
         "distance": 64.0,
@@ -99622,7 +99622,7 @@
       {
         "id": "train_cycle_hull",
         "label": "Cycle to Hull + Train",
-        "detail": "49m bike + 10m wait + 75m train",
+        "detail": "49m bike + 10m wait + 75m train (Arr 07:49)",
         "time": 136,
         "cost": 9.6,
         "distance": 61.08,
@@ -107661,7 +107661,7 @@
       {
         "id": "train_bus_hull",
         "label": "Bus to Hull + Train",
-        "detail": "5m walk + 34m bus + 10m wait + 12m train + 63m train",
+        "detail": "5m walk + 34m bus + 10m wait + 12m train + 63m train (Arr 07:49)",
         "time": 124,
         "cost": 11.6,
         "distance": 60.27,
@@ -116167,7 +116167,7 @@
       {
         "id": "train_drive_eastrington",
         "label": "Drive to Eastrington + Train",
-        "detail": "31m car + 10m wait + 50m train",
+        "detail": "31m car + 10m wait + 50m train (Arr 07:00)",
         "time": 91,
         "cost": 15.025028893832255,
         "distance": 50.23,
@@ -122017,7 +122017,7 @@
       {
         "id": "train_uber_eastrington",
         "label": "Uber to Eastrington + Train",
-        "detail": "31m car + 10m wait + 50m train",
+        "detail": "31m car + 10m wait + 50m train (Arr 07:00)",
         "time": 91,
         "cost": 41.75,
         "distance": 50.23,
@@ -127867,7 +127867,7 @@
       {
         "id": "train_cycle_eastrington",
         "label": "Cycle to Eastrington + Train",
-        "detail": "104m bike + 10m wait + 50m train",
+        "detail": "104m bike + 10m wait + 50m train (Arr 07:00)",
         "time": 164,
         "cost": 7.0,
         "distance": 52.41,
@@ -133677,9 +133677,9 @@
       {
         "id": "train_bus_eastrington",
         "label": "Bus to Eastrington + Train",
-        "detail": "15m walk + 27m bus + 8m walk + 10m wait + 24m train + 50m train",
+        "detail": "15m walk + 27m bus + 8m walk + 10m wait + 24m train + 50m train (Arr 07:00)",
         "time": 134,
-        "cost": 12.6,
+        "cost": 10.0,
         "distance": 61.42,
         "riskScore": 2,
         "riskReason": "Bus risk (+1) + Connection risk (+1)",
@@ -138851,7 +138851,7 @@
             "co2": 1.1520250537487418,
             "from": "Hull",
             "to": "Eastrington",
-            "cost": 9.6
+            "cost": 7.0
           },
           {
             "mode": "train",
