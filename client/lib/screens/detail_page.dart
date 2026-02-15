@@ -1087,7 +1087,9 @@ class _DetailPageState extends State<DetailPage> {
                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
                            ),
                            Text(
-                             'Parking cost (24 hours): £${parkingCost.toStringAsFixed(2)}',
+                             parkingCost == 0
+                                 ? 'Free, but limited parking'
+                                 : 'Parking cost (24 hours): £${parkingCost.toStringAsFixed(2)}',
                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
                            ),
                         ] else if (segment.cost > 0)
