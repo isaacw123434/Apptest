@@ -1088,7 +1088,7 @@ class _DetailPageState extends State<DetailPage> {
                            ),
                            Text(
                              parkingCost == 0
-                                 ? 'Free, but limited parking'
+                                 ? 'Parking cost: Free, but limited parking'
                                  : 'Parking cost (24 hours): £${parkingCost.toStringAsFixed(2)}',
                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
                            ),

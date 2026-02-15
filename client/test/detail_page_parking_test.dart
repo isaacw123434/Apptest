@@ -141,7 +141,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Driving cost: £4.50'), findsOneWidget);
-    expect(find.text('Free, but limited parking'), findsOneWidget);
+    expect(find.text('Parking cost: Free, but limited parking'), findsOneWidget);
     expect(find.textContaining('Parking cost (24 hours)'), findsNothing);
 
     // Clear timers
