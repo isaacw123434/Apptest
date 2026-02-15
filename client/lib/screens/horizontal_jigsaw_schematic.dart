@@ -16,6 +16,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final TextScaler textScaler = MediaQuery.of(context).textScaler;
         final availableWidth = constraints.maxWidth;
         // If availableWidth is infinite (e.g. in scroll view), use a default or screen width
         final double effectiveWidth = availableWidth.isFinite
@@ -61,6 +62,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
               ),
             ),
             textDirection: TextDirection.ltr,
+            textScaler: textScaler,
             maxLines: 1,
           )..layout();
 
@@ -80,6 +82,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
               ),
             ),
             textDirection: TextDirection.ltr,
+            textScaler: textScaler,
             maxLines: 1,
           )..layout();
 
@@ -87,7 +90,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
           double bottomContentWidth = durationPainter.width;
           double maxContentWidth = topContentWidth > bottomContentWidth ? topContentWidth : bottomContentWidth;
 
-          double minW = (paddingLeft + maxContentWidth + paddingRight + 0.5).ceilToDouble() + 0.5 + 0.25;
+          double minW = (paddingLeft + maxContentWidth + paddingRight + 0.5).ceilToDouble() + 2.0;
           minWidths[i] = minW;
           totalMinWidth += minW;
         }
