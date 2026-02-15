@@ -67,6 +67,8 @@ flutter:
   assets:
     - assets/routes.json
     - assets/routes_2.json
+    - assets/routes_clean.json
+    - assets/routes_2_clean.json
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
