@@ -123,6 +123,9 @@ Leg _parseOptionToLeg(Map<String, dynamic> option, {String groupName = '', Strin
       mergedSegments.add(seg);
   }
 
+  // Apply Cleaning Logic (Moved from UI)
+  mergedSegments = _cleanSegments(mergedSegments, groupName);
+
   // Determine Location for Pricing
   String? location;
   for (var seg in mergedSegments) {
@@ -803,4 +806,64 @@ double _getBusCost(String label) {
 
   // Anything else is £2
   return 2.00;
+}
+
+List<Segment> _cleanSegments(List<Segment> segments, String groupName) {
+    List<Segment> cleaned = [];
+    String lowerGroup = groupName.toLowerCase();
+    bool isFirstMile = lowerGroup.contains('group 1') || lowerGroup.contains('group 2');
+    bool isMainLeg = lowerGroup.contains('group 3');
+    bool isLastMile = lowerGroup.contains('group 4');
+
+    for (int i = 0; i < segments.length; i++) {
+        final seg = segments[i];
+        bool shouldRemove = false;
+        bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == IconIds.footprints;
+
+        if (isWalk) {
+            // Rule 1: Remove short walks <= 2.5 mins
+            if (seg.time <= 2.5) {
+                shouldRemove = true;
+            }
+
+            // Rule 2: Convert walks <= 5 mins between trains to Transfer
+            if (!shouldRemove && seg.time <= 5) {
+                 bool prevIsTrain = i > 0 && segments[i-1].iconId == IconIds.train;
+                 bool nextIsTrain = i < segments.length - 1 && segments[i+1].iconId == IconIds.train;
+
+                 if (prevIsTrain && nextIsTrain) {
+                     shouldRemove = true;
+                     cleaned.add(Segment(
+                       mode: 'wait',
+                       label: 'Transfer',
+                       lineColor: '#000000',
+                       iconId: 'clock',
+                       time: seg.time,
+                       detail: 'Transfer',
+                     ));
+                 }
+            }
+
+            // Rule 3: Heuristic for leg boundaries
+            if (!shouldRemove && seg.time <= 5) {
+                // If First Mile ends with short walk, assume it connects to Train/MainLeg
+                if (isFirstMile && i == segments.length - 1) {
+                    shouldRemove = true;
+                }
+                // If Main Leg starts or ends with short walk
+                if (isMainLeg && (i == 0 || i == segments.length - 1)) {
+                    shouldRemove = true;
+                }
+                // If Last Mile starts with short walk
+                if (isLastMile && i == 0) {
+                    shouldRemove = true;
+                }
+            }
+        }
+
+        if (!shouldRemove) {
+            cleaned.add(seg);
+        }
+    }
+    return cleaned;
 }
