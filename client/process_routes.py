@@ -20,6 +20,14 @@ PRICING = {
     'eastrington': {'parking': 0.00, 'uber': 34.75, 'train': 7.00},
 }
 
+ARRIVAL_TIMES = {
+    'brough': '07:49',
+    'york': '07:49',
+    'beverley': '07:49',
+    'hull': '07:49',
+    'eastrington': '07:00',
+}
+
 def decode_polyline(polyline_str):
     index, lat, lng = 0, 0, 0
     coordinates = []
@@ -341,21 +349,21 @@ def parse_option_to_leg(option, group_name, route_id):
 
     # --- Location detection for Pricing ---
     location = None
-    for seg in merged_segments:
-        if seg['mode'] == 'train' and seg.get('from'):
-            parts = seg['from'].lower().split(' ')
-            loc = parts[0]
-            if 'eastrington' in seg['from'].lower(): loc = 'eastrington'
-            location = loc
-            break
+    lower_name = name.lower()
+    if 'brough' in lower_name: location = 'brough'
+    elif 'york' in lower_name: location = 'york'
+    elif 'beverley' in lower_name: location = 'beverley'
+    elif 'hull' in lower_name: location = 'hull'
+    elif 'eastrington' in lower_name: location = 'eastrington'
 
     if not location:
-        lower_name = name.lower()
-        if 'brough' in lower_name: location = 'brough'
-        elif 'york' in lower_name: location = 'york'
-        elif 'beverley' in lower_name: location = 'beverley'
-        elif 'hull' in lower_name: location = 'hull'
-        elif 'eastrington' in lower_name: location = 'eastrington'
+        for seg in merged_segments:
+            if seg['mode'] == 'train' and seg.get('from'):
+                parts = seg['from'].lower().split(' ')
+                loc = parts[0]
+                if 'eastrington' in seg['from'].lower(): loc = 'eastrington'
+                location = loc
+                break
 
     if not location:
         lower_group = group_name.lower()
@@ -584,6 +592,9 @@ def parse_option_to_leg(option, group_name, route_id):
     icon_id = map_icon_id(name, merged_segments)
     line_color = map_line_color(name, merged_segments)
     detail = generate_detail(merged_segments)
+
+    if location and location in ARRIVAL_TIMES:
+        detail += f" (Arr {ARRIVAL_TIMES[location]})"
 
     return {
         'id': id_val,
