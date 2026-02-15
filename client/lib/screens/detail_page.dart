@@ -774,6 +774,7 @@ class _DetailPageState extends State<DetailPage> {
             onTap: () => _zoomToSegment(seg),
             distance: distance,
             extraDetails: extraDetails,
+            isDriveToStation: legType == 'firstMile' && seg.label == 'Drive',
           ));
 
           currentMinutes += seg.time;
@@ -994,11 +995,22 @@ class _DetailPageState extends State<DetailPage> {
     VoidCallback? onTap,
     double? distance,
     String? extraDetails,
+    bool isDriveToStation = false,
   }) {
     // Prefer segment.distance if available
     final displayDistance = segment.distance ?? distance;
     final emission = segment.co2 ?? (displayDistance != null ? calculateEmission(displayDistance, segment.iconId) : 0.0);
     Color lineColor = _parseColor(segment.lineColor);
+
+    // Calculate split costs if applicable
+    double? drivingCost;
+    double? parkingCost;
+    if (isDriveToStation && displayDistance != null) {
+      drivingCost = displayDistance * 0.45;
+      parkingCost = segment.cost - drivingCost;
+      // Ensure no negative values due to precision or if cost is 0
+      if (parkingCost < 0) parkingCost = 0;
+    }
 
     // FIX 1 & 2: The Grey Track & Thicker Line
     Widget verticalLine = Stack(
@@ -1069,7 +1081,16 @@ class _DetailPageState extends State<DetailPage> {
                           '${segment.time} min${displayDistance != null ? ' • ${displayDistance.toStringAsFixed(1)} miles' : ''}',
                           style: const TextStyle(fontSize: 12, color: Colors.grey),
                         ),
-                        if (segment.cost > 0)
+                        if (isDriveToStation && drivingCost != null && parkingCost != null) ...[
+                           Text(
+                             'Driving cost: £${drivingCost.toStringAsFixed(2)}',
+                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
+                           ),
+                           Text(
+                             'Parking cost (24 hours): £${parkingCost.toStringAsFixed(2)}',
+                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
+                           ),
+                        ] else if (segment.cost > 0)
                            Text(
                              '£${segment.cost.toStringAsFixed(2)}',
                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
