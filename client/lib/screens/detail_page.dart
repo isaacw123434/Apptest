@@ -10,12 +10,14 @@ class DetailPage extends StatefulWidget {
   final JourneyResult? journeyResult;
   final ApiService? apiService;
   final String? routeId;
+  final Map<String, bool>? selectedModes;
 
   const DetailPage({
     super.key,
     this.journeyResult,
     this.apiService,
     this.routeId,
+    this.selectedModes,
   });
 
   @override
@@ -263,6 +265,20 @@ class _DetailPageState extends State<DetailPage> {
     }
   }
 
+  String _getModeKey(Leg leg) {
+    if (leg.iconId == 'train') return 'train';
+    if (leg.iconId == 'bus') return 'bus';
+    if (leg.iconId == 'bike') return 'bike';
+    if (leg.iconId == 'car') {
+      // Check label for taxi/uber vs drive
+      if (leg.label.toLowerCase().contains('taxi') || leg.label.toLowerCase().contains('uber')) {
+        return 'taxi';
+      }
+      return 'car';
+    }
+    return leg.iconId;
+  }
+
   Map<String, List<Leg>> _groupLegsByStation(List<Leg> options) {
     final Map<String, List<Leg>> groupedLegs = {};
     for (var option in options) {
@@ -344,6 +360,17 @@ class _DetailPageState extends State<DetailPage> {
       return _getStationSuffix(leg.label) == currentSuffix;
     }).toList();
 
+    // Filter by selected modes
+    if (widget.selectedModes != null) {
+      filteredOptions = filteredOptions.where((leg) {
+        String key = _getModeKey(leg);
+        if (widget.selectedModes!.containsKey(key)) {
+          return widget.selectedModes![key]!;
+        }
+        return true;
+      }).toList();
+    }
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -367,6 +394,17 @@ class _DetailPageState extends State<DetailPage> {
     List<Leg> allOptions = legType == 'firstMile'
         ? _initData!.segmentOptions.firstMile
         : _initData!.segmentOptions.lastMile;
+
+    // Filter by selected modes
+    if (widget.selectedModes != null) {
+      allOptions = allOptions.where((leg) {
+        String key = _getModeKey(leg);
+        if (widget.selectedModes!.containsKey(key)) {
+          return widget.selectedModes![key]!;
+        }
+        return true;
+      }).toList();
+    }
 
     Map<String, List<Leg>> grouped = _groupLegsByStation(allOptions);
     // Determine current access mode from first segment
