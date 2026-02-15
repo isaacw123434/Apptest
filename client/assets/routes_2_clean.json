@@ -58369,8 +58369,8 @@
       {
         "id": "train_drive_beverley",
         "label": "Drive to Beverley + Train",
-        "detail": "6m car + 10m wait + 15m train + 75m train",
-        "time": 106,
+        "detail": "6m car + 10m wait + 91m train",
+        "time": 107,
         "cost": 17.003311916686343,
         "distance": 60.96,
         "riskScore": 1,
@@ -58672,7 +58672,7 @@
             "label": "Northern",
             "lineColor": "#262262",
             "iconId": "train",
-            "time": 15,
+            "time": 91,
             "path": [
               [
                 53.84249,
@@ -59853,21 +59853,15 @@
               [
                 53.74384,
                 -0.34731
-              ]
-            ],
-            "distance": 8.20212012377745,
-            "co2": 0.49212720742664695,
-            "from": "Beverley",
-            "to": "Hull",
-            "cost": 12.1
-          },
-          {
-            "mode": "train",
-            "label": "Northern",
-            "lineColor": "#262262",
-            "iconId": "train",
-            "time": 75,
-            "path": [
+              ],
+              [
+                53.74384,
+                -0.34731
+              ],
+              [
+                53.74373,
+                -0.34739
+              ],
               [
                 53.74373,
                 -0.34739
@@ -66709,11 +66703,11 @@
                 -1.54803
               ]
             ],
-            "distance": 51.63607441559894,
-            "co2": 3.0981644649359366,
-            "from": "Hull",
+            "distance": 59.845651012216194,
+            "co2": 3.5907390607329717,
+            "from": "Beverley",
             "to": "Leeds",
-            "cost": 0.0
+            "cost": 12.1
           }
         ],
         "co2": 3.89
@@ -66721,8 +66715,8 @@
       {
         "id": "train_uber_beverley",
         "label": "Uber to Beverley + Train",
-        "detail": "6m car + 10m wait + 15m train + 75m train",
-        "time": 106,
+        "detail": "6m car + 10m wait + 91m train",
+        "time": 107,
         "cost": 16.72,
         "distance": 60.96,
         "riskScore": 1,
@@ -67024,7 +67018,7 @@
             "label": "Northern",
             "lineColor": "#262262",
             "iconId": "train",
-            "time": 15,
+            "time": 91,
             "path": [
               [
                 53.84249,
@@ -68205,21 +68199,15 @@
               [
                 53.74384,
                 -0.34731
-              ]
-            ],
-            "distance": 8.20212012377745,
-            "co2": 0.49212720742664695,
-            "from": "Beverley",
-            "to": "Hull",
-            "cost": 12.1
-          },
-          {
-            "mode": "train",
-            "label": "Northern",
-            "lineColor": "#262262",
-            "iconId": "train",
-            "time": 75,
-            "path": [
+              ],
+              [
+                53.74384,
+                -0.34731
+              ],
+              [
+                53.74373,
+                -0.34739
+              ],
               [
                 53.74373,
                 -0.34739
@@ -75061,11 +75049,11 @@
                 -1.54803
               ]
             ],
-            "distance": 51.63607441559894,
-            "co2": 3.0981644649359366,
-            "from": "Hull",
+            "distance": 59.845651012216194,
+            "co2": 3.5907390607329717,
+            "from": "Beverley",
             "to": "Leeds",
-            "cost": 0.0
+            "cost": 12.1
           }
         ],
         "co2": 3.89
@@ -75073,8 +75061,8 @@
       {
         "id": "train_cycle_beverley",
         "label": "Cycle to Beverley + Train",
-        "detail": "6m bike + 10m wait + 15m train + 75m train",
-        "time": 106,
+        "detail": "6m bike + 10m wait + 91m train",
+        "time": 107,
         "cost": 12.1,
         "distance": 60.96,
         "riskScore": 1,
@@ -75352,7 +75340,7 @@
             "label": "Northern",
             "lineColor": "#262262",
             "iconId": "train",
-            "time": 15,
+            "time": 91,
             "path": [
               [
                 53.84249,
@@ -76533,21 +76521,15 @@
               [
                 53.74384,
                 -0.34731
-              ]
-            ],
-            "distance": 8.20212012377745,
-            "co2": 0.49212720742664695,
-            "from": "Beverley",
-            "to": "Hull",
-            "cost": 12.1
-          },
-          {
-            "mode": "train",
-            "label": "Northern",
-            "lineColor": "#262262",
-            "iconId": "train",
-            "time": 75,
-            "path": [
+              ],
+              [
+                53.74384,
+                -0.34731
+              ],
+              [
+                53.74373,
+                -0.34739
+              ],
               [
                 53.74373,
                 -0.34739
@@ -83389,11 +83371,11 @@
                 -1.54803
               ]
             ],
-            "distance": 51.63607441559894,
-            "co2": 3.0981644649359366,
-            "from": "Hull",
+            "distance": 59.845651012216194,
+            "co2": 3.5907390607329717,
+            "from": "Beverley",
             "to": "Leeds",
-            "cost": 0.0
+            "cost": 12.1
           }
         ],
         "co2": 3.59
@@ -83401,10 +83383,10 @@
       {
         "id": "train_bus_beverley",
         "label": "Bus to Beverley + Train",
-        "detail": "3m walk + 10m bus + 10m wait + 15m train + 63m train",
+        "detail": "3m walk + 10m bus + 10m wait + 80m train",
         "time": 103,
         "cost": 14.1,
-        "distance": 50.46,
+        "distance": 50.52,
         "riskScore": 2,
         "riskReason": "Bus risk (+1) + Connection risk (+1)",
         "iconId": "bus",
@@ -83416,7 +83398,16 @@
             "lineColor": "#475569",
             "iconId": "footprints",
             "time": 3,
-            "path": [],
+            "path": [
+              [
+                53.842,
+                -0.422
+              ],
+              [
+                53.843,
+                -0.422
+              ]
+            ],
             "distance": 0.12427454732996136,
             "co2": 0.0,
             "from": null,
@@ -83452,27 +83443,13 @@
             "label": "Northern",
             "lineColor": "#262262",
             "iconId": "train",
-            "time": 15,
+            "time": 80,
             "path": [],
-            "distance": 8.20212012377745,
-            "co2": 0.49212720742664695,
+            "distance": 49.46126983732462,
+            "co2": 2.967676190239477,
             "from": "Beverley",
-            "to": "Hull",
-            "cost": 12.1
-          },
-          {
-            "mode": "train",
-            "label": "Northern",
-            "lineColor": "#262262",
-            "iconId": "train",
-            "time": 63,
-            "path": [],
-            "distance": 41.19701243988219,
-            "co2": 2.471820746392931,
-            "from": "Hull",
             "to": "Leeds",
-            "cost": 0.0,
-            "waitTime": 2
+            "cost": 12.1
           }
         ],
         "co2": 3.06
@@ -107663,7 +107640,7 @@
         "label": "Bus to Hull + Train",
         "detail": "5m walk + 34m bus + 10m wait + 12m train + 63m train",
         "time": 124,
-        "cost": 11.6,
+        "cost": 12.6,
         "distance": 60.27,
         "riskScore": 2,
         "riskReason": "Bus risk (+1) + Connection risk (+1)",
@@ -108254,7 +108231,7 @@
           },
           {
             "mode": "bus",
-            "label": "East Yorkshire",
+            "label": "X46",
             "lineColor": "#f03842",
             "iconId": "bus",
             "time": 34,
@@ -109276,7 +109253,7 @@
             "co2": 0.8823492860427257,
             "from": "Beverley Bus Station",
             "to": "Hull Interchange",
-            "cost": 2.0
+            "cost": 3.0
           },
           {
             "mode": "wait",
