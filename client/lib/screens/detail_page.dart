@@ -1004,12 +1004,8 @@ class _DetailPageState extends State<DetailPage> {
 
     // Calculate split costs if applicable
     double? drivingCost;
-    double? parkingCost;
     if (isDriveToStation && displayDistance != null) {
       drivingCost = displayDistance * 0.45;
-      parkingCost = segment.cost - drivingCost;
-      // Ensure no negative values due to precision or if cost is 0
-      if (parkingCost < 0) parkingCost = 0;
     }
 
     // FIX 1 & 2: The Grey Track & Thicker Line
@@ -1081,13 +1077,13 @@ class _DetailPageState extends State<DetailPage> {
                           '${segment.time} min${displayDistance != null ? ' • ${displayDistance.toStringAsFixed(1)} miles' : ''}',
                           style: const TextStyle(fontSize: 12, color: Colors.grey),
                         ),
-                        if (isDriveToStation && drivingCost != null && parkingCost != null) ...[
+                        if (isDriveToStation && drivingCost != null && segment.parkingInfo != null) ...[
                            Text(
                              'Driving cost: £${drivingCost.toStringAsFixed(2)}',
                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
                            ),
                            Text(
-                             'Parking cost (24 hours): £${parkingCost.toStringAsFixed(2)}',
+                             'Parking cost (24 hours): ${segment.parkingInfo}',
                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
                            ),
                         ] else if (segment.cost > 0)
