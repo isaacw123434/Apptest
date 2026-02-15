@@ -24,6 +24,7 @@ class Segment {
   final double? distance;
   final double cost;
   final int? waitTime;
+  final String? parkingInfo;
 
   Segment({
     required this.mode,
@@ -39,6 +40,7 @@ class Segment {
     this.distance,
     this.cost = 0.0,
     this.waitTime,
+    this.parkingInfo,
   });
 
   factory Segment.fromJson(Map<String, dynamic> json) {
@@ -73,6 +75,7 @@ class Segment {
       distance: json['distance'] != null ? (json['distance'] as num).toDouble() : null,
       cost: (json['cost'] ?? 0).toDouble(),
       waitTime: json['waitTime'],
+      parkingInfo: json['parkingInfo'],
     );
   }
 }

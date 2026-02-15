@@ -1381,7 +1381,8 @@
             "co2": 3.825170566816211,
             "from": "Hurn View, Beverley",
             "to": "Brough Station",
-            "cost": 12.175284278027018
+            "cost": 12.175284278027018,
+            "parkingInfo": "\u00a35.80"
           },
           {
             "mode": "wait",
@@ -28051,7 +28052,8 @@
             "co2": 8.371754880882847,
             "from": "Hurn View, Beverley",
             "to": "York Station",
-            "cost": 27.752924801471412
+            "cost": 27.752924801471412,
+            "parkingInfo": "\u00a313.80"
           },
           {
             "mode": "wait",
@@ -58654,7 +58656,8 @@
             "co2": 0.3019871500118061,
             "from": "Hurn View, Beverley",
             "to": "Beverley Station",
-            "cost": 4.903311916686344
+            "cost": 4.903311916686344,
+            "parkingInfo": "\u00a34.40"
           },
           {
             "mode": "wait",
@@ -84677,7 +84680,8 @@
             "co2": 3.338635714019412,
             "from": "Hurn View, Beverley",
             "to": "Hull Station",
-            "cost": 11.564392856699019
+            "cost": 11.564392856699019,
+            "parkingInfo": "\u00a36.00"
           },
           {
             "mode": "wait",
@@ -117628,7 +117632,8 @@
             "co2": 4.815017336299353,
             "from": "Hurn View, Beverley",
             "to": "Eastrington Station",
-            "cost": 8.025028893832255
+            "cost": 8.025028893832255,
+            "parkingInfo": "Free, but limited"
           },
           {
             "mode": "wait",

@@ -49,6 +49,7 @@ void main() {
       cost: 4.5,
       distance: 10.0,
       path: [LatLng(0, 0), LatLng(0.1, 0.1)],
+      parkingInfo: 'Free, but limited',
     );
 
     final leg1 = Leg(
@@ -95,8 +96,8 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    // We expect "Parking cost (24 hours): Free"
-    expect(find.textContaining('Parking cost (24 hours): Free'), findsOneWidget);
+    // We expect "Parking cost (24 hours): Free, but limited"
+    expect(find.textContaining('Parking cost (24 hours): Free, but limited'), findsOneWidget);
 
     // Clear timers
     await tester.pump(const Duration(seconds: 1));

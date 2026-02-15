@@ -386,16 +386,26 @@ def parse_option_to_leg(option, group_name, route_id):
                 if merged_segments[j]['mode'] in ['bus', 'car']:
                     break
 
-            if connects_to_train:
-                is_uber = 'uber' in current['label'].lower()
-                if not is_uber:
-                    parking_cost = 5.00
-                    if location and location in PRICING:
-                        parking_cost = PRICING[location].get('parking', 5.00)
+            is_uber = 'uber' in current['label'].lower()
 
-                    # Merge cost into car segment directly
-                    current['cost'] += parking_cost
-                    # Do NOT add a parking segment
+            should_add_parking = connects_to_train
+            if not should_add_parking and not is_uber:
+                if location and location in PRICING and ('Group 1' in group_name or 'Group 2' in group_name):
+                    should_add_parking = True
+
+            if should_add_parking and not is_uber:
+                parking_cost = 5.00
+                if location and location in PRICING:
+                    parking_cost = PRICING[location].get('parking', 5.00)
+
+                # Merge cost into car segment directly
+                current['cost'] += parking_cost
+
+                if parking_cost == 0:
+                    current['parkingInfo'] = "Free, but limited"
+                else:
+                    current['parkingInfo'] = f"£{parking_cost:.2f}"
+                # Do NOT add a parking segment
         i += 1
 
     merged_segments = final_segments_step1
