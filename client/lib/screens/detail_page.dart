@@ -34,9 +34,6 @@ class _DetailPageState extends State<DetailPage> {
   JourneyResult? _currentResult;
   bool _isMapReady = false;
 
-  // Threshold to filter short walks (in minutes) for general cleaning
-  final double _walkThreshold = 2.5;
-
   @override
   void initState() {
     super.initState();
@@ -85,11 +82,8 @@ class _DetailPageState extends State<DetailPage> {
     }
     allSegments.addAll(result.leg3.segments);
 
-    // --- Filter Segments ---
-    List<Segment> filteredSegments = _filterSegments(allSegments);
-
     // --- Generate Polylines ---
-    for (var seg in filteredSegments) {
+    for (var seg in allSegments) {
       if (seg.path != null && seg.path!.isNotEmpty) {
         // Filter out invalid coordinates
         final validPoints = seg.path!.where((p) => p.latitude.abs() <= 90).toList();
@@ -118,9 +112,9 @@ class _DetailPageState extends State<DetailPage> {
     }
 
     // --- Generate Markers ---
-    if (filteredSegments.isNotEmpty) {
+    if (allSegments.isNotEmpty) {
       // Start Marker
-      final startSeg = filteredSegments.first;
+      final startSeg = allSegments.first;
       if (startSeg.path != null && startSeg.path!.isNotEmpty) {
         markers.add(Marker(
           point: LatLng(startSeg.path!.first.latitude, startSeg.path!.first.longitude),
@@ -131,7 +125,7 @@ class _DetailPageState extends State<DetailPage> {
       }
 
       // End Marker
-      final endSeg = filteredSegments.last;
+      final endSeg = allSegments.last;
       if (endSeg.path != null && endSeg.path!.isNotEmpty) {
         markers.add(Marker(
           point: LatLng(endSeg.path!.last.latitude, endSeg.path!.last.longitude),
@@ -142,8 +136,8 @@ class _DetailPageState extends State<DetailPage> {
       }
 
       // Mode Change Nodes
-      for (int i = 0; i < filteredSegments.length - 1; i++) {
-        final current = filteredSegments[i];
+      for (int i = 0; i < allSegments.length - 1; i++) {
+        final current = allSegments[i];
 
         if (current.path != null && current.path!.isNotEmpty) {
             markers.add(Marker(
@@ -167,41 +161,6 @@ class _DetailPageState extends State<DetailPage> {
         if (mounted) _zoomToFit();
       });
     }
-  }
-
-  // Centralized segment filtering logic
-  List<Segment> _filterSegments(List<Segment> segments) {
-    List<Segment> filtered = [];
-    for (int i = 0; i < segments.length; i++) {
-        final seg = segments[i];
-        bool shouldHide = false;
-        bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
-
-        // Issue 2: Filter out 4 mins walk between trains
-        if (isWalk && seg.time <= 5) {
-             bool prevIsTrain = i > 0 && segments[i-1].iconId == 'train';
-             bool nextIsTrain = i < segments.length - 1 && segments[i+1].iconId == 'train';
-
-             if (prevIsTrain && nextIsTrain) {
-                 shouldHide = true;
-             }
-        }
-
-        // Also filter very short walks (legacy logic)
-        if (!shouldHide && isWalk && seg.time < _walkThreshold) {
-             shouldHide = true;
-        }
-
-        if (shouldHide && seg.path == null) {
-             // If path is null, it's definitely just a connector, safe to hide.
-             // If path exists, hiding it removes it from map markers, which is fine.
-        }
-
-        if (!shouldHide) {
-             filtered.add(seg);
-        }
-    }
-    return filtered;
   }
 
   void _zoomToSegment(Segment segment) {
@@ -715,29 +674,6 @@ class _DetailPageState extends State<DetailPage> {
         final isFirst = i == 0;
         // final isLast = i == segments.length - 1; // Unused, replaced by checkIsLast logic
 
-        bool shouldHide = false;
-        bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
-
-        // Issue 2: Filter out 4 mins walk between trains
-        if (isWalk && seg.time <= 5) {
-             bool prevIsTrain = i > 0 && segments[i-1].iconId == 'train';
-             bool nextIsTrain = i < segments.length - 1 && segments[i+1].iconId == 'train';
-
-             if (prevIsTrain && nextIsTrain) {
-                 shouldHide = true;
-             }
-        }
-
-        // Also filter very short walks
-        if (!shouldHide && isWalk && seg.time < _walkThreshold) {
-             shouldHide = true;
-        }
-
-        if (shouldHide) {
-             currentMinutes += seg.time;
-             continue;
-        }
-
         // Color lineColor = _parseColor(seg.lineColor); // Unused here, parsed inside build functions
 
         // Check for Transfer
@@ -784,27 +720,6 @@ class _DetailPageState extends State<DetailPage> {
                  var next = segments[i+1];
                  if (next.iconId == 'train') {
                      nextTrainIndex = i+1;
-                 } else {
-                     // Check if it's a hidden walk
-                     bool isHiddenWalk = false;
-                     bool isWalk = next.mode.toLowerCase() == 'walk' || next.iconId == 'footprints';
-                     if (isWalk && next.time <= 5) {
-                         // Check connection
-                         if (i + 2 < segments.length && segments[i+2].iconId == 'train') {
-                             isHiddenWalk = true;
-                         }
-                     }
-                     // Also check the generic hidden walk threshold
-                     if (!isHiddenWalk && isWalk && next.time < _walkThreshold) {
-                         isHiddenWalk = true;
-                     }
-
-                     if (isHiddenWalk) {
-                         waitTime += next.time;
-                         if (i + 2 < segments.length && segments[i+2].iconId == 'train') {
-                             nextTrainIndex = i + 2;
-                         }
-                     }
                  }
              }
 
@@ -882,25 +797,8 @@ class _DetailPageState extends State<DetailPage> {
           // Lookahead for next visible segment to determine node context
           // Since we updated 'i', we look from 'i + 1'
           int nextVisibleIndex = -1;
-          for (int k = i + 1; k < segments.length; k++) {
-             bool hideK = false;
-             bool kIsWalk = segments[k].mode.toLowerCase() == 'walk' || segments[k].iconId == 'footprints';
-
-             // Check context for hideK
-             // We need valid prev and next.
-             // prev is segments[k-1].
-             // If k=i+1, segments[k-1] is segments[i] which is valid.
-             if (kIsWalk && segments[k].time <= 5) {
-                 bool p = k > 0 && segments[k-1].iconId == 'train';
-                 bool n = k < segments.length - 1 && segments[k+1].iconId == 'train';
-                 if (p && n) hideK = true;
-             }
-             if (!hideK && kIsWalk && segments[k].time < _walkThreshold) hideK = true;
-
-             if (!hideK) {
-                nextVisibleIndex = k;
-                break;
-             }
+          if (i + 1 < segments.length) {
+             nextVisibleIndex = i + 1;
           }
 
           if (nextVisibleIndex != -1) {
@@ -919,8 +817,7 @@ class _DetailPageState extends State<DetailPage> {
                 prevColor: prevColor,
                 nextColor: _parseColor(nextVisible.lineColor)));
           } else {
-             // No next visible segment?
-             // Fallback to raw next segment if exists, but it might be filtered out walk?
+             // Fallback to raw next segment
              if (i < segments.length - 1) {
                  children.add(_buildNode(
                     nodeTitle,

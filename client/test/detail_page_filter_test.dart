@@ -92,7 +92,7 @@ class MockApiService extends ApiService {
 }
 
 void main() {
-  testWidgets('DetailPage filters short walks correctly', (WidgetTester tester) async {
+  testWidgets('DetailPage displays all provided segments (filtering is done in parser)', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 1.0;
 
@@ -153,14 +153,14 @@ void main() {
 
     expect(find.text('Walk 10 mins'), findsOneWidget);
 
-    // Expect 3 min walk to be visible (3 >= 2.5)
+    // Expect 3 min walk to be visible
     expect(find.text('Walk 3 mins'), findsOneWidget);
 
-    // Expect 1 min walk to be hidden
-    expect(find.text('Walk 1 min'), findsNothing);
+    // Expect 1 min walk to be visible (because DetailPage assumes data is clean)
+    expect(find.text('Walk 1 min'), findsOneWidget);
 
-    // Expect 2 min walk to be hidden
-    expect(find.text('Walk 2 mins'), findsNothing);
+    // Expect 2 min walk to be visible
+    expect(find.text('Walk 2 mins'), findsOneWidget);
 
     // Pump to allow any lingering timers (e.g. map debouncers) to complete
     await tester.pump(const Duration(seconds: 1));
