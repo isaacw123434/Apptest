@@ -801,9 +801,9 @@ class _DetailPageState extends State<DetailPage> {
         if (!merged) {
           children.add(_buildSegmentConnection(
             segment: seg,
-            isEditable: canEdit && (isFirst || seg.iconId == 'train'),
+            isEditable: canEdit && (isFirst || seg.iconId == 'train' || _isParkAndRideBus(seg)),
             onEdit: () {
-              if (seg.iconId == 'train') {
+              if (seg.iconId == 'train' || _isParkAndRideBus(seg)) {
                 _showTrainEdit(leg, legType);
               } else {
                 _showAccessEdit(leg, legType);
@@ -812,7 +812,7 @@ class _DetailPageState extends State<DetailPage> {
             onTap: () => _zoomToSegment(seg),
             distance: distance,
             extraDetails: extraDetails,
-            isDriveToStation: legType == 'firstMile' && seg.label == 'Drive',
+            isDriveToStation: legType == 'firstMile' && seg.label == 'Drive' && !_isParkAndRideDestination(seg),
           ));
 
           currentMinutes += seg.time;
@@ -937,6 +937,21 @@ class _DetailPageState extends State<DetailPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: children,
     );
+  }
+
+  bool _isParkAndRideBus(Segment seg) {
+    if (seg.iconId != 'bus') return false;
+    final label = seg.label.toLowerCase();
+    return label.contains('park & ride') || label.contains('p&r');
+  }
+
+  bool _isParkAndRideDestination(Segment seg) {
+    if (seg.label != 'Drive') return false;
+    if (seg.to != null) {
+      final to = seg.to!.toLowerCase();
+      return to.contains('park & ride') || to.contains('p&r');
+    }
+    return false;
   }
 
   String _formatMinutes(int totalMinutes) {
