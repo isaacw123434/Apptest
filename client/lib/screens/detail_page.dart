@@ -690,48 +690,72 @@ class _DetailPageState extends State<DetailPage> {
              // Look ahead for next train
              // Simplified logic: if next is train, merge.
              // Pre-processing handled filtered walks and wait times.
-             if (i + 1 < segments.length) {
-                 var nextSeg = segments[i+1];
-                 if (nextSeg.iconId == 'train') {
-                     // Merge detected
-                     merged = true;
 
-                     String changeLabel = 'Change at ${seg.to ?? 'Station'}';
+             int lookAheadIndex = i + 1;
+             int accumulatedWaitTime = 0;
+             Segment? nextTrainSeg;
 
-                     // Use the waitTime carried over from pre-processing if available
-                     int waitTime = nextSeg.waitTime ?? 0;
+             if (lookAheadIndex < segments.length) {
+                 Segment? checkSeg = segments[lookAheadIndex];
 
-                     // Calculate distances for merging
-                     double? dist1 = distance;
-                     double? dist2;
-                     if (nextSeg.path != null && nextSeg.path!.isNotEmpty) {
-                       double totalMeters = 0;
-                       for (int j = 0; j < nextSeg.path!.length - 1; j++) {
-                         totalMeters += _distance.as(LengthUnit.Meter, nextSeg.path![j], nextSeg.path![j + 1]);
-                       }
-                       dist2 = totalMeters / 1609.34;
+                 // If it's a walk/transfer, treat it as wait time and look further
+                 if (checkSeg.mode == 'walk' || checkSeg.iconId == 'footprints') {
+                     accumulatedWaitTime += checkSeg.time;
+                     lookAheadIndex++;
+                     if (lookAheadIndex < segments.length) {
+                         checkSeg = segments[lookAheadIndex];
+                     } else {
+                         // End of list, no next train
+                         checkSeg = null;
                      }
-
-                     children.add(_buildMergedSegmentConnection(
-                       seg1: seg,
-                       seg2: nextSeg,
-                       changeLabel: changeLabel,
-                       waitTime: waitTime,
-                       dist1: dist1,
-                       dist2: dist2,
-                       extraDetails1: extraDetails,
-                       isEditable: canEdit,
-                       onEdit: () => _showTrainEdit(leg, legType),
-                       onTap: () {
-                         _zoomToSegment(seg);
-                       }
-                     ));
-
-                     currentMinutes += seg.time + waitTime + nextSeg.time;
-
-                     // Update index to skip
-                     i++;
                  }
+
+                 if (checkSeg != null && checkSeg.iconId == 'train') {
+                     nextTrainSeg = checkSeg;
+                 }
+             }
+
+             if (nextTrainSeg != null) {
+                 var nextSeg = nextTrainSeg;
+                 // Merge detected
+                 merged = true;
+
+                 String changeLabel = 'Change at ${seg.to ?? 'Station'}';
+
+                 // Use the waitTime carried over from pre-processing if available
+                 // PLUS any accumulated time from walk segments
+                 int waitTime = (nextSeg.waitTime ?? 0) + accumulatedWaitTime;
+
+                 // Calculate distances for merging
+                 double? dist1 = distance;
+                 double? dist2;
+                 if (nextSeg.path != null && nextSeg.path!.isNotEmpty) {
+                   double totalMeters = 0;
+                   for (int j = 0; j < nextSeg.path!.length - 1; j++) {
+                     totalMeters += _distance.as(LengthUnit.Meter, nextSeg.path![j], nextSeg.path![j + 1]);
+                   }
+                   dist2 = totalMeters / 1609.34;
+                 }
+
+                 children.add(_buildMergedSegmentConnection(
+                   seg1: seg,
+                   seg2: nextSeg,
+                   changeLabel: changeLabel,
+                   waitTime: waitTime,
+                   dist1: dist1,
+                   dist2: dist2,
+                   extraDetails1: extraDetails,
+                   isEditable: canEdit,
+                   onEdit: () => _showTrainEdit(leg, legType),
+                   onTap: () {
+                     _zoomToSegment(seg);
+                   }
+                 ));
+
+                 currentMinutes += seg.time + waitTime + nextSeg.time;
+
+                 // Update index to skip handled segments
+                 i = lookAheadIndex;
              }
         }
         // --- MERGE DETECTION END ---
