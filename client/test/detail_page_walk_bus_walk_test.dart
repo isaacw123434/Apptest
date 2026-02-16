@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:client/models.dart';
 import 'package:client/screens/detail_page.dart';
 import 'package:client/services/api_service.dart';
-import 'package:latlong2/latlong.dart';
 
 class MockApiService extends ApiService {
   @override
