@@ -1223,86 +1223,104 @@ class _DetailPageState extends State<DetailPage> {
                       offset: const Offset(0, 2))
                 ],
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // FIX 3: The Icon Halo
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: lineColor.withValues(alpha: 0.15), // The "Halo"
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(_getIconData(segment.iconId),
-                        color: lineColor, // Keep icon solid
-                        size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(segment.label,
-                            style: const TextStyle(fontWeight: FontWeight.bold)),
-                        Text(
-                          '${segment.time} min${displayDistance != null ? ' • ${displayDistance.toStringAsFixed(1)} miles' : ''}',
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  Row(
+                    children: [
+                      // FIX 3: The Icon Halo
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: lineColor.withValues(alpha: 0.15), // The "Halo"
+                          shape: BoxShape.circle,
                         ),
-                        if (isDriveToStation && drivingCost != null && parkingCost != null) ...[
-                           Text(
-                             'Driving cost: £${drivingCost.toStringAsFixed(2)}',
-                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
-                           ),
-                           Text(
-                             parkingCost == 0
-                                 ? 'Parking cost: Free, but limited parking'
-                                 : 'Parking cost (24 hours): £${parkingCost.toStringAsFixed(2)}',
-                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
-                           ),
-                        ] else if (segment.cost > 0)
-                           Text(
-                             '£${segment.cost.toStringAsFixed(2)}',
-                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
-                           ),
+                        child: Icon(_getIconData(segment.iconId),
+                            color: lineColor, // Keep icon solid
+                            size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(segment.label,
+                                style: const TextStyle(fontWeight: FontWeight.bold)),
+                            Text(
+                              '${segment.time} min${displayDistance != null ? ' • ${displayDistance.toStringAsFixed(1)} miles' : ''}',
+                              style: const TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                            if (isDriveToStation && drivingCost != null && parkingCost != null) ...[
+                               Text(
+                                 'Driving cost: £${drivingCost.toStringAsFixed(2)}',
+                                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
+                               ),
+                               Text(
+                                 parkingCost == 0
+                                     ? 'Parking cost: Free, but limited parking'
+                                     : 'Parking cost (24 hours): £${parkingCost.toStringAsFixed(2)}',
+                                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
+                               ),
+                            ],
+                            if (extraDetails != null) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                extraDetails,
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.blueGrey,
+                                    fontStyle: FontStyle.italic),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      if (isEditable)
+                        TextButton.icon(
+                          onPressed: onEdit,
+                          icon: const Icon(LucideIcons.pencil, size: 14),
+                          label: const Text('Edit'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: const Color(0xFF4F46E5),
+                            textStyle:
+                                const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                    ],
+                  ),
+                  if (segment.cost > 0 || displayDistance != null || emission > 0) ...[
+                    const SizedBox(height: 8),
+                    const Divider(),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        if (segment.cost > 0)
+                          Text(
+                            '£${segment.cost.toStringAsFixed(2)}',
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
+                          )
+                        else
+                          const SizedBox(),
                         if (displayDistance != null || emission > 0)
                           Row(
                             children: [
                               const Icon(LucideIcons.leaf,
-                                  size: 10, color: Colors.green),
+                                  size: 12, color: Colors.green),
                               const SizedBox(width: 4),
                               Text(
                                 '${emission.toStringAsFixed(2)} kg CO₂',
                                 style: const TextStyle(
-                                    fontSize: 10,
+                                    fontSize: 12,
                                     color: Colors.green,
                                     fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
-                        if (extraDetails != null) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            extraDetails,
-                            style: const TextStyle(
-                                fontSize: 11,
-                                color: Colors.blueGrey,
-                                fontStyle: FontStyle.italic),
-                          ),
-                        ],
                       ],
                     ),
-                  ),
-                  if (isEditable)
-                    TextButton.icon(
-                      onPressed: onEdit,
-                      icon: const Icon(LucideIcons.pencil, size: 14),
-                      label: const Text('Edit'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFF4F46E5),
-                        textStyle:
-                            const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                    ),
+                  ]
                 ],
               ),
             ),
@@ -1418,92 +1436,106 @@ class _DetailPageState extends State<DetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Seg 1
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: color1.withValues(alpha: 0.15),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(_getIconData(seg1.iconId), color: color1, size: 20),
-                        ),
-                        const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(seg1.label, style: const TextStyle(fontWeight: FontWeight.bold)),
-                              Text(
-                                '${seg1.time} min${dist1 != null ? ' • ${dist1.toStringAsFixed(1)} miles' : ''}',
-                                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                              // Seg 1
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: color1.withValues(alpha: 0.15),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(_getIconData(seg1.iconId), color: color1, size: 20),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(seg1.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                        Text(
+                                          '${seg1.time} min${dist1 != null ? ' • ${dist1.toStringAsFixed(1)} miles' : ''}',
+                                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                        ),
+                                        if (extraDetails1 != null) ...[
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            extraDetails1,
+                                            style: const TextStyle(fontSize: 11, color: Colors.blueGrey, fontStyle: FontStyle.italic),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                              if (extraDetails1 != null) ...[
-                                const SizedBox(height: 2),
-                                Text(
-                                  extraDetails1,
-                                  style: const TextStyle(fontSize: 11, color: Colors.blueGrey, fontStyle: FontStyle.italic),
+
+                              // Divider / Change
+                              Padding(
+                                padding: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
+                                child: Row(
+                                  children: [
+                                    const Icon(LucideIcons.arrowDown, size: 12, color: Colors.grey),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                       '$changeLabel (${waitTime > 0 ? '$waitTime mins' : 'Immediate'})',
+                                       style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic)
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
+
+                              // Seg 2
+                              Row(
+                                children: [
+                                   Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: color2.withValues(alpha: 0.15),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(_getIconData(seg2.iconId), color: color2, size: 20),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(seg2.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                        Text(
+                                          '${seg2.time} min${dist2 != null ? ' • ${dist2.toStringAsFixed(1)} miles' : ''}',
+                                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         ),
                         if (isEditable && onEdit != null)
-                          TextButton.icon(
-                            onPressed: onEdit,
-                            icon: const Icon(LucideIcons.pencil, size: 14),
-                            label: const Text('Edit'),
-                            style: TextButton.styleFrom(
-                              foregroundColor: const Color(0xFF4F46E5),
-                              textStyle:
-                                  const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: onEdit,
+                              icon: const Icon(LucideIcons.pencil, size: 14),
+                              label: const Text('Edit'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: const Color(0xFF4F46E5),
+                                textStyle:
+                                    const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ),
-                      ],
-                    ),
-
-                    // Divider / Change
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
-                      child: Row(
-                        children: [
-                          const Icon(LucideIcons.arrowDown, size: 12, color: Colors.grey),
-                          const SizedBox(width: 8),
-                          Text(
-                             '$changeLabel (${waitTime > 0 ? '$waitTime mins' : 'Immediate'})',
-                             style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic)
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Seg 2
-                    Row(
-                      children: [
-                         Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: color2.withValues(alpha: 0.15),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(_getIconData(seg2.iconId), color: color2, size: 20),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(seg2.label, style: const TextStyle(fontWeight: FontWeight.bold)),
-                              Text(
-                                '${seg2.time} min${dist2 != null ? ' • ${dist2.toStringAsFixed(1)} miles' : ''}',
-                                style: const TextStyle(fontSize: 12, color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                        ),
                       ],
                     ),
 
@@ -1727,17 +1759,6 @@ class _DetailPageState extends State<DetailPage> {
               ],
             ),
           ),
-          if (i == 0 && isEditable && onEdit != null)
-            TextButton.icon(
-              onPressed: onEdit,
-              icon: const Icon(LucideIcons.pencil, size: 14),
-              label: const Text('Edit'),
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF4F46E5),
-                textStyle:
-                    const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-            ),
         ],
       ));
 
@@ -1794,7 +1815,30 @@ class _DetailPageState extends State<DetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ...contentChildren,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: contentChildren,
+                          ),
+                        ),
+                        if (isEditable && onEdit != null)
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: onEdit,
+                              icon: const Icon(LucideIcons.pencil, size: 14),
+                              label: const Text('Edit'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: const Color(0xFF4F46E5),
+                                textStyle: const TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                     if (totalCost > 0 || totalCo2 > 0) ...[
                       const SizedBox(height: 8),
                       const Divider(),
