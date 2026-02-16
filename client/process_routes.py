@@ -311,8 +311,163 @@ def generate_detail(segments):
     parts = []
     for seg in segments:
         if seg['time'] > 0:
-            parts.append(f"{seg['time']} min {seg['mode']}")
+            mode = seg['mode']
+            if mode in ['access_group', 'train_group'] and 'subSegments' in seg:
+                # Use the mode of the first significant subsegment (e.g. Bus or Train)
+                # Or just construct a detail string from subsegments?
+                # Let's try to map the group mode to something user friendly.
+                # Access group usually ends with a Ride.
+                if mode == 'access_group':
+                    # Find the ride
+                    ride = next((s for s in reversed(seg['subSegments']) if s['mode'] not in ['walk', 'wait']), None)
+                    if ride:
+                        mode = ride['mode']
+                elif mode == 'train_group':
+                    mode = 'train'
+
+            parts.append(f"{seg['time']} min {mode}")
     return ' then '.join(parts)
+
+def group_segments(segments, leg_context):
+    grouped = []
+    i = 0
+    while i < len(segments):
+        seg = segments[i]
+
+        # --- Train Merge Logic ---
+        if seg['iconId'] == ICON_IDS['train']:
+            # Look ahead for next train
+            look_ahead_idx = i + 1
+            accumulated_wait = 0
+            next_train_seg = None
+
+            # Helper to check if a segment is just a walk/transfer
+            def is_transfer(s):
+                return s['mode'] == 'walk' or s['iconId'] == ICON_IDS['footprints']
+
+            temp_idx = look_ahead_idx
+            if temp_idx < len(segments):
+                check_seg = segments[temp_idx]
+                if is_transfer(check_seg):
+                    accumulated_wait += check_seg['time']
+                    temp_idx += 1
+                    if temp_idx < len(segments):
+                        check_seg = segments[temp_idx]
+                    else:
+                        check_seg = None
+
+                if check_seg and check_seg['iconId'] == ICON_IDS['train']:
+                    next_train_seg = check_seg
+                    look_ahead_idx = temp_idx
+
+            if next_train_seg:
+                # Merge Found
+                # Create Group Segment
+                wait_time = next_train_seg.get('waitTime', 0) + accumulated_wait
+
+                group_seg = {
+                    'mode': 'train_group', # Special mode for frontend check
+                    'label': seg['label'], # Use first train label or composite? Frontend logic uses internal.
+                    'lineColor': seg['lineColor'],
+                    'iconId': seg['iconId'],
+                    'time': seg['time'] + next_train_seg['time'], # Exclude wait_time, added separately by frontend
+                    'cost': seg['cost'] + next_train_seg['cost'],
+                    'distance': (seg.get('distance') or 0) + (next_train_seg.get('distance') or 0),
+                    'co2': (seg.get('co2') or 0) + (next_train_seg.get('co2') or 0),
+                    'subSegments': [seg, next_train_seg],
+                    'waitTime': wait_time, # Store calc wait time here
+                    'detail': f"Change at {seg.get('to', 'Station')}", # Helpful detail
+                    # Inherit other props from first segment
+                    'path': (seg.get('path') or []) + (next_train_seg.get('path') or [])
+                }
+
+                grouped.append(group_seg)
+                i = look_ahead_idx + 1 # Skip consumed segments
+                continue
+
+        # --- Access Merge Logic ---
+        # Group [Walk/Wait, ..., Ride]
+        def is_walk_or_wait(s):
+            if s['mode'] == 'wait' and s.get('label') != 'Transfer': return True
+            if s['mode'] == 'walk' or s['iconId'] == ICON_IDS['footprints']: return True
+            return False
+
+        def is_ride(s):
+            if is_walk_or_wait(s): return False
+            if s['mode'] == 'wait' and s.get('label') == 'Transfer': return False
+            return True
+
+        if is_walk_or_wait(seg):
+            # Start of potential group
+            k = i + 1
+            while k < len(segments) and is_walk_or_wait(segments[k]):
+                k += 1
+
+            if k < len(segments):
+                next_seg = segments[k]
+                if is_ride(next_seg):
+                    # Check for Train Merge Conflict
+                    # If ride is Train, check if it would trigger a Train Merge (Train -> Train)
+                    # If so, do NOT access merge.
+                    prevent_merge = False
+                    if next_seg['iconId'] == ICON_IDS['train']:
+                        # Quick look ahead from k
+                        t_idx = k + 1
+                        if t_idx < len(segments):
+                            c_seg = segments[t_idx]
+                            if is_transfer(c_seg):
+                                t_idx += 1
+                                if t_idx < len(segments):
+                                    c_seg = segments[t_idx]
+                                else:
+                                    c_seg = None
+
+                            if c_seg and c_seg['iconId'] == ICON_IDS['train']:
+                                prevent_merge = True
+
+                    if not prevent_merge:
+                        # Proceed with Access Merge
+                        # Scan for trailing walks
+                        end_idx = k + 1
+                        while end_idx < len(segments) and is_walk_or_wait(segments[end_idx]):
+                            end_idx += 1
+
+                        group_list = segments[i:end_idx]
+
+                        total_time = sum([s['time'] + s.get('waitTime', 0) for s in group_list])
+                        total_cost = sum([s['cost'] for s in group_list])
+                        total_dist = sum([s.get('distance', 0) for s in group_list])
+                        total_co2 = sum([s.get('co2', 0) for s in group_list])
+
+                        # Main Segment is the Ride (next_seg)
+                        main_seg = next_seg
+
+                        group_seg = {
+                            'mode': 'access_group',
+                            'label': main_seg['label'],
+                            'lineColor': main_seg['lineColor'],
+                            'iconId': main_seg['iconId'],
+                            'time': total_time,
+                            'cost': total_cost,
+                            'distance': total_dist,
+                            'co2': total_co2,
+                            'subSegments': group_list,
+                            # Path is tricky - maybe concat all?
+                            'path': [pt for s in group_list if s.get('path') for pt in s['path']]
+                        }
+
+                        # Pass through details from main segment
+                        if 'detail' in main_seg: group_seg['detail'] = main_seg['detail']
+
+                        grouped.append(group_seg)
+                        i = end_idx
+                        continue
+
+        # Default: Add single segment
+        grouped.append(seg)
+        i += 1
+
+    return grouped
 
 def parse_option_to_leg(option, group_name, route_id):
     name = option.get('name', 'Unknown')
@@ -584,6 +739,106 @@ def parse_option_to_leg(option, group_name, route_id):
     icon_id = map_icon_id(name, merged_segments)
     line_color = map_line_color(name, merged_segments)
 
+    # --- Enrich Data (Colors, Desc, Recommended) - Moved Up to Populate Segments ---
+    color = None
+    bg_color = None
+    desc = None
+    recommended = None
+    wait_time = None
+    next_bus_in = None
+    platform = None
+
+    # Logic based on ID or Mode (Same as before)
+    if id_val == 'uber' or id_val == 'last_uber':
+        color = 'text-black'
+        bg_color = 'bg-zinc-100'
+        if 'Group 1' in group_name:
+            desc = 'Fastest door-to-door.'
+            wait_time = 4
+        elif 'Group 4' in group_name:
+            desc = 'Reliable final leg.'
+
+    elif id_val == 'bus' or id_val == 'last_bus':
+        color = 'text-brand-dark'
+        bg_color = 'bg-brand-light'
+        if 'Group 1' in group_name:
+            desc = 'Best balance.'
+            recommended = True
+            next_bus_in = 12
+        elif 'Group 4' in group_name:
+            desc = 'Short walk required.'
+            recommended = True
+
+    elif id_val == 'drive_park' or id_val == 'drive':
+        color = 'text-zinc-800'
+        bg_color = 'bg-zinc-100'
+        desc = 'Flexibility.'
+
+    elif id_val == 'train_walk_headingley':
+        color = 'text-slate-600'
+        bg_color = 'bg-slate-100'
+        desc = 'Walking transfer.'
+
+    elif id_val == 'train_uber_headingley':
+        color = 'text-slate-600'
+        bg_color = 'bg-slate-100'
+        desc = 'Fast transfer.'
+        wait_time = 3
+
+    elif id_val == 'cycle' or id_val == 'last_cycle':
+        color = 'text-blue-600'
+        bg_color = 'bg-blue-100'
+        if 'Group 1' in group_name:
+             desc = 'Zero emissions.'
+        elif 'Group 4' in group_name:
+             desc = 'Scenic route.'
+
+    elif id_val == 'train_main':
+        color = 'text-[#713e8d]'
+        bg_color = 'bg-indigo-100'
+        platform = 4
+
+    # Default Logic (Same as before)
+    if not color:
+        if icon_id == ICON_IDS['train']:
+            color = 'text-slate-600'
+            bg_color = 'bg-slate-100'
+        elif icon_id == ICON_IDS['bus']:
+            color = 'text-brand-dark'
+            bg_color = 'bg-brand-light'
+        elif icon_id == ICON_IDS['car']:
+            color = 'text-black'
+            bg_color = 'bg-zinc-100'
+        elif icon_id == ICON_IDS['bike']:
+            color = 'text-blue-600'
+            bg_color = 'bg-blue-100'
+        elif icon_id == ICON_IDS['footprints']:
+            color = 'text-slate-600'
+            bg_color = 'bg-slate-100'
+
+    # --- Populate Segment Details BEFORE Grouping ---
+    for seg in merged_segments:
+        if seg['iconId'] == ICON_IDS['train'] and platform:
+            seg['detail'] = f'Platform {platform}'
+        elif seg['iconId'] == ICON_IDS['bus'] and next_bus_in:
+            seg['detail'] = f'Bus every {next_bus_in} mins'
+        elif (seg['iconId'] == ICON_IDS['car'] or seg['mode'] == 'taxi') and wait_time:
+            seg['detail'] = f'Est wait: {wait_time} min'
+        elif seg['iconId'] == ICON_IDS['bike'] and desc:
+            # Maybe don't overwrite existing detail?
+            pass
+
+    # --- Apply Grouping ---
+    # Only group if not truncated (Route 2 Access)
+    should_group = True
+    if route_id == 'route2' and 'Access Options' in group_name:
+        # Check truncation logic later, but grouping might still be valid for what remains?
+        # Actually Route 2 Access options logic filters segments.
+        # Let's keep grouping.
+        pass
+
+    merged_segments = group_segments(merged_segments, {'platform': platform, 'next_bus': next_bus_in})
+
     # Generate Detail (Truncated for Route 2 Access Options)
     detail_segments = merged_segments
     if route_id == 'route2' and 'Access Options' in group_name:
@@ -606,8 +861,13 @@ def parse_option_to_leg(option, group_name, route_id):
     final_label = name
     if route_id == 'route1':
         # Only rename First Mile options (Group 1)
-        if 'Group 1' in group_name and name in ['Bus', 'Cycle', 'Drive', 'Uber']:
-            final_label = f'{name} to Leeds'
+        if 'Group 1' in group_name:
+             if name == 'Drive':
+                 final_label = 'Drive & Park'
+                 id_val = 'drive_park' # Override ID to match frontend expectation
+             elif name in ['Bus', 'Cycle', 'Uber']:
+                 final_label = f'{name} to Leeds'
+
     elif route_id == 'route2':
         final_label = name.replace(' + Train', '')
 
@@ -623,7 +883,14 @@ def parse_option_to_leg(option, group_name, route_id):
         'iconId': icon_id,
         'lineColor': line_color,
         'segments': merged_segments,
-        'co2': float(f"{total_co2:.2f}")
+        'co2': float(f"{total_co2:.2f}"),
+        'color': color,
+        'bgColor': bg_color,
+        'desc': desc,
+        'recommended': recommended,
+        'waitTime': wait_time,
+        'nextBusIn': next_bus_in,
+        'platform': platform
     }
 
 def process_file(input_path, output_path, route_id):
