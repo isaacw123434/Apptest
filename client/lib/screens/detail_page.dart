@@ -353,12 +353,8 @@ class _DetailPageState extends State<DetailPage> {
         ? _initData!.segmentOptions.firstMile
         : _initData!.segmentOptions.lastMile;
 
-    String currentSuffix = _getStationSuffix(currentLeg.label);
-
-    // Filter options with same suffix
-    List<Leg> filteredOptions = allOptions.where((leg) {
-      return _getStationSuffix(leg.label) == currentSuffix;
-    }).toList();
+    // Use all options initially
+    List<Leg> filteredOptions = allOptions;
 
     // Filter by selected modes
     if (widget.selectedModes != null) {
@@ -760,7 +756,7 @@ class _DetailPageState extends State<DetailPage> {
                                segments: mergeGroup,
                                isEditable: canEdit,
                                onEdit: () {
-                                  if (mergeGroup.any((s) => s.iconId == 'train')) {
+                                  if (mergeGroup.any((s) => s.iconId == 'train' || _isParkAndRideBus(s))) {
                                     _showTrainEdit(leg, legType);
                                   } else {
                                     _showAccessEdit(leg, legType);
