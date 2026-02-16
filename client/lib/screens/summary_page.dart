@@ -896,10 +896,25 @@ class _SummaryPageState extends State<SummaryPage> {
   }
 
   List<Segment> _processSegments(List<Segment> rawSegments) {
+    List<Segment> unwrapped = [];
+
+    // 0. Unwrap Groups (Train Groups / Access Groups)
+    for (var seg in rawSegments) {
+      if (seg.subSegments != null && seg.subSegments!.isNotEmpty) {
+        unwrapped.addAll(seg.subSegments!);
+        // If we want to show the wait time as a gap or segment, we could add it here.
+        // But the schema usually just shows adjacent blocks.
+        // If waitTime > 0, we could add a spacer?
+        // For now, just unwrap so they appear as separate blocks.
+      } else {
+        unwrapped.add(seg);
+      }
+    }
+
     List<Segment> processed = [];
 
     // 1. Filter out short walks (<= 2 mins), Parking, and Transfer
-    for (var seg in rawSegments) {
+    for (var seg in unwrapped) {
       bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
       if (isWalk && seg.time <= 2) {
         continue;
@@ -908,14 +923,6 @@ class _SummaryPageState extends State<SummaryPage> {
         continue;
       }
       if (seg.mode.toLowerCase() == 'wait' || seg.label.toLowerCase() == 'transfer') {
-        // Only filter if it's the standalone transfer we added (usually has time 10)
-        // But the request says "Transfer should not show up", so we filter all.
-        // However, we must ensure we don't break the "Walk - Transfer - Walk" merge logic if that relied on a specific transfer segment.
-        // The merge logic below runs on 'processed' list. If we filter here, the merge logic won't see it.
-        // But "Walk - Transfer - Walk" usually implies an interchange within the journey.
-        // If we filter it here, we might end up with Walk - Walk.
-        // The request specifically talks about the "Transfer" box (probably the 10 min one).
-        // Let's filter it.
         continue;
       }
       processed.add(seg);
@@ -954,47 +961,7 @@ class _SummaryPageState extends State<SummaryPage> {
     }
     processed = mergedWalks;
 
-    // 3. Merge Consecutive Trains (CrossCountry + EMR only)
-    List<Segment> mergedTrains = [];
-    i = 0;
-    while (i < processed.length) {
-      final seg = processed[i];
-      bool isTrain = seg.iconId == 'train';
-
-      if (isTrain && i + 1 < processed.length) {
-         final next = processed[i + 1];
-         bool isNextTrain = next.iconId == 'train';
-
-         if (isNextTrain) {
-           String label1 = seg.label.replaceAll('E M R', 'EMR');
-           String label2 = next.label.replaceAll('E M R', 'EMR');
-
-           bool isMergeable = (label1.contains('CrossCountry') && label2.contains('EMR')) ||
-                                      (label1.contains('EMR') && label2.contains('CrossCountry')) ||
-                                      (label1.contains('Northern') && label2.contains('Northern')) ||
-                                      (label1.contains('Northern') && label2.contains('Transpennine')) ||
-                                      (label1.contains('Transpennine') && label2.contains('Northern'));
-
-           if (isMergeable) {
-             // Merge
-             mergedTrains.add(Segment(
-               mode: 'train',
-               label: '$label1 + $label2',
-               lineColor: seg.lineColor,
-               iconId: 'train',
-               time: seg.time + next.time,
-               to: next.to,
-               detail: seg.detail,
-             ));
-             i += 2;
-             continue;
-           }
-         }
-      }
-      mergedTrains.add(seg);
-      i++;
-    }
-    processed = mergedTrains;
+    // 3. Removed "Merge Consecutive Trains" logic to allow changes to be visible.
 
     // 4. Final pass: Fix EMR labels (if not merged)
     List<Segment> finalPass = [];
