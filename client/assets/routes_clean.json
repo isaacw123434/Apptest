@@ -3,7 +3,7 @@
     "firstMile": [
       {
         "id": "cycle",
-        "label": "Cycle to Leeds",
+        "label": "Cycle to Leeds Station",
         "detail": "18 min bike",
         "time": 18,
         "cost": 0.0,
@@ -2107,7 +2107,7 @@
       },
       {
         "id": "drive_park",
-        "label": "Drive & Park",
+        "label": "Drive to Leeds Station",
         "detail": "14 min car",
         "time": 14,
         "cost": 24.53985484732872,
@@ -3699,7 +3699,7 @@
       },
       {
         "id": "bus",
-        "label": "Bus to Leeds",
+        "label": "Bus to Leeds Station",
         "detail": "38 min bus",
         "time": 38,
         "cost": 2.0,
@@ -6787,7 +6787,7 @@
       },
       {
         "id": "uber",
-        "label": "Uber to Leeds",
+        "label": "Uber to Leeds Station",
         "detail": "14 min car",
         "time": 14,
         "cost": 8.97,
@@ -8380,7 +8380,7 @@
       },
       {
         "id": "train_walk_headingley",
-        "label": "Walk + Train",
+        "label": "Walk to Headingley Station then Train to Leeds",
         "detail": "27 min train",
         "time": 27,
         "cost": 3.4,
@@ -11116,7 +11116,7 @@
       },
       {
         "id": "train_cycle_headingley",
-        "label": "Cycle + Train",
+        "label": "Cycle to Headingley Station then Train to Leeds",
         "detail": "6 min bike then 11 min train",
         "time": 17,
         "cost": 0.0,
@@ -12558,7 +12558,7 @@
       },
       {
         "id": "train_uber_headingley",
-        "label": "Uber + Train",
+        "label": "Uber to Headingley Station then Train to Leeds",
         "detail": "4 min car then 11 min train",
         "time": 15,
         "cost": 9.32,
@@ -30555,7 +30555,7 @@
     "lastMile": [
       {
         "id": "bus",
-        "label": "Bus",
+        "label": "Bus to East Leake",
         "detail": "13 min bus",
         "time": 13,
         "cost": 2.0,
@@ -33899,7 +33899,7 @@
       },
       {
         "id": "uber",
-        "label": "Uber",
+        "label": "Uber to East Leake",
         "detail": "9 min car",
         "time": 9,
         "cost": 14.89,
@@ -35823,7 +35823,7 @@
       },
       {
         "id": "cycle",
-        "label": "Cycle",
+        "label": "Cycle to East Leake",
         "detail": "21 min bike",
         "time": 21,
         "cost": 0.0,
@@ -61092,7 +61092,7 @@
       "id": "cycle-bus",
       "leg1": {
         "id": "cycle",
-        "label": "Cycle to Leeds",
+        "label": "Cycle to Leeds Station",
         "detail": "18 min bike",
         "time": 18,
         "cost": 0.0,
@@ -63196,7 +63196,7 @@
       },
       "leg3": {
         "id": "bus",
-        "label": "Bus",
+        "label": "Bus to East Leake",
         "detail": "13 min bus",
         "time": 13,
         "cost": 2.0,
@@ -66552,7 +66552,7 @@
       "id": "cycle-uber",
       "leg1": {
         "id": "cycle",
-        "label": "Cycle to Leeds",
+        "label": "Cycle to Leeds Station",
         "detail": "18 min bike",
         "time": 18,
         "cost": 0.0,
@@ -68656,7 +68656,7 @@
       },
       "leg3": {
         "id": "uber",
-        "label": "Uber",
+        "label": "Uber to East Leake",
         "detail": "9 min car",
         "time": 9,
         "cost": 14.89,
@@ -70592,7 +70592,7 @@
       "id": "cycle-cycle",
       "leg1": {
         "id": "cycle",
-        "label": "Cycle to Leeds",
+        "label": "Cycle to Leeds Station",
         "detail": "18 min bike",
         "time": 18,
         "cost": 0.0,
@@ -72696,7 +72696,7 @@
       },
       "leg3": {
         "id": "cycle",
-        "label": "Cycle",
+        "label": "Cycle to East Leake",
         "detail": "21 min bike",
         "time": 21,
         "cost": 0.0,
@@ -74876,7 +74876,7 @@
       "id": "drive_park-bus",
       "leg1": {
         "id": "drive_park",
-        "label": "Drive & Park",
+        "label": "Drive to Leeds Station",
         "detail": "14 min car",
         "time": 14,
         "cost": 24.53985484732872,
@@ -76468,7 +76468,7 @@
       },
       "leg3": {
         "id": "bus",
-        "label": "Bus",
+        "label": "Bus to East Leake",
         "detail": "13 min bus",
         "time": 13,
         "cost": 2.0,
@@ -79824,7 +79824,7 @@
       "id": "drive_park-uber",
       "leg1": {
         "id": "drive_park",
-        "label": "Drive & Park",
+        "label": "Drive to Leeds Station",
         "detail": "14 min car",
         "time": 14,
         "cost": 24.53985484732872,
@@ -81416,7 +81416,7 @@
       },
       "leg3": {
         "id": "uber",
-        "label": "Uber",
+        "label": "Uber to East Leake",
         "detail": "9 min car",
         "time": 9,
         "cost": 14.89,
@@ -83352,7 +83352,7 @@
       "id": "drive_park-cycle",
       "leg1": {
         "id": "drive_park",
-        "label": "Drive & Park",
+        "label": "Drive to Leeds Station",
         "detail": "14 min car",
         "time": 14,
         "cost": 24.53985484732872,
@@ -84944,7 +84944,7 @@
       },
       "leg3": {
         "id": "cycle",
-        "label": "Cycle",
+        "label": "Cycle to East Leake",
         "detail": "21 min bike",
         "time": 21,
         "cost": 0.0,
@@ -87124,7 +87124,7 @@
       "id": "bus-bus",
       "leg1": {
         "id": "bus",
-        "label": "Bus to Leeds",
+        "label": "Bus to Leeds Station",
         "detail": "38 min bus",
         "time": 38,
         "cost": 2.0,
@@ -90212,7 +90212,7 @@
       },
       "leg3": {
         "id": "bus",
-        "label": "Bus",
+        "label": "Bus to East Leake",
         "detail": "13 min bus",
         "time": 13,
         "cost": 2.0,
@@ -93568,7 +93568,7 @@
       "id": "bus-uber",
       "leg1": {
         "id": "bus",
-        "label": "Bus to Leeds",
+        "label": "Bus to Leeds Station",
         "detail": "38 min bus",
         "time": 38,
         "cost": 2.0,
@@ -96656,7 +96656,7 @@
       },
       "leg3": {
         "id": "uber",
-        "label": "Uber",
+        "label": "Uber to East Leake",
         "detail": "9 min car",
         "time": 9,
         "cost": 14.89,
@@ -98592,7 +98592,7 @@
       "id": "uber-bus",
       "leg1": {
         "id": "uber",
-        "label": "Uber to Leeds",
+        "label": "Uber to Leeds Station",
         "detail": "14 min car",
         "time": 14,
         "cost": 8.97,
@@ -100185,7 +100185,7 @@
       },
       "leg3": {
         "id": "bus",
-        "label": "Bus",
+        "label": "Bus to East Leake",
         "detail": "13 min bus",
         "time": 13,
         "cost": 2.0,
@@ -103541,7 +103541,7 @@
       "id": "uber-uber",
       "leg1": {
         "id": "uber",
-        "label": "Uber to Leeds",
+        "label": "Uber to Leeds Station",
         "detail": "14 min car",
         "time": 14,
         "cost": 8.97,
@@ -105134,7 +105134,7 @@
       },
       "leg3": {
         "id": "uber",
-        "label": "Uber",
+        "label": "Uber to East Leake",
         "detail": "9 min car",
         "time": 9,
         "cost": 14.89,
@@ -107070,7 +107070,7 @@
       "id": "train_walk_headingley-bus",
       "leg1": {
         "id": "train_walk_headingley",
-        "label": "Walk + Train",
+        "label": "Walk to Headingley Station then Train to Leeds",
         "detail": "27 min train",
         "time": 27,
         "cost": 3.4,
@@ -109806,7 +109806,7 @@
       },
       "leg3": {
         "id": "bus",
-        "label": "Bus",
+        "label": "Bus to East Leake",
         "detail": "13 min bus",
         "time": 13,
         "cost": 2.0,
@@ -113162,7 +113162,7 @@
       "id": "train_walk_headingley-uber",
       "leg1": {
         "id": "train_walk_headingley",
-        "label": "Walk + Train",
+        "label": "Walk to Headingley Station then Train to Leeds",
         "detail": "27 min train",
         "time": 27,
         "cost": 3.4,
@@ -115898,7 +115898,7 @@
       },
       "leg3": {
         "id": "uber",
-        "label": "Uber",
+        "label": "Uber to East Leake",
         "detail": "9 min car",
         "time": 9,
         "cost": 14.89,
@@ -117834,7 +117834,7 @@
       "id": "train_cycle_headingley-bus",
       "leg1": {
         "id": "train_cycle_headingley",
-        "label": "Cycle + Train",
+        "label": "Cycle to Headingley Station then Train to Leeds",
         "detail": "6 min bike then 11 min train",
         "time": 17,
         "cost": 0.0,
@@ -119276,7 +119276,7 @@
       },
       "leg3": {
         "id": "bus",
-        "label": "Bus",
+        "label": "Bus to East Leake",
         "detail": "13 min bus",
         "time": 13,
         "cost": 2.0,
@@ -122632,7 +122632,7 @@
       "id": "train_cycle_headingley-uber",
       "leg1": {
         "id": "train_cycle_headingley",
-        "label": "Cycle + Train",
+        "label": "Cycle to Headingley Station then Train to Leeds",
         "detail": "6 min bike then 11 min train",
         "time": 17,
         "cost": 0.0,
@@ -124074,7 +124074,7 @@
       },
       "leg3": {
         "id": "uber",
-        "label": "Uber",
+        "label": "Uber to East Leake",
         "detail": "9 min car",
         "time": 9,
         "cost": 14.89,
@@ -126010,7 +126010,7 @@
       "id": "train_cycle_headingley-cycle",
       "leg1": {
         "id": "train_cycle_headingley",
-        "label": "Cycle + Train",
+        "label": "Cycle to Headingley Station then Train to Leeds",
         "detail": "6 min bike then 11 min train",
         "time": 17,
         "cost": 0.0,
@@ -127452,7 +127452,7 @@
       },
       "leg3": {
         "id": "cycle",
-        "label": "Cycle",
+        "label": "Cycle to East Leake",
         "detail": "21 min bike",
         "time": 21,
         "cost": 0.0,
@@ -129632,7 +129632,7 @@
       "id": "train_uber_headingley-bus",
       "leg1": {
         "id": "train_uber_headingley",
-        "label": "Uber + Train",
+        "label": "Uber to Headingley Station then Train to Leeds",
         "detail": "4 min car then 11 min train",
         "time": 15,
         "cost": 9.32,
@@ -131035,7 +131035,7 @@
       },
       "leg3": {
         "id": "bus",
-        "label": "Bus",
+        "label": "Bus to East Leake",
         "detail": "13 min bus",
         "time": 13,
         "cost": 2.0,
@@ -134391,7 +134391,7 @@
       "id": "train_uber_headingley-uber",
       "leg1": {
         "id": "train_uber_headingley",
-        "label": "Uber + Train",
+        "label": "Uber to Headingley Station then Train to Leeds",
         "detail": "4 min car then 11 min train",
         "time": 15,
         "cost": 9.32,
@@ -135794,7 +135794,7 @@
       },
       "leg3": {
         "id": "uber",
-        "label": "Uber",
+        "label": "Uber to East Leake",
         "detail": "9 min car",
         "time": 9,
         "cost": 14.89,

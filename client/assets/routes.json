@@ -4,7 +4,7 @@
       "name": "Group 1: Access to Leeds Station",
       "options": [
         {
-          "name": "Cycle",
+          "name": "Cycle to Leeds Station",
           "legs": [
             {
               "mode": "bicycling",
@@ -265,7 +265,7 @@
           ]
         },
         {
-          "name": "Drive",
+          "name": "Drive to Leeds Station",
           "legs": [
             {
               "mode": "driving",
@@ -574,7 +574,7 @@
           ]
         },
         {
-          "name": "Bus",
+          "name": "Bus to Leeds Station",
           "legs": [
             {
               "mode": "walking",
@@ -634,7 +634,7 @@
           ]
         },
         {
-          "name": "Uber",
+          "name": "Uber to Leeds Station",
           "legs": [
             {
               "mode": "driving",
@@ -948,7 +948,7 @@
       "name": "Group 2: Access via Headingley",
       "options": [
         {
-          "name": "Walk + Train",
+          "name": "Walk to Headingley Station then Train to Leeds",
           "legs": [
             {
               "mode": "walking",
@@ -1136,7 +1136,7 @@
           ]
         },
         {
-          "name": "Cycle + Train",
+          "name": "Cycle to Headingley Station then Train to Leeds",
           "legs": [
             {
               "mode": "bicycling",
@@ -1324,7 +1324,7 @@
           ]
         },
         {
-          "name": "Uber + Train",
+          "name": "Uber to Headingley Station then Train to Leeds",
           "legs": [
             {
               "mode": "driving",
@@ -1601,7 +1601,7 @@
       "name": "Group 4: Final Mile",
       "options": [
         {
-          "name": "Bus",
+          "name": "Bus to East Leake",
           "legs": [
             {
               "mode": "walking",
@@ -1645,7 +1645,7 @@
           ]
         },
         {
-          "name": "Uber",
+          "name": "Uber to East Leake",
           "legs": [
             {
               "mode": "driving",
@@ -1826,7 +1826,7 @@
           ]
         },
         {
-          "name": "Cycle",
+          "name": "Cycle to East Leake",
           "legs": [
             {
               "mode": "bicycling",
