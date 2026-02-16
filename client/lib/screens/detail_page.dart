@@ -797,13 +797,20 @@ class _DetailPageState extends State<DetailPage> {
              }
         }
 
-        // Walk -> Bus -> Walk Merge
-        if (!merged && (seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints')) {
-             if (i + 2 < segments.length) {
+        // Multi-Mode Access Merge (Walk/Cycle/Car -> Bus/Train -> Walk)
+        if (!merged) {
+             bool startMatch = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints' ||
+                               seg.mode.toLowerCase() == 'bicycling' || seg.iconId == 'bike' ||
+                               seg.mode.toLowerCase() == 'driving' || seg.iconId == 'car' || seg.mode == 'taxi';
+
+             if (startMatch && i + 2 < segments.length) {
                  final seg2 = segments[i+1];
                  final seg3 = segments[i+2];
 
-                 if (seg2.iconId == 'bus' && (seg3.mode.toLowerCase() == 'walk' || seg3.iconId == 'footprints')) {
+                 bool midMatch = seg2.iconId == 'bus' || seg2.iconId == 'train';
+                 bool endMatch = seg3.mode.toLowerCase() == 'walk' || seg3.iconId == 'footprints';
+
+                 if (midMatch && endMatch) {
                      merged = true;
 
                      // Helper to calc distance
@@ -823,7 +830,15 @@ class _DetailPageState extends State<DetailPage> {
                          distances: [distance, getDist(seg2), getDist(seg3)],
                          isEditable: canEdit,
                          onEdit: () {
-                             _showAccessEdit(leg, legType);
+                             if (seg2.iconId == 'train') {
+                                // If it's a train involved, use train edit?
+                                // Usually Access Options are swapped whole.
+                                // But if it's "Walk+Train" vs "Uber+Train", it's an access option.
+                                // _showAccessEdit handles swapping the whole leg from firstMile/lastMile lists.
+                                _showAccessEdit(leg, legType);
+                             } else {
+                                _showAccessEdit(leg, legType);
+                             }
                          },
                          onTap: () {
                             _zoomToSegment(seg2);
