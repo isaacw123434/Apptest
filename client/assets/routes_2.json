@@ -4,7 +4,7 @@
       "name": "Group 2: Access Options",
       "options": [
         {
-          "name": "Drive to Brough + Train",
+          "name": "Drive to Brough Station + Train",
           "legs": [
             {
               "mode": "DRIVING",
@@ -87,7 +87,7 @@
           ]
         },
         {
-          "name": "Uber to Brough + Train",
+          "name": "Uber to Brough Station + Train",
           "legs": [
             {
               "mode": "DRIVING",
@@ -170,7 +170,7 @@
           ]
         },
         {
-          "name": "Cycle to Brough + Train",
+          "name": "Cycle to Brough Station + Train",
           "legs": [
             {
               "mode": "BICYCLING",
@@ -253,7 +253,7 @@
           ]
         },
         {
-          "name": "Bus to Brough + Train",
+          "name": "Bus to Brough Station + Train",
           "legs": [
             {
               "mode": "WALKING",
@@ -391,7 +391,7 @@
           ]
         },
         {
-          "name": "Drive to York + Train",
+          "name": "Drive to York Station + Train",
           "legs": [
             {
               "mode": "DRIVING",
@@ -485,7 +485,7 @@
           ]
         },
         {
-          "name": "Uber to York + Train",
+          "name": "Uber to York Station + Train",
           "legs": [
             {
               "mode": "DRIVING",
@@ -579,7 +579,7 @@
           ]
         },
         {
-          "name": "Cycle to York + Train",
+          "name": "Cycle to York Station + Train",
           "legs": [
             {
               "mode": "BICYCLING",
@@ -673,7 +673,7 @@
           ]
         },
         {
-          "name": "Bus to York + Train",
+          "name": "Bus to York Station + Train",
           "legs": [
             {
               "mode": "WALKING",
@@ -834,7 +834,7 @@
           ]
         },
         {
-          "name": "Drive to Beverley + Train",
+          "name": "Drive to Beverley Station + Train",
           "legs": [
             {
               "mode": "DRIVING",
@@ -917,7 +917,7 @@
           ]
         },
         {
-          "name": "Uber to Beverley + Train",
+          "name": "Uber to Beverley Station + Train",
           "legs": [
             {
               "mode": "DRIVING",
@@ -1000,7 +1000,7 @@
           ]
         },
         {
-          "name": "Cycle to Beverley + Train",
+          "name": "Cycle to Beverley Station + Train",
           "legs": [
             {
               "mode": "BICYCLING",
@@ -1083,7 +1083,7 @@
           ]
         },
         {
-          "name": "Walk to Beverley + Train",
+          "name": "Walk to Beverley Station + Train",
           "legs": [
             {
               "mode": "WALKING",
@@ -1166,7 +1166,7 @@
           ]
         },
         {
-          "name": "Drive to Hull + Train",
+          "name": "Drive to Hull Station + Train",
           "legs": [
             {
               "mode": "DRIVING",
@@ -1260,7 +1260,7 @@
           ]
         },
         {
-          "name": "Uber to Hull + Train",
+          "name": "Uber to Hull Station + Train",
           "legs": [
             {
               "mode": "DRIVING",
@@ -1354,7 +1354,7 @@
           ]
         },
         {
-          "name": "Cycle to Hull + Train",
+          "name": "Cycle to Hull Station + Train",
           "legs": [
             {
               "mode": "BICYCLING",
@@ -1448,7 +1448,7 @@
           ]
         },
         {
-          "name": "Bus to Hull + Train",
+          "name": "Bus to Hull Station + Train",
           "legs": [
             {
               "mode": "WALKING",
@@ -1597,7 +1597,7 @@
           ]
         },
         {
-          "name": "Drive to Eastrington + Train",
+          "name": "Drive to Eastrington Station + Train",
           "legs": [
             {
               "mode": "DRIVING",
@@ -1680,7 +1680,7 @@
           ]
         },
         {
-          "name": "Uber to Eastrington + Train",
+          "name": "Uber to Eastrington Station + Train",
           "legs": [
             {
               "mode": "DRIVING",
@@ -1763,7 +1763,7 @@
           ]
         },
         {
-          "name": "Cycle to Eastrington + Train",
+          "name": "Cycle to Eastrington Station + Train",
           "legs": [
             {
               "mode": "BICYCLING",
@@ -1846,7 +1846,7 @@
           ]
         },
         {
-          "name": "Bus to Eastrington + Train",
+          "name": "Bus to Eastrington Station + Train",
           "legs": [
             {
               "mode": "WALKING",
@@ -2331,7 +2331,7 @@
       "name": "Group 4: Final Mile",
       "options": [
         {
-          "name": "Cycle",
+          "name": "Cycle to Wellington Place",
           "legs": [
             {
               "mode": "BICYCLING",
@@ -2346,7 +2346,7 @@
           ]
         },
         {
-          "name": "Walk",
+          "name": "Walk to Wellington Place",
           "legs": [
             {
               "mode": "WALKING",
