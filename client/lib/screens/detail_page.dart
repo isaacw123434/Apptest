@@ -686,42 +686,6 @@ class _DetailPageState extends State<DetailPage> {
       final bool canEdit = legType != 'mainLeg';
       final segments = leg.segments;
 
-      if ((legType == 'firstMile' || legType == 'lastMile') &&
-          segments.length > 1) {
-        // Count actual ride segments (exclude walk/wait)
-        int rideCount = segments.where((s) {
-          final isWalk = s.mode.toLowerCase() == 'walk' || s.iconId == 'footprints';
-          final isWait = s.mode.toLowerCase() == 'wait' || s.iconId == 'clock';
-          return !isWalk && !isWait;
-        }).length;
-
-        // Only merge if there is at most 1 ride segment (e.g. Walk-Bus-Walk)
-        // Do not merge if there are multiple rides (e.g. Drive-Train, Uber-Train)
-        if (rideCount <= 1) {
-          int totalTime = 0;
-          for (var s in segments) {
-            totalTime += s.time;
-            if (s.waitTime != null) totalTime += s.waitTime!;
-          }
-
-          children.add(_buildMultiSegmentConnection(
-            segments: segments,
-            isEditable: canEdit,
-            onEdit: () {
-              if (segments.any((s) => s.iconId == 'train')) {
-                _showTrainEdit(leg, legType);
-              } else {
-                _showAccessEdit(leg, legType);
-              }
-            },
-            onTap: () => _zoomToSegments(segments),
-          ));
-
-          currentMinutes += totalTime;
-          return;
-        }
-      }
-
       for (int i = 0; i < segments.length; i++) {
         final seg = segments[i];
         final isFirst = i == 0;
@@ -732,6 +696,91 @@ class _DetailPageState extends State<DetailPage> {
              children.add(_buildTransferSegment(seg));
              currentMinutes += seg.time;
              continue; // Skip building regular connection and node
+        }
+
+        // --- ACCESS MERGE DETECTION ---
+        // Merge [Walk/Wait... -> Ride] into MultiSegmentConnection
+        // But only if the Ride is NOT a Train that triggers a Train Merge
+        bool isWalkOrWait(Segment s) => (s.mode.toLowerCase() == 'walk' || s.iconId == 'footprints') || (s.mode == 'wait' && s.label != 'Transfer');
+        bool isRide(Segment s) => !isWalkOrWait(s) && !(s.mode == 'wait' && s.label == 'Transfer');
+
+        if (isWalkOrWait(seg) && (legType == 'firstMile' || legType == 'lastMile')) {
+             int k = i + 1;
+             while (k < segments.length && isWalkOrWait(segments[k])) {
+                 k++;
+             }
+
+             if (k < segments.length) {
+                 final nextSeg = segments[k];
+                 if (isRide(nextSeg)) {
+                      // Candidate for merge: segments[i...k]
+                      bool preventMerge = false;
+                      // Check if nextSeg is Train and Triggers Merge (Look ahead)
+                      if (nextSeg.iconId == 'train') {
+                           int lookAheadIndex = k + 1;
+                           int tempIndex = lookAheadIndex;
+                           Segment? nextTrainSeg;
+                           if (tempIndex < segments.length) {
+                               Segment? checkSeg = segments[tempIndex];
+                               // Skip walk/transfer logic similar to train merge check
+                               if (checkSeg.mode == 'walk' || checkSeg.iconId == 'footprints') {
+                                   tempIndex++;
+                                   if (tempIndex < segments.length) {
+                                       checkSeg = segments[tempIndex];
+                                   } else {
+                                       checkSeg = null;
+                                   }
+                               }
+                               if (checkSeg != null && checkSeg.iconId == 'train') {
+                                   nextTrainSeg = checkSeg;
+                               }
+                           }
+
+                           if (nextTrainSeg != null) {
+                               preventMerge = true;
+                           }
+                      }
+
+                      if (!preventMerge) {
+                           List<Segment> mergeGroup = segments.sublist(i, k + 1);
+
+                           int totalTime = 0;
+                           for(var s in mergeGroup) {
+                               totalTime += s.time + (s.waitTime ?? 0);
+                           }
+
+                           children.add(_buildMultiSegmentConnection(
+                               segments: mergeGroup,
+                               isEditable: canEdit,
+                               onEdit: () {
+                                  if (mergeGroup.any((s) => s.iconId == 'train')) {
+                                    _showTrainEdit(leg, legType);
+                                  } else {
+                                    _showAccessEdit(leg, legType);
+                                  }
+                               },
+                               onTap: () => _zoomToSegments(mergeGroup),
+                           ));
+
+                           currentMinutes += totalTime;
+
+                           // Add Node if needed (if not last segment of whole leg)
+                           if (k < segments.length - 1) {
+                               Segment lastSeg = mergeGroup.last;
+                               Segment nextVis = segments[k+1];
+                               children.add(_buildNode(
+                                  lastSeg.to ?? 'Stop',
+                                  _formatMinutes(currentMinutes),
+                                  prevColor: _parseColor(lastSeg.lineColor),
+                                  nextColor: _parseColor(nextVis.lineColor)
+                               ));
+                           }
+
+                           i = k;
+                           continue;
+                      }
+                 }
+             }
         }
 
         // Calculate Distance
