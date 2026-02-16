@@ -688,27 +688,38 @@ class _DetailPageState extends State<DetailPage> {
 
       if ((legType == 'firstMile' || legType == 'lastMile') &&
           segments.length > 1) {
-        int totalTime = 0;
-        for (var s in segments) {
-          totalTime += s.time;
-          if (s.waitTime != null) totalTime += s.waitTime!;
+        // Count actual ride segments (exclude walk/wait)
+        int rideCount = segments.where((s) {
+          final isWalk = s.mode.toLowerCase() == 'walk' || s.iconId == 'footprints';
+          final isWait = s.mode.toLowerCase() == 'wait' || s.iconId == 'clock';
+          return !isWalk && !isWait;
+        }).length;
+
+        // Only merge if there is at most 1 ride segment (e.g. Walk-Bus-Walk)
+        // Do not merge if there are multiple rides (e.g. Drive-Train, Uber-Train)
+        if (rideCount <= 1) {
+          int totalTime = 0;
+          for (var s in segments) {
+            totalTime += s.time;
+            if (s.waitTime != null) totalTime += s.waitTime!;
+          }
+
+          children.add(_buildMultiSegmentConnection(
+            segments: segments,
+            isEditable: canEdit,
+            onEdit: () {
+              if (segments.any((s) => s.iconId == 'train')) {
+                _showTrainEdit(leg, legType);
+              } else {
+                _showAccessEdit(leg, legType);
+              }
+            },
+            onTap: () => _zoomToSegments(segments),
+          ));
+
+          currentMinutes += totalTime;
+          return;
         }
-
-        children.add(_buildMultiSegmentConnection(
-          segments: segments,
-          isEditable: canEdit,
-          onEdit: () {
-            if (segments.any((s) => s.iconId == 'train')) {
-              _showTrainEdit(leg, legType);
-            } else {
-              _showAccessEdit(leg, legType);
-            }
-          },
-          onTap: () => _zoomToSegments(segments),
-        ));
-
-        currentMinutes += totalTime;
-        return;
       }
 
       for (int i = 0; i < segments.length; i++) {
