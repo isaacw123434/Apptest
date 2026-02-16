@@ -85,22 +85,33 @@ class _DetailPageState extends State<DetailPage> {
     allSegments.addAll(result.leg3.segments);
 
     // --- Generate Polylines ---
-    for (var seg in allSegments) {
-      if (seg.path != null && seg.path!.isNotEmpty) {
-        // Filter out invalid coordinates
-        final validPoints = seg.path!.where((p) => p.latitude.abs() <= 90).toList();
-        if (validPoints.isNotEmpty) {
-          final points = validPoints.map((p) => LatLng(p.latitude, p.longitude)).toList();
-          final isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
-
-          lines.add(Polyline(
-            points: points,
-            color: _parseColor(seg.lineColor),
-            strokeWidth: 6.0,
-            pattern: isWalk ? const StrokePattern.dotted() : const StrokePattern.solid(),
-          ));
+    void addPolyline(Segment seg) {
+        if (seg.subSegments != null && seg.subSegments!.isNotEmpty) {
+            for (var sub in seg.subSegments!) {
+                addPolyline(sub);
+            }
+            return;
         }
-      }
+
+        if (seg.path != null && seg.path!.isNotEmpty) {
+            // Filter out invalid coordinates
+            final validPoints = seg.path!.where((p) => p.latitude.abs() <= 90).toList();
+            if (validPoints.isNotEmpty) {
+                final points = validPoints.map((p) => LatLng(p.latitude, p.longitude)).toList();
+                final isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
+
+                lines.add(Polyline(
+                    points: points,
+                    color: _parseColor(seg.lineColor),
+                    strokeWidth: 6.0,
+                    pattern: isWalk ? const StrokePattern.dotted() : const StrokePattern.solid(),
+                ));
+            }
+        }
+    }
+
+    for (var seg in allSegments) {
+        addPolyline(seg);
     }
 
     // Fallback if no lines generated yet, try mock path
@@ -114,9 +125,20 @@ class _DetailPageState extends State<DetailPage> {
     }
 
     // --- Generate Markers ---
-    if (allSegments.isNotEmpty) {
+    // Flatten segments for markers
+    List<Segment> flattened = [];
+    void flatten(Segment s) {
+        if (s.subSegments != null && s.subSegments!.isNotEmpty) {
+            for (var sub in s.subSegments!) flatten(sub);
+        } else {
+            flattened.add(s);
+        }
+    }
+    for (var s in allSegments) flatten(s);
+
+    if (flattened.isNotEmpty) {
       // Start Marker
-      final startSeg = allSegments.first;
+      final startSeg = flattened.first;
       if (startSeg.path != null && startSeg.path!.isNotEmpty) {
         markers.add(Marker(
           point: LatLng(startSeg.path!.first.latitude, startSeg.path!.first.longitude),
@@ -127,7 +149,7 @@ class _DetailPageState extends State<DetailPage> {
       }
 
       // End Marker
-      final endSeg = allSegments.last;
+      final endSeg = flattened.last;
       if (endSeg.path != null && endSeg.path!.isNotEmpty) {
         markers.add(Marker(
           point: LatLng(endSeg.path!.last.latitude, endSeg.path!.last.longitude),
@@ -138,8 +160,8 @@ class _DetailPageState extends State<DetailPage> {
       }
 
       // Mode Change Nodes
-      for (int i = 0; i < allSegments.length - 1; i++) {
-        final current = allSegments[i];
+      for (int i = 0; i < flattened.length - 1; i++) {
+        final current = flattened[i];
 
         if (current.path != null && current.path!.isNotEmpty) {
             markers.add(Marker(
@@ -695,247 +717,115 @@ class _DetailPageState extends State<DetailPage> {
              // 10 mins transfer text
              children.add(_buildTransferSegment(seg));
              currentMinutes += seg.time;
-             continue; // Skip building regular connection and node
+             continue;
         }
 
-        // --- ACCESS MERGE DETECTION ---
-        // Merge [Walk/Wait... -> Ride] into MultiSegmentConnection
-        // But only if the Ride is NOT a Train that triggers a Train Merge
-        bool isWalkOrWait(Segment s) => (s.mode.toLowerCase() == 'walk' || s.iconId == 'footprints') || (s.mode == 'wait' && s.label != 'Transfer');
-        bool isRide(Segment s) => !isWalkOrWait(s) && !(s.mode == 'wait' && s.label == 'Transfer');
+        // --- GROUP DETECTION ---
+        if (seg.subSegments != null && seg.subSegments!.isNotEmpty) {
+            // It's a group (Access or Train)
+            bool isTrainGroup = seg.mode == 'train_group';
 
-        if (isWalkOrWait(seg) && (legType == 'firstMile' || legType == 'lastMile')) {
-             int k = i + 1;
-             while (k < segments.length && isWalkOrWait(segments[k])) {
-                 k++;
-             }
+            if (isTrainGroup) {
+                // Train Merge
+                // Expect 2 subsegments
+                if (seg.subSegments!.length >= 2) {
+                    Segment s1 = seg.subSegments![0];
+                    Segment s2 = seg.subSegments![1];
+                    // s1 might need details from parent if populated in previous step
+                    // But details should be on subsegments if process_routes did its job.
+                    // Process_routes populated `detail` on subsegments BEFORE grouping.
 
-             if (k < segments.length) {
-                 final nextSeg = segments[k];
-                 if (isRide(nextSeg)) {
-                      // Candidate for merge: segments[i...k]
-                      bool preventMerge = false;
-                      // Check if nextSeg is Train and Triggers Merge (Look ahead)
-                      if (nextSeg.iconId == 'train') {
-                           int lookAheadIndex = k + 1;
-                           int tempIndex = lookAheadIndex;
-                           Segment? nextTrainSeg;
-                           if (tempIndex < segments.length) {
-                               Segment? checkSeg = segments[tempIndex];
-                               // Skip walk/transfer logic similar to train merge check
-                               if (checkSeg.mode == 'walk' || checkSeg.iconId == 'footprints') {
-                                   tempIndex++;
-                                   if (tempIndex < segments.length) {
-                                       checkSeg = segments[tempIndex];
-                                   } else {
-                                       checkSeg = null;
-                                   }
-                               }
-                               if (checkSeg != null && checkSeg.iconId == 'train') {
-                                   nextTrainSeg = checkSeg;
-                               }
-                           }
+                    // Wait time is on group seg
+                    children.add(_buildMergedSegmentConnection(
+                        seg1: s1,
+                        seg2: s2,
+                        changeLabel: seg.detail ?? 'Change',
+                        waitTime: seg.waitTime ?? 0,
+                        dist1: s1.distance,
+                        dist2: s2.distance,
+                        extraDetails1: s1.detail, // Populated in python
+                        isEditable: canEdit,
+                        onEdit: () => _showTrainEdit(leg, legType),
+                        onTap: () => _zoomToSegment(seg)
+                    ));
+                }
+            } else {
+                // Access Group
+                children.add(_buildMultiSegmentConnection(
+                    segments: seg.subSegments!,
+                    isEditable: canEdit,
+                    onEdit: () {
+                        if (seg.subSegments!.any((s) => s.iconId == 'train')) {
+                            _showTrainEdit(leg, legType);
+                        } else {
+                            _showAccessEdit(leg, legType);
+                        }
+                    },
+                    onTap: () => _zoomToSegments(seg.subSegments!)
+                ));
+            }
 
-                           if (nextTrainSeg != null) {
-                               preventMerge = true;
-                           }
-                      }
+            currentMinutes += seg.time;
+            if (seg.waitTime != null) currentMinutes += seg.waitTime!;
 
-                      if (!preventMerge) {
-                            // --- SCAN FOR TRAILING WALKS ---
-                            int endIdx = k + 1;
-                            while (endIdx < segments.length && isWalkOrWait(segments[endIdx])) {
-                                endIdx++;
-                            }
-                            // -------------------------------
+        } else {
+            // Single Segment
 
-                            List<Segment> mergeGroup = segments.sublist(i, endIdx);
+            // Calculate Distance (if not present)
+            double? distance = seg.distance;
+            if (distance == null && seg.path != null && seg.path!.isNotEmpty) {
+                double totalMeters = 0;
+                for (int j = 0; j < seg.path!.length - 1; j++) {
+                    totalMeters += _distance.as(LengthUnit.Meter, seg.path![j], seg.path![j + 1]);
+                }
+                distance = totalMeters / 1609.34;
+            }
 
-                           int totalTime = 0;
-                           for(var s in mergeGroup) {
-                               totalTime += s.time + (s.waitTime ?? 0);
-                           }
+            children.add(_buildSegmentConnection(
+                segment: seg,
+                isEditable: canEdit && (isFirst || seg.iconId == 'train' || _isParkAndRideBus(seg)),
+                onEdit: () {
+                    if (seg.iconId == 'train' || _isParkAndRideBus(seg)) {
+                        _showTrainEdit(leg, legType);
+                    } else {
+                        _showAccessEdit(leg, legType);
+                    }
+                },
+                onTap: () => _zoomToSegment(seg),
+                distance: distance,
+                extraDetails: seg.detail, // Pre-populated details
+                isDriveToStation: legType == 'firstMile' && seg.label == 'Drive' && !_isParkAndRideDestination(seg),
+            ));
 
-                           children.add(_buildMultiSegmentConnection(
-                               segments: mergeGroup,
-                               isEditable: canEdit,
-                               onEdit: () {
-                                  if (mergeGroup.any((s) => s.iconId == 'train')) {
-                                    _showTrainEdit(leg, legType);
-                                  } else {
-                                    _showAccessEdit(leg, legType);
-                                  }
-                               },
-                               onTap: () => _zoomToSegments(mergeGroup),
-                           ));
-
-                           currentMinutes += totalTime;
-
-                           // Add Node if needed (if not last segment of whole leg)
-                            if (endIdx < segments.length) {
-                               Segment lastSeg = mergeGroup.last;
-                                Segment nextVis = segments[endIdx];
-                               children.add(_buildNode(
-                                  lastSeg.to ?? 'Stop',
-                                  _formatMinutes(currentMinutes),
-                                  prevColor: _parseColor(lastSeg.lineColor),
-                                  nextColor: _parseColor(nextVis.lineColor)
-                               ));
-                           }
-
-                            i = endIdx - 1; // Loop increments i, so point to last consumed
-                           continue;
-                      }
-                 }
-             }
-        }
-
-        // Calculate Distance
-        double? distance;
-        if (seg.path != null && seg.path!.isNotEmpty) {
-          double totalMeters = 0;
-          for (int j = 0; j < seg.path!.length - 1; j++) {
-            totalMeters += _distance.as(LengthUnit.Meter, seg.path![j], seg.path![j + 1]);
-          }
-          distance = totalMeters / 1609.34; // Convert to miles
-        }
-
-        // Determine extra details
-        String? extraDetails;
-        if (seg.iconId == 'train' && leg.platform != null) {
-          extraDetails = 'Platform ${leg.platform}';
-        } else if (seg.iconId == 'bus' && leg.nextBusIn != null) {
-          extraDetails = 'Bus every ${leg.nextBusIn} mins';
-        } else if ((seg.iconId == 'car' || seg.mode == 'taxi') && leg.waitTime != null) {
-          extraDetails = 'Est wait: ${leg.waitTime} min';
-        } else if (seg.iconId == 'bike' && leg.desc != null) {
-          extraDetails = leg.desc;
-        } else if (seg.detail != null && seg.detail!.isNotEmpty) {
-          extraDetails = seg.detail;
-        }
-
-        // --- MERGE DETECTION START ---
-        bool merged = false;
-        if (seg.iconId == 'train') {
-             // Look ahead for next train
-             // Simplified logic: if next is train, merge.
-             // Pre-processing handled filtered walks and wait times.
-
-             int lookAheadIndex = i + 1;
-             int accumulatedWaitTime = 0;
-             Segment? nextTrainSeg;
-
-             if (lookAheadIndex < segments.length) {
-                 Segment? checkSeg = segments[lookAheadIndex];
-
-                 // If it's a walk/transfer, treat it as wait time and look further
-                 if (checkSeg.mode == 'walk' || checkSeg.iconId == 'footprints') {
-                     accumulatedWaitTime += checkSeg.time;
-                     lookAheadIndex++;
-                     if (lookAheadIndex < segments.length) {
-                         checkSeg = segments[lookAheadIndex];
-                     } else {
-                         // End of list, no next train
-                         checkSeg = null;
-                     }
-                 }
-
-                 if (checkSeg != null && checkSeg.iconId == 'train') {
-                     nextTrainSeg = checkSeg;
-                 }
-             }
-
-             if (nextTrainSeg != null) {
-                 var nextSeg = nextTrainSeg;
-                 // Merge detected
-                 merged = true;
-
-                 String changeLabel = 'Change at ${seg.to ?? 'Station'}';
-
-                 // Use the waitTime carried over from pre-processing if available
-                 // PLUS any accumulated time from walk segments
-                 int waitTime = (nextSeg.waitTime ?? 0) + accumulatedWaitTime;
-
-                 // Calculate distances for merging
-                 double? dist1 = distance;
-                 double? dist2;
-                 if (nextSeg.path != null && nextSeg.path!.isNotEmpty) {
-                   double totalMeters = 0;
-                   for (int j = 0; j < nextSeg.path!.length - 1; j++) {
-                     totalMeters += _distance.as(LengthUnit.Meter, nextSeg.path![j], nextSeg.path![j + 1]);
-                   }
-                   dist2 = totalMeters / 1609.34;
-                 }
-
-                 children.add(_buildMergedSegmentConnection(
-                   seg1: seg,
-                   seg2: nextSeg,
-                   changeLabel: changeLabel,
-                   waitTime: waitTime,
-                   dist1: dist1,
-                   dist2: dist2,
-                   extraDetails1: extraDetails,
-                   isEditable: canEdit,
-                   onEdit: () => _showTrainEdit(leg, legType),
-                   onTap: () {
-                     _zoomToSegment(seg);
-                   }
-                 ));
-
-                 currentMinutes += seg.time + waitTime + nextSeg.time;
-
-                 // Update index to skip handled segments
-                 i = lookAheadIndex;
-             }
-        }
-        // --- MERGE DETECTION END ---
-
-        if (!merged) {
-          children.add(_buildSegmentConnection(
-            segment: seg,
-            isEditable: canEdit && (isFirst || seg.iconId == 'train' || _isParkAndRideBus(seg)),
-            onEdit: () {
-              if (seg.iconId == 'train' || _isParkAndRideBus(seg)) {
-                _showTrainEdit(leg, legType);
-              } else {
-                _showAccessEdit(leg, legType);
-              }
-            },
-            onTap: () => _zoomToSegment(seg),
-            distance: distance,
-            extraDetails: extraDetails,
-            isDriveToStation: legType == 'firstMile' && seg.label == 'Drive' && !_isParkAndRideDestination(seg),
-          ));
-
-          currentMinutes += seg.time;
-          if (seg.waitTime != null) {
-             currentMinutes += seg.waitTime!;
-          }
+            currentMinutes += seg.time;
+            if (seg.waitTime != null) {
+                currentMinutes += seg.waitTime!;
+            }
         }
 
         // Node Logic
-        // We check loop index 'i' which might have been updated by merge logic
         if (i < segments.length - 1) {
           String nodeTitle = segments[i].to ?? 'Stop';
           Color prevColor = _parseColor(segments[i].lineColor);
 
-          // Simply look at the next segment
-          // If we merged, i points to the second train segment.
-          // If next exists, it's just the next one in the list.
+          // Use last subsegment info if group
+          if (segments[i].subSegments != null && segments[i].subSegments!.isNotEmpty) {
+              nodeTitle = segments[i].subSegments!.last.to ?? 'Stop';
+              prevColor = _parseColor(segments[i].subSegments!.last.lineColor);
+          }
 
           if (i + 1 < segments.length) {
                final nextVisible = segments[i + 1];
-
-               if (segments[i].iconId == 'train' && nextVisible.iconId == 'train') {
-                   // This case should be handled by merge logic, but if missed:
-                   nodeTitle = 'Change at ${segments[i].to ?? 'Station'}';
+               Color nextColor = _parseColor(nextVisible.lineColor);
+               if (nextVisible.subSegments != null && nextVisible.subSegments!.isNotEmpty) {
+                   nextColor = _parseColor(nextVisible.subSegments!.first.lineColor);
                }
 
                children.add(_buildNode(
                   nodeTitle,
                   _formatMinutes(currentMinutes),
                   prevColor: prevColor,
-                  nextColor: _parseColor(nextVisible.lineColor)));
+                  nextColor: nextColor));
           }
         }
       }

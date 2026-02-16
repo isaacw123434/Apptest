@@ -24,6 +24,7 @@ class Segment {
   final double? distance;
   final double cost;
   final int? waitTime;
+  final List<Segment>? subSegments;
 
   Segment({
     required this.mode,
@@ -39,9 +40,16 @@ class Segment {
     this.distance,
     this.cost = 0.0,
     this.waitTime,
+    this.subSegments,
   });
 
   factory Segment.fromJson(Map<String, dynamic> json) {
+    var subSegmentsList = json['subSegments'] as List?;
+    List<Segment>? subSegments;
+    if (subSegmentsList != null) {
+      subSegments = subSegmentsList.map((i) => Segment.fromJson(i)).toList();
+    }
+
     var pathList = json['path'] as List?;
     List<LatLng>? path;
     if (pathList != null) {
@@ -73,6 +81,7 @@ class Segment {
       distance: json['distance'] != null ? (json['distance'] as num).toDouble() : null,
       cost: (json['cost'] ?? 0).toDouble(),
       waitTime: json['waitTime'],
+      subSegments: subSegments,
     );
   }
 }
