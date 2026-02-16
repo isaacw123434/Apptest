@@ -896,25 +896,10 @@ class _SummaryPageState extends State<SummaryPage> {
   }
 
   List<Segment> _processSegments(List<Segment> rawSegments) {
-    List<Segment> unwrapped = [];
-
-    // 0. Unwrap Groups (Train Groups / Access Groups)
-    for (var seg in rawSegments) {
-      if (seg.subSegments != null && seg.subSegments!.isNotEmpty) {
-        unwrapped.addAll(seg.subSegments!);
-        // If we want to show the wait time as a gap or segment, we could add it here.
-        // But the schema usually just shows adjacent blocks.
-        // If waitTime > 0, we could add a spacer?
-        // For now, just unwrap so they appear as separate blocks.
-      } else {
-        unwrapped.add(seg);
-      }
-    }
-
     List<Segment> processed = [];
 
     // 1. Filter out short walks (<= 2 mins), Parking, and Transfer
-    for (var seg in unwrapped) {
+    for (var seg in rawSegments) {
       bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
       if (isWalk && seg.time <= 2) {
         continue;
@@ -961,7 +946,44 @@ class _SummaryPageState extends State<SummaryPage> {
     }
     processed = mergedWalks;
 
-    // 3. Removed "Merge Consecutive Trains" logic to allow changes to be visible.
+    // 3. Merge Consecutive Trains
+    List<Segment> mergedTrains = [];
+    int j = 0;
+    while (j < processed.length) {
+      final seg = processed[j];
+      if (j + 1 < processed.length) {
+        final next = processed[j + 1];
+        bool isTrain1 = seg.mode.toLowerCase() == 'train' || seg.iconId == 'train';
+        bool isTrain2 = next.mode.toLowerCase() == 'train' || next.iconId == 'train';
+
+        if (isTrain1 && isTrain2) {
+          bool sameLabel = seg.label == next.label;
+          bool isNorthern = seg.label.contains('Northern') && next.label.contains('Northern');
+          bool isCrossCountryEMR = (seg.label.contains('CrossCountry') && next.label.contains('EMR')) ||
+              (seg.label.contains('EMR') && next.label.contains('CrossCountry'));
+
+          if (sameLabel || isNorthern || isCrossCountryEMR) {
+            mergedTrains.add(Segment(
+              mode: 'train',
+              label: seg.label,
+              lineColor: seg.lineColor,
+              iconId: seg.iconId,
+              time: seg.time + next.time,
+              to: next.to,
+              detail: seg.detail,
+              path: seg.path,
+              co2: (seg.co2 ?? 0) + (next.co2 ?? 0),
+              distance: (seg.distance ?? 0) + (next.distance ?? 0),
+            ));
+            j += 2;
+            continue;
+          }
+        }
+      }
+      mergedTrains.add(seg);
+      j++;
+    }
+    processed = mergedTrains;
 
     // 4. Final pass: Fix EMR labels (if not merged)
     List<Segment> finalPass = [];

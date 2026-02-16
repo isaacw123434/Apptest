@@ -188,7 +188,6 @@ def parse_segment(json_segment, option_name, route_id):
 def should_merge(a, b):
     if a['mode'] == b['mode'] and a['label'] == b['label']:
         if a['mode'] == 'train':
-            print(f"should_merge: preventing merge for train {a['label']}")
             return False
         return True
     return False
@@ -363,7 +362,6 @@ def group_segments(segments, leg_context):
                     look_ahead_idx = temp_idx
 
             if next_train_seg:
-                print(f"group_segments: grouping {seg['label']} and {next_train_seg['label']}")
                 # Merge Found
                 # Create Group Segment
                 wait_time = next_train_seg.get('waitTime', 0) + accumulated_wait
@@ -476,21 +474,9 @@ def parse_option_to_leg(option, group_name, route_id):
     name = option.get('name', 'Unknown')
     json_legs = option.get('legs', [])
 
-    if 'Hull' in name and 'Train' in name and route_id == 'route2':
-        print(f"DEBUG {name} json_legs count: {len(json_legs)}")
-        for leg in json_legs:
-            mode = leg.get('mode')
-            dur = leg.get('duration_text')
-            print(f"  Leg: {mode}, {dur}")
-
     raw_segments = []
     for json_leg in json_legs:
         raw_segments.append(parse_segment(json_leg, name, route_id))
-
-    if 'Hull' in name and 'Train' in name and route_id == 'route2':
-        print(f"DEBUG {name} raw_segments:")
-        for s in raw_segments:
-            print(f"  {s['mode']} ({s['time']}m) {s['label']}")
 
     # --- Routes Parser Filtering (Short walks <= 1 min) ---
     filtered_segments = []
@@ -500,11 +486,6 @@ def parse_option_to_leg(option, group_name, route_id):
         filtered_segments.append(seg)
 
     # --- Routes Parser Merging (Consecutive same mode) ---
-    if 'Hull' in name and 'Train' in name and route_id == 'route2':
-        print(f"DEBUG {name} filtered_segments:")
-        for s in filtered_segments:
-            print(f"  {s['mode']} ({s['time']}m) {s['label']}")
-
     merged_segments = []
     for seg in filtered_segments:
         if merged_segments:
@@ -736,11 +717,6 @@ def parse_option_to_leg(option, group_name, route_id):
 
     merged_segments = final_segments_step2
 
-    if 'Hull' in name and 'Train' in name and route_id == 'route2':
-         print(f"DEBUG {name}: merged_segments count: {len(merged_segments)}")
-         for s in merged_segments:
-             print(f"  - Mode: {s['mode']}, Label: {s['label']}, Time: {s['time']}")
-
     # --- Recalculate totals ---
     final_dist = 0
     final_time = 0
@@ -863,11 +839,6 @@ def parse_option_to_leg(option, group_name, route_id):
         pass
 
     merged_segments = group_segments(merged_segments, {'platform': platform, 'next_bus': next_bus_in})
-
-    if 'Hull' in name and 'Train' in name and route_id == 'route2':
-         print(f"DEBUG {name} after grouping: count: {len(merged_segments)}")
-         for s in merged_segments:
-             print(f"  - Mode: {s['mode']}, Label: {s['label']}, Time: {s['time']}")
 
     # Generate Detail (Truncated for Route 2 Access Options)
     detail_segments = merged_segments
