@@ -678,6 +678,20 @@ class _DetailPageState extends State<DetailPage> {
         final seg = segments[i];
         final isFirst = i == 0;
 
+        // Determine extra details (moved up to avoid unused variable warning if unused below)
+        String? extraDetails;
+        if (seg.iconId == 'train' && leg.platform != null) {
+          extraDetails = 'Platform ${leg.platform}';
+        } else if (seg.iconId == 'bus' && leg.nextBusIn != null) {
+          extraDetails = 'Bus every ${leg.nextBusIn} mins';
+        } else if ((seg.iconId == 'car' || seg.mode == 'taxi') && leg.waitTime != null) {
+          extraDetails = 'Est wait: ${leg.waitTime} min';
+        } else if (seg.iconId == 'bike' && leg.desc != null) {
+          extraDetails = leg.desc;
+        } else if (seg.detail != null && seg.detail!.isNotEmpty) {
+          extraDetails = seg.detail;
+        }
+
         // Check for Transfer
         if (seg.mode == 'wait' && seg.label == 'Transfer') {
              // 10 mins transfer text
@@ -691,6 +705,62 @@ class _DetailPageState extends State<DetailPage> {
         // But only if the Ride is NOT a Train that triggers a Train Merge
         bool isWalkOrWait(Segment s) => (s.mode.toLowerCase() == 'walk' || s.iconId == 'footprints') || (s.mode == 'wait' && s.label != 'Transfer');
         bool isRide(Segment s) => !isWalkOrWait(s) && !(s.mode == 'wait' && s.label == 'Transfer');
+
+        // --- TRAIN MERGE DETECTION (New) ---
+        bool isTrain(Segment s) => s.iconId == 'train';
+        if (isTrain(seg) && i + 1 < segments.length) {
+             final nextSeg = segments[i+1];
+             if (isTrain(nextSeg)) {
+                 children.add(_buildMergedSegmentConnection(
+                    seg1: seg,
+                    seg2: nextSeg,
+                    changeLabel: 'Change',
+                    waitTime: 0, // Wait time implicit in segments if split? Or need to sum up?
+                    // Actually, if we just split them in JSON, waitTime is lost unless we added a wait segment.
+                    // But typically wait time is small or 0 for direct connections.
+                    dist1: seg.distance,
+                    dist2: nextSeg.distance,
+                    extraDetails1: seg.detail ?? extraDetails,
+                    isEditable: canEdit,
+                    onEdit: () => _showTrainEdit(leg, legType),
+                    onTap: () => _zoomToSegment(seg) // Zoom to first? Or group?
+                 ));
+                 currentMinutes += seg.time + nextSeg.time;
+                 if (seg.waitTime != null) currentMinutes += seg.waitTime!;
+                 if (nextSeg.waitTime != null) currentMinutes += nextSeg.waitTime!;
+
+                 i++; // Skip next
+
+                 // Node logic after the pair?
+                 // The standard loop adds a node after 'i' if i < length-1.
+                 // Here we consumed i and i+1.
+                 // We need to add a node after i+1 if i+1 < length-1.
+
+                 if (i < segments.length - 1) {
+                     // Next visible is segments[i+1] (which is the one we just consumed as 2nd part)
+                     // Wait, i is now index of 2nd part.
+                     // We need node between 2nd part and 3rd part.
+
+                     // Copied node logic from below:
+                      String nodeTitle = segments[i].to ?? 'Stop';
+                      Color prevColor = _parseColor(segments[i].lineColor);
+
+                      final nextVisible = segments[i + 1];
+                      Color nextColor = _parseColor(nextVisible.lineColor);
+                      if (nextVisible.subSegments != null && nextVisible.subSegments!.isNotEmpty) {
+                           nextColor = _parseColor(nextVisible.subSegments!.first.lineColor);
+                      }
+
+                       children.add(_buildNode(
+                          nodeTitle,
+                          _formatMinutes(currentMinutes),
+                          prevColor: prevColor,
+                          nextColor: nextColor));
+                 }
+
+                 continue;
+             }
+        }
 
         if (isWalkOrWait(seg) && (legType == 'firstMile' || legType == 'lastMile')) {
              int k = i + 1;
@@ -776,20 +846,6 @@ class _DetailPageState extends State<DetailPage> {
                       }
                  }
              }
-        }
-
-        // Determine extra details (moved up to avoid unused variable warning if unused below)
-        String? extraDetails;
-        if (seg.iconId == 'train' && leg.platform != null) {
-          extraDetails = 'Platform ${leg.platform}';
-        } else if (seg.iconId == 'bus' && leg.nextBusIn != null) {
-          extraDetails = 'Bus every ${leg.nextBusIn} mins';
-        } else if ((seg.iconId == 'car' || seg.mode == 'taxi') && leg.waitTime != null) {
-          extraDetails = 'Est wait: ${leg.waitTime} min';
-        } else if (seg.iconId == 'bike' && leg.desc != null) {
-          extraDetails = leg.desc;
-        } else if (seg.detail != null && seg.detail!.isNotEmpty) {
-          extraDetails = seg.detail;
         }
 
         // --- GROUP DETECTION ---

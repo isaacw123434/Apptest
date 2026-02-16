@@ -970,7 +970,10 @@ class _SummaryPageState extends State<SummaryPage> {
            String label2 = next.label.replaceAll('E M R', 'EMR');
 
            bool isMergeable = (label1.contains('CrossCountry') && label2.contains('EMR')) ||
-                              (label1.contains('EMR') && label2.contains('CrossCountry'));
+                                      (label1.contains('EMR') && label2.contains('CrossCountry')) ||
+                                      (label1.contains('Northern') && label2.contains('Northern')) ||
+                                      (label1.contains('Northern') && label2.contains('Transpennine')) ||
+                                      (label1.contains('Transpennine') && label2.contains('Northern'));
 
            if (isMergeable) {
              // Merge
