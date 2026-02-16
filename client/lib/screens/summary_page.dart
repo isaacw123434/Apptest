@@ -986,7 +986,7 @@ class _SummaryPageState extends State<SummaryPage> {
             time: seg.time + next.time,
             to: next.to,
             detail: seg.detail,
-            path: seg.path,
+            path: (seg.path ?? []) + (next.path ?? []),
             co2: (seg.co2 ?? 0) + (next.co2 ?? 0),
             distance: (seg.distance ?? 0) + (next.distance ?? 0),
           ));
