@@ -375,12 +375,8 @@ class _DetailPageState extends State<DetailPage> {
         ? _initData!.segmentOptions.firstMile
         : _initData!.segmentOptions.lastMile;
 
-    String currentSuffix = _getStationSuffix(currentLeg.label);
-
-    // Filter options with same suffix
-    List<Leg> filteredOptions = allOptions.where((leg) {
-      return _getStationSuffix(leg.label) == currentSuffix;
-    }).toList();
+    // Use all options initially
+    List<Leg> filteredOptions = allOptions;
 
     // Filter by selected modes
     if (widget.selectedModes != null) {
@@ -717,7 +713,123 @@ class _DetailPageState extends State<DetailPage> {
              // 10 mins transfer text
              children.add(_buildTransferSegment(seg));
              currentMinutes += seg.time;
-             continue;
+             continue; // Skip building regular connection and node
+        }
+
+        // --- ACCESS MERGE DETECTION ---
+        // Merge [Walk/Wait... -> Ride] into MultiSegmentConnection
+        // But only if the Ride is NOT a Train that triggers a Train Merge
+        bool isWalkOrWait(Segment s) => (s.mode.toLowerCase() == 'walk' || s.iconId == 'footprints') || (s.mode == 'wait' && s.label != 'Transfer');
+        bool isRide(Segment s) => !isWalkOrWait(s) && !(s.mode == 'wait' && s.label == 'Transfer');
+
+        if (isWalkOrWait(seg) && (legType == 'firstMile' || legType == 'lastMile')) {
+             int k = i + 1;
+             while (k < segments.length && isWalkOrWait(segments[k])) {
+                 k++;
+             }
+
+             if (k < segments.length) {
+                 final nextSeg = segments[k];
+                 if (isRide(nextSeg)) {
+                      // Candidate for merge: segments[i...k]
+                      bool preventMerge = false;
+                      // Check if nextSeg is Train and Triggers Merge (Look ahead)
+                      if (nextSeg.iconId == 'train') {
+                           int lookAheadIndex = k + 1;
+                           int tempIndex = lookAheadIndex;
+                           Segment? nextTrainSeg;
+                           if (tempIndex < segments.length) {
+                               Segment? checkSeg = segments[tempIndex];
+                               // Skip walk/transfer logic similar to train merge check
+                               if (checkSeg.mode == 'walk' || checkSeg.iconId == 'footprints') {
+                                   tempIndex++;
+                                   if (tempIndex < segments.length) {
+                                       checkSeg = segments[tempIndex];
+                                   } else {
+                                       checkSeg = null;
+                                   }
+                               }
+                               if (checkSeg != null && checkSeg.iconId == 'train') {
+                                   nextTrainSeg = checkSeg;
+                               }
+                           }
+
+                           if (nextTrainSeg != null) {
+                               preventMerge = true;
+                           }
+                      }
+
+                      if (!preventMerge) {
+                            // --- SCAN FOR TRAILING WALKS ---
+                            int endIdx = k + 1;
+                            while (endIdx < segments.length && isWalkOrWait(segments[endIdx])) {
+                                endIdx++;
+                            }
+                            // -------------------------------
+
+                            List<Segment> mergeGroup = segments.sublist(i, endIdx);
+
+                           int totalTime = 0;
+                           for(var s in mergeGroup) {
+                               totalTime += s.time + (s.waitTime ?? 0);
+                           }
+
+                           children.add(_buildMultiSegmentConnection(
+                               segments: mergeGroup,
+                               isEditable: canEdit,
+                               onEdit: () {
+                                  if (mergeGroup.any((s) => s.iconId == 'train' || _isParkAndRideBus(s))) {
+                                    _showTrainEdit(leg, legType);
+                                  } else {
+                                    _showAccessEdit(leg, legType);
+                                  }
+                               },
+                               onTap: () => _zoomToSegments(mergeGroup),
+                           ));
+
+                           currentMinutes += totalTime;
+
+                           // Add Node if needed (if not last segment of whole leg)
+                            if (endIdx < segments.length) {
+                               Segment lastSeg = mergeGroup.last;
+                                Segment nextVis = segments[endIdx];
+                               children.add(_buildNode(
+                                  lastSeg.to ?? 'Stop',
+                                  _formatMinutes(currentMinutes),
+                                  prevColor: _parseColor(lastSeg.lineColor),
+                                  nextColor: _parseColor(nextVis.lineColor)
+                               ));
+                           }
+
+                            i = endIdx - 1; // Loop increments i, so point to last consumed
+                           continue;
+                      }
+                 }
+             }
+        }
+
+        // Calculate Distance
+        double? distance;
+        if (seg.path != null && seg.path!.isNotEmpty) {
+          double totalMeters = 0;
+          for (int j = 0; j < seg.path!.length - 1; j++) {
+            totalMeters += _distance.as(LengthUnit.Meter, seg.path![j], seg.path![j + 1]);
+          }
+          distance = totalMeters / 1609.34; // Convert to miles
+        }
+
+        // Determine extra details
+        String? extraDetails;
+        if (seg.iconId == 'train' && leg.platform != null) {
+          extraDetails = 'Platform ${leg.platform}';
+        } else if (seg.iconId == 'bus' && leg.nextBusIn != null) {
+          extraDetails = 'Bus every ${leg.nextBusIn} mins';
+        } else if ((seg.iconId == 'car' || seg.mode == 'taxi') && leg.waitTime != null) {
+          extraDetails = 'Est wait: ${leg.waitTime} min';
+        } else if (seg.iconId == 'bike' && leg.desc != null) {
+          extraDetails = leg.desc;
+        } else if (seg.detail != null && seg.detail!.isNotEmpty) {
+          extraDetails = seg.detail;
         }
 
         // --- GROUP DETECTION ---
@@ -983,7 +1095,11 @@ class _DetailPageState extends State<DetailPage> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFF0F172A), width: 3),
+                    border: Border.all(
+                        color: isStart
+                            ? const Color(0xFF0F172A)
+                            : (prevColor ?? const Color(0xFF0F172A)),
+                        width: 3),
                   ),
                 ),
 
