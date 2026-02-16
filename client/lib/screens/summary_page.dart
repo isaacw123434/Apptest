@@ -908,14 +908,6 @@ class _SummaryPageState extends State<SummaryPage> {
         continue;
       }
       if (seg.mode.toLowerCase() == 'wait' || seg.label.toLowerCase() == 'transfer') {
-        // Only filter if it's the standalone transfer we added (usually has time 10)
-        // But the request says "Transfer should not show up", so we filter all.
-        // However, we must ensure we don't break the "Walk - Transfer - Walk" merge logic if that relied on a specific transfer segment.
-        // The merge logic below runs on 'processed' list. If we filter here, the merge logic won't see it.
-        // But "Walk - Transfer - Walk" usually implies an interchange within the journey.
-        // If we filter it here, we might end up with Walk - Walk.
-        // The request specifically talks about the "Transfer" box (probably the 10 min one).
-        // Let's filter it.
         continue;
       }
       processed.add(seg);
@@ -954,45 +946,42 @@ class _SummaryPageState extends State<SummaryPage> {
     }
     processed = mergedWalks;
 
-    // 3. Merge Consecutive Trains (CrossCountry + EMR only)
+    // 3. Merge Consecutive Trains
     List<Segment> mergedTrains = [];
-    i = 0;
-    while (i < processed.length) {
-      final seg = processed[i];
-      bool isTrain = seg.iconId == 'train';
+    int j = 0;
+    while (j < processed.length) {
+      final seg = processed[j];
+      if (j + 1 < processed.length) {
+        final next = processed[j + 1];
+        bool isTrain1 = seg.mode.toLowerCase() == 'train' || seg.iconId == 'train';
+        bool isTrain2 = next.mode.toLowerCase() == 'train' || next.iconId == 'train';
 
-      if (isTrain && i + 1 < processed.length) {
-         final next = processed[i + 1];
-         bool isNextTrain = next.iconId == 'train';
+        if (isTrain1 && isTrain2) {
+          bool sameLabel = seg.label == next.label;
+          bool isNorthern = seg.label.contains('Northern') && next.label.contains('Northern');
+          bool isCrossCountryEMR = (seg.label.contains('CrossCountry') && next.label.contains('EMR')) ||
+              (seg.label.contains('EMR') && next.label.contains('CrossCountry'));
 
-         if (isNextTrain) {
-           String label1 = seg.label.replaceAll('E M R', 'EMR');
-           String label2 = next.label.replaceAll('E M R', 'EMR');
-
-           bool isMergeable = (label1.contains('CrossCountry') && label2.contains('EMR')) ||
-                                      (label1.contains('EMR') && label2.contains('CrossCountry')) ||
-                                      (label1.contains('Northern') && label2.contains('Northern')) ||
-                                      (label1.contains('Northern') && label2.contains('Transpennine')) ||
-                                      (label1.contains('Transpennine') && label2.contains('Northern'));
-
-           if (isMergeable) {
-             // Merge
-             mergedTrains.add(Segment(
-               mode: 'train',
-               label: '$label1 + $label2',
-               lineColor: seg.lineColor,
-               iconId: 'train',
-               time: seg.time + next.time,
-               to: next.to,
-               detail: seg.detail,
-             ));
-             i += 2;
-             continue;
-           }
-         }
+          if (sameLabel || isNorthern || isCrossCountryEMR) {
+            mergedTrains.add(Segment(
+              mode: 'train',
+              label: seg.label,
+              lineColor: seg.lineColor,
+              iconId: seg.iconId,
+              time: seg.time + next.time,
+              to: next.to,
+              detail: seg.detail,
+              path: seg.path,
+              co2: (seg.co2 ?? 0) + (next.co2 ?? 0),
+              distance: (seg.distance ?? 0) + (next.distance ?? 0),
+            ));
+            j += 2;
+            continue;
+          }
+        }
       }
       mergedTrains.add(seg);
-      i++;
+      j++;
     }
     processed = mergedTrains;
 

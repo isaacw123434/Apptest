@@ -187,7 +187,8 @@ def parse_segment(json_segment, option_name, route_id):
 
 def should_merge(a, b):
     if a['mode'] == b['mode'] and a['label'] == b['label']:
-        if a['mode'] == 'train': return False
+        if a['mode'] == 'train':
+            return False
         return True
     return False
 
