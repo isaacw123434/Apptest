@@ -265,11 +265,13 @@ class InitData {
   final SegmentOptions segmentOptions;
   final DirectDrive directDrive;
   final List<LatLng> mockPath;
+  final List<JourneyResult> journeys;
 
   InitData({
     required this.segmentOptions,
     required this.directDrive,
     required this.mockPath,
+    required this.journeys,
   });
 
   factory InitData.fromJson(Map<String, dynamic> json) {
@@ -289,10 +291,16 @@ class InitData {
       }
     }
 
+    var journeysList = json['journeys'] as List?;
+    List<JourneyResult> journeys = journeysList != null
+        ? journeysList.map((i) => JourneyResult.fromJson(i)).toList()
+        : [];
+
     return InitData(
       segmentOptions: SegmentOptions.fromJson(json['segmentOptions']),
       directDrive: DirectDrive.fromJson(json['directDrive']),
       mockPath: mockPath,
+      journeys: journeys,
     );
   }
 }

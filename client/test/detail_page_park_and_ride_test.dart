@@ -44,7 +44,7 @@ class MockApiService extends ApiService {
         ],
     );
 
-    return InitData(
+    return InitData(journeys: [],
       segmentOptions: SegmentOptions(
         firstMile: [leg1, leg2],
         mainLeg: Leg(id: 'main', label: 'Main', time: 0, cost: 0, distance: 0, riskScore: 0, iconId: 'train', lineColor: '#000000', segments: []),

@@ -18,15 +18,6 @@ class MockApiService extends ApiService {
       cost: 5.0,
     );
 
-    final walkBetween = Segment(
-      mode: 'walk',
-      label: 'Walk to Platform',
-      lineColor: '#000000',
-      iconId: 'footprints',
-      time: 4, // Should be hidden and trigger merge
-      path: [],
-    );
-
     final trainLeg2 = Segment(
       mode: 'train',
       label: 'Train to London',
@@ -38,6 +29,18 @@ class MockApiService extends ApiService {
       cost: 20.0,
     );
 
+    final trainGroup = Segment(
+      mode: 'train_group',
+      label: 'Train Group',
+      lineColor: '#FF0000',
+      iconId: 'train',
+      time: 60 + 4, // 10 + 50 + 4 wait
+      cost: 25.0,
+      subSegments: [trainLeg1, trainLeg2],
+      detail: 'Change at Leeds',
+      waitTime: 4,
+    );
+
     final mainLeg = Leg(
       id: 'main',
       label: 'Main Leg',
@@ -47,7 +50,7 @@ class MockApiService extends ApiService {
       riskScore: 0,
       iconId: 'train',
       lineColor: '#000000',
-      segments: [trainLeg1, walkBetween, trainLeg2],
+      segments: [trainGroup],
     );
 
     final firstMile = Leg(
@@ -74,7 +77,7 @@ class MockApiService extends ApiService {
         segments: [],
     );
 
-    return InitData(
+    return InitData(journeys: [],
       segmentOptions: SegmentOptions(
         firstMile: [firstMile],
         mainLeg: mainLeg,

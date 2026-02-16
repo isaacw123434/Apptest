@@ -60,7 +60,7 @@ class MockApiService extends ApiService {
         segments: [],
     );
 
-    return InitData(
+    return InitData(journeys: [],
       segmentOptions: SegmentOptions(
         firstMile: [firstMile],
         mainLeg: mainLeg,

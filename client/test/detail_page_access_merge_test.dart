@@ -91,7 +91,7 @@ class MockAccessMergeApiService extends ApiService {
       ],
     );
 
-    return InitData(
+    return InitData(journeys: [],
       segmentOptions: SegmentOptions(
         firstMile: [firstMile],
         mainLeg: mainLeg,
