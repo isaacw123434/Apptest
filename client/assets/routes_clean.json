@@ -13974,7 +13974,7 @@
       "segments": [
         {
           "mode": "train_group",
-          "label": "CrossCountry",
+          "label": "CrossCountry + EMR",
           "lineColor": "#880038",
           "iconId": "train",
           "time": 92,

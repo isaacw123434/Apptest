@@ -896,10 +896,22 @@ class _SummaryPageState extends State<SummaryPage> {
   }
 
   List<Segment> _processSegments(List<Segment> rawSegments) {
+    // 0. Flatten groups (Access & Train Groups)
+    List<Segment> flattened = [];
+    for (var seg in rawSegments) {
+      if ((seg.mode == 'access_group' || seg.mode == 'train_group') &&
+          seg.subSegments != null &&
+          seg.subSegments!.isNotEmpty) {
+        flattened.addAll(seg.subSegments!);
+      } else {
+        flattened.add(seg);
+      }
+    }
+
     List<Segment> processed = [];
 
     // 1. Filter out short walks (<= 2 mins), Parking, and Transfer
-    for (var seg in rawSegments) {
+    for (var seg in flattened) {
       bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
       if (isWalk && seg.time <= 2) {
         continue;
@@ -957,27 +969,29 @@ class _SummaryPageState extends State<SummaryPage> {
         bool isTrain2 = next.mode.toLowerCase() == 'train' || next.iconId == 'train';
 
         if (isTrain1 && isTrain2) {
-          bool sameLabel = seg.label == next.label;
-          bool isNorthern = seg.label.contains('Northern') && next.label.contains('Northern');
-          bool isCrossCountryEMR = (seg.label.contains('CrossCountry') && next.label.contains('EMR')) ||
-              (seg.label.contains('EMR') && next.label.contains('CrossCountry'));
-
-          if (sameLabel || isNorthern || isCrossCountryEMR) {
-            mergedTrains.add(Segment(
-              mode: 'train',
-              label: seg.label,
-              lineColor: seg.lineColor,
-              iconId: seg.iconId,
-              time: seg.time + next.time,
-              to: next.to,
-              detail: seg.detail,
-              path: seg.path,
-              co2: (seg.co2 ?? 0) + (next.co2 ?? 0),
-              distance: (seg.distance ?? 0) + (next.distance ?? 0),
-            ));
-            j += 2;
-            continue;
+          // Merge any consecutive trains
+          // If labels differ, combine them. If same, keep one.
+          String mergedLabel = seg.label;
+          if (seg.label != next.label) {
+            // Avoid duplicate text like "CrossCountry + EMR + EMR" if expanding logic runs multiple times
+            // But here we are iterating linearly.
+            mergedLabel = '${seg.label} + ${next.label}';
           }
+
+          mergedTrains.add(Segment(
+            mode: 'train',
+            label: mergedLabel,
+            lineColor: seg.lineColor,
+            iconId: seg.iconId,
+            time: seg.time + next.time,
+            to: next.to,
+            detail: seg.detail,
+            path: seg.path,
+            co2: (seg.co2 ?? 0) + (next.co2 ?? 0),
+            distance: (seg.distance ?? 0) + (next.distance ?? 0),
+          ));
+          j += 2;
+          continue;
         }
       }
       mergedTrains.add(seg);
