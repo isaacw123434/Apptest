@@ -382,16 +382,6 @@ class _DetailPageState extends State<DetailPage> {
     // Use all options initially
     List<Leg> filteredOptions = allOptions;
 
-    // Filter by selected modes
-    if (widget.selectedModes != null) {
-      filteredOptions = filteredOptions.where((leg) {
-        String key = _getModeKey(leg);
-        if (widget.selectedModes!.containsKey(key)) {
-          return widget.selectedModes![key]!;
-        }
-        return true;
-      }).toList();
-    }
 
     showModalBottomSheet(
       context: context,
@@ -417,16 +407,6 @@ class _DetailPageState extends State<DetailPage> {
         ? _initData!.segmentOptions.firstMile
         : _initData!.segmentOptions.lastMile;
 
-    // Filter by selected modes
-    if (widget.selectedModes != null) {
-      allOptions = allOptions.where((leg) {
-        String key = _getModeKey(leg);
-        if (widget.selectedModes!.containsKey(key)) {
-          return widget.selectedModes![key]!;
-        }
-        return true;
-      }).toList();
-    }
 
     Map<String, List<Leg>> grouped = _groupLegsByStation(allOptions);
     // Determine current access mode from first segment
