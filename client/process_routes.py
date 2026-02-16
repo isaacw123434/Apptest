@@ -893,6 +893,85 @@ def parse_option_to_leg(option, group_name, route_id):
         'platform': platform
     }
 
+def create_journey(l1, main_leg, l3, direct_drive, buffer):
+    cost = l1['cost'] + main_leg['cost'] + l3['cost']
+    time = l1['time'] + buffer + main_leg['time'] + l3['time']
+    risk = l1['riskScore'] + main_leg['riskScore'] + l3['riskScore']
+
+    l1_co2 = l1.get('co2', 0)
+    main_co2 = main_leg.get('co2', 0)
+    l3_co2 = l3.get('co2', 0)
+
+    total_emission = l1_co2 + main_co2 + l3_co2
+
+    car_emission = direct_drive.get('co2', 0)
+
+    savings = car_emission - total_emission
+    savings_percent = 0
+    if car_emission > 0:
+        savings_percent = round((savings / car_emission) * 100)
+
+    emissions_data = {
+        'val': savings,
+        'percent': savings_percent,
+        'text': f"Saves {savings_percent}% CO₂ vs driving" if savings > 0 else None
+    }
+
+    return {
+        'id': f"{l1['id']}-{l3['id']}",
+        'leg1': l1,
+        'leg3': l3,
+        'cost': cost,
+        'time': time,
+        'buffer': buffer,
+        'risk': risk,
+        'emissions': emissions_data
+    }
+
+def generate_journeys(first_mile, main_leg, last_mile, direct_drive, route_id):
+    journeys = []
+    buffer_time = 0 if route_id == 'route2' else 10
+
+    for l1 in first_mile:
+        # Route 2 P&R Check
+        is_route2_pnr = False
+        if route_id == 'route2':
+             label = l1.get('label', '')
+             if 'P&R' in label or 'Stourton' in label or 'Temple Green' in label or 'Elland Road' in label:
+                 is_route2_pnr = True
+
+        if is_route2_pnr:
+            empty_leg3 = {
+               'id': 'empty_last_mile',
+               'label': 'Arrived',
+               'segments': [],
+               'time': 0,
+               'cost': 0,
+               'distance': 0,
+               'riskScore': 0,
+               'iconId': 'footprints',
+               'lineColor': '#000000',
+               'co2': 0
+            }
+            # Create journey
+            journeys.append(create_journey(l1, main_leg, empty_leg3, direct_drive, buffer_time))
+            continue
+
+        for l3 in last_mile:
+             # Bike restriction check
+             if 'cycle' in l3['id']:
+                 l1_id = l1['id']
+                 is_cycle_start = l1_id == 'cycle'
+                 is_drive_park = l1_id == 'direct_drive' or l1_id == 'drive_park' # check IDs in python output
+                 is_headingley_cycle = l1_id == 'train_cycle_headingley'
+
+                 if not (is_cycle_start or is_drive_park or is_headingley_cycle):
+                     continue
+
+             journeys.append(create_journey(l1, main_leg, l3, direct_drive, buffer_time))
+
+    return journeys
+
 def process_file(input_path, output_path, route_id):
     with open(input_path, 'r') as f:
         data = json.load(f)
@@ -949,10 +1028,13 @@ def process_file(input_path, output_path, route_id):
                 }
 
     if not main_leg:
-        main_leg = {'id': 'main_placeholder', 'label': 'Main', 'segments': [], 'time': 0, 'cost': 0, 'distance': 0, 'riskScore': 0, 'iconId': 'train', 'lineColor': '#000000'}
+        main_leg = {'id': 'main_placeholder', 'label': 'Main', 'segments': [], 'time': 0, 'cost': 0, 'distance': 0, 'riskScore': 0, 'iconId': 'train', 'lineColor': '#000000', 'co2': 0}
 
     if not direct_drive:
-        direct_drive = {'time': 0, 'cost': 0, 'distance': 0}
+        direct_drive = {'time': 0, 'cost': 0, 'distance': 0, 'co2': 0}
+
+    # Generate Journeys
+    journeys = generate_journeys(first_mile, main_leg, last_mile, direct_drive, route_id)
 
     init_data = {
         'segmentOptions': {
@@ -961,7 +1043,8 @@ def process_file(input_path, output_path, route_id):
             'lastMile': last_mile
         },
         'directDrive': direct_drive,
-        'mockPath': mock_path
+        'mockPath': mock_path,
+        'journeys': journeys
     }
 
     with open(output_path, 'w') as f:

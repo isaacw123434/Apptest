@@ -8,7 +8,7 @@ import 'package:latlong2/latlong.dart';
 class MockApiService extends ApiService {
   @override
   Future<InitData> fetchInitData({String? routeId}) async {
-    return InitData(
+    return InitData(journeys: [],
       segmentOptions: SegmentOptions(firstMile: [], mainLeg: Leg(id: 'main', label: 'main', segments: [], time: 0, cost: 0, distance: 0, riskScore: 0, iconId: IconIds.train, lineColor: ''), lastMile: []),
       directDrive: DirectDrive(
         time: 110,
