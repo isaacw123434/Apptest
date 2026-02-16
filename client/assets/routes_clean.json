@@ -3,8 +3,8 @@
     "firstMile": [
       {
         "id": "cycle",
-        "label": "Cycle",
-        "detail": "18m bike",
+        "label": "Cycle to Leeds Station",
+        "detail": "18m cycle",
         "time": 18,
         "cost": 0.0,
         "distance": 3.54,
@@ -2100,8 +2100,8 @@
       },
       {
         "id": "drive",
-        "label": "Drive",
-        "detail": "14m car",
+        "label": "Drive to Leeds Station",
+        "detail": "14m drive",
         "time": 14,
         "cost": 24.53985484732872,
         "distance": 3.42,
@@ -3685,7 +3685,7 @@
       },
       {
         "id": "bus",
-        "label": "Bus",
+        "label": "Bus to Leeds Station",
         "detail": "4m walk + 30m bus + 4m walk",
         "time": 38,
         "cost": 2.0,
@@ -5246,8 +5246,8 @@
       },
       {
         "id": "uber",
-        "label": "Uber",
-        "detail": "14m car",
+        "label": "Uber to Leeds Station",
+        "detail": "14m uber",
         "time": 14,
         "cost": 8.97,
         "distance": 3.42,
@@ -27646,7 +27646,7 @@
     "lastMile": [
       {
         "id": "bus",
-        "label": "Bus",
+        "label": "Bus to East Leake",
         "detail": "3m walk + 10m bus",
         "time": 13,
         "cost": 2.0,
@@ -29329,8 +29329,8 @@
       },
       {
         "id": "uber",
-        "label": "Uber",
-        "detail": "9m car",
+        "label": "Uber to East Leake",
+        "detail": "10m uber",
         "time": 9,
         "cost": 14.89,
         "distance": 4.46,
@@ -31246,8 +31246,8 @@
       },
       {
         "id": "cycle",
-        "label": "Cycle",
-        "detail": "21m bike",
+        "label": "Cycle to East Leake",
+        "detail": "24m cycle",
         "time": 21,
         "cost": 0.0,
         "distance": 4.49,
