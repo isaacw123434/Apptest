@@ -1086,7 +1086,11 @@ class _DetailPageState extends State<DetailPage> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFF0F172A), width: 3),
+                    border: Border.all(
+                        color: isStart
+                            ? const Color(0xFF0F172A)
+                            : (prevColor ?? const Color(0xFF0F172A)),
+                        width: 3),
                   ),
                 ),
 
