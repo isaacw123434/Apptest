@@ -3,8 +3,8 @@
     "firstMile": [
       {
         "id": "cycle",
-        "label": "Cycle to Leeds Station",
-        "detail": "18m cycle",
+        "label": "Cycle to Leeds",
+        "detail": "18 min bike",
         "time": 18,
         "cost": 0.0,
         "distance": 3.54,
@@ -2100,8 +2100,8 @@
       },
       {
         "id": "drive",
-        "label": "Drive to Leeds Station",
-        "detail": "14m drive",
+        "label": "Drive to Leeds",
+        "detail": "14 min car",
         "time": 14,
         "cost": 24.53985484732872,
         "distance": 3.42,
@@ -3685,8 +3685,8 @@
       },
       {
         "id": "bus",
-        "label": "Bus to Leeds Station",
-        "detail": "4m walk + 30m bus + 4m walk",
+        "label": "Bus to Leeds",
+        "detail": "4 min walk then 30 min bus then 4 min walk",
         "time": 38,
         "cost": 2.0,
         "distance": 3.14,
@@ -5246,8 +5246,8 @@
       },
       {
         "id": "uber",
-        "label": "Uber to Leeds Station",
-        "detail": "14m uber",
+        "label": "Uber to Leeds",
+        "detail": "14 min car",
         "time": 14,
         "cost": 8.97,
         "distance": 3.42,
@@ -6832,7 +6832,7 @@
       {
         "id": "train_walk_headingley",
         "label": "Walk + Train",
-        "detail": "16m walk + 11m train",
+        "detail": "16 min walk then 11 min train",
         "time": 27,
         "cost": 3.4,
         "distance": 3.86,
@@ -8211,7 +8211,7 @@
       {
         "id": "train_cycle_headingley",
         "label": "Cycle + Train",
-        "detail": "6m bike + 11m train",
+        "detail": "6 min bike then 11 min train",
         "time": 17,
         "cost": 0.0,
         "distance": 3.96,
@@ -9646,7 +9646,7 @@
       {
         "id": "train_uber_headingley",
         "label": "Uber + Train",
-        "detail": "4m car + 11m train",
+        "detail": "4 min car then 11 min train",
         "time": 15,
         "cost": 9.32,
         "distance": 4.32,
@@ -11042,7 +11042,7 @@
     "mainLeg": {
       "id": "train_main",
       "label": "Train",
-      "detail": "40m train + 52m train",
+      "detail": "40 min train then 52 min train",
       "time": 94,
       "cost": 25.7,
       "distance": 90.81,
@@ -27646,8 +27646,8 @@
     "lastMile": [
       {
         "id": "bus",
-        "label": "Bus to East Leake",
-        "detail": "3m walk + 10m bus",
+        "label": "Bus",
+        "detail": "3 min walk then 10 min bus",
         "time": 13,
         "cost": 2.0,
         "distance": 4.03,
@@ -29329,8 +29329,8 @@
       },
       {
         "id": "uber",
-        "label": "Uber to East Leake",
-        "detail": "10m uber",
+        "label": "Uber",
+        "detail": "9 min car",
         "time": 9,
         "cost": 14.89,
         "distance": 4.46,
@@ -31246,8 +31246,8 @@
       },
       {
         "id": "cycle",
-        "label": "Cycle to East Leake",
-        "detail": "24m cycle",
+        "label": "Cycle",
+        "detail": "21 min bike",
         "time": 21,
         "cost": 0.0,
         "distance": 4.49,
