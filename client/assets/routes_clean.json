@@ -2096,11 +2096,18 @@
             "cost": 0.0
           }
         ],
-        "co2": 0.0
+        "co2": 0.0,
+        "color": "text-blue-600",
+        "bgColor": "bg-blue-100",
+        "desc": "Zero emissions.",
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
-        "id": "drive",
-        "label": "Drive to Leeds",
+        "id": "drive_park",
+        "label": "Drive & Park",
         "detail": "14 min car",
         "time": 14,
         "cost": 24.53985484732872,
@@ -3681,7 +3688,14 @@
             "cost": 24.53985484732872
           }
         ],
-        "co2": 0.92
+        "co2": 0.92,
+        "color": "text-zinc-800",
+        "bgColor": "bg-zinc-100",
+        "desc": "Flexibility.",
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "bus",
@@ -5242,7 +5256,14 @@
             "cost": 0.0
           }
         ],
-        "co2": 0.28
+        "co2": 0.28,
+        "color": "text-brand-dark",
+        "bgColor": "bg-brand-light",
+        "desc": "Best balance.",
+        "recommended": true,
+        "waitTime": null,
+        "nextBusIn": 12,
+        "platform": null
       },
       {
         "id": "uber",
@@ -6827,7 +6848,14 @@
             "cost": 8.97
           }
         ],
-        "co2": 0.92
+        "co2": 0.92,
+        "color": "text-black",
+        "bgColor": "bg-zinc-100",
+        "desc": "Fastest door-to-door.",
+        "recommended": null,
+        "waitTime": 4,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_walk_headingley",
@@ -8206,7 +8234,14 @@
             "cost": 3.4
           }
         ],
-        "co2": 0.19
+        "co2": 0.19,
+        "color": "text-slate-600",
+        "bgColor": "bg-slate-100",
+        "desc": "Walking transfer.",
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_cycle_headingley",
@@ -9641,7 +9676,14 @@
             "cost": 0.0
           }
         ],
-        "co2": 0.19
+        "co2": 0.19,
+        "color": "text-blue-600",
+        "bgColor": "bg-blue-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_uber_headingley",
@@ -11036,7 +11078,14 @@
             "cost": 3.4
           }
         ],
-        "co2": 0.51
+        "co2": 0.51,
+        "color": "text-slate-600",
+        "bgColor": "bg-slate-100",
+        "desc": "Fast transfer.",
+        "recommended": null,
+        "waitTime": 3,
+        "nextBusIn": null,
+        "platform": null
       }
     ],
     "mainLeg": {
@@ -27641,7 +27690,14 @@
           "cost": 0.0
         }
       ],
-      "co2": 5.45
+      "co2": 5.45,
+      "color": "text-[#713e8d]",
+      "bgColor": "bg-indigo-100",
+      "desc": null,
+      "recommended": null,
+      "waitTime": null,
+      "nextBusIn": null,
+      "platform": 4
     },
     "lastMile": [
       {
@@ -29325,7 +29381,14 @@
             "cost": 2.0
           }
         ],
-        "co2": 0.39
+        "co2": 0.39,
+        "color": "text-brand-dark",
+        "bgColor": "bg-brand-light",
+        "desc": "Short walk required.",
+        "recommended": true,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "uber",
@@ -31242,7 +31305,14 @@
             "cost": 14.89
           }
         ],
-        "co2": 1.2
+        "co2": 1.2,
+        "color": "text-black",
+        "bgColor": "bg-zinc-100",
+        "desc": "Reliable final leg.",
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "cycle",
@@ -33403,7 +33473,14 @@
             "cost": 0.0
           }
         ],
-        "co2": 0.0
+        "co2": 0.0,
+        "color": "text-blue-600",
+        "bgColor": "bg-blue-100",
+        "desc": "Scenic route.",
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       }
     ]
   },

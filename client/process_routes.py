@@ -606,10 +606,93 @@ def parse_option_to_leg(option, group_name, route_id):
     final_label = name
     if route_id == 'route1':
         # Only rename First Mile options (Group 1)
-        if 'Group 1' in group_name and name in ['Bus', 'Cycle', 'Drive', 'Uber']:
-            final_label = f'{name} to Leeds'
+        if 'Group 1' in group_name:
+             if name == 'Drive':
+                 final_label = 'Drive & Park'
+                 id_val = 'drive_park' # Override ID to match frontend expectation
+             elif name in ['Bus', 'Cycle', 'Uber']:
+                 final_label = f'{name} to Leeds'
+
     elif route_id == 'route2':
         final_label = name.replace(' + Train', '')
+
+    # --- Enrich Data (Colors, Desc, Recommended) ---
+    color = None
+    bg_color = None
+    desc = None
+    recommended = None
+    wait_time = None
+    next_bus_in = None
+    platform = None
+
+    # Logic based on ID or Mode
+    if id_val == 'uber' or id_val == 'last_uber':
+        color = 'text-black'
+        bg_color = 'bg-zinc-100'
+        if 'Group 1' in group_name:
+            desc = 'Fastest door-to-door.'
+            wait_time = 4
+        elif 'Group 4' in group_name:
+            desc = 'Reliable final leg.'
+
+    elif id_val == 'bus' or id_val == 'last_bus':
+        color = 'text-brand-dark'
+        bg_color = 'bg-brand-light'
+        if 'Group 1' in group_name:
+            desc = 'Best balance.'
+            recommended = True
+            next_bus_in = 12
+        elif 'Group 4' in group_name:
+            desc = 'Short walk required.'
+            recommended = True
+
+    elif id_val == 'drive_park' or id_val == 'drive':
+        color = 'text-zinc-800'
+        bg_color = 'bg-zinc-100'
+        desc = 'Flexibility.'
+
+    elif id_val == 'train_walk_headingley':
+        color = 'text-slate-600'
+        bg_color = 'bg-slate-100'
+        desc = 'Walking transfer.'
+
+    elif id_val == 'train_uber_headingley':
+        color = 'text-slate-600'
+        bg_color = 'bg-slate-100'
+        desc = 'Fast transfer.'
+        wait_time = 3
+
+    elif id_val == 'cycle' or id_val == 'last_cycle':
+        color = 'text-blue-600'
+        bg_color = 'bg-blue-100'
+        if 'Group 1' in group_name:
+             desc = 'Zero emissions.'
+        elif 'Group 4' in group_name:
+             desc = 'Scenic route.'
+
+    elif id_val == 'train_main':
+        color = 'text-[#713e8d]'
+        bg_color = 'bg-indigo-100'
+        platform = 4
+
+    # Default Logic
+    if not color:
+        if icon_id == ICON_IDS['train']:
+            color = 'text-slate-600'
+            bg_color = 'bg-slate-100'
+        elif icon_id == ICON_IDS['bus']:
+            color = 'text-brand-dark'
+            bg_color = 'bg-brand-light'
+        elif icon_id == ICON_IDS['car']:
+            color = 'text-black'
+            bg_color = 'bg-zinc-100'
+        elif icon_id == ICON_IDS['bike']:
+            color = 'text-blue-600'
+            bg_color = 'bg-blue-100'
+        elif icon_id == ICON_IDS['footprints']:
+            color = 'text-slate-600'
+            bg_color = 'bg-slate-100'
+
 
     return {
         'id': id_val,
@@ -623,7 +706,14 @@ def parse_option_to_leg(option, group_name, route_id):
         'iconId': icon_id,
         'lineColor': line_color,
         'segments': merged_segments,
-        'co2': float(f"{total_co2:.2f}")
+        'co2': float(f"{total_co2:.2f}"),
+        'color': color,
+        'bgColor': bg_color,
+        'desc': desc,
+        'recommended': recommended,
+        'waitTime': wait_time,
+        'nextBusIn': next_bus_in,
+        'platform': platform
     }
 
 def process_file(input_path, output_path, route_id):

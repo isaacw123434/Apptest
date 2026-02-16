@@ -6529,7 +6529,14 @@
             "cost": 8.1
           }
         ],
-        "co2": 6.3
+        "co2": 6.3,
+        "color": "text-black",
+        "bgColor": "bg-zinc-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_uber_brough",
@@ -13059,7 +13066,14 @@
             "cost": 8.1
           }
         ],
-        "co2": 6.3
+        "co2": 6.3,
+        "color": "text-black",
+        "bgColor": "bg-zinc-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_cycle_brough",
@@ -19593,7 +19607,14 @@
             "cost": 8.1
           }
         ],
-        "co2": 2.47
+        "co2": 2.47,
+        "color": "text-blue-600",
+        "bgColor": "bg-blue-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_bus_brough",
@@ -26705,7 +26726,14 @@
             "cost": 8.1
           }
         ],
-        "co2": 3.89
+        "co2": 3.89,
+        "color": "text-brand-dark",
+        "bgColor": "bg-brand-light",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_drive_york",
@@ -32411,7 +32439,14 @@
             "cost": 5.2
           }
         ],
-        "co2": 9.91
+        "co2": 9.91,
+        "color": "text-black",
+        "bgColor": "bg-zinc-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_uber_york",
@@ -38117,7 +38152,14 @@
             "cost": 5.2
           }
         ],
-        "co2": 9.91
+        "co2": 9.91,
+        "color": "text-black",
+        "bgColor": "bg-zinc-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_cycle_york",
@@ -43807,7 +43849,14 @@
             "cost": 5.2
           }
         ],
-        "co2": 1.54
+        "co2": 1.54,
+        "color": "text-blue-600",
+        "bgColor": "bg-blue-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_bus_york",
@@ -58364,7 +58413,14 @@
             "cost": 5.2
           }
         ],
-        "co2": 4.77
+        "co2": 4.77,
+        "color": "text-brand-dark",
+        "bgColor": "bg-brand-light",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_drive_beverley",
@@ -66710,7 +66766,14 @@
             "cost": 12.1
           }
         ],
-        "co2": 3.89
+        "co2": 3.89,
+        "color": "text-black",
+        "bgColor": "bg-zinc-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_uber_beverley",
@@ -75056,7 +75119,14 @@
             "cost": 12.1
           }
         ],
-        "co2": 3.89
+        "co2": 3.89,
+        "color": "text-black",
+        "bgColor": "bg-zinc-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_cycle_beverley",
@@ -83378,7 +83448,14 @@
             "cost": 12.1
           }
         ],
-        "co2": 3.59
+        "co2": 3.59,
+        "color": "text-blue-600",
+        "bgColor": "bg-blue-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_walk_beverley",
@@ -91716,7 +91793,14 @@
             "cost": 12.1
           }
         ],
-        "co2": 3.59
+        "co2": 3.59,
+        "color": "text-slate-600",
+        "bgColor": "bg-slate-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_drive_hull",
@@ -99787,7 +99871,14 @@
             "cost": 9.6
           }
         ],
-        "co2": 6.44
+        "co2": 6.44,
+        "color": "text-black",
+        "bgColor": "bg-zinc-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_uber_hull",
@@ -107858,7 +107949,14 @@
             "cost": 9.6
           }
         ],
-        "co2": 6.44
+        "co2": 6.44,
+        "color": "text-black",
+        "bgColor": "bg-zinc-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_cycle_hull",
@@ -115897,7 +115995,14 @@
             "cost": 9.6
           }
         ],
-        "co2": 3.1
+        "co2": 3.1,
+        "color": "text-blue-600",
+        "bgColor": "bg-blue-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_bus_hull",
@@ -124403,7 +124508,14 @@
             "cost": 0.0
           }
         ],
-        "co2": 3.95
+        "co2": 3.95,
+        "color": "text-brand-dark",
+        "bgColor": "bg-brand-light",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_drive_eastrington",
@@ -130253,7 +130365,14 @@
             "cost": 7.0
           }
         ],
-        "co2": 6.76
+        "co2": 6.76,
+        "color": "text-black",
+        "bgColor": "bg-zinc-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_uber_eastrington",
@@ -136103,7 +136222,14 @@
             "cost": 7.0
           }
         ],
-        "co2": 6.76
+        "co2": 6.76,
+        "color": "text-black",
+        "bgColor": "bg-zinc-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_cycle_eastrington",
@@ -141913,7 +142039,14 @@
             "cost": 7.0
           }
         ],
-        "co2": 1.94
+        "co2": 1.94,
+        "color": "text-blue-600",
+        "bgColor": "bg-blue-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "train_bus_eastrington",
@@ -151465,7 +151598,14 @@
             "cost": 0.0
           }
         ],
-        "co2": 3.98
+        "co2": 3.98,
+        "color": "text-brand-dark",
+        "bgColor": "bg-brand-light",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "drive_stourton_pr",
@@ -154736,7 +154876,14 @@
             "cost": 0.0
           }
         ],
-        "co2": 14.57
+        "co2": 14.57,
+        "color": "text-black",
+        "bgColor": "bg-zinc-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "drive_temple_green_pr",
@@ -158870,7 +159017,14 @@
             "cost": 0.0
           }
         ],
-        "co2": 15.28
+        "co2": 15.28,
+        "color": "text-black",
+        "bgColor": "bg-zinc-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "drive_elland_road_pr",
@@ -161983,7 +162137,14 @@
             "cost": 0.0
           }
         ],
-        "co2": 15.55
+        "co2": 15.55,
+        "color": "text-black",
+        "bgColor": "bg-zinc-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       }
     ],
     "mainLeg": {
@@ -162185,7 +162346,14 @@
             "cost": 0.0
           }
         ],
-        "co2": 0.0
+        "co2": 0.0,
+        "color": "text-blue-600",
+        "bgColor": "bg-blue-100",
+        "desc": "Scenic route.",
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       },
       {
         "id": "walk",
@@ -162362,7 +162530,14 @@
             "cost": 0.0
           }
         ],
-        "co2": 0.0
+        "co2": 0.0,
+        "color": "text-slate-600",
+        "bgColor": "bg-slate-100",
+        "desc": null,
+        "recommended": null,
+        "waitTime": null,
+        "nextBusIn": null,
+        "platform": null
       }
     ]
   },
