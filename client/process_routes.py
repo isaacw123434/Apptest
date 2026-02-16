@@ -583,7 +583,24 @@ def parse_option_to_leg(option, group_name, route_id):
     id_val = generate_id(name)
     icon_id = map_icon_id(name, merged_segments)
     line_color = map_line_color(name, merged_segments)
-    detail = generate_detail(merged_segments)
+
+    # Generate Detail (Truncated for Route 2 Access Options)
+    detail_segments = merged_segments
+    if route_id == 'route2' and 'Access Options' in group_name:
+        filtered = []
+        is_pr = 'p&r' in name.lower() or 'park & ride' in name.lower()
+        for seg in merged_segments:
+            if seg['mode'] == 'train':
+                break
+            if seg['mode'] == 'wait':
+                break
+            if is_pr and seg['mode'] == 'bus':
+                break
+            filtered.append(seg)
+        if filtered:
+            detail_segments = filtered
+
+    detail = generate_detail(detail_segments)
 
     # Standardise Labels
     final_label = name
