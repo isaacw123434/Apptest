@@ -742,7 +742,14 @@ class _DetailPageState extends State<DetailPage> {
                       }
 
                       if (!preventMerge) {
-                           List<Segment> mergeGroup = segments.sublist(i, k + 1);
+                            // --- SCAN FOR TRAILING WALKS ---
+                            int endIdx = k + 1;
+                            while (endIdx < segments.length && isWalkOrWait(segments[endIdx])) {
+                                endIdx++;
+                            }
+                            // -------------------------------
+
+                            List<Segment> mergeGroup = segments.sublist(i, endIdx);
 
                            int totalTime = 0;
                            for(var s in mergeGroup) {
@@ -765,9 +772,9 @@ class _DetailPageState extends State<DetailPage> {
                            currentMinutes += totalTime;
 
                            // Add Node if needed (if not last segment of whole leg)
-                           if (k < segments.length - 1) {
+                            if (endIdx < segments.length) {
                                Segment lastSeg = mergeGroup.last;
-                               Segment nextVis = segments[k+1];
+                                Segment nextVis = segments[endIdx];
                                children.add(_buildNode(
                                   lastSeg.to ?? 'Stop',
                                   _formatMinutes(currentMinutes),
@@ -776,7 +783,7 @@ class _DetailPageState extends State<DetailPage> {
                                ));
                            }
 
-                           i = k;
+                            i = endIdx - 1; // Loop increments i, so point to last consumed
                            continue;
                       }
                  }
