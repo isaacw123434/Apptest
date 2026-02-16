@@ -291,20 +291,6 @@ class _DetailPageState extends State<DetailPage> {
     }
   }
 
-  String _getModeKey(Leg leg) {
-    if (leg.iconId == 'train') return 'train';
-    if (leg.iconId == 'bus') return 'bus';
-    if (leg.iconId == 'bike') return 'bike';
-    if (leg.iconId == 'car') {
-      // Check label for taxi/uber vs drive
-      if (leg.label.toLowerCase().contains('taxi') || leg.label.toLowerCase().contains('uber')) {
-        return 'taxi';
-      }
-      return 'car';
-    }
-    return leg.iconId;
-  }
-
   Map<String, List<Leg>> _groupLegsByStation(List<Leg> options) {
     final Map<String, List<Leg>> groupedLegs = {};
     for (var option in options) {
