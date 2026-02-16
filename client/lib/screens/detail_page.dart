@@ -796,6 +796,48 @@ class _DetailPageState extends State<DetailPage> {
                  i = lookAheadIndex;
              }
         }
+
+        // Walk -> Bus -> Walk Merge
+        if (!merged && (seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints')) {
+             if (i + 2 < segments.length) {
+                 final seg2 = segments[i+1];
+                 final seg3 = segments[i+2];
+
+                 if (seg2.iconId == 'bus' && (seg3.mode.toLowerCase() == 'walk' || seg3.iconId == 'footprints')) {
+                     merged = true;
+
+                     // Helper to calc distance
+                     double? getDist(Segment s) {
+                        if (s.path != null && s.path!.isNotEmpty) {
+                          double totalMeters = 0;
+                          for (int j = 0; j < s.path!.length - 1; j++) {
+                            totalMeters += _distance.as(LengthUnit.Meter, s.path![j], s.path![j + 1]);
+                          }
+                          return totalMeters / 1609.34;
+                        }
+                        return null;
+                     }
+
+                     children.add(_buildMultiSegmentConnection(
+                         segments: [seg, seg2, seg3],
+                         distances: [distance, getDist(seg2), getDist(seg3)],
+                         isEditable: canEdit,
+                         onEdit: () {
+                             _showAccessEdit(leg, legType);
+                         },
+                         onTap: () {
+                            _zoomToSegment(seg2);
+                         }
+                     ));
+
+                     currentMinutes += seg.time + (seg.waitTime ?? 0) +
+                                       seg2.time + (seg2.waitTime ?? 0) +
+                                       seg3.time + (seg3.waitTime ?? 0);
+
+                     i += 2;
+                 }
+             }
+        }
         // --- MERGE DETECTION END ---
 
         if (!merged) {
@@ -1443,6 +1485,186 @@ class _DetailPageState extends State<DetailPage> {
       case 'parking': return LucideIcons.circle;
       default: return LucideIcons.circle;
     }
+  }
+
+  Widget _buildMultiSegmentConnection({
+    required List<Segment> segments,
+    required List<double?> distances,
+    bool isEditable = false,
+    VoidCallback? onEdit,
+    VoidCallback? onTap,
+  }) {
+    double totalCost = segments.fold(0.0, (sum, s) => sum + s.cost);
+
+    // Calculate total CO2
+    double totalCo2 = 0.0;
+    for (int i = 0; i < segments.length; i++) {
+      double? dist = distances[i];
+      final seg = segments[i];
+      if (seg.co2 != null) {
+        totalCo2 += seg.co2!;
+      } else if (dist != null) {
+        totalCo2 += calculateEmission(dist, seg.iconId);
+      }
+    }
+
+    Widget verticalLine = Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 12,
+          height: double.infinity,
+          color: Colors.grey[200],
+        ),
+        Column(
+          children: segments
+              .map((s) => Expanded(
+                  child: Container(width: 4, color: _parseColor(s.lineColor))))
+              .toList(),
+        )
+      ],
+    );
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(width: 24, child: verticalLine),
+          const SizedBox(width: 16),
+          Expanded(
+            child: GestureDetector(
+              onTap: onTap,
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[200]!),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withAlpha(10),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2))
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (int i = 0; i < segments.length; i++) ...[
+                      Builder(builder: (context) {
+                        final seg = segments[i];
+                        final dist = distances[i];
+                        final color = _parseColor(seg.lineColor);
+
+                        return Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: color.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(_getIconData(seg.iconId),
+                                  color: color, size: 20),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(seg.label,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  Text(
+                                    '${seg.time} min${dist != null ? ' • ${dist.toStringAsFixed(1)} miles' : ''}',
+                                    style: const TextStyle(
+                                        fontSize: 12, color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Edit button on the first segment if editable
+                            if (i == 0 && isEditable && onEdit != null)
+                              TextButton.icon(
+                                onPressed: onEdit,
+                                icon: const Icon(LucideIcons.pencil, size: 14),
+                                label: const Text('Edit'),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: const Color(0xFF4F46E5),
+                                  textStyle: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                          ],
+                        );
+                      }),
+
+                      // Divider/Wait
+                      if (i < segments.length - 1)
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 20, top: 8, bottom: 8),
+                          child: Row(
+                            children: [
+                              const Icon(LucideIcons.arrowDown,
+                                  size: 12, color: Colors.grey),
+                              if ((segments[i].waitTime ?? 0) > 0) ...[
+                                const SizedBox(width: 8),
+                                Text('Wait ${segments[i].waitTime} mins',
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                        fontStyle: FontStyle.italic)),
+                              ]
+                            ],
+                          ),
+                        ),
+                    ],
+
+                    const SizedBox(height: 8),
+                    const Divider(),
+                    const SizedBox(height: 4),
+
+                    // Totals
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        if (totalCost > 0)
+                          Text(
+                            '£${totalCost.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87),
+                          ),
+                        if (totalCo2 > 0)
+                          Row(
+                            children: [
+                              const Icon(LucideIcons.leaf,
+                                  size: 12, color: Colors.green),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${totalCo2.toStringAsFixed(2)} kg CO₂',
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _zoomToFit() {
