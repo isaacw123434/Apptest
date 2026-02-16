@@ -311,8 +311,8 @@ def generate_detail(segments):
     parts = []
     for seg in segments:
         if seg['time'] > 0:
-            parts.append(f"{seg['time']}m {seg['mode']}")
-    return ' + '.join(parts)
+            parts.append(f"{seg['time']} min {seg['mode']}")
+    return ' then '.join(parts)
 
 def parse_option_to_leg(option, group_name, route_id):
     name = option.get('name', 'Unknown')
@@ -585,9 +585,18 @@ def parse_option_to_leg(option, group_name, route_id):
     line_color = map_line_color(name, merged_segments)
     detail = generate_detail(merged_segments)
 
+    # Standardise Labels
+    final_label = name
+    if route_id == 'route1':
+        # Only rename First Mile options (Group 1)
+        if 'Group 1' in group_name and name in ['Bus', 'Cycle', 'Drive', 'Uber']:
+            final_label = f'{name} to Leeds'
+    elif route_id == 'route2':
+        final_label = name.replace(' + Train', '')
+
     return {
         'id': id_val,
-        'label': name,
+        'label': final_label,
         'detail': detail,
         'time': final_time,
         'cost': total_cost,
