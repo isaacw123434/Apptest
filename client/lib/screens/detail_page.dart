@@ -686,6 +686,42 @@ class _DetailPageState extends State<DetailPage> {
       final bool canEdit = legType != 'mainLeg';
       final segments = leg.segments;
 
+      if ((legType == 'firstMile' || legType == 'lastMile') &&
+          segments.length > 1) {
+        // Count actual ride segments (exclude walk/wait)
+        int rideCount = segments.where((s) {
+          final isWalk = s.mode.toLowerCase() == 'walk' || s.iconId == 'footprints';
+          final isWait = s.mode.toLowerCase() == 'wait' || s.iconId == 'clock';
+          return !isWalk && !isWait;
+        }).length;
+
+        // Only merge if there is at most 1 ride segment (e.g. Walk-Bus-Walk)
+        // Do not merge if there are multiple rides (e.g. Drive-Train, Uber-Train)
+        if (rideCount <= 1) {
+          int totalTime = 0;
+          for (var s in segments) {
+            totalTime += s.time;
+            if (s.waitTime != null) totalTime += s.waitTime!;
+          }
+
+          children.add(_buildMultiSegmentConnection(
+            segments: segments,
+            isEditable: canEdit,
+            onEdit: () {
+              if (segments.any((s) => s.iconId == 'train')) {
+                _showTrainEdit(leg, legType);
+              } else {
+                _showAccessEdit(leg, legType);
+              }
+            },
+            onTap: () => _zoomToSegments(segments),
+          ));
+
+          currentMinutes += totalTime;
+          return;
+        }
+      }
+
       for (int i = 0; i < segments.length; i++) {
         final seg = segments[i];
         final isFirst = i == 0;
@@ -1486,6 +1522,242 @@ class _DetailPageState extends State<DetailPage> {
         bottom: bottomPadding + 50,
       ),
     ));
+  }
+
+  void _zoomToSegments(List<Segment> segments) {
+    if (!mounted || _mapController == null || segments.isEmpty) return;
+
+    double minLat = 90.0;
+    double maxLat = -90.0;
+    double minLng = 180.0;
+    double maxLng = -180.0;
+    bool hasPoints = false;
+
+    for (var seg in segments) {
+      if (seg.path != null && seg.path!.isNotEmpty) {
+        for (var point in seg.path!) {
+          if (point.latitude < minLat) minLat = point.latitude;
+          if (point.latitude > maxLat) maxLat = point.latitude;
+          if (point.longitude < minLng) minLng = point.longitude;
+          if (point.longitude > maxLng) maxLng = point.longitude;
+          hasPoints = true;
+        }
+      }
+    }
+
+    if (!hasPoints) return;
+
+    final bounds = LatLngBounds(
+      LatLng(minLat, minLng),
+      LatLng(maxLat, maxLng),
+    );
+
+    if (_sheetController.isAttached) {
+      _sheetController.animateTo(
+        0.25,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+
+    if (_innerScrollController != null && _innerScrollController!.hasClients) {
+      _innerScrollController!.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomPadding = screenHeight * 0.25;
+
+    _mapController!.fitCamera(CameraFit.bounds(
+      bounds: bounds,
+      padding: EdgeInsets.only(
+        top: 50,
+        left: 50,
+        right: 50,
+        bottom: bottomPadding + 50,
+      ),
+    ));
+  }
+
+  Widget _buildMultiSegmentConnection({
+    required List<Segment> segments,
+    required bool isEditable,
+    VoidCallback? onEdit,
+    VoidCallback? onTap,
+  }) {
+    double totalCost = 0;
+    double totalCo2 = 0;
+
+    List<Widget> contentChildren = [];
+    List<Widget> lineChildren = [];
+
+    for (int i = 0; i < segments.length; i++) {
+      final seg = segments[i];
+      totalCost += seg.cost;
+
+      double? dist;
+      if (seg.path != null && seg.path!.isNotEmpty) {
+        double totalMeters = 0;
+        for (int j = 0; j < seg.path!.length - 1; j++) {
+          totalMeters +=
+              _distance.as(LengthUnit.Meter, seg.path![j], seg.path![j + 1]);
+        }
+        dist = totalMeters / 1609.34;
+      }
+
+      double segCo2 =
+          seg.co2 ?? (dist != null ? calculateEmission(dist, seg.iconId) : 0.0);
+      totalCo2 += segCo2;
+
+      Color color = _parseColor(seg.lineColor);
+      lineChildren.add(Expanded(child: Container(width: 4, color: color)));
+
+      // Content Row
+      contentChildren.add(Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(_getIconData(seg.iconId), color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(seg.label,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  '${seg.time} min${dist != null ? ' • ${dist.toStringAsFixed(1)} miles' : ''}',
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                if (seg.detail != null)
+                  Text(
+                    seg.detail!,
+                    style: const TextStyle(
+                        fontSize: 11,
+                        color: Colors.blueGrey,
+                        fontStyle: FontStyle.italic),
+                  ),
+              ],
+            ),
+          ),
+          if (i == 0 && isEditable && onEdit != null)
+            TextButton.icon(
+              onPressed: onEdit,
+              icon: const Icon(LucideIcons.pencil, size: 14),
+              label: const Text('Edit'),
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF4F46E5),
+                textStyle:
+                    const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+            ),
+        ],
+      ));
+
+      // Divider / Connector (if not last)
+      if (i < segments.length - 1) {
+        contentChildren.add(Padding(
+          padding: const EdgeInsets.only(left: 20, top: 4, bottom: 4),
+          child: Row(
+            children: [
+              Container(width: 2, height: 16, color: Colors.grey[300]),
+            ],
+          ),
+        ));
+      }
+    }
+
+    Widget verticalLine = Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 12,
+          height: double.infinity,
+          color: Colors.grey[200],
+        ),
+        Column(
+          children: lineChildren,
+        )
+      ],
+    );
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(width: 24, child: verticalLine),
+          const SizedBox(width: 16),
+          Expanded(
+            child: GestureDetector(
+              onTap: onTap,
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[200]!),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withAlpha(10),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2))
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ...contentChildren,
+                    if (totalCost > 0 || totalCo2 > 0) ...[
+                      const SizedBox(height: 8),
+                      const Divider(),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (totalCost > 0)
+                            Text(
+                              '£${totalCost.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87),
+                            ),
+                          if (totalCo2 > 0)
+                            Row(
+                              children: [
+                                const Icon(LucideIcons.leaf,
+                                    size: 12, color: Colors.green),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${totalCo2.toStringAsFixed(2)} kg CO₂',
+                                  style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ]
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
