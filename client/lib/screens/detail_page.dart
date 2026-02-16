@@ -129,12 +129,16 @@ class _DetailPageState extends State<DetailPage> {
     List<Segment> flattened = [];
     void flatten(Segment s) {
         if (s.subSegments != null && s.subSegments!.isNotEmpty) {
-            for (var sub in s.subSegments!) flatten(sub);
+            for (var sub in s.subSegments!) {
+              flatten(sub);
+            }
         } else {
             flattened.add(s);
         }
     }
-    for (var s in allSegments) flatten(s);
+    for (var s in allSegments) {
+      flatten(s);
+    }
 
     if (flattened.isNotEmpty) {
       // Start Marker
@@ -808,17 +812,7 @@ class _DetailPageState extends State<DetailPage> {
              }
         }
 
-        // Calculate Distance
-        double? distance;
-        if (seg.path != null && seg.path!.isNotEmpty) {
-          double totalMeters = 0;
-          for (int j = 0; j < seg.path!.length - 1; j++) {
-            totalMeters += _distance.as(LengthUnit.Meter, seg.path![j], seg.path![j + 1]);
-          }
-          distance = totalMeters / 1609.34; // Convert to miles
-        }
-
-        // Determine extra details
+        // Determine extra details (moved up to avoid unused variable warning if unused below)
         String? extraDetails;
         if (seg.iconId == 'train' && leg.platform != null) {
           extraDetails = 'Platform ${leg.platform}';
@@ -855,7 +849,7 @@ class _DetailPageState extends State<DetailPage> {
                         waitTime: seg.waitTime ?? 0,
                         dist1: s1.distance,
                         dist2: s2.distance,
-                        extraDetails1: s1.detail, // Populated in python
+                        extraDetails1: s1.detail ?? extraDetails, // Use calculated details if python didn't populate
                         isEditable: canEdit,
                         onEdit: () => _showTrainEdit(leg, legType),
                         onTap: () => _zoomToSegment(seg)
@@ -905,7 +899,7 @@ class _DetailPageState extends State<DetailPage> {
                 },
                 onTap: () => _zoomToSegment(seg),
                 distance: distance,
-                extraDetails: seg.detail, // Pre-populated details
+                extraDetails: seg.detail ?? extraDetails, // Use local extraDetails if seg.detail is null
                 isDriveToStation: legType == 'firstMile' && seg.label == 'Drive' && !_isParkAndRideDestination(seg),
             ));
 
