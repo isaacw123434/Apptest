@@ -374,7 +374,7 @@ class _DetailPageState extends State<DetailPage> {
         emissions: Emissions(
             val: savings,
             percent: savingsPercent,
-            text: savings > 0 ? 'Saves $savingsPercent% CO₂ vs driving' : null
+            text: savings > 0 ? 'Saves $savingsPercent% CO₂e vs driving' : null
         ),
       );
 
@@ -654,8 +654,8 @@ class _DetailPageState extends State<DetailPage> {
                                       const SizedBox(width: 4),
                                       Text(
                                         result.emissions.text != null
-                                            ? '${result.emissions.val.toStringAsFixed(2)} kg CO₂'
-                                            : 'Low CO₂',
+                                            ? '${result.emissions.val.toStringAsFixed(2)} kg CO₂e'
+                                            : 'Low CO₂e',
                                         style: const TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
@@ -1396,7 +1396,7 @@ class _DetailPageState extends State<DetailPage> {
                                   size: 12, color: Colors.green),
                               const SizedBox(width: 4),
                               Text(
-                                '${emission.toStringAsFixed(2)} kg CO₂',
+                                '${emission.toStringAsFixed(2)} kg CO₂e',
                                 style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.green,
@@ -1644,7 +1644,7 @@ class _DetailPageState extends State<DetailPage> {
                               const Icon(LucideIcons.leaf, size: 12, color: Colors.green),
                               const SizedBox(width: 4),
                               Text(
-                                '${totalCo2.toStringAsFixed(2)} kg CO₂',
+                                '${totalCo2.toStringAsFixed(2)} kg CO₂e',
                                 style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.green,
@@ -1947,7 +1947,7 @@ class _DetailPageState extends State<DetailPage> {
                                     size: 12, color: Colors.green),
                                 const SizedBox(width: 4),
                                 Text(
-                                  '${totalCo2.toStringAsFixed(2)} kg CO₂',
+                                  '${totalCo2.toStringAsFixed(2)} kg CO₂e',
                                   style: const TextStyle(
                                       fontSize: 12,
                                       color: Colors.green,

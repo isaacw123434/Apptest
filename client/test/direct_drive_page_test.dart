@@ -38,13 +38,13 @@ void main() {
     expect(find.text('COST'), findsOneWidget);
     expect(find.text('TIME'), findsOneWidget);
     expect(find.text('DISTANCE'), findsOneWidget);
-    expect(find.text('CO₂'), findsOneWidget);
+    expect(find.text('CO₂E'), findsOneWidget);
 
     // Verify that the value texts are present
     expect(find.text('£39.15'), findsOneWidget);
     expect(find.text('1hr 50m'), findsOneWidget);
     expect(find.text('87.31 mi'), findsOneWidget);
-    expect(find.text('23.89 kg'), findsOneWidget);
+    expect(find.text('23.89 kg CO₂e'), findsOneWidget);
 
     // Check for overflow errors
 
