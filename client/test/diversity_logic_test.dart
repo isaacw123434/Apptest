@@ -40,9 +40,9 @@ void main() {
 
     // Verification
     expect(finalResults.length, 3);
-    expect(finalResults[0].id, 'brough_0700'); // Best Brough
-    expect(finalResults[1].id, 'beverley_0715'); // Best Beverley (Alternative)
-    expect(finalResults[2].id, 'brough_0730'); // Next Best Brough (Fallback)
+    expect(finalResults[0].id, 'brough_0700'); // Best Brough (65 mins)
+    expect(finalResults[1].id, 'brough_0730'); // Next Best Brough (65 mins)
+    expect(finalResults[2].id, 'beverley_0715'); // Best Beverley (85 mins) - Selected via Diversity, but sorted by time
   });
 
   test('Anchor Extraction Case Insensitivity', () {

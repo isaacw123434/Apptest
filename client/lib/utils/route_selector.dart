@@ -112,6 +112,9 @@ class RouteSelector {
       }
     }
 
+    // Sort final results based on the selected tab criteria
+    finalResults.sort(compareJourneys);
+
     return finalResults;
   }
 }

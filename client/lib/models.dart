@@ -50,6 +50,46 @@ class Segment {
     this.stopPoints,
   });
 
+  Segment copyWith({
+    String? mode,
+    String? label,
+    String? lineColor,
+    String? iconId,
+    int? time,
+    String? from,
+    String? to,
+    String? detail,
+    List<LatLng>? path,
+    double? co2,
+    double? distance,
+    double? cost,
+    int? waitTime,
+    List<Segment>? subSegments,
+    int? numStops,
+    List<String>? stops,
+    List<LatLng>? stopPoints,
+  }) {
+    return Segment(
+      mode: mode ?? this.mode,
+      label: label ?? this.label,
+      lineColor: lineColor ?? this.lineColor,
+      iconId: iconId ?? this.iconId,
+      time: time ?? this.time,
+      from: from ?? this.from,
+      to: to ?? this.to,
+      detail: detail ?? this.detail,
+      path: path ?? this.path,
+      co2: co2 ?? this.co2,
+      distance: distance ?? this.distance,
+      cost: cost ?? this.cost,
+      waitTime: waitTime ?? this.waitTime,
+      subSegments: subSegments ?? this.subSegments,
+      numStops: numStops ?? this.numStops,
+      stops: stops ?? this.stops,
+      stopPoints: stopPoints ?? this.stopPoints,
+    );
+  }
+
   factory Segment.fromJson(Map<String, dynamic> json) {
     var subSegmentsList = json['subSegments'] as List?;
     List<Segment>? subSegments;
