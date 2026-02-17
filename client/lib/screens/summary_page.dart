@@ -874,28 +874,24 @@ class _SummaryPageState extends State<SummaryPage> {
 
   Widget _buildSchematic(JourneyResult result) {
     // A simplified visual representation of the journey segments
-    List<Segment> allSegments = [];
+    List<Segment> processedSegments = [];
 
-    // Leg 1
-    allSegments.addAll(result.leg1.segments);
+    // Process each leg separately to avoid merging across legs (e.g. Northern + CrossCountry)
+    processedSegments.addAll(_processSegments(result.leg1.segments));
 
-    // Main Leg
     if (_mainLeg != null) {
-      allSegments.addAll(_mainLeg!.segments);
+      processedSegments.addAll(_processSegments(_mainLeg!.segments));
     } else {
-      // Fallback if mainLeg not loaded yet (shouldn't happen often if we sync loading, but for safety)
-      allSegments.add(Segment(
+       // Fallback
+       processedSegments.addAll(_processSegments([Segment(
           mode: 'train',
           label: 'CrossCountry',
           lineColor: '#713e8d',
           iconId: 'train',
-          time: 102));
+          time: 102)]));
     }
 
-    // Leg 3
-    allSegments.addAll(result.leg3.segments);
-
-    final processedSegments = _processSegments(allSegments);
+    processedSegments.addAll(_processSegments(result.leg3.segments));
 
     double totalTime = result.time.toDouble();
     // Safety check for totalTime
