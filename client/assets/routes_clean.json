@@ -3,7 +3,7 @@
     "firstMile": [
       {
         "id": "cycle",
-        "label": "Cycle to Leeds Station",
+        "label": "Cycle to Leeds",
         "detail": "18 min bike",
         "time": 18,
         "cost": 0.0,
@@ -2093,7 +2093,9 @@
             "co2": 0,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.0,
@@ -2107,7 +2109,7 @@
       },
       {
         "id": "drive_park",
-        "label": "Drive to Leeds Station",
+        "label": "Drive & Park",
         "detail": "14 min car",
         "time": 14,
         "cost": 24.53985484732872,
@@ -3685,7 +3687,9 @@
             "co2": 0.9239129083972313,
             "from": null,
             "to": null,
-            "cost": 24.53985484732872
+            "cost": 24.53985484732872,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.92,
@@ -3699,7 +3703,7 @@
       },
       {
         "id": "bus",
-        "label": "Bus to Leeds Station",
+        "label": "Bus to Leeds",
         "detail": "38 min bus",
         "time": 38,
         "cost": 2.0,
@@ -3815,7 +3819,9 @@
                 "co2": 0.0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               },
               {
                 "mode": "bus",
@@ -5142,6 +5148,8 @@
                 "from": null,
                 "to": null,
                 "cost": 2.0,
+                "numStops": 12,
+                "stops": null,
                 "detail": "Bus every 12 mins"
               },
               {
@@ -5264,7 +5272,9 @@
                 "co2": 0.0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               }
             ],
             "path": [
@@ -6787,7 +6797,7 @@
       },
       {
         "id": "uber",
-        "label": "Uber to Leeds Station",
+        "label": "Uber to Leeds",
         "detail": "14 min car",
         "time": 14,
         "cost": 8.97,
@@ -8366,6 +8376,8 @@
             "from": null,
             "to": null,
             "cost": 8.97,
+            "numStops": null,
+            "stops": null,
             "detail": "Est wait: 4 min"
           }
         ],
@@ -8876,7 +8888,9 @@
                 "co2": 0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               },
               {
                 "mode": "train",
@@ -9762,7 +9776,9 @@
                 "co2": 0.18734388009991673,
                 "from": null,
                 "to": null,
-                "cost": 3.4
+                "cost": 3.4,
+                "numStops": null,
+                "stops": null
               }
             ],
             "path": [
@@ -11658,7 +11674,9 @@
             "co2": 0,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           },
           {
             "mode": "train",
@@ -12544,7 +12562,9 @@
             "co2": 0.18734388009991673,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.19,
@@ -13061,6 +13081,8 @@
             "from": null,
             "to": null,
             "cost": 5.92,
+            "numStops": null,
+            "stops": null,
             "detail": "Est wait: 3 min"
           },
           {
@@ -13947,7 +13969,9 @@
             "co2": 0.18734388009991673,
             "from": null,
             "to": null,
-            "cost": 3.4
+            "cost": 3.4,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.51,
@@ -13974,7 +13998,7 @@
       "segments": [
         {
           "mode": "train_group",
-          "label": "CrossCountry + EMR",
+          "label": "CrossCountry",
           "lineColor": "#880038",
           "iconId": "train",
           "time": 92,
@@ -22267,6 +22291,8 @@
               "from": "Leeds Station",
               "to": "Sheffield Station",
               "cost": 25.7,
+              "numStops": 2,
+              "stops": null,
               "waitTime": 2,
               "detail": "Platform 4"
             },
@@ -30571,6 +30597,8 @@
               "from": "Sheffield Station",
               "to": "Loughborough Station",
               "cost": 0.0,
+              "numStops": 2,
+              "stops": null,
               "detail": "Platform 4"
             }
           ],
@@ -47280,7 +47308,9 @@
                 "co2": 0.0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               },
               {
                 "mode": "bus",
@@ -48838,7 +48868,9 @@
                 "co2": 0.389290019511104,
                 "from": null,
                 "to": null,
-                "cost": 2.0
+                "cost": 2.0,
+                "numStops": 15,
+                "stops": null
               }
             ],
             "path": [
@@ -52406,7 +52438,9 @@
             "co2": 1.2034187927970474,
             "from": null,
             "to": null,
-            "cost": 14.89
+            "cost": 14.89,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 1.2,
@@ -54574,7 +54608,9 @@
             "co2": 0,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.0,
@@ -77689,7 +77725,7 @@
       "id": "cycle-bus",
       "leg1": {
         "id": "cycle",
-        "label": "Cycle to Leeds Station",
+        "label": "Cycle to Leeds",
         "detail": "18 min bike",
         "time": 18,
         "cost": 0.0,
@@ -79779,7 +79815,9 @@
             "co2": 0,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.0,
@@ -79921,7 +79959,9 @@
                 "co2": 0.0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               },
               {
                 "mode": "bus",
@@ -81479,7 +81519,9 @@
                 "co2": 0.389290019511104,
                 "from": null,
                 "to": null,
-                "cost": 2.0
+                "cost": 2.0,
+                "numStops": 15,
+                "stops": null
               }
             ],
             "path": [
@@ -83149,7 +83191,7 @@
       "id": "cycle-uber",
       "leg1": {
         "id": "cycle",
-        "label": "Cycle to Leeds Station",
+        "label": "Cycle to Leeds",
         "detail": "18 min bike",
         "time": 18,
         "cost": 0.0,
@@ -85239,7 +85281,9 @@
             "co2": 0,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.0,
@@ -87163,7 +87207,9 @@
             "co2": 1.2034187927970474,
             "from": null,
             "to": null,
-            "cost": 14.89
+            "cost": 14.89,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 1.2,
@@ -87189,7 +87235,7 @@
       "id": "cycle-cycle",
       "leg1": {
         "id": "cycle",
-        "label": "Cycle to Leeds Station",
+        "label": "Cycle to Leeds",
         "detail": "18 min bike",
         "time": 18,
         "cost": 0.0,
@@ -89279,7 +89325,9 @@
             "co2": 0,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.0,
@@ -91447,7 +91495,9 @@
             "co2": 0,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.0,
@@ -91473,7 +91523,7 @@
       "id": "drive_park-bus",
       "leg1": {
         "id": "drive_park",
-        "label": "Drive to Leeds Station",
+        "label": "Drive & Park",
         "detail": "14 min car",
         "time": 14,
         "cost": 24.53985484732872,
@@ -93051,7 +93101,9 @@
             "co2": 0.9239129083972313,
             "from": null,
             "to": null,
-            "cost": 24.53985484732872
+            "cost": 24.53985484732872,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.92,
@@ -93193,7 +93245,9 @@
                 "co2": 0.0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               },
               {
                 "mode": "bus",
@@ -94751,7 +94805,9 @@
                 "co2": 0.389290019511104,
                 "from": null,
                 "to": null,
-                "cost": 2.0
+                "cost": 2.0,
+                "numStops": 15,
+                "stops": null
               }
             ],
             "path": [
@@ -96421,7 +96477,7 @@
       "id": "drive_park-uber",
       "leg1": {
         "id": "drive_park",
-        "label": "Drive to Leeds Station",
+        "label": "Drive & Park",
         "detail": "14 min car",
         "time": 14,
         "cost": 24.53985484732872,
@@ -97999,7 +98055,9 @@
             "co2": 0.9239129083972313,
             "from": null,
             "to": null,
-            "cost": 24.53985484732872
+            "cost": 24.53985484732872,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.92,
@@ -99923,7 +99981,9 @@
             "co2": 1.2034187927970474,
             "from": null,
             "to": null,
-            "cost": 14.89
+            "cost": 14.89,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 1.2,
@@ -99949,7 +100009,7 @@
       "id": "drive_park-cycle",
       "leg1": {
         "id": "drive_park",
-        "label": "Drive to Leeds Station",
+        "label": "Drive & Park",
         "detail": "14 min car",
         "time": 14,
         "cost": 24.53985484732872,
@@ -101527,7 +101587,9 @@
             "co2": 0.9239129083972313,
             "from": null,
             "to": null,
-            "cost": 24.53985484732872
+            "cost": 24.53985484732872,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.92,
@@ -103695,7 +103757,9 @@
             "co2": 0,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.0,
@@ -103721,7 +103785,7 @@
       "id": "bus-bus",
       "leg1": {
         "id": "bus",
-        "label": "Bus to Leeds Station",
+        "label": "Bus to Leeds",
         "detail": "38 min bus",
         "time": 38,
         "cost": 2.0,
@@ -103837,7 +103901,9 @@
                 "co2": 0.0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               },
               {
                 "mode": "bus",
@@ -105164,6 +105230,8 @@
                 "from": null,
                 "to": null,
                 "cost": 2.0,
+                "numStops": 12,
+                "stops": null,
                 "detail": "Bus every 12 mins"
               },
               {
@@ -105286,7 +105354,9 @@
                 "co2": 0.0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               }
             ],
             "path": [
@@ -106937,7 +107007,9 @@
                 "co2": 0.0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               },
               {
                 "mode": "bus",
@@ -108495,7 +108567,9 @@
                 "co2": 0.389290019511104,
                 "from": null,
                 "to": null,
-                "cost": 2.0
+                "cost": 2.0,
+                "numStops": 15,
+                "stops": null
               }
             ],
             "path": [
@@ -110165,7 +110239,7 @@
       "id": "bus-uber",
       "leg1": {
         "id": "bus",
-        "label": "Bus to Leeds Station",
+        "label": "Bus to Leeds",
         "detail": "38 min bus",
         "time": 38,
         "cost": 2.0,
@@ -110281,7 +110355,9 @@
                 "co2": 0.0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               },
               {
                 "mode": "bus",
@@ -111608,6 +111684,8 @@
                 "from": null,
                 "to": null,
                 "cost": 2.0,
+                "numStops": 12,
+                "stops": null,
                 "detail": "Bus every 12 mins"
               },
               {
@@ -111730,7 +111808,9 @@
                 "co2": 0.0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               }
             ],
             "path": [
@@ -115163,7 +115243,9 @@
             "co2": 1.2034187927970474,
             "from": null,
             "to": null,
-            "cost": 14.89
+            "cost": 14.89,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 1.2,
@@ -115189,7 +115271,7 @@
       "id": "uber-bus",
       "leg1": {
         "id": "uber",
-        "label": "Uber to Leeds Station",
+        "label": "Uber to Leeds",
         "detail": "14 min car",
         "time": 14,
         "cost": 8.97,
@@ -116768,6 +116850,8 @@
             "from": null,
             "to": null,
             "cost": 8.97,
+            "numStops": null,
+            "stops": null,
             "detail": "Est wait: 4 min"
           }
         ],
@@ -116910,7 +116994,9 @@
                 "co2": 0.0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               },
               {
                 "mode": "bus",
@@ -118468,7 +118554,9 @@
                 "co2": 0.389290019511104,
                 "from": null,
                 "to": null,
-                "cost": 2.0
+                "cost": 2.0,
+                "numStops": 15,
+                "stops": null
               }
             ],
             "path": [
@@ -120138,7 +120226,7 @@
       "id": "uber-uber",
       "leg1": {
         "id": "uber",
-        "label": "Uber to Leeds Station",
+        "label": "Uber to Leeds",
         "detail": "14 min car",
         "time": 14,
         "cost": 8.97,
@@ -121717,6 +121805,8 @@
             "from": null,
             "to": null,
             "cost": 8.97,
+            "numStops": null,
+            "stops": null,
             "detail": "Est wait: 4 min"
           }
         ],
@@ -123641,7 +123731,9 @@
             "co2": 1.2034187927970474,
             "from": null,
             "to": null,
-            "cost": 14.89
+            "cost": 14.89,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 1.2,
@@ -124163,7 +124255,9 @@
                 "co2": 0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               },
               {
                 "mode": "train",
@@ -125049,7 +125143,9 @@
                 "co2": 0.18734388009991673,
                 "from": null,
                 "to": null,
-                "cost": 3.4
+                "cost": 3.4,
+                "numStops": null,
+                "stops": null
               }
             ],
             "path": [
@@ -126531,7 +126627,9 @@
                 "co2": 0.0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               },
               {
                 "mode": "bus",
@@ -128089,7 +128187,9 @@
                 "co2": 0.389290019511104,
                 "from": null,
                 "to": null,
-                "cost": 2.0
+                "cost": 2.0,
+                "numStops": 15,
+                "stops": null
               }
             ],
             "path": [
@@ -130255,7 +130355,9 @@
                 "co2": 0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               },
               {
                 "mode": "train",
@@ -131141,7 +131243,9 @@
                 "co2": 0.18734388009991673,
                 "from": null,
                 "to": null,
-                "cost": 3.4
+                "cost": 3.4,
+                "numStops": null,
+                "stops": null
               }
             ],
             "path": [
@@ -134405,7 +134509,9 @@
             "co2": 1.2034187927970474,
             "from": null,
             "to": null,
-            "cost": 14.89
+            "cost": 14.89,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 1.2,
@@ -134973,7 +135079,9 @@
             "co2": 0,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           },
           {
             "mode": "train",
@@ -135859,7 +135967,9 @@
             "co2": 0.18734388009991673,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.19,
@@ -136001,7 +136111,9 @@
                 "co2": 0.0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               },
               {
                 "mode": "bus",
@@ -137559,7 +137671,9 @@
                 "co2": 0.389290019511104,
                 "from": null,
                 "to": null,
-                "cost": 2.0
+                "cost": 2.0,
+                "numStops": 15,
+                "stops": null
               }
             ],
             "path": [
@@ -139771,7 +139885,9 @@
             "co2": 0,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           },
           {
             "mode": "train",
@@ -140657,7 +140773,9 @@
             "co2": 0.18734388009991673,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.19,
@@ -142581,7 +142699,9 @@
             "co2": 1.2034187927970474,
             "from": null,
             "to": null,
-            "cost": 14.89
+            "cost": 14.89,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 1.2,
@@ -143149,7 +143269,9 @@
             "co2": 0,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           },
           {
             "mode": "train",
@@ -144035,7 +144157,9 @@
             "co2": 0.18734388009991673,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.19,
@@ -146203,7 +146327,9 @@
             "co2": 0,
             "from": null,
             "to": null,
-            "cost": 0.0
+            "cost": 0.0,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.0,
@@ -146732,6 +146858,8 @@
             "from": null,
             "to": null,
             "cost": 5.92,
+            "numStops": null,
+            "stops": null,
             "detail": "Est wait: 3 min"
           },
           {
@@ -147618,7 +147746,9 @@
             "co2": 0.18734388009991673,
             "from": null,
             "to": null,
-            "cost": 3.4
+            "cost": 3.4,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.51,
@@ -147760,7 +147890,9 @@
                 "co2": 0.0,
                 "from": null,
                 "to": null,
-                "cost": 0.0
+                "cost": 0.0,
+                "numStops": null,
+                "stops": null
               },
               {
                 "mode": "bus",
@@ -149318,7 +149450,9 @@
                 "co2": 0.389290019511104,
                 "from": null,
                 "to": null,
-                "cost": 2.0
+                "cost": 2.0,
+                "numStops": 15,
+                "stops": null
               }
             ],
             "path": [
@@ -151491,6 +151625,8 @@
             "from": null,
             "to": null,
             "cost": 5.92,
+            "numStops": null,
+            "stops": null,
             "detail": "Est wait: 3 min"
           },
           {
@@ -152377,7 +152513,9 @@
             "co2": 0.18734388009991673,
             "from": null,
             "to": null,
-            "cost": 3.4
+            "cost": 3.4,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 0.51,
@@ -154301,7 +154439,9 @@
             "co2": 1.2034187927970474,
             "from": null,
             "to": null,
-            "cost": 14.89
+            "cost": 14.89,
+            "numStops": null,
+            "stops": null
           }
         ],
         "co2": 1.2,

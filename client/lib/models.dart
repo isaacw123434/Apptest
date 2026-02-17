@@ -25,6 +25,8 @@ class Segment {
   final double cost;
   final int? waitTime;
   final List<Segment>? subSegments;
+  final int? numStops;
+  final List<String>? stops;
 
   Segment({
     required this.mode,
@@ -41,6 +43,8 @@ class Segment {
     this.cost = 0.0,
     this.waitTime,
     this.subSegments,
+    this.numStops,
+    this.stops,
   });
 
   factory Segment.fromJson(Map<String, dynamic> json) {
@@ -82,6 +86,8 @@ class Segment {
       cost: (json['cost'] ?? 0).toDouble(),
       waitTime: json['waitTime'],
       subSegments: subSegments,
+      numStops: json['numStops'],
+      stops: (json['stops'] as List?)?.map((e) => e as String).toList(),
     );
   }
 }

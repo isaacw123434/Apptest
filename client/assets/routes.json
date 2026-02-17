@@ -612,7 +612,8 @@
                 "vehicle_type": "BUS",
                 "color": "#30227d",
                 "text_color": "#eb5ddf",
-                "agency": "LeedsCity"
+                "agency": "LeedsCity",
+                "num_stops": 12
               }
             },
             {
@@ -1545,7 +1546,8 @@
                 },
                 "arrival_stop": {
                   "name": "Sheffield Station"
-                }
+                },
+                "num_stops": 2
               }
             },
             {
@@ -1590,7 +1592,8 @@
                 },
                 "arrival_stop": {
                   "name": "Loughborough Station"
-                }
+                },
+                "num_stops": 2
               }
             }
           ]
@@ -1639,7 +1642,8 @@
                 "vehicle_type": "BUS",
                 "color": "#002663",
                 "text_color": "#ffffff",
-                "agency": "Nottingham City Transport"
+                "agency": "Nottingham City Transport",
+                "num_stops": 15
               }
             }
           ]
