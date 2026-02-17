@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../utils/app_colors.dart';
 import '../widgets/header.dart';
 import '../widgets/search_form.dart';
 import '../widgets/home/mock_route_buttons.dart';
