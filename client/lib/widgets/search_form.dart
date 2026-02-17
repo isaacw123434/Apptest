@@ -3,7 +3,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../utils/app_colors.dart';
 import 'mode_filter.dart';
 
-class SearchForm extends StatefulWidget {
+class SearchForm extends StatelessWidget {
   final TextEditingController fromController;
   final TextEditingController toController;
   final TextEditingController timeController;
@@ -24,30 +24,25 @@ class SearchForm extends StatefulWidget {
   });
 
   @override
-  State<SearchForm> createState() => _SearchFormState();
-}
-
-class _SearchFormState extends State<SearchForm> {
-  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildInputRow(LucideIcons.circle, widget.fromController, Colors.grey),
+        _buildInputRow(fromController, Colors.grey),
         const SizedBox(height: 12),
-        _buildInputRow(LucideIcons.circle, widget.toController, Colors.black),
+        _buildInputRow(toController, Colors.black),
         const SizedBox(height: 12),
         _buildTimeRow(),
         const SizedBox(height: 12),
         ModeFilter(
-          selectedModes: widget.selectedModes,
-          onModeChanged: widget.onModeChanged,
+          selectedModes: selectedModes,
+          onModeChanged: onModeChanged,
         ),
       ],
     );
   }
 
-  Widget _buildInputRow(IconData icon, TextEditingController controller, Color dotColor) {
+  Widget _buildInputRow(TextEditingController controller, Color dotColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -103,7 +98,7 @@ class _SearchFormState extends State<SearchForm> {
             child: Row(
               children: [
                 DropdownButton<String>(
-                  value: widget.timeType,
+                  value: timeType,
                   underline: Container(),
                   style: const TextStyle(
                     fontSize: 10,
@@ -111,7 +106,7 @@ class _SearchFormState extends State<SearchForm> {
                     color: AppColors.slate500,
                   ),
                   icon: const Icon(LucideIcons.chevronDown, size: 14, color: AppColors.slate400),
-                  onChanged: widget.onTimeTypeChanged,
+                  onChanged: onTimeTypeChanged,
                   items: <String>['Depart', 'Arrive']
                       .map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
@@ -123,7 +118,7 @@ class _SearchFormState extends State<SearchForm> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: TextField(
-                    controller: widget.timeController,
+                    controller: timeController,
                     readOnly: true,
                     style: const TextStyle(
                       fontSize: 14,

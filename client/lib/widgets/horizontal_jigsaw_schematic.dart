@@ -124,84 +124,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
         Widget content = Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: segments.asMap().entries.map((entry) {
-            final index = entry.key;
-            final seg = entry.value;
-            final isFirst = index == 0;
-            final isLast = index == segments.length - 1;
-
-            double width = segmentWidths[index];
-
-            Color color;
-            try {
-              color = Color(
-                int.parse(seg.lineColor.replaceAll('#', ''), radix: 16) +
-                    0xFF000000,
-              );
-            } catch (e) {
-              color = Colors.grey;
-            }
-
-            // Text color needs to contrast with background.
-            final isBright = color.computeLuminance() > 0.5;
-            final textColor = isBright ? Colors.black : Colors.white;
-
-            String displayText = seg.label;
-            bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
-
-            if (isWalk) {
-               displayText = '';
-            }
-
-            IconData? iconData = _getIconData(seg.iconId);
-
-            String durationText = formatDuration(seg.time, compact: isWalk);
-
-            return SizedBox(
-              width: width,
-              child: HorizontalJigsawSegment(
-                isFirst: isFirst,
-                isLast: isLast,
-                backgroundColor: color,
-                borderColor: Colors.white,
-                overlap: overlap,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (iconData != null)
-                          Icon(iconData, color: textColor, size: 16),
-                        if (displayText.isNotEmpty) ...[
-                            if (iconData != null) const SizedBox(width: 2),
-                            Flexible(
-                              child: Text(
-                                displayText,
-                                maxLines: 1,
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontSize: fontSize,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                        ]
-                      ],
-                    ),
-                    Text(
-                      durationText,
-                      maxLines: 1,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: durationFontSize,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
+            return _buildSegmentWidget(entry.key, entry.value, segmentWidths[entry.key], fontSize, durationFontSize, overlap);
           }).toList(),
         );
 
@@ -214,6 +137,83 @@ class HorizontalJigsawSchematic extends StatelessWidget {
 
         return content;
       },
+    );
+  }
+
+  Widget _buildSegmentWidget(int index, Segment seg, double width, double fontSize, double durationFontSize, double overlap) {
+    final isFirst = index == 0;
+    final isLast = index == segments.length - 1;
+
+    Color color;
+    try {
+      color = Color(
+        int.parse(seg.lineColor.replaceAll('#', ''), radix: 16) +
+            0xFF000000,
+      );
+    } catch (e) {
+      color = Colors.grey;
+    }
+
+    // Text color needs to contrast with background.
+    final isBright = color.computeLuminance() > 0.5;
+    final textColor = isBright ? Colors.black : Colors.white;
+
+    String displayText = seg.label;
+    bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
+
+    if (isWalk) {
+       displayText = '';
+    }
+
+    IconData? iconData = _getIconData(seg.iconId);
+
+    String durationText = formatDuration(seg.time, compact: isWalk);
+
+    return SizedBox(
+      width: width,
+      child: HorizontalJigsawSegment(
+        isFirst: isFirst,
+        isLast: isLast,
+        backgroundColor: color,
+        borderColor: Colors.white,
+        overlap: overlap,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (iconData != null)
+                  Icon(iconData, color: textColor, size: 16),
+                if (displayText.isNotEmpty) ...[
+                    if (iconData != null) const SizedBox(width: 2),
+                    Flexible(
+                      child: Text(
+                        displayText,
+                        maxLines: 1,
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                ]
+              ],
+            ),
+            Text(
+              durationText,
+              maxLines: 1,
+              style: TextStyle(
+                color: textColor,
+                fontSize: durationFontSize,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -370,5 +370,11 @@ class _HorizontalJigsawPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _HorizontalJigsawPainter oldDelegate) {
+    return isFirst != oldDelegate.isFirst ||
+        isLast != oldDelegate.isLast ||
+        backgroundColor != oldDelegate.backgroundColor ||
+        borderColor != oldDelegate.borderColor ||
+        overlap != oldDelegate.overlap;
+  }
 }
