@@ -113,4 +113,25 @@ void main() {
      // Should still have icon
      expect(find.descendant(of: row3, matching: find.byType(Icon)), findsOneWidget);
   });
+
+  testWidgets('HorizontalJigsawSchematic has correct text overflow settings', (WidgetTester tester) async {
+     final segments = [
+       Segment(mode: 'train', label: 'CrossCountry + EMR', lineColor: '#000000', iconId: 'train', time: 10),
+     ];
+
+     await tester.pumpWidget(MaterialApp(
+       home: Scaffold(
+         body: HorizontalJigsawSchematic(segments: segments, totalTime: 10),
+       ),
+     ));
+
+     final textFinder = find.text('CrossCountry + EMR');
+     expect(textFinder, findsOneWidget);
+
+     final Text textWidget = tester.widget(textFinder);
+
+     // We expect overflow to be visible and softWrap to be false to prevent clipping
+     expect(textWidget.overflow, TextOverflow.visible);
+     expect(textWidget.softWrap, false);
+  });
 }
