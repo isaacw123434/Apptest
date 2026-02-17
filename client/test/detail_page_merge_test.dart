@@ -146,7 +146,7 @@ void main() {
     expect(find.text('Train to London'), findsOneWidget);
 
     // Verify "Change at Leeds" is present with wait time
-    expect(find.textContaining('Change at Leeds (4 mins)'), findsOneWidget);
+    expect(find.textContaining('Change at Leeds (4 min)'), findsOneWidget);
 
     // Verify ONE Total Cost (£25.00)
     expect(find.text('£25.00'), findsOneWidget);

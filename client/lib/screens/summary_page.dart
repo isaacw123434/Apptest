@@ -3,6 +3,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import '../utils/risk_helper.dart';
+import '../utils/time_utils.dart';
 import 'detail_page.dart';
 import 'direct_drive_page.dart';
 import 'horizontal_jigsaw_schematic.dart';
@@ -527,7 +528,7 @@ class _SummaryPageState extends State<SummaryPage> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '${(_directDrive!.time / 60).floor()}h ${_directDrive!.time % 60}m',
+                  formatDuration(_directDrive!.time),
                   style: const TextStyle(
                     fontWeight: FontWeight.w500,
                     fontSize: 12,
@@ -672,7 +673,7 @@ class _SummaryPageState extends State<SummaryPage> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                '${(result.time / 60).floor()}hr ${result.time % 60}m',
+                                formatDuration(result.time),
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,

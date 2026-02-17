@@ -5,6 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import '../utils/emission_utils.dart';
+import '../utils/time_utils.dart';
 
 class DetailPage extends StatefulWidget {
   final JourneyResult? journeyResult;
@@ -735,9 +736,9 @@ class _DetailPageState extends State<DetailPage> {
         if (seg.iconId == 'train' && leg.platform != null) {
           extraDetails = 'Platform ${leg.platform}';
         } else if (seg.iconId == 'bus' && leg.nextBusIn != null) {
-          extraDetails = 'Bus every ${leg.nextBusIn} mins';
+          extraDetails = 'Bus every ${formatDuration(leg.nextBusIn!)}';
         } else if ((seg.iconId == 'car' || seg.mode == 'taxi') && leg.waitTime != null) {
-          extraDetails = 'Est wait: ${leg.waitTime} min';
+          extraDetails = 'Est wait: ${formatDuration(leg.waitTime!)}';
         } else if (seg.iconId == 'bike' && leg.desc != null) {
           extraDetails = leg.desc;
         } else if (seg.detail != null && seg.detail!.isNotEmpty) {
@@ -1302,7 +1303,7 @@ class _DetailPageState extends State<DetailPage> {
                             Text(segment.label,
                                 style: const TextStyle(fontWeight: FontWeight.bold)),
                             Text(
-                              '${segment.time} min${displayDistance != null ? ' • ${displayDistance.toStringAsFixed(1)} miles' : ''}',
+                              '${formatDuration(segment.time)}${displayDistance != null ? ' • ${displayDistance.toStringAsFixed(1)} miles' : ''}',
                               style: const TextStyle(fontSize: 12, color: Colors.grey),
                             ),
                             if (isDriveToStation && drivingCost != null && parkingCost != null) ...[
@@ -1448,7 +1449,7 @@ class _DetailPageState extends State<DetailPage> {
                 children: [
                   const Icon(LucideIcons.clock, size: 14, color: Colors.grey),
                   const SizedBox(width: 4),
-                  Text('${segment.time} mins transfer', style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic)),
+                  Text('${formatDuration(segment.time)} transfer', style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic)),
                 ],
               ),
             ),
@@ -1548,7 +1549,7 @@ class _DetailPageState extends State<DetailPage> {
                                       children: [
                                         Text(seg1.label, style: const TextStyle(fontWeight: FontWeight.bold)),
                                         Text(
-                                          '${seg1.time} min${dist1 != null ? ' • ${dist1.toStringAsFixed(1)} miles' : ''}',
+                                          '${formatDuration(seg1.time)}${dist1 != null ? ' • ${dist1.toStringAsFixed(1)} miles' : ''}',
                                           style: const TextStyle(fontSize: 12, color: Colors.grey),
                                         ),
                                         if (extraDetails1 != null) ...[
@@ -1572,7 +1573,7 @@ class _DetailPageState extends State<DetailPage> {
                                     const Icon(LucideIcons.arrowDown, size: 12, color: Colors.grey),
                                     const SizedBox(width: 8),
                                     Text(
-                                       '$changeLabel (${waitTime > 0 ? '$waitTime mins' : 'Immediate'})',
+                                       '$changeLabel (${waitTime > 0 ? formatDuration(waitTime) : 'Immediate'})',
                                        style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic)
                                     ),
                                   ],
@@ -1598,7 +1599,7 @@ class _DetailPageState extends State<DetailPage> {
                                       children: [
                                         Text(seg2.label, style: const TextStyle(fontWeight: FontWeight.bold)),
                                         Text(
-                                          '${seg2.time} min${dist2 != null ? ' • ${dist2.toStringAsFixed(1)} miles' : ''}',
+                                          '${formatDuration(seg2.time)}${dist2 != null ? ' • ${dist2.toStringAsFixed(1)} miles' : ''}',
                                           style: const TextStyle(fontSize: 12, color: Colors.grey),
                                         ),
                                       ],
@@ -1831,7 +1832,7 @@ class _DetailPageState extends State<DetailPage> {
                 Text(seg.label,
                     style: const TextStyle(fontWeight: FontWeight.bold)),
                 Text(
-                  '${seg.time} min${dist != null ? ' • ${dist.toStringAsFixed(1)} miles' : ''}',
+                  '${formatDuration(seg.time)}${dist != null ? ' • ${dist.toStringAsFixed(1)} miles' : ''}',
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
                 if (seg.detail != null)
@@ -2150,8 +2151,8 @@ class _LegSelectorModalState extends State<LegSelectorModal> {
                                       ),
                                     Text(
                                       isSelected
-                                          ? '${option.time} min'
-                                          : (timeDiff > 0 ? '+${timeDiff.abs()} min' : '-${timeDiff.abs()} min'),
+                                          ? formatDuration(option.time)
+                                          : (timeDiff > 0 ? '+${formatDuration(timeDiff.abs())}' : '-${formatDuration(timeDiff.abs())}'),
                                       style: TextStyle(
                                         color: isSelected ? Colors.grey : (timeDiff > 0 ? Colors.red : Colors.green),
                                         fontSize: 12,

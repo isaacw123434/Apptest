@@ -117,7 +117,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Find the transfer text
-    final transferFinder = find.text('10 mins transfer');
+    final transferFinder = find.text('10 min transfer');
     expect(transferFinder, findsOneWidget);
 
     // In the NEW implementation, the transfer text is inside a Row, which is inside an Expanded,
