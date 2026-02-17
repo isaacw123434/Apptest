@@ -6,7 +6,7 @@ import '../utils/journey_utils.dart';
 import '../utils/risk_helper.dart';
 import '../utils/time_utils.dart';
 import '../screens/detail_page.dart';
-import '../screens/horizontal_jigsaw_schematic.dart';
+import 'horizontal_jigsaw_schematic.dart';
 
 class JourneyResultCard extends StatelessWidget {
   final JourneyResult result;
