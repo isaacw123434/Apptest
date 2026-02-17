@@ -6,6 +6,7 @@ import '../models.dart';
 import '../services/api_service.dart';
 import '../utils/emission_utils.dart';
 import '../utils/time_utils.dart';
+import '../utils/map_utils.dart';
 
 class DetailPage extends StatefulWidget {
   final JourneyResult? journeyResult;
@@ -209,23 +210,8 @@ class _DetailPageState extends State<DetailPage> {
   void _zoomToSegment(Segment segment) {
     if (!mounted || _mapController == null || segment.path == null || segment.path!.isEmpty) return;
 
-    final points = segment.path!;
-    double minLat = points.first.latitude;
-    double maxLat = points.first.latitude;
-    double minLng = points.first.longitude;
-    double maxLng = points.first.longitude;
-
-    for (var point in points) {
-      if (point.latitude < minLat) minLat = point.latitude;
-      if (point.latitude > maxLat) maxLat = point.latitude;
-      if (point.longitude < minLng) minLng = point.longitude;
-      if (point.longitude > maxLng) maxLng = point.longitude;
-    }
-
-    final bounds = LatLngBounds(
-      LatLng(minLat, minLng),
-      LatLng(maxLat, maxLng),
-    );
+    final bounds = MapUtils.calculateBounds(segment.path!);
+    if (bounds == null) return;
 
     // Animate sheet down to reveal map
     if (_sheetController.isAttached) {
@@ -1728,24 +1714,8 @@ class _DetailPageState extends State<DetailPage> {
       allPoints.addAll(polyline.points);
     }
 
-    if (allPoints.isEmpty) return;
-
-    double minLat = allPoints.first.latitude;
-    double maxLat = allPoints.first.latitude;
-    double minLng = allPoints.first.longitude;
-    double maxLng = allPoints.first.longitude;
-
-    for (var point in allPoints) {
-      if (point.latitude < minLat) minLat = point.latitude;
-      if (point.latitude > maxLat) maxLat = point.latitude;
-      if (point.longitude < minLng) minLng = point.longitude;
-      if (point.longitude > maxLng) maxLng = point.longitude;
-    }
-
-    final bounds = LatLngBounds(
-      LatLng(minLat, minLng),
-      LatLng(maxLat, maxLng),
-    );
+    final bounds = MapUtils.calculateBounds(allPoints);
+    if (bounds == null) return;
 
     // Calculate padding to account for bottom sheet (35% of screen height)
     final screenHeight = MediaQuery.of(context).size.height;
@@ -1765,30 +1735,8 @@ class _DetailPageState extends State<DetailPage> {
   void _zoomToSegments(List<Segment> segments) {
     if (!mounted || _mapController == null || segments.isEmpty) return;
 
-    double minLat = 90.0;
-    double maxLat = -90.0;
-    double minLng = 180.0;
-    double maxLng = -180.0;
-    bool hasPoints = false;
-
-    for (var seg in segments) {
-      if (seg.path != null && seg.path!.isNotEmpty) {
-        for (var point in seg.path!) {
-          if (point.latitude < minLat) minLat = point.latitude;
-          if (point.latitude > maxLat) maxLat = point.latitude;
-          if (point.longitude < minLng) minLng = point.longitude;
-          if (point.longitude > maxLng) maxLng = point.longitude;
-          hasPoints = true;
-        }
-      }
-    }
-
-    if (!hasPoints) return;
-
-    final bounds = LatLngBounds(
-      LatLng(minLat, minLng),
-      LatLng(maxLat, maxLng),
-    );
+    final bounds = MapUtils.calculateBoundsFromSegments(segments);
+    if (bounds == null) return;
 
     if (_sheetController.isAttached) {
       _sheetController.animateTo(
