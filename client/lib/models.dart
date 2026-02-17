@@ -158,6 +158,50 @@ class Leg {
     this.co2,
   });
 
+  Leg copyWith({
+    String? id,
+    String? label,
+    String? detail,
+    int? time,
+    double? cost,
+    double? distance,
+    int? riskScore,
+    String? riskReason,
+    String? iconId,
+    String? color,
+    String? bgColor,
+    String? lineColor,
+    String? desc,
+    int? waitTime,
+    int? nextBusIn,
+    bool? recommended,
+    int? platform,
+    List<Segment>? segments,
+    double? co2,
+  }) {
+    return Leg(
+      id: id ?? this.id,
+      label: label ?? this.label,
+      detail: detail ?? this.detail,
+      time: time ?? this.time,
+      cost: cost ?? this.cost,
+      distance: distance ?? this.distance,
+      riskScore: riskScore ?? this.riskScore,
+      riskReason: riskReason ?? this.riskReason,
+      iconId: iconId ?? this.iconId,
+      color: color ?? this.color,
+      bgColor: bgColor ?? this.bgColor,
+      lineColor: lineColor ?? this.lineColor,
+      desc: desc ?? this.desc,
+      waitTime: waitTime ?? this.waitTime,
+      nextBusIn: nextBusIn ?? this.nextBusIn,
+      recommended: recommended ?? this.recommended,
+      platform: platform ?? this.platform,
+      segments: segments ?? this.segments,
+      co2: co2 ?? this.co2,
+    );
+  }
+
   factory Leg.fromJson(Map<String, dynamic> json) {
     var segmentsList = json['segments'] as List?;
     List<Segment> segments = segmentsList != null
