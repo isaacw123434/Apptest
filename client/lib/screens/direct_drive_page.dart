@@ -6,6 +6,7 @@ import '../models.dart';
 import '../services/api_service.dart';
 import '../utils/emission_utils.dart';
 import '../utils/time_utils.dart';
+import '../utils/map_utils.dart';
 
 class DirectDrivePage extends StatefulWidget {
   final ApiService? apiService;
@@ -272,22 +273,8 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
     if (!mounted) return;
     if (_mapController == null || _routePoints.isEmpty) return;
 
-    double minLat = _routePoints.first.latitude;
-    double maxLat = _routePoints.first.latitude;
-    double minLng = _routePoints.first.longitude;
-    double maxLng = _routePoints.first.longitude;
-
-    for (var point in _routePoints) {
-      if (point.latitude < minLat) minLat = point.latitude;
-      if (point.latitude > maxLat) maxLat = point.latitude;
-      if (point.longitude < minLng) minLng = point.longitude;
-      if (point.longitude > maxLng) maxLng = point.longitude;
-    }
-
-    final bounds = LatLngBounds(
-      LatLng(minLat, minLng),
-      LatLng(maxLat, maxLng),
-    );
+    final bounds = MapUtils.calculateBounds(_routePoints);
+    if (bounds == null) return;
 
     // Calculate padding to account for bottom sheet (approx 35% of screen height)
     final screenHeight = MediaQuery.of(context).size.height;
