@@ -6,7 +6,6 @@ import '../utils/time_utils.dart';
 import '../widgets/header.dart';
 import '../widgets/search_form.dart';
 import '../widgets/journey_result_card.dart';
-import 'detail_page.dart';
 import 'direct_drive_page.dart';
 
 class SummaryPage extends StatefulWidget {
