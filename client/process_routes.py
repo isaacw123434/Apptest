@@ -885,7 +885,7 @@ def parse_option_to_leg(option, group_name, route_id):
         # Only rename First Mile options (Group 1)
         if 'Group 1' in group_name:
              if 'Drive' in name:
-                 final_label = 'Drive & Park'
+                 final_label = 'Drive & Park via Leeds'
                  id_val = 'drive_park' # Override ID to match frontend expectation
              elif any(x in name for x in ['Bus', 'Cycle', 'Uber']):
                  # Simplify label if it contains "to Leeds Station"

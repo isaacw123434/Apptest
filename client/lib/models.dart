@@ -292,7 +292,7 @@ class JourneyResult {
       final parts = leg1.label.split(RegExp(' to ', caseSensitive: false));
       if (parts.length > 1) {
         final destination = parts[1].split(RegExp(' then ', caseSensitive: false))[0];
-        return destination.replaceAll(RegExp(' Station', caseSensitive: false), "").replaceAll(RegExp(' P&R', caseSensitive: false), "").trim();
+        return destination.replaceAll(RegExp(' Station', caseSensitive: false), "").trim();
       }
     }
     return leg1.label;
