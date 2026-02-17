@@ -5,6 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import '../utils/emission_utils.dart';
+import '../utils/time_utils.dart';
 
 class DirectDrivePage extends StatefulWidget {
   final ApiService? apiService;
@@ -170,7 +171,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
                       children: [
                         Expanded(child: _buildInfoBox('Cost', '£${_initData!.directDrive.cost.toStringAsFixed(2)}')),
                         const SizedBox(width: 8),
-                        Expanded(child: _buildInfoBox('Time', '${(_initData!.directDrive.time / 60).floor()}hr ${_initData!.directDrive.time % 60}m')),
+                        Expanded(child: _buildInfoBox('Time', formatDuration(_initData!.directDrive.time))),
                         const SizedBox(width: 8),
                         Expanded(child: _buildInfoBox('Distance', '${_initData!.directDrive.distance} mi')),
                         const SizedBox(width: 8),

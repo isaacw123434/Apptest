@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
+import '../utils/time_utils.dart';
 
 class HorizontalJigsawSchematic extends StatelessWidget {
   final List<Segment> segments;
@@ -66,12 +67,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
             maxLines: 1,
           )..layout();
 
-          String durationText;
-          if (seg.time >= 60) {
-            durationText = '${seg.time ~/ 60}h ${seg.time % 60}m';
-          } else {
-            durationText = isWalk ? '${seg.time}' : '${seg.time} min';
-          }
+          String durationText = formatDuration(seg.time, compact: isWalk);
 
           final durationPainter = TextPainter(
             text: TextSpan(
@@ -153,12 +149,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
 
             IconData? iconData = _getIconData(seg.iconId);
 
-            String durationText;
-            if (seg.time >= 60) {
-              durationText = '${seg.time ~/ 60}h ${seg.time % 60}m';
-            } else {
-              durationText = isWalk ? '${seg.time}' : '${seg.time} min';
-            }
+            String durationText = formatDuration(seg.time, compact: isWalk);
 
             return SizedBox(
               width: width,
