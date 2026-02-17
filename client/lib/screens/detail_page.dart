@@ -176,6 +176,20 @@ class _DetailPageState extends State<DetailPage> {
             ));
         }
       }
+
+      // Intermediate Stops (small nodes)
+      for (var seg in flattened) {
+        if (seg.stopPoints != null && seg.stopPoints!.isNotEmpty) {
+          for (var point in seg.stopPoints!) {
+            markers.add(Marker(
+              point: point,
+              width: 8,
+              height: 8,
+              child: _buildStopMarkerWidget(),
+            ));
+          }
+        }
+      }
     }
 
     setState(() {
@@ -244,6 +258,16 @@ class _DetailPageState extends State<DetailPage> {
         bottom: bottomPadding + 50,
       ),
     ));
+  }
+
+  Widget _buildStopMarkerWidget() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.black54, width: 1.5),
+      ),
+    );
   }
 
   Widget _buildMarkerWidget({bool isStart = false, bool isEnd = false}) {

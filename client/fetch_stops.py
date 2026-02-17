@@ -30,6 +30,8 @@ def fetch_transit_details(start_loc, end_loc, api_key):
                 if step.get('travel_mode') == 'TRANSIT':
                     transit_details = step.get('transit_details', {})
                     num_stops = transit_details.get('num_stops', 0)
+                    # Note: Google Maps Directions API (standard) does not provide coordinates for intermediate stops.
+                    # 'stops' list is therefore returned empty.
                     return {
                         'num_stops': num_stops,
                         'stops': []
