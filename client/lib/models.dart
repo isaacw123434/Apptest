@@ -285,6 +285,18 @@ class JourneyResult {
       emissions: Emissions.fromJson(json['emissions']),
     );
   }
+
+  String get anchor {
+    if (leg1.label.toLowerCase().contains(" to ")) {
+      // Case-insensitive split
+      final parts = leg1.label.split(RegExp(' to ', caseSensitive: false));
+      if (parts.length > 1) {
+        final destination = parts[1].split(RegExp(' then ', caseSensitive: false))[0];
+        return destination.replaceAll(RegExp(' Station', caseSensitive: false), "").replaceAll(RegExp(' P&R', caseSensitive: false), "").trim();
+      }
+    }
+    return "";
+  }
 }
 
 class InitData {

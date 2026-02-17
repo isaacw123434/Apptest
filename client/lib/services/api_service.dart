@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../models.dart';
+import '../utils/route_selector.dart';
 
 class ApiService {
   // Simulate network delay
@@ -50,25 +51,6 @@ class ApiService {
       return allSegments.every(checkSegment);
     }).toList();
 
-    // Sort based on Tab
-    if (tab == 'fastest') {
-      combos.sort((a, b) => a.time.compareTo(b.time));
-    } else if (tab == 'cheapest') {
-      combos.sort((a, b) => a.cost.compareTo(b.cost));
-    } else {
-      // Smart: Cost + 0.3 * Time + 20 * (Risk - MinRisk)
-      int minRisk = 0;
-      if (combos.isNotEmpty) {
-        minRisk = combos.map((c) => c.risk).reduce((a, b) => a < b ? a : b);
-      }
-
-      combos.sort((a, b) {
-        double scoreA = a.cost + (a.time * 0.3) + ((a.risk - minRisk) * 20.0);
-        double scoreB = b.cost + (b.time * 0.3) + ((b.risk - minRisk) * 20.0);
-        return scoreA.compareTo(scoreB);
-      });
-    }
-
-    return combos.take(3).toList();
+    return RouteSelector.selectJourneys(combos, tab);
   }
 }
