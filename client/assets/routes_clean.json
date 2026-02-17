@@ -9784,9 +9784,9 @@
                 "from": null,
                 "to": null,
                 "cost": 3.4,
-                "numStops": null,
-                "stops": null,
-                "stopPoints": null
+                "numStops": 3,
+                "stops": [],
+                "stopPoints": []
               }
             ],
             "path": [
@@ -12572,9 +12572,9 @@
             "from": null,
             "to": null,
             "cost": 0.0,
-            "numStops": null,
-            "stops": null,
-            "stopPoints": null
+            "numStops": 3,
+            "stops": [],
+            "stopPoints": []
           }
         ],
         "co2": 0.19,
@@ -13981,9 +13981,9 @@
             "from": null,
             "to": null,
             "cost": 3.4,
-            "numStops": null,
-            "stops": null,
-            "stopPoints": null
+            "numStops": 3,
+            "stops": [],
+            "stopPoints": []
           }
         ],
         "co2": 0.51,
@@ -22303,9 +22303,9 @@
               "from": "Leeds Station",
               "to": "Sheffield Station",
               "cost": 25.7,
-              "numStops": 2,
-              "stops": null,
-              "stopPoints": null,
+              "numStops": 3,
+              "stops": [],
+              "stopPoints": [],
               "waitTime": 2,
               "detail": "Platform 4"
             },
@@ -30610,9 +30610,9 @@
               "from": "Sheffield Station",
               "to": "Loughborough Station",
               "cost": 0.0,
-              "numStops": 2,
-              "stops": null,
-              "stopPoints": null,
+              "numStops": 6,
+              "stops": [],
+              "stopPoints": [],
               "detail": "Platform 4"
             }
           ],
@@ -48884,9 +48884,9 @@
                 "from": null,
                 "to": null,
                 "cost": 2.0,
-                "numStops": 15,
-                "stops": null,
-                "stopPoints": null
+                "numStops": 10,
+                "stops": [],
+                "stopPoints": []
               }
             ],
             "path": [
@@ -81540,9 +81540,9 @@
                 "from": null,
                 "to": null,
                 "cost": 2.0,
-                "numStops": 15,
-                "stops": null,
-                "stopPoints": null
+                "numStops": 10,
+                "stops": [],
+                "stopPoints": []
               }
             ],
             "path": [
@@ -94833,9 +94833,9 @@
                 "from": null,
                 "to": null,
                 "cost": 2.0,
-                "numStops": 15,
-                "stops": null,
-                "stopPoints": null
+                "numStops": 10,
+                "stops": [],
+                "stopPoints": []
               }
             ],
             "path": [
@@ -108604,9 +108604,9 @@
                 "from": null,
                 "to": null,
                 "cost": 2.0,
-                "numStops": 15,
-                "stops": null,
-                "stopPoints": null
+                "numStops": 10,
+                "stops": [],
+                "stopPoints": []
               }
             ],
             "path": [
@@ -118598,9 +118598,9 @@
                 "from": null,
                 "to": null,
                 "cost": 2.0,
-                "numStops": 15,
-                "stops": null,
-                "stopPoints": null
+                "numStops": 10,
+                "stops": [],
+                "stopPoints": []
               }
             ],
             "path": [
@@ -125191,9 +125191,9 @@
                 "from": null,
                 "to": null,
                 "cost": 3.4,
-                "numStops": null,
-                "stops": null,
-                "stopPoints": null
+                "numStops": 3,
+                "stops": [],
+                "stopPoints": []
               }
             ],
             "path": [
@@ -128237,9 +128237,9 @@
                 "from": null,
                 "to": null,
                 "cost": 2.0,
-                "numStops": 15,
-                "stops": null,
-                "stopPoints": null
+                "numStops": 10,
+                "stops": [],
+                "stopPoints": []
               }
             ],
             "path": [
@@ -131295,9 +131295,9 @@
                 "from": null,
                 "to": null,
                 "cost": 3.4,
-                "numStops": null,
-                "stops": null,
-                "stopPoints": null
+                "numStops": 3,
+                "stops": [],
+                "stopPoints": []
               }
             ],
             "path": [
@@ -136022,9 +136022,9 @@
             "from": null,
             "to": null,
             "cost": 0.0,
-            "numStops": null,
-            "stops": null,
-            "stopPoints": null
+            "numStops": 3,
+            "stops": [],
+            "stopPoints": []
           }
         ],
         "co2": 0.19,
@@ -137728,9 +137728,9 @@
                 "from": null,
                 "to": null,
                 "cost": 2.0,
-                "numStops": 15,
-                "stops": null,
-                "stopPoints": null
+                "numStops": 10,
+                "stops": [],
+                "stopPoints": []
               }
             ],
             "path": [
@@ -140832,9 +140832,9 @@
             "from": null,
             "to": null,
             "cost": 0.0,
-            "numStops": null,
-            "stops": null,
-            "stopPoints": null
+            "numStops": 3,
+            "stops": [],
+            "stopPoints": []
           }
         ],
         "co2": 0.19,
@@ -144219,9 +144219,9 @@
             "from": null,
             "to": null,
             "cost": 0.0,
-            "numStops": null,
-            "stops": null,
-            "stopPoints": null
+            "numStops": 3,
+            "stops": [],
+            "stopPoints": []
           }
         ],
         "co2": 0.19,
@@ -147811,9 +147811,9 @@
             "from": null,
             "to": null,
             "cost": 3.4,
-            "numStops": null,
-            "stops": null,
-            "stopPoints": null
+            "numStops": 3,
+            "stops": [],
+            "stopPoints": []
           }
         ],
         "co2": 0.51,
@@ -149517,9 +149517,9 @@
                 "from": null,
                 "to": null,
                 "cost": 2.0,
-                "numStops": 15,
-                "stops": null,
-                "stopPoints": null
+                "numStops": 10,
+                "stops": [],
+                "stopPoints": []
               }
             ],
             "path": [
@@ -152582,9 +152582,9 @@
             "from": null,
             "to": null,
             "cost": 3.4,
-            "numStops": null,
-            "stops": null,
-            "stopPoints": null
+            "numStops": 3,
+            "stops": [],
+            "stopPoints": []
           }
         ],
         "co2": 0.51,
