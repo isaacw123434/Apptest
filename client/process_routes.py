@@ -97,7 +97,15 @@ def parse_segment(json_segment, option_name, route_id):
     from_loc = None
     to_loc = None
 
+    num_stops = None
+    stops = None
+
     if transit_details:
+        if 'num_stops' in transit_details:
+            num_stops = transit_details['num_stops']
+        if 'stops' in transit_details:
+            stops = transit_details['stops']
+
         if 'departure_stop' in transit_details:
             from_loc = transit_details['departure_stop']['name']
         if 'arrival_stop' in transit_details:
@@ -182,7 +190,9 @@ def parse_segment(json_segment, option_name, route_id):
         'co2': calculate_emission(dist_miles, icon_id),
         'from': from_loc,
         'to': to_loc,
-        'cost': cost
+        'cost': cost,
+        'numStops': num_stops,
+        'stops': stops
     }
 
 def should_merge(a, b):
@@ -202,13 +212,18 @@ def merge_segments(a, b):
     new_co2 = (a.get('co2') or 0) + (b.get('co2') or 0)
     new_cost = a['cost'] + b['cost']
 
+    new_num_stops = (a.get('numStops') or 0) + (b.get('numStops') or 0)
+    new_stops = (a.get('stops') or []) + (b.get('stops') or [])
+
     merged = a.copy()
     merged.update({
         'time': new_time,
         'path': new_path,
         'distance': new_dist,
         'co2': new_co2,
-        'cost': new_cost
+        'cost': new_cost,
+        'numStops': new_num_stops if new_num_stops > 0 else None,
+        'stops': new_stops if new_stops else None
     })
     return merged
 
@@ -599,14 +614,14 @@ def parse_option_to_leg(option, group_name, route_id):
     # --- Routes Parser: Logic Overrides (St Chads, etc) ---
     if route_id == 'route1':
         # Drive to Leeds -> Add Parking £23
-        if 'Group 1' in group_name and name.lower() == 'drive':
+        if 'Group 1' in group_name and 'drive' in name.lower():
              # Find car segment and add cost
              for seg in merged_segments:
                  if seg['mode'] == 'car':
                      seg['cost'] += 23.00
                      # No parking segment added
 
-        if name.lower() == 'uber' and 'Group 1' in group_name:
+        if 'uber' in name.lower() and 'Group 1' in group_name:
              for seg in merged_segments:
                  if seg['mode'] == 'car' or 'uber' in seg['label'].lower():
                      seg['cost'] = 8.97
@@ -863,11 +878,14 @@ def parse_option_to_leg(option, group_name, route_id):
     if route_id == 'route1':
         # Only rename First Mile options (Group 1)
         if 'Group 1' in group_name:
-             if name == 'Drive':
+             if 'Drive' in name:
                  final_label = 'Drive & Park'
                  id_val = 'drive_park' # Override ID to match frontend expectation
-             elif name in ['Bus', 'Cycle', 'Uber']:
-                 final_label = f'{name} to Leeds'
+             elif any(x in name for x in ['Bus', 'Cycle', 'Uber']):
+                 # Simplify label if it contains "to Leeds Station"
+                 final_label = name.replace(' Station', '')
+                 if 'to Leeds' not in final_label:
+                     final_label = f'{final_label} to Leeds'
 
     elif route_id == 'route2':
         final_label = name.replace(' + Train', '')

@@ -1273,6 +1273,38 @@ class _DetailPageState extends State<DetailPage> {
                                     fontStyle: FontStyle.italic),
                               ),
                             ],
+                            if (segment.numStops != null && segment.numStops! > 0) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                '${segment.numStops} stops',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                            if (segment.stops != null && segment.stops!.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              ...segment.stops!.map((stop) => Padding(
+                                  padding: const EdgeInsets.only(left: 8, bottom: 2),
+                                  child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                            margin: const EdgeInsets.only(top: 5),
+                                            width: 4,
+                                            height: 4,
+                                            decoration: const BoxDecoration(
+                                                color: Colors.grey,
+                                                shape: BoxShape.circle)),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                            child: Text(stop,
+                                                style: const TextStyle(
+                                                    fontSize: 11,
+                                                    color: Colors.grey))),
+                                      ])))
+                            ],
                           ],
                         ),
                       ),
