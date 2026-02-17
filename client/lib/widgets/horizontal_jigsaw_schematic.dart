@@ -86,7 +86,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
           double bottomContentWidth = durationPainter.width;
           double maxContentWidth = topContentWidth > bottomContentWidth ? topContentWidth : bottomContentWidth;
 
-          double minW = (paddingLeft + maxContentWidth + paddingRight + 0.5).ceilToDouble() + 2.0;
+          double minW = (paddingLeft + maxContentWidth + paddingRight + 0.5).ceilToDouble() + 4.0;
 
           if (isWalk) {
             minW -= 2.0;
@@ -179,6 +179,8 @@ class HorizontalJigsawSchematic extends StatelessWidget {
                               child: Text(
                                 displayText,
                                 maxLines: 1,
+                                overflow: TextOverflow.visible,
+                                softWrap: false,
                                 style: TextStyle(
                                   color: textColor,
                                   fontSize: fontSize,
