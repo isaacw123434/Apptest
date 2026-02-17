@@ -64,35 +64,51 @@ def fetch_transit_details(start_loc, end_loc, api_key):
         if best_details:
             num_stops = best_details.get('stopCount', 0)
 
-            # stops list and stop_points list
             stops = []
             stop_points = []
 
-            # Note: Routes API v2 stopDetails currently provides arrivalStop and departureStop.
-            # It does not explicitly list intermediate stops in a 'stops' array in the standard response.
-            # However, we implement logic to parse it if it becomes available or if we find it.
-
+            # Extract stops from stopDetails if available
             stop_details = best_details.get('stopDetails')
             if stop_details:
-                # If stopDetails becomes a list in future or some contexts:
+                # 1. Check if it's a list (some providers might support this in future)
                 if isinstance(stop_details, list):
-                    for stop in stop_details:
-                        name = stop.get('name') or stop.get('stop', {}).get('name')
-                        loc = stop.get('location') or stop.get('stop', {}).get('location')
+                    for item in stop_details:
+                        # TransitStopDetails contains arrivalStop and departureStop
+                        # We are interested in the stop itself.
+                        # If it's a list of stops, we assume each item wraps a stop info
+                        # or is a TransitStopDetails object for a segment between stops?
+                        # Based on typical API patterns, if it were a list of intermediate stops,
+                        # it might look like a list of TransitStopDetails.
+
+                        # Check arrivalStop
+                        arrival_stop = item.get('arrivalStop', {})
+                        name = arrival_stop.get('name')
+                        loc = arrival_stop.get('location')
+
                         if name: stops.append(name)
                         if loc and 'latLng' in loc:
                             stop_points.append({'lat': loc['latLng']['latitude'], 'lng': loc['latLng']['longitude']})
 
-                # If stopDetails is an object (current behavior)
-                elif isinstance(stop_details, dict):
-                    # We could add departure/arrival, but those are redundant with leg start/end.
-                    # We are looking for INTERMEDIATE stops.
-                    pass
+                # 2. Check for standard Arrival/Departure (always present in current API)
+                # We do not add these to stop_points to avoid duplicating start/end nodes.
+                pass
+
+            # Check for transit line URI as a potential source for more data
+            transit_line = best_details.get('transitLine', {})
+            uri = transit_line.get('uri')
+
+            # Check agencies for URI if not on transitLine
+            if not uri and transit_line.get('agencies'):
+                for agency in transit_line['agencies']:
+                    if agency.get('uri'):
+                        uri = agency.get('uri')
+                        break
 
             return {
                 'num_stops': num_stops,
                 'stops': stops,
-                'stop_points': stop_points
+                'stop_points': stop_points,
+                'line_uri': uri
             }
 
     except Exception as e:
@@ -127,25 +143,32 @@ def process_file(filepath, api_key):
                             current_num = leg['transit_details'].get('num_stops')
                             new_num = details['num_stops']
 
-                            # Check if lists are different
                             current_stops = leg['transit_details'].get('stops', [])
                             new_stops = details['stops']
 
                             current_points = leg['transit_details'].get('stop_points', [])
                             new_points = details['stop_points']
 
+                            current_uri = leg['transit_details'].get('line_uri')
+                            new_uri = details['line_uri']
+
                             # Update if any change
                             if (current_num != new_num or
                                 current_stops != new_stops or
-                                len(current_points) != len(new_points)): # Simplified check for points
+                                len(current_points) != len(new_points) or
+                                current_uri != new_uri):
 
                                 print(f"  Updated num_stops: {current_num} -> {new_num}")
                                 if new_stops:
                                     print(f"  Updated stops: {len(new_stops)} stops found")
+                                if new_uri:
+                                    print(f"  Found Line URI: {new_uri}")
 
                                 leg['transit_details']['num_stops'] = new_num
                                 leg['transit_details']['stops'] = new_stops
                                 leg['transit_details']['stop_points'] = new_points
+                                if new_uri:
+                                    leg['transit_details']['line_uri'] = new_uri
                                 updated = True
 
     if updated:

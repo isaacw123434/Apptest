@@ -5152,8 +5152,8 @@
                 "to": null,
                 "cost": 2.0,
                 "numStops": 12,
-                "stops": null,
-                "stopPoints": null,
+                "stops": [],
+                "stopPoints": [],
                 "detail": "Bus every 12 mins"
               },
               {
@@ -105264,8 +105264,8 @@
                 "to": null,
                 "cost": 2.0,
                 "numStops": 12,
-                "stops": null,
-                "stopPoints": null,
+                "stops": [],
+                "stopPoints": [],
                 "detail": "Bus every 12 mins"
               },
               {
@@ -111723,8 +111723,8 @@
                 "to": null,
                 "cost": 2.0,
                 "numStops": 12,
-                "stops": null,
-                "stopPoints": null,
+                "stops": [],
+                "stopPoints": [],
                 "detail": "Bus every 12 mins"
               },
               {
