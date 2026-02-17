@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import '../utils/app_colors.dart';
 import 'summary_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -53,7 +54,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC), // Slate 50
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -74,7 +74,7 @@ class _HomePageState extends State<HomePage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
-        color: Color(0xFF4F46E5), // Brand Color
+        color: AppColors.brand,
         boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
       ),
       child: Row(
@@ -90,8 +90,8 @@ class _HomePageState extends State<HomePage> {
           ),
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF3730A3), // Brand Dark
+            decoration: const BoxDecoration(
+              color: AppColors.brandDark,
               shape: BoxShape.circle,
             ),
             child: const Icon(LucideIcons.user, color: Colors.white, size: 20),
@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9), // Slate 100
+                    color: AppColors.slate100,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -129,9 +129,9 @@ class _HomePageState extends State<HomePage> {
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF64748B), // Slate 500
+                          color: AppColors.slate500,
                         ),
-                        icon: const Icon(LucideIcons.chevronDown, size: 14, color: Color(0xFF94A3B8)),
+                        icon: const Icon(LucideIcons.chevronDown, size: 14, color: AppColors.slate400),
                         onChanged: null,
                         items: <String>['Depart', 'Arrive']
                             .map<DropdownMenuItem<String>>((String value) {
@@ -149,7 +149,7 @@ class _HomePageState extends State<HomePage> {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF0F172A), // Slate 900
+                            color: AppColors.slate900,
                           ),
                           decoration: const InputDecoration(
                             border: InputBorder.none,
@@ -178,7 +178,7 @@ class _HomePageState extends State<HomePage> {
                     _handleSearch();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4F46E5), // Brand
+                    backgroundColor: AppColors.brand,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -204,7 +204,7 @@ class _HomePageState extends State<HomePage> {
                     _handleSearch();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0F766E), // Teal
+                    backgroundColor: AppColors.secondary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -237,13 +237,13 @@ class _HomePageState extends State<HomePage> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF64748B), // Slate 500
+                      color: AppColors.slate500,
                     ),
                   ),
                   Icon(
                     LucideIcons.chevronDown,
                     size: 16,
-                    color: const Color(0xFF64748B), // Slate 500
+                    color: AppColors.slate500,
                   ),
                 ],
               ),
@@ -268,9 +268,9 @@ class _HomePageState extends State<HomePage> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFEFF6FF) : Colors.white, // Blue 50
+                          color: isSelected ? AppColors.blue50 : Colors.white,
                           border: Border.all(
-                            color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0), // Accent or Slate 200
+                            color: isSelected ? AppColors.brand : AppColors.slate200,
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -279,7 +279,7 @@ class _HomePageState extends State<HomePage> {
                             Icon(
                               mode['icon'],
                               size: 20,
-                              color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
+                              color: isSelected ? AppColors.brand : AppColors.slate400,
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -308,7 +308,7 @@ class _HomePageState extends State<HomePage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9), // Slate 100
+        color: AppColors.slate100,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -328,7 +328,7 @@ class _HomePageState extends State<HomePage> {
               readOnly: true,
               style: const TextStyle(
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF334155), // Slate 700
+                color: AppColors.slate700,
               ),
               decoration: const InputDecoration(
                 border: InputBorder.none,
@@ -355,7 +355,7 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: Color(0xFF1E293B), // Slate 800
+                  color: AppColors.slate800,
                 ),
               ),
               TextButton(
@@ -365,7 +365,7 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF4F46E5), // Brand
+                    color: AppColors.brand,
                   ),
                 ),
               ),
@@ -378,7 +378,7 @@ class _HomePageState extends State<HomePage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFF1F5F9)), // Slate 100
+                  border: Border.all(color: AppColors.slate100),
                   boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
                 ),
                 child: Row(
@@ -386,17 +386,17 @@ class _HomePageState extends State<HomePage> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE0E7FF), // Brand Light (Blue 100ish)
+                        color: AppColors.brandLight,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(LucideIcons.heart, size: 18, color: Color(0xFF4F46E5)),
+                      child: const Icon(LucideIcons.heart, size: 18, color: AppColors.brand),
                     ),
                     const SizedBox(width: 12),
                     Text(
                       route,
                       style: const TextStyle(
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF334155), // Slate 700
+                        color: AppColors.slate700,
                       ),
                     ),
                   ],
@@ -418,7 +418,7 @@ class _HomePageState extends State<HomePage> {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
-              color: Color(0xFF1E293B), // Slate 800
+              color: AppColors.slate800,
             ),
           ),
           const SizedBox(height: 12),
@@ -427,7 +427,7 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFF1F5F9)), // Slate 100
+              border: Border.all(color: AppColors.slate100),
               boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
             ),
             child: Column(
@@ -437,7 +437,7 @@ class _HomePageState extends State<HomePage> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF4F46E5), // Brand
+                        color: AppColors.brand,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(LucideIcons.train, size: 18, color: Colors.white),
@@ -450,14 +450,14 @@ class _HomePageState extends State<HomePage> {
                           'Leeds → York',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E293B), // Slate 800
+                            color: AppColors.slate800,
                           ),
                         ),
                         Text(
                           'Tomorrow, 08:30',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF64748B), // Slate 500
+                            color: AppColors.slate500,
                           ),
                         ),
                       ],
@@ -470,7 +470,7 @@ class _HomePageState extends State<HomePage> {
                     Container(
                       height: 6,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9), // Slate 100
+                        color: AppColors.slate100,
                         borderRadius: BorderRadius.circular(3),
                       ),
                     ),
@@ -479,7 +479,7 @@ class _HomePageState extends State<HomePage> {
                       child: Container(
                         height: 6,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF4F46E5), // Brand
+                          color: AppColors.brand,
                           borderRadius: BorderRadius.circular(3),
                         ),
                       ),
@@ -492,11 +492,11 @@ class _HomePageState extends State<HomePage> {
                   children: const [
                     Text(
                       'On time',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)), // Slate 400
+                      style: TextStyle(fontSize: 12, color: AppColors.slate400),
                     ),
                     Text(
                       'Platform 4',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)), // Slate 400
+                      style: TextStyle(fontSize: 12, color: AppColors.slate400),
                     ),
                   ],
                 ),
