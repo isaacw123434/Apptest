@@ -382,6 +382,32 @@ class _DetailPageState extends State<DetailPage> {
     });
   }
 
+  List<Leg> _filterLegs(List<Leg> options, String legType) {
+    if (_initData == null) return options;
+    final mainLeg = _initData!.segmentOptions.mainLeg;
+    if (mainLeg.segments.isEmpty) return options;
+
+    String? anchorStation;
+    if (legType == 'firstMile') {
+       anchorStation = mainLeg.segments.first.from;
+       if (anchorStation == null) return options;
+
+       return options.where((leg) {
+           if (leg.segments.isEmpty) return false;
+           return leg.segments.last.to == anchorStation;
+       }).toList();
+    } else if (legType == 'lastMile') {
+       anchorStation = mainLeg.segments.last.to;
+       if (anchorStation == null) return options;
+
+       return options.where((leg) {
+           if (leg.segments.isEmpty) return false;
+           return leg.segments.first.from == anchorStation;
+       }).toList();
+    }
+    return options;
+  }
+
   void _showAccessEdit(Leg currentLeg, String legType) {
     if (_initData == null) return;
 
@@ -389,8 +415,8 @@ class _DetailPageState extends State<DetailPage> {
         ? _initData!.segmentOptions.firstMile
         : _initData!.segmentOptions.lastMile;
 
-    // Use all options initially
-    List<Leg> filteredOptions = allOptions;
+    // Filter by anchor station
+    List<Leg> filteredOptions = _filterLegs(allOptions, legType);
 
 
     showModalBottomSheet(
@@ -417,6 +443,8 @@ class _DetailPageState extends State<DetailPage> {
         ? _initData!.segmentOptions.firstMile
         : _initData!.segmentOptions.lastMile;
 
+    // Filter by anchor station
+    allOptions = _filterLegs(allOptions, legType);
 
     Map<String, List<Leg>> grouped = _groupLegsByStation(allOptions);
     // Determine current access mode from first segment
@@ -745,7 +773,8 @@ class _DetailPageState extends State<DetailPage> {
                     dist1: seg.distance,
                     dist2: nextSeg.distance,
                     extraDetails1: seg.detail ?? extraDetails,
-                    isEditable: canEdit,
+                    // Ensure main leg (train merge) is not editable
+                    isEditable: canEdit && legType != 'mainLeg',
                     onEdit: () => _showTrainEdit(leg, legType),
                     onTap: () => _zoomToSegment(seg) // Zoom to first? Or group?
                  ));
@@ -896,7 +925,8 @@ class _DetailPageState extends State<DetailPage> {
                         dist1: s1.distance,
                         dist2: s2.distance,
                         extraDetails1: s1.detail ?? extraDetails, // Use calculated details if python didn't populate
-                        isEditable: canEdit,
+                        // Ensure main leg (train merge) is not editable
+                        isEditable: canEdit && legType != 'mainLeg',
                         onEdit: () => _showTrainEdit(leg, legType),
                         onTap: () => _zoomToSegment(seg)
                     ));
