@@ -291,25 +291,60 @@ class _DetailPageState extends State<DetailPage> {
     }
   }
 
-  Map<String, List<Leg>> _groupLegsByStation(List<Leg> options) {
-    final Map<String, List<Leg>> groupedLegs = {};
-    for (var option in options) {
-      String suffix = _getStationSuffix(option.label);
-      if (!groupedLegs.containsKey(suffix)) {
-        groupedLegs[suffix] = [];
-      }
-      groupedLegs[suffix]!.add(option);
-    }
-    return groupedLegs;
-  }
+  String _getLegHub(Leg leg) {
+    // 1. Look for Main Connector (Train or Park & Ride)
+    // Identify by iconId='train' or label contains "Park & Ride"
+    // Also check subSegments (groups)
 
-  String _getStationSuffix(String label) {
-    final RegExp pattern = RegExp(r'^(Walk|Cycle|Uber|Drive|Bus|Taxi)(.*)', caseSensitive: false);
-    final match = pattern.firstMatch(label);
-    if (match != null && match.groupCount >= 2) {
-      return match.group(2)!.trim();
+    String? hub;
+
+    void checkSegment(Segment seg) {
+        if (hub != null) return;
+
+        if (seg.iconId == 'train' && seg.from != null) {
+            hub = seg.from;
+            return;
+        }
+        if (seg.label.toLowerCase().contains('park & ride') && seg.iconId == 'bus' && seg.from != null) {
+            hub = seg.from;
+            return;
+        }
+
+        if (seg.subSegments != null) {
+            for (var sub in seg.subSegments!) {
+                checkSegment(sub);
+                if (hub != null) return;
+            }
+        }
     }
-    return label;
+
+    for (var seg in leg.segments) {
+        checkSegment(seg);
+        if (hub != null) return hub!;
+    }
+
+    // 2. Fallback: Destination of the last segment
+    if (leg.segments.isNotEmpty) {
+        Segment lastSeg = leg.segments.last;
+        if (lastSeg.subSegments != null && lastSeg.subSegments!.isNotEmpty) {
+            lastSeg = lastSeg.subSegments!.last;
+        }
+        if (lastSeg.to != null) {
+            return lastSeg.to!;
+        }
+    }
+
+    // 3. Regex Fallback
+    // "Drive to Brough Station" -> "Brough Station"
+    // "Cycle to Leeds" -> "Leeds"
+    // "Walk to Headingley Station then..." -> "Headingley Station"
+    final RegExp toPattern = RegExp(r'to\s+(.*?)(?:\s+then|\s*$)', caseSensitive: false);
+    final match = toPattern.firstMatch(leg.label);
+    if (match != null && match.groupCount >= 1) {
+        return match.group(1)!.trim();
+    }
+
+    return 'Leeds'; // Ultimate fallback
   }
 
   void _updateLeg(String legType, Leg newLeg) {
@@ -365,9 +400,8 @@ class _DetailPageState extends State<DetailPage> {
         ? _initData!.segmentOptions.firstMile
         : _initData!.segmentOptions.lastMile;
 
-    // Use all options initially
-    List<Leg> filteredOptions = allOptions;
-
+    String currentHub = _getLegHub(currentLeg);
+    List<Leg> filteredOptions = allOptions.where((opt) => _getLegHub(opt) == currentHub).toList();
 
     showModalBottomSheet(
       context: context,
@@ -394,13 +428,21 @@ class _DetailPageState extends State<DetailPage> {
         : _initData!.segmentOptions.lastMile;
 
 
-    Map<String, List<Leg>> grouped = _groupLegsByStation(allOptions);
+    final Map<String, List<Leg>> grouped = {};
+    for (var option in allOptions) {
+        String hub = _getLegHub(option);
+        if (!grouped.containsKey(hub)) {
+            grouped[hub] = [];
+        }
+        grouped[hub]!.add(option);
+    }
+
     // Determine current access mode from first segment
     String currentAccessMode = currentLeg.segments.isNotEmpty ? currentLeg.segments.first.mode : 'walk';
 
     // Pick representatives
     List<Leg> representatives = [];
-    grouped.forEach((suffix, legs) {
+    grouped.forEach((hub, legs) {
       // Find leg matching current access mode
       Leg? match;
       try {
@@ -430,26 +472,9 @@ class _DetailPageState extends State<DetailPage> {
           currentLeg: currentLeg,
           title: 'Choose Route',
           labelBuilder: (leg) {
-             // Try to construct "FromStation to ToStation"
-             // Find train segment
-             Segment? trainSeg;
-             try {
-                trainSeg = leg.segments.firstWhere((s) => s.iconId == 'train');
-             } catch (e) {
-                trainSeg = null;
-             }
-
-             if (trainSeg != null && trainSeg.from != null && trainSeg.to != null) {
-                 return '${trainSeg.from} to ${trainSeg.to}';
-             }
-
-             // Fallback: parse label if "Drive to X + Train"
-             final match = RegExp(r'to\s+(.*?)\s+\+\s+Train', caseSensitive: false).firstMatch(leg.label);
-             if (match != null) {
-                 return '${match.group(1)} to Leeds'; // Assume Leeds if implicit
-             }
-
-             return leg.label;
+             String hub = _getLegHub(leg);
+             if (hub.contains('Leeds')) return 'Direct to Leeds';
+             return 'Via $hub';
           },
           onSelect: (Leg selectedLeg) {
             _updateLeg(legType, selectedLeg);
