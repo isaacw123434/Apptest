@@ -108,9 +108,9 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildInputRow(LucideIcons.circle, _fromController, Colors.grey),
+          _buildInputRow(_fromController, Colors.grey),
           const SizedBox(height: 12),
-          _buildInputRow(LucideIcons.circle, _toController, Colors.black),
+          _buildInputRow(_toController, Colors.black),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -304,7 +304,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildInputRow(IconData icon, TextEditingController controller, Color dotColor) {
+  Widget _buildInputRow(TextEditingController controller, Color dotColor) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(

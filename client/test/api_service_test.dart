@@ -40,13 +40,32 @@ void main() {
       selectedModes: selectedModes,
     );
 
-    // Check if sorted by updated logic
-    // Note: minRisk cancels out when comparing two scores from the same search,
-    // so we can verify order using raw risk * 20.0
-    for (int i = 0; i < results.length - 1; i++) {
-        double scoreA = results[i].cost + (results[i].time * 0.3) + (results[i].risk * 20.0);
-        double scoreB = results[i+1].cost + (results[i+1].time * 0.3) + (results[i+1].risk * 20.0);
-        expect(scoreA <= scoreB, isTrue, reason: 'Results should be sorted by score (Cost + 0.3*Time + 20*Risk)');
+    expect(results, isNotEmpty);
+
+    // Helper to calc score
+    double getScore(r) => r.cost + (r.time * 0.3) + (r.risk * 20.0);
+
+    // 1. Verify the first result is the absolute best (lowest score)
+    // Because Diversity First picks the best of the best group first.
+    if (results.isNotEmpty) {
+      double bestScore = getScore(results.first);
+      for (var r in results) {
+        expect(bestScore <= getScore(r), isTrue,
+          reason: 'First result should have the best score');
+      }
+    }
+
+    // 2. Verify that WITHIN the same anchor, results are sorted by score
+    // Diversity logic interleaves anchors, but shouldn't reorder within an anchor
+    Map<String, double> lastScoreByAnchor = {};
+
+    for (var r in results) {
+      double score = getScore(r);
+      if (lastScoreByAnchor.containsKey(r.anchor)) {
+        expect(score >= lastScoreByAnchor[r.anchor]!, isTrue,
+          reason: 'Results with same anchor (${r.anchor}) should be sorted by score');
+      }
+      lastScoreByAnchor[r.anchor] = score;
     }
   });
 }
