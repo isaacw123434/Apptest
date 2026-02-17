@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../utils/app_colors.dart';
+import '../widgets/header.dart';
+import '../widgets/search_form.dart';
 import 'summary_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,10 +16,9 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _fromController = TextEditingController(text: 'St Chads, Leeds');
   final TextEditingController _toController = TextEditingController(text: 'East Leake, Loughborough');
   final TextEditingController _timeController = TextEditingController(text: '09:00');
-  final String _timeType = 'Depart';
+  String _timeType = 'Depart';
   String? _currentRouteId;
 
-  bool _isModeDropdownOpen = false;
   final Map<String, bool> _selectedModes = {
     'train': true,
     'bus': true,
@@ -25,14 +26,6 @@ class _HomePageState extends State<HomePage> {
     'taxi': true,
     'bike': false,
   };
-
-  final List<Map<String, dynamic>> _modeOptions = [
-    {'id': 'train', 'icon': LucideIcons.train, 'label': 'Train'},
-    {'id': 'bus', 'icon': LucideIcons.bus, 'label': 'Bus'},
-    {'id': 'car', 'icon': LucideIcons.car, 'label': 'Car'},
-    {'id': 'taxi', 'icon': LucideIcons.car, 'label': 'Taxi'},
-    {'id': 'bike', 'icon': LucideIcons.bike, 'label': 'Bike'},
-  ];
 
   void _handleSearch() {
     Navigator.push(
@@ -59,285 +52,92 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildHeader(),
-              _buildSearchForm(),
-              _buildSavedRoutes(),
-              _buildUpcomingJourneys(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: AppColors.brand,
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'EndMile',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: AppColors.brandDark,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(LucideIcons.user, color: Colors.white, size: 20),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchForm() {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildInputRow(LucideIcons.circle, _fromController, Colors.grey),
-          const SizedBox(height: 12),
-          _buildInputRow(LucideIcons.circle, _toController, Colors.black),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.slate100,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
+              const Header(),
+              Container(
+                color: Colors.white,
+                padding: const EdgeInsets.all(16),
+                child: SearchForm(
+                  fromController: _fromController,
+                  toController: _toController,
+                  timeController: _timeController,
+                  timeType: _timeType,
+                  onTimeTypeChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _timeType = value;
+                    });
+                  }
+                },
+                selectedModes: _selectedModes,
+                onModeChanged: (modeId, isSelected) {
+                  setState(() {
+                    _selectedModes[modeId] = isSelected;
+                  });
+                },
+                actions: [
+                  Row(
                     children: [
-                      DropdownButton<String>(
-                        value: _timeType,
-                        underline: Container(),
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.slate500,
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _fromController.text = 'St Chads, Leeds';
+                              _toController.text = 'East Leake, Loughborough';
+                              _currentRouteId = 'route1';
+                            });
+                            _handleSearch();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.brand,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 2,
+                          ),
+                          child: const Text(
+                            'Mock Route 1',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
-                        icon: const Icon(LucideIcons.chevronDown, size: 14, color: AppColors.slate400),
-                        onChanged: null,
-                        items: <String>['Depart', 'Arrive']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: TextField(
-                          controller: _timeController,
-                          readOnly: true,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.slate900,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _fromController.text = 'Hurn View Beverley';
+                              _toController.text = 'Wellington Place Leeds';
+                              _currentRouteId = 'route2';
+                            });
+                            _handleSearch();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.secondary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 2,
                           ),
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                            isDense: true,
-                            contentPadding: EdgeInsets.zero,
+                          child: const Text(
+                            'Mock Route 2',
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _fromController.text = 'St Chads, Leeds';
-                      _toController.text = 'East Leake, Loughborough';
-                      _currentRouteId = 'route1';
-                    });
-                    _handleSearch();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.brand,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: const Text(
-                    'Mock Route 1',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _fromController.text = 'Hurn View Beverley';
-                      _toController.text = 'Wellington Place Leeds';
-                      _currentRouteId = 'route2';
-                    });
-                    _handleSearch();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.secondary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: const Text(
-                    'Mock Route 2',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          InkWell(
-            onTap: () {
-              setState(() {
-                _isModeDropdownOpen = !_isModeDropdownOpen;
-              });
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Filter Modes',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.slate500,
-                    ),
-                  ),
-                  Icon(
-                    LucideIcons.chevronDown,
-                    size: 16,
-                    color: AppColors.slate500,
-                  ),
                 ],
               ),
             ),
+              _buildSavedRoutes(),
+              _buildUpcomingJourneys(),
+            ],
           ),
-          if (_isModeDropdownOpen) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: _modeOptions.asMap().entries.map((entry) {
-                final index = entry.key;
-                final mode = entry.value;
-                final isSelected = _selectedModes[mode['id']]!;
-                return Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(right: index == _modeOptions.length - 1 ? 0 : 8.0),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _selectedModes[mode['id']] = !isSelected;
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          color: isSelected ? AppColors.blue50 : Colors.white,
-                          border: Border.all(
-                            color: isSelected ? AppColors.brand : AppColors.slate200,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(
-                              mode['icon'],
-                              size: 20,
-                              color: isSelected ? AppColors.brand : AppColors.slate400,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              mode['label'],
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInputRow(IconData icon, TextEditingController controller, Color dotColor) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.slate100,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: dotColor,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: TextField(
-              controller: controller,
-              readOnly: true,
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                color: AppColors.slate700,
-              ),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
