@@ -389,7 +389,7 @@ class _DetailPageState extends State<DetailPage> {
     String? anchorStation;
 
     // Smart Filtering for Route 2 (or empty main leg)
-    if (mainLeg.segments.isEmpty && currentLeg != null && currentLeg.segments.isNotEmpty) {
+    if (widget.routeId == 'route2' && mainLeg.segments.isEmpty && currentLeg != null && currentLeg.segments.isNotEmpty) {
        if (legType == 'firstMile') {
            // Find where the access part ends (the anchor)
            // Typically first segment is access
