@@ -209,7 +209,8 @@ final Map<String, dynamic> segmentOptionsData = {
     'lineColor': '#880038',
     'platform': 4,
     'segments': [
-      { 'mode': 'train', 'label': 'CrossCountry', 'lineColor': '#880038', 'iconId': IconIds.train, 'time': 102, 'to': 'Loughborough Station', 'distance': 90.89, 'co2': 5.11 }
+      { 'mode': 'train', 'label': 'CrossCountry', 'lineColor': '#880038', 'iconId': IconIds.train, 'time': 40, 'to': 'Sheffield', 'distance': 35.0, 'co2': 2.0 },
+      { 'mode': 'train', 'label': 'EMR', 'lineColor': '#713e8d', 'iconId': IconIds.train, 'time': 62, 'to': 'Loughborough Station', 'distance': 55.89, 'co2': 3.11 }
     ]
   },
   'lastMile': [
