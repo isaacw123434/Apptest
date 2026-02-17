@@ -382,12 +382,50 @@ class _DetailPageState extends State<DetailPage> {
     });
   }
 
-  List<Leg> _filterLegs(List<Leg> options, String legType) {
+  List<Leg> _filterLegs(List<Leg> options, String legType, {Leg? currentLeg}) {
     if (_initData == null) return options;
     final mainLeg = _initData!.segmentOptions.mainLeg;
-    if (mainLeg.segments.isEmpty) return options;
 
     String? anchorStation;
+
+    // Smart Filtering for Route 2 (or empty main leg)
+    if (mainLeg.segments.isEmpty && currentLeg != null && currentLeg.segments.isNotEmpty) {
+       if (legType == 'firstMile') {
+           // Find where the access part ends (the anchor)
+           // Typically first segment is access
+           try {
+              final accessSeg = currentLeg.segments.firstWhere((s) =>
+                  s.mode.toLowerCase() != 'wait' && s.label != 'Transfer',
+                  orElse: () => currentLeg.segments.first
+              );
+              anchorStation = accessSeg.to;
+           } catch(e) {
+              anchorStation = null;
+           }
+
+           if (anchorStation == null) return options;
+
+           return options.where((leg) {
+                if (leg.segments.isEmpty) return false;
+                // Check if option's access segment ends at same anchor
+                try {
+                    final optAccessSeg = leg.segments.firstWhere((s) =>
+                        s.mode.toLowerCase() != 'wait' && s.label != 'Transfer',
+                        orElse: () => leg.segments.first
+                    );
+                    return optAccessSeg.to == anchorStation;
+                } catch (e) {
+                    return false;
+                }
+           }).toList();
+       }
+       // Only First Mile logic requested for Route 2 specifically, but Last Mile could be symmetric.
+       // For Route 2 leg3 is empty so it won't matter.
+       return options;
+    }
+
+    if (mainLeg.segments.isEmpty) return options;
+
     if (legType == 'firstMile') {
        anchorStation = mainLeg.segments.first.from;
        if (anchorStation == null) return options;
@@ -416,7 +454,7 @@ class _DetailPageState extends State<DetailPage> {
         : _initData!.segmentOptions.lastMile;
 
     // Filter by anchor station
-    List<Leg> filteredOptions = _filterLegs(allOptions, legType);
+    List<Leg> filteredOptions = _filterLegs(allOptions, legType, currentLeg: currentLeg);
 
 
     showModalBottomSheet(
@@ -444,7 +482,7 @@ class _DetailPageState extends State<DetailPage> {
         : _initData!.segmentOptions.lastMile;
 
     // Filter by anchor station
-    allOptions = _filterLegs(allOptions, legType);
+    allOptions = _filterLegs(allOptions, legType, currentLeg: currentLeg);
 
     Map<String, List<Leg>> grouped = _groupLegsByStation(allOptions);
     // Determine current access mode from first segment
@@ -963,9 +1001,12 @@ class _DetailPageState extends State<DetailPage> {
                 distance = totalMeters / 1609.34;
             }
 
+            // Disable editing for core segments in Route 2
+            bool isCoreSegment = widget.routeId == 'route2' && (seg.iconId == 'train' || _isParkAndRideBus(seg));
+
             children.add(_buildSegmentConnection(
                 segment: seg,
-                isEditable: canEdit && (isFirst || seg.iconId == 'train' || _isParkAndRideBus(seg)),
+                isEditable: !isCoreSegment && canEdit && (isFirst || seg.iconId == 'train' || _isParkAndRideBus(seg)),
                 onEdit: () {
                     if (seg.iconId == 'train' || _isParkAndRideBus(seg)) {
                         _showTrainEdit(leg, legType);
