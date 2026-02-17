@@ -1,6 +1,20 @@
-# client
+# Journey Planner - Commute Comparison Tool
 
-A new Flutter project.
+A Flutter application designed to help commuters compare various travel options from locations in East Yorkshire (Beverley, Hull, Brough, York, Eastrington) to Wellington Place, Leeds.
+
+## Features
+
+- **Multi-modal Comparison:** Compare journeys using Train, Car, Bus, Cycle, and Uber.
+- **Key Metrics:** Calculates and displays:
+  - **Time:** Total journey duration including buffers.
+  - **Cost:** Estimated travel cost.
+  - **CO2 Emissions:** Environmental impact of the journey.
+  - **Risk:** Assessment of potential delays or issues (e.g., weather dependence, connection risks).
+- **Route Options:** Handles "First Mile" (Access), "Main Leg" (Train), and "Final Mile" (Egress) segments.
+
+## Route Data
+
+The application uses JSON data to define route options and calculate metrics. The logic handles complex scenarios like park & ride, transfers, and specific pricing models for different starting hubs.
 
 ## Getting Started
 
