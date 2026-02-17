@@ -63,7 +63,12 @@ class Segment {
         path = [];
         for (var point in pathList) {
           if (point is List && point.length >= 2) {
-            path.add(LatLng((point[0] as num).toDouble(), (point[1] as num).toDouble()));
+            path.add(
+              LatLng(
+                (point[0] as num).toDouble(),
+                (point[1] as num).toDouble(),
+              ),
+            );
           } else if (point is LatLng) {
             path.add(point);
           }
@@ -80,7 +85,12 @@ class Segment {
         stopPoints = [];
         for (var point in stopPointsList) {
           if (point is List && point.length >= 2) {
-            stopPoints.add(LatLng((point[0] as num).toDouble(), (point[1] as num).toDouble()));
+            stopPoints.add(
+              LatLng(
+                (point[0] as num).toDouble(),
+                (point[1] as num).toDouble(),
+              ),
+            );
           } else if (point is LatLng) {
             stopPoints.add(point);
           }
@@ -101,7 +111,9 @@ class Segment {
       detail: json['detail'],
       path: path,
       co2: json['co2'] != null ? (json['co2'] as num).toDouble() : null,
-      distance: json['distance'] != null ? (json['distance'] as num).toDouble() : null,
+      distance: json['distance'] != null
+          ? (json['distance'] as num).toDouble()
+          : null,
       cost: (json['cost'] ?? 0).toDouble(),
       waitTime: json['waitTime'],
       subSegments: subSegments,
@@ -202,9 +214,7 @@ class SegmentOptions {
           .map((i) => Leg.fromJson(i))
           .toList(),
       mainLeg: Leg.fromJson(json['mainLeg']),
-      lastMile: (json['lastMile'] as List)
-          .map((i) => Leg.fromJson(i))
-          .toList(),
+      lastMile: (json['lastMile'] as List).map((i) => Leg.fromJson(i)).toList(),
     );
   }
 }
@@ -237,11 +247,7 @@ class Emissions {
   final int percent;
   final String? text;
 
-  Emissions({
-    required this.val,
-    required this.percent,
-    this.text,
-  });
+  Emissions({required this.val, required this.percent, this.text});
 
   factory Emissions.fromJson(Map<String, dynamic> json) {
     return Emissions(
@@ -307,7 +313,12 @@ class InitData {
       try {
         for (var point in pathList) {
           if (point is List && point.length >= 2) {
-            mockPath.add(LatLng((point[0] as num).toDouble(), (point[1] as num).toDouble()));
+            mockPath.add(
+              LatLng(
+                (point[0] as num).toDouble(),
+                (point[1] as num).toDouble(),
+              ),
+            );
           } else if (point is LatLng) {
             mockPath.add(point);
           }

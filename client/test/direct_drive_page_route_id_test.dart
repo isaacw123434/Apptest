@@ -11,8 +11,23 @@ class MockApiService extends ApiService {
   @override
   Future<InitData> fetchInitData({String? routeId}) async {
     lastRouteId = routeId;
-    return InitData(journeys: [],
-      segmentOptions: SegmentOptions(firstMile: [], mainLeg: Leg(id: 'main', label: 'main', segments: [], time: 0, cost: 0, distance: 0, riskScore: 0, iconId: IconIds.train, lineColor: ''), lastMile: []),
+    return InitData(
+      journeys: [],
+      segmentOptions: SegmentOptions(
+        firstMile: [],
+        mainLeg: Leg(
+          id: 'main',
+          label: 'main',
+          segments: [],
+          time: 0,
+          cost: 0,
+          distance: 0,
+          riskScore: 0,
+          iconId: IconIds.train,
+          lineColor: '',
+        ),
+        lastMile: [],
+      ),
       directDrive: DirectDrive(
         time: 110,
         cost: 39.15,
@@ -25,13 +40,15 @@ class MockApiService extends ApiService {
 }
 
 void main() {
-  testWidgets('DirectDrivePage passes routeId to ApiService', (WidgetTester tester) async {
+  testWidgets('DirectDrivePage passes routeId to ApiService', (
+    WidgetTester tester,
+  ) async {
     final mockApiService = MockApiService();
 
     // Verify default behavior (null routeId)
-    await tester.pumpWidget(MaterialApp(
-      home: DirectDrivePage(apiService: mockApiService),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(home: DirectDrivePage(apiService: mockApiService)),
+    );
     await tester.pumpAndSettle();
     expect(mockApiService.lastRouteId, null);
 
@@ -39,9 +56,11 @@ void main() {
 
     // Verify with routeId
     final mockApiService2 = MockApiService();
-    await tester.pumpWidget(MaterialApp(
-      home: DirectDrivePage(apiService: mockApiService2, routeId: 'route2'),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DirectDrivePage(apiService: mockApiService2, routeId: 'route2'),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(mockApiService2.lastRouteId, 'route2');
   });

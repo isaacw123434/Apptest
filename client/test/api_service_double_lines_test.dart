@@ -7,12 +7,14 @@ void main() {
   test('train_walk_headingley walk segment has path', () async {
     final apiService = ApiService();
     final initData = await apiService.fetchInitData();
-    final leg = initData.segmentOptions.firstMile.firstWhere((l) => l.id == 'train_walk_headingley');
+    final leg = initData.segmentOptions.firstMile.firstWhere(
+      (l) => l.id == 'train_walk_headingley',
+    );
 
     var segments = leg.segments;
     // Handle access group if present (new logic in process_routes.py groups walk+wait+ride)
     if (segments.isNotEmpty && segments.first.mode == 'access_group') {
-        segments = segments.first.subSegments ?? [];
+      segments = segments.first.subSegments ?? [];
     }
 
     final walkSegment = segments.firstWhere((s) => s.mode == 'walk');
@@ -25,12 +27,14 @@ void main() {
   test('train_uber_headingley taxi segment has path', () async {
     final apiService = ApiService();
     final initData = await apiService.fetchInitData();
-    final leg = initData.segmentOptions.firstMile.firstWhere((l) => l.id == 'train_uber_headingley');
+    final leg = initData.segmentOptions.firstMile.firstWhere(
+      (l) => l.id == 'train_uber_headingley',
+    );
     // Note: parser maps "driving" to "car" (not "taxi")
 
     var segments = leg.segments;
     if (segments.isNotEmpty && segments.first.mode == 'access_group') {
-        segments = segments.first.subSegments ?? [];
+      segments = segments.first.subSegments ?? [];
     }
 
     final taxiSegment = segments.firstWhere((s) => s.mode == 'car');

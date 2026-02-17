@@ -35,7 +35,7 @@ class ApiService {
       final allSegments = [
         ...combo.leg1.segments,
         ...initData.segmentOptions.mainLeg.segments,
-        ...combo.leg3.segments
+        ...combo.leg3.segments,
       ];
 
       bool checkSegment(Segment seg) {

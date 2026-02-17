@@ -37,18 +37,22 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
       if (mounted) {
         List<Marker> markers = [];
         if (data.mockPath.isNotEmpty) {
-           markers.add(Marker(
-             point: data.mockPath.first,
-             width: 24,
-             height: 24,
-             child: _buildMarkerWidget(isStart: true),
-           ));
-           markers.add(Marker(
-             point: data.mockPath.last,
-             width: 24,
-             height: 24,
-             child: _buildMarkerWidget(isEnd: true),
-           ));
+          markers.add(
+            Marker(
+              point: data.mockPath.first,
+              width: 24,
+              height: 24,
+              child: _buildMarkerWidget(isStart: true),
+            ),
+          );
+          markers.add(
+            Marker(
+              point: data.mockPath.last,
+              width: 24,
+              height: 24,
+              child: _buildMarkerWidget(isEnd: true),
+            ),
+          );
         }
 
         setState(() {
@@ -57,7 +61,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
           _markers = markers;
         });
         WidgetsBinding.instance.addPostFrameCallback((_) {
-           _zoomToFit();
+          _zoomToFit();
         });
       }
     } catch (e) {
@@ -82,7 +86,8 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+                urlTemplate:
+                    'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
                 subdomains: const ['a', 'b', 'c'],
                 userAgentPackageName: 'com.example.app',
               ),
@@ -93,13 +98,10 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
                       points: _routePoints,
                       color: Colors.blue,
                       strokeWidth: 4.0,
-                    )
+                    ),
                   ],
                 ),
-              if (_markers.isNotEmpty)
-                MarkerLayer(
-                  markers: _markers,
-                ),
+              if (_markers.isNotEmpty) MarkerLayer(markers: _markers),
             ],
           ),
 
@@ -127,7 +129,13 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, -5))],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10,
+                      offset: Offset(0, -5),
+                    ),
+                  ],
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -161,20 +169,43 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
                             color: const Color(0xFFF1F5F9), // Slate 100
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(LucideIcons.car, color: Color(0xFF475569)),
+                          child: const Icon(
+                            LucideIcons.car,
+                            color: Color(0xFF475569),
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 24),
                     Row(
                       children: [
-                        Expanded(child: _buildInfoBox('Cost', '£${_initData!.directDrive.cost.toStringAsFixed(2)}')),
+                        Expanded(
+                          child: _buildInfoBox(
+                            'Cost',
+                            '£${_initData!.directDrive.cost.toStringAsFixed(2)}',
+                          ),
+                        ),
                         const SizedBox(width: 8),
-                        Expanded(child: _buildInfoBox('Time', '${(_initData!.directDrive.time / 60).floor()}hr ${_initData!.directDrive.time % 60}m')),
+                        Expanded(
+                          child: _buildInfoBox(
+                            'Time',
+                            '${(_initData!.directDrive.time / 60).floor()}hr ${_initData!.directDrive.time % 60}m',
+                          ),
+                        ),
                         const SizedBox(width: 8),
-                        Expanded(child: _buildInfoBox('Distance', '${_initData!.directDrive.distance} mi')),
+                        Expanded(
+                          child: _buildInfoBox(
+                            'Distance',
+                            '${_initData!.directDrive.distance} mi',
+                          ),
+                        ),
                         const SizedBox(width: 8),
-                        Expanded(child: _buildInfoBox('CO₂', '${(_initData!.directDrive.co2 ?? calculateEmission(_initData!.directDrive.distance, IconIds.car)).toStringAsFixed(2)} kg')),
+                        Expanded(
+                          child: _buildInfoBox(
+                            'CO₂',
+                            '${(_initData!.directDrive.co2 ?? calculateEmission(_initData!.directDrive.distance, IconIds.car)).toStringAsFixed(2)} kg',
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -188,7 +219,9 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
                           backgroundColor: const Color(0xFF2563EB), // Blue 600
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ),
@@ -209,8 +242,12 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
           shape: BoxShape.circle,
           border: Border.all(color: Colors.white, width: 2),
           boxShadow: const [
-             BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))
-          ]
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
         child: const Icon(LucideIcons.play, size: 12, color: Colors.white),
       );
@@ -221,8 +258,12 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
           shape: BoxShape.circle,
           border: Border.all(color: Colors.white, width: 2),
           boxShadow: const [
-             BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))
-          ]
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
         child: const Icon(LucideIcons.flag, size: 12, color: Colors.white),
       );
@@ -283,23 +324,22 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
       if (point.longitude > maxLng) maxLng = point.longitude;
     }
 
-    final bounds = LatLngBounds(
-      LatLng(minLat, minLng),
-      LatLng(maxLat, maxLng),
-    );
+    final bounds = LatLngBounds(LatLng(minLat, minLng), LatLng(maxLat, maxLng));
 
     // Calculate padding to account for bottom sheet (approx 35% of screen height)
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomPadding = screenHeight * 0.35;
 
-    _mapController!.fitCamera(CameraFit.bounds(
-      bounds: bounds,
-      padding: EdgeInsets.only(
-        top: 50,
-        left: 50,
-        right: 50,
-        bottom: bottomPadding + 50,
+    _mapController!.fitCamera(
+      CameraFit.bounds(
+        bounds: bounds,
+        padding: EdgeInsets.only(
+          top: 50,
+          left: 50,
+          right: 50,
+          bottom: bottomPadding + 50,
+        ),
       ),
-    ));
+    );
   }
 }

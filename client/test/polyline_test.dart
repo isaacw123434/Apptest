@@ -23,7 +23,8 @@ void main() {
       // Using a segment from mock_data that was problematic if not escaped correctly
       // e.g. "srogInltHS~EpCvFjBd@fAAdCoD|B_HxDVrL}D_BeLjGyPvDsI~EkCnFi@pHlBbXgJtSLhEbBvHcP~GaSlO{f@hB..."
       // We just test that it decodes to something valid
-      const encoded = r"srogInltHS~EpCvFjBd@fAAdCoD|B_HxDVrL}D_BeLjGyPvDsI~EkCnFi@pHlBbXgJtSLhEbBvHcP~GaSlO{f@hB";
+      const encoded =
+          r'srogInltHS~EpCvFjBd@fAAdCoD|B_HxDVrL}D_BeLjGyPvDsI~EkCnFi@pHlBbXgJtSLhEbBvHcP~GaSlO{f@hB';
       final points = decodePolyline(encoded);
       expect(points, isNotEmpty);
       for (var p in points) {

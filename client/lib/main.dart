@@ -26,9 +26,7 @@ class JourneyPlannerApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFF8FAFC), // Slate 50
       ),
       home: const HomePage(),
-      routes: {
-        '/direct-drive': (context) => const DirectDrivePage(),
-      },
+      routes: {'/direct-drive': (context) => const DirectDrivePage()},
     );
   }
 }

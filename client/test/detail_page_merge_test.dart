@@ -54,30 +54,31 @@ class MockApiService extends ApiService {
     );
 
     final firstMile = Leg(
-        id: 'first',
-        label: 'First',
-        time: 5,
-        cost: 2,
-        distance: 1,
-        riskScore: 0,
-        iconId: 'bus',
-        lineColor: '#000000',
-        segments: [],
+      id: 'first',
+      label: 'First',
+      time: 5,
+      cost: 2,
+      distance: 1,
+      riskScore: 0,
+      iconId: 'bus',
+      lineColor: '#000000',
+      segments: [],
     );
 
     final lastMile = Leg(
-        id: 'last',
-        label: 'Last',
-        time: 5,
-        cost: 2,
-        distance: 1,
-        riskScore: 0,
-        iconId: 'bus',
-        lineColor: '#000000',
-        segments: [],
+      id: 'last',
+      label: 'Last',
+      time: 5,
+      cost: 2,
+      distance: 1,
+      riskScore: 0,
+      iconId: 'bus',
+      lineColor: '#000000',
+      segments: [],
     );
 
-    return InitData(journeys: [],
+    return InitData(
+      journeys: [],
       segmentOptions: SegmentOptions(
         firstMile: [firstMile],
         mainLeg: mainLeg,
@@ -90,34 +91,36 @@ class MockApiService extends ApiService {
 }
 
 void main() {
-  testWidgets('DetailPage merges train segments correctly', (WidgetTester tester) async {
+  testWidgets('DetailPage merges train segments correctly', (
+    WidgetTester tester,
+  ) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 1.0;
 
     final mockApiService = MockApiService();
 
     final dummyLeg1 = Leg(
-        id: 'first',
-        label: 'First',
-        time: 5,
-        cost: 2,
-        distance: 1,
-        riskScore: 0,
-        iconId: 'bus',
-        lineColor: '#000000',
-        segments: [],
+      id: 'first',
+      label: 'First',
+      time: 5,
+      cost: 2,
+      distance: 1,
+      riskScore: 0,
+      iconId: 'bus',
+      lineColor: '#000000',
+      segments: [],
     );
 
     final dummyLeg3 = Leg(
-        id: 'last',
-        label: 'Last',
-        time: 5,
-        cost: 2,
-        distance: 1,
-        riskScore: 0,
-        iconId: 'bus',
-        lineColor: '#000000',
-        segments: [],
+      id: 'last',
+      label: 'Last',
+      time: 5,
+      cost: 2,
+      distance: 1,
+      riskScore: 0,
+      iconId: 'bus',
+      lineColor: '#000000',
+      segments: [],
     );
 
     final dummyResult = JourneyResult(
@@ -132,12 +135,14 @@ void main() {
     );
 
     // Setup initial data via API
-    await tester.pumpWidget(MaterialApp(
-      home: DetailPage(
-        journeyResult: dummyResult,
-        apiService: mockApiService,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DetailPage(
+          journeyResult: dummyResult,
+          apiService: mockApiService,
+        ),
       ),
-    ));
+    );
 
     await tester.pumpAndSettle();
 
