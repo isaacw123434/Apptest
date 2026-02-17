@@ -10,9 +10,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController _fromController = TextEditingController(text: 'St Chads, Leeds');
-  final TextEditingController _toController = TextEditingController(text: 'East Leake, Loughborough');
-  final TextEditingController _timeController = TextEditingController(text: '09:00');
+  final TextEditingController _fromController = TextEditingController(
+    text: 'St Chads, Leeds',
+  );
+  final TextEditingController _toController = TextEditingController(
+    text: 'East Leake, Loughborough',
+  );
+  final TextEditingController _timeController = TextEditingController(
+    text: '09:00',
+  );
   final String _timeType = 'Depart';
   String? _currentRouteId;
 
@@ -49,7 +55,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,7 +80,9 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
         color: Color(0xFF4F46E5), // Brand Color
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -116,7 +123,10 @@ class _HomePageState extends State<HomePage> {
             children: [
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF1F5F9), // Slate 100
                     borderRadius: BorderRadius.circular(12),
@@ -131,15 +141,20 @@ class _HomePageState extends State<HomePage> {
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF64748B), // Slate 500
                         ),
-                        icon: const Icon(LucideIcons.chevronDown, size: 14, color: Color(0xFF94A3B8)),
+                        icon: const Icon(
+                          LucideIcons.chevronDown,
+                          size: 14,
+                          color: Color(0xFF94A3B8),
+                        ),
                         onChanged: null,
                         items: <String>['Depart', 'Arrive']
                             .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            })
+                            .toList(),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -258,7 +273,9 @@ class _HomePageState extends State<HomePage> {
                 final isSelected = _selectedModes[mode['id']]!;
                 return Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(right: index == _modeOptions.length - 1 ? 0 : 8.0),
+                    padding: EdgeInsets.only(
+                      right: index == _modeOptions.length - 1 ? 0 : 8.0,
+                    ),
                     child: InkWell(
                       onTap: () {
                         setState(() {
@@ -268,9 +285,15 @@ class _HomePageState extends State<HomePage> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFEFF6FF) : Colors.white, // Blue 50
+                          color: isSelected
+                              ? const Color(0xFFEFF6FF)
+                              : Colors.white, // Blue 50
                           border: Border.all(
-                            color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0), // Accent or Slate 200
+                            color: isSelected
+                                ? const Color(0xFF4F46E5)
+                                : const Color(
+                                    0xFFE2E8F0,
+                                  ), // Accent or Slate 200
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -279,7 +302,9 @@ class _HomePageState extends State<HomePage> {
                             Icon(
                               mode['icon'],
                               size: 20,
-                              color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
+                              color: isSelected
+                                  ? const Color(0xFF4F46E5)
+                                  : const Color(0xFF94A3B8),
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -304,7 +329,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildInputRow(IconData icon, TextEditingController controller, Color dotColor) {
+  Widget _buildInputRow(
+    IconData icon,
+    TextEditingController controller,
+    Color dotColor,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -316,10 +345,7 @@ class _HomePageState extends State<HomePage> {
           Container(
             width: 8,
             height: 8,
-            decoration: BoxDecoration(
-              color: dotColor,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -372,36 +398,50 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           const SizedBox(height: 8),
-          ...['Home → Work', 'Leeds → Manchester'].map((route) => Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFF1F5F9)), // Slate 100
-                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE0E7FF), // Brand Light (Blue 100ish)
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(LucideIcons.heart, size: 18, color: Color(0xFF4F46E5)),
+          ...['Home → Work', 'Leeds → Manchester'].map(
+            (route) => Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFF1F5F9)), // Slate 100
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 2,
+                    offset: Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(
+                        0xFFE0E7FF,
+                      ), // Brand Light (Blue 100ish)
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      route,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF334155), // Slate 700
-                      ),
+                    child: const Icon(
+                      LucideIcons.heart,
+                      size: 18,
+                      color: Color(0xFF4F46E5),
                     ),
-                  ],
-                ),
-              )),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    route,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF334155), // Slate 700
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -428,7 +468,13 @@ class _HomePageState extends State<HomePage> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: const Color(0xFFF1F5F9)), // Slate 100
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 2,
+                  offset: Offset(0, 1),
+                ),
+              ],
             ),
             child: Column(
               children: [
@@ -440,7 +486,11 @@ class _HomePageState extends State<HomePage> {
                         color: const Color(0xFF4F46E5), // Brand
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(LucideIcons.train, size: 18, color: Colors.white),
+                      child: const Icon(
+                        LucideIcons.train,
+                        size: 18,
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Column(
@@ -492,11 +542,17 @@ class _HomePageState extends State<HomePage> {
                   children: const [
                     Text(
                       'On time',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)), // Slate 400
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF94A3B8),
+                      ), // Slate 400
                     ),
                     Text(
                       'Platform 4',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)), // Slate 400
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF94A3B8),
+                      ), // Slate 400
                     ),
                   ],
                 ),

@@ -29,7 +29,8 @@ class _DetailPageState extends State<DetailPage> {
   late final ApiService _apiService;
   InitData? _initData;
   MapController? _mapController;
-  final DraggableScrollableController _sheetController = DraggableScrollableController();
+  final DraggableScrollableController _sheetController =
+      DraggableScrollableController();
   ScrollController? _innerScrollController;
   List<Polyline> _polylines = [];
   List<Marker> _markers = [];
@@ -86,56 +87,66 @@ class _DetailPageState extends State<DetailPage> {
 
     // --- Generate Polylines ---
     void addPolyline(Segment seg) {
-        if (seg.subSegments != null && seg.subSegments!.isNotEmpty) {
-            for (var sub in seg.subSegments!) {
-                addPolyline(sub);
-            }
-            return;
+      if (seg.subSegments != null && seg.subSegments!.isNotEmpty) {
+        for (var sub in seg.subSegments!) {
+          addPolyline(sub);
         }
+        return;
+      }
 
-        if (seg.path != null && seg.path!.isNotEmpty) {
-            // Filter out invalid coordinates
-            final validPoints = seg.path!.where((p) => p.latitude.abs() <= 90).toList();
-            if (validPoints.isNotEmpty) {
-                final points = validPoints.map((p) => LatLng(p.latitude, p.longitude)).toList();
-                final isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
+      if (seg.path != null && seg.path!.isNotEmpty) {
+        // Filter out invalid coordinates
+        final validPoints = seg.path!
+            .where((p) => p.latitude.abs() <= 90)
+            .toList();
+        if (validPoints.isNotEmpty) {
+          final points = validPoints
+              .map((p) => LatLng(p.latitude, p.longitude))
+              .toList();
+          final isWalk =
+              seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
 
-                lines.add(Polyline(
-                    points: points,
-                    color: _parseColor(seg.lineColor),
-                    strokeWidth: 6.0,
-                    pattern: isWalk ? const StrokePattern.dotted() : const StrokePattern.solid(),
-                ));
-            }
+          lines.add(
+            Polyline(
+              points: points,
+              color: _parseColor(seg.lineColor),
+              strokeWidth: 6.0,
+              pattern: isWalk
+                  ? const StrokePattern.dotted()
+                  : const StrokePattern.solid(),
+            ),
+          );
         }
+      }
     }
 
     for (var seg in allSegments) {
-        addPolyline(seg);
+      addPolyline(seg);
     }
 
     // Fallback if no lines generated yet, try mock path
     if (lines.isEmpty && _initData != null && _initData!.mockPath.isNotEmpty) {
-       final mockPoints = _initData!.mockPath.map((p) => LatLng(p.latitude, p.longitude)).toList();
-       lines.add(Polyline(
-         points: mockPoints,
-         color: Colors.blue,
-         strokeWidth: 4.0,
-       ));
+      final mockPoints = _initData!.mockPath
+          .map((p) => LatLng(p.latitude, p.longitude))
+          .toList();
+      lines.add(
+        Polyline(points: mockPoints, color: Colors.blue, strokeWidth: 4.0),
+      );
     }
 
     // --- Generate Markers ---
     // Flatten segments for markers
     List<Segment> flattened = [];
     void flatten(Segment s) {
-        if (s.subSegments != null && s.subSegments!.isNotEmpty) {
-            for (var sub in s.subSegments!) {
-              flatten(sub);
-            }
-        } else {
-            flattened.add(s);
+      if (s.subSegments != null && s.subSegments!.isNotEmpty) {
+        for (var sub in s.subSegments!) {
+          flatten(sub);
         }
+      } else {
+        flattened.add(s);
+      }
     }
+
     for (var s in allSegments) {
       flatten(s);
     }
@@ -144,23 +155,33 @@ class _DetailPageState extends State<DetailPage> {
       // Start Marker
       final startSeg = flattened.first;
       if (startSeg.path != null && startSeg.path!.isNotEmpty) {
-        markers.add(Marker(
-          point: LatLng(startSeg.path!.first.latitude, startSeg.path!.first.longitude),
-          width: 24,
-          height: 24,
-          child: _buildMarkerWidget(isStart: true),
-        ));
+        markers.add(
+          Marker(
+            point: LatLng(
+              startSeg.path!.first.latitude,
+              startSeg.path!.first.longitude,
+            ),
+            width: 24,
+            height: 24,
+            child: _buildMarkerWidget(isStart: true),
+          ),
+        );
       }
 
       // End Marker
       final endSeg = flattened.last;
       if (endSeg.path != null && endSeg.path!.isNotEmpty) {
-        markers.add(Marker(
-          point: LatLng(endSeg.path!.last.latitude, endSeg.path!.last.longitude),
-          width: 24,
-          height: 24,
-          child: _buildMarkerWidget(isEnd: true),
-        ));
+        markers.add(
+          Marker(
+            point: LatLng(
+              endSeg.path!.last.latitude,
+              endSeg.path!.last.longitude,
+            ),
+            width: 24,
+            height: 24,
+            child: _buildMarkerWidget(isEnd: true),
+          ),
+        );
       }
 
       // Mode Change Nodes
@@ -168,12 +189,17 @@ class _DetailPageState extends State<DetailPage> {
         final current = flattened[i];
 
         if (current.path != null && current.path!.isNotEmpty) {
-            markers.add(Marker(
-              point: LatLng(current.path!.last.latitude, current.path!.last.longitude),
+          markers.add(
+            Marker(
+              point: LatLng(
+                current.path!.last.latitude,
+                current.path!.last.longitude,
+              ),
               width: 12,
               height: 12,
               child: _buildMarkerWidget(),
-            ));
+            ),
+          );
         }
       }
 
@@ -181,12 +207,14 @@ class _DetailPageState extends State<DetailPage> {
       for (var seg in flattened) {
         if (seg.stopPoints != null && seg.stopPoints!.isNotEmpty) {
           for (var point in seg.stopPoints!) {
-            markers.add(Marker(
-              point: point,
-              width: 8,
-              height: 8,
-              child: _buildStopMarkerWidget(),
-            ));
+            markers.add(
+              Marker(
+                point: point,
+                width: 8,
+                height: 8,
+                child: _buildStopMarkerWidget(),
+              ),
+            );
           }
         }
       }
@@ -206,7 +234,12 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   void _zoomToSegment(Segment segment) {
-    if (!mounted || _mapController == null || segment.path == null || segment.path!.isEmpty) return;
+    if (!mounted ||
+        _mapController == null ||
+        segment.path == null ||
+        segment.path!.isEmpty) {
+      return;
+    }
 
     final points = segment.path!;
     double minLat = points.first.latitude;
@@ -221,10 +254,7 @@ class _DetailPageState extends State<DetailPage> {
       if (point.longitude > maxLng) maxLng = point.longitude;
     }
 
-    final bounds = LatLngBounds(
-      LatLng(minLat, minLng),
-      LatLng(maxLat, maxLng),
-    );
+    final bounds = LatLngBounds(LatLng(minLat, minLng), LatLng(maxLat, maxLng));
 
     // Animate sheet down to reveal map
     if (_sheetController.isAttached) {
@@ -249,15 +279,17 @@ class _DetailPageState extends State<DetailPage> {
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomPadding = screenHeight * 0.25;
 
-    _mapController!.fitCamera(CameraFit.bounds(
-      bounds: bounds,
-      padding: EdgeInsets.only(
-        top: 50,
-        left: 50,
-        right: 50,
-        bottom: bottomPadding + 50,
+    _mapController!.fitCamera(
+      CameraFit.bounds(
+        bounds: bounds,
+        padding: EdgeInsets.only(
+          top: 50,
+          left: 50,
+          right: 50,
+          bottom: bottomPadding + 50,
+        ),
       ),
-    ));
+    );
   }
 
   Widget _buildStopMarkerWidget() {
@@ -278,8 +310,12 @@ class _DetailPageState extends State<DetailPage> {
           shape: BoxShape.circle,
           border: Border.all(color: Colors.white, width: 2),
           boxShadow: const [
-             BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))
-          ]
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
         child: const Icon(LucideIcons.play, size: 12, color: Colors.white),
       );
@@ -290,8 +326,12 @@ class _DetailPageState extends State<DetailPage> {
           shape: BoxShape.circle,
           border: Border.all(color: Colors.white, width: 2),
           boxShadow: const [
-             BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))
-          ]
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
         child: const Icon(LucideIcons.flag, size: 12, color: Colors.white),
       );
@@ -309,7 +349,9 @@ class _DetailPageState extends State<DetailPage> {
 
   Color _parseColor(String lineColor) {
     try {
-      return Color(int.parse(lineColor.replaceAll('#', ''), radix: 16) + 0xFF000000);
+      return Color(
+        int.parse(lineColor.replaceAll('#', ''), radix: 16) + 0xFF000000,
+      );
     } catch (e) {
       return const Color(0xFF4F46E5); // Brand Blue as fallback
     }
@@ -328,7 +370,10 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   String _getStationSuffix(String label) {
-    final RegExp pattern = RegExp(r'^(Walk|Cycle|Uber|Drive|Bus|Taxi)(.*)', caseSensitive: false);
+    final RegExp pattern = RegExp(
+      r'^(Walk|Cycle|Uber|Drive|Bus|Taxi)(.*)',
+      caseSensitive: false,
+    );
     final match = pattern.firstMatch(label);
     if (match != null && match.groupCount >= 2) {
       return match.group(2)!.trim();
@@ -351,16 +396,20 @@ class _DetailPageState extends State<DetailPage> {
       int risk = leg1.riskScore + mainLeg.riskScore + leg3.riskScore;
 
       // Calculate Emissions
-      double carEmission = _initData!.directDrive.co2 ?? (_initData!.directDrive.distance * 0.27);
+      double carEmission =
+          _initData!.directDrive.co2 ??
+          (_initData!.directDrive.distance * 0.27);
 
-      double totalEmission = (leg1.co2 ?? leg1.distance * getEmissionFactor(leg1.iconId)) +
-          (mainLeg.co2 ?? mainLeg.distance * getEmissionFactor(mainLeg.iconId)) +
+      double totalEmission =
+          (leg1.co2 ?? leg1.distance * getEmissionFactor(leg1.iconId)) +
+          (mainLeg.co2 ??
+              mainLeg.distance * getEmissionFactor(mainLeg.iconId)) +
           (leg3.co2 ?? leg3.distance * getEmissionFactor(leg3.iconId));
 
       double savings = carEmission - totalEmission;
       int savingsPercent = 0;
       if (carEmission > 0) {
-         savingsPercent = ((savings / carEmission) * 100).round();
+        savingsPercent = ((savings / carEmission) * 100).round();
       }
 
       _currentResult = JourneyResult(
@@ -372,9 +421,9 @@ class _DetailPageState extends State<DetailPage> {
         buffer: buffer,
         risk: risk,
         emissions: Emissions(
-            val: savings,
-            percent: savingsPercent,
-            text: savings > 0 ? 'Saves $savingsPercent% CO₂ vs driving' : null
+          val: savings,
+          percent: savingsPercent,
+          text: savings > 0 ? 'Saves $savingsPercent% CO₂ vs driving' : null,
         ),
       );
 
@@ -391,7 +440,6 @@ class _DetailPageState extends State<DetailPage> {
 
     // Use all options initially
     List<Leg> filteredOptions = allOptions;
-
 
     showModalBottomSheet(
       context: context,
@@ -417,10 +465,11 @@ class _DetailPageState extends State<DetailPage> {
         ? _initData!.segmentOptions.firstMile
         : _initData!.segmentOptions.lastMile;
 
-
     Map<String, List<Leg>> grouped = _groupLegsByStation(allOptions);
     // Determine current access mode from first segment
-    String currentAccessMode = currentLeg.segments.isNotEmpty ? currentLeg.segments.first.mode : 'walk';
+    String currentAccessMode = currentLeg.segments.isNotEmpty
+        ? currentLeg.segments.first.mode
+        : 'walk';
 
     // Pick representatives
     List<Leg> representatives = [];
@@ -428,20 +477,20 @@ class _DetailPageState extends State<DetailPage> {
       // Find leg matching current access mode
       Leg? match;
       try {
-         match = legs.firstWhere((leg) {
-             if (leg.segments.isEmpty) return false;
-             return leg.segments.first.mode == currentAccessMode;
-         });
+        match = legs.firstWhere((leg) {
+          if (leg.segments.isEmpty) return false;
+          return leg.segments.first.mode == currentAccessMode;
+        });
       } catch (e) {
-         match = null;
+        match = null;
       }
 
       if (match != null) {
-          representatives.add(match);
+        representatives.add(match);
       } else {
-          // Fallback: Lowest Cost
-          legs.sort((a, b) => a.cost.compareTo(b.cost));
-          representatives.add(legs.first);
+        // Fallback: Lowest Cost
+        legs.sort((a, b) => a.cost.compareTo(b.cost));
+        representatives.add(legs.first);
       }
     });
 
@@ -454,26 +503,31 @@ class _DetailPageState extends State<DetailPage> {
           currentLeg: currentLeg,
           title: 'Choose Route',
           labelBuilder: (leg) {
-             // Try to construct "FromStation to ToStation"
-             // Find train segment
-             Segment? trainSeg;
-             try {
-                trainSeg = leg.segments.firstWhere((s) => s.iconId == 'train');
-             } catch (e) {
-                trainSeg = null;
-             }
+            // Try to construct "FromStation to ToStation"
+            // Find train segment
+            Segment? trainSeg;
+            try {
+              trainSeg = leg.segments.firstWhere((s) => s.iconId == 'train');
+            } catch (e) {
+              trainSeg = null;
+            }
 
-             if (trainSeg != null && trainSeg.from != null && trainSeg.to != null) {
-                 return '${trainSeg.from} to ${trainSeg.to}';
-             }
+            if (trainSeg != null &&
+                trainSeg.from != null &&
+                trainSeg.to != null) {
+              return '${trainSeg.from} to ${trainSeg.to}';
+            }
 
-             // Fallback: parse label if "Drive to X + Train"
-             final match = RegExp(r'to\s+(.*?)\s+\+\s+Train', caseSensitive: false).firstMatch(leg.label);
-             if (match != null) {
-                 return '${match.group(1)} to Leeds'; // Assume Leeds if implicit
-             }
+            // Fallback: parse label if "Drive to X + Train"
+            final match = RegExp(
+              r'to\s+(.*?)\s+\+\s+Train',
+              caseSensitive: false,
+            ).firstMatch(leg.label);
+            if (match != null) {
+              return '${match.group(1)} to Leeds'; // Assume Leeds if implicit
+            }
 
-             return leg.label;
+            return leg.label;
           },
           onSelect: (Leg selectedLeg) {
             _updateLeg(legType, selectedLeg);
@@ -520,16 +574,13 @@ class _DetailPageState extends State<DetailPage> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+                urlTemplate:
+                    'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
                 subdomains: const ['a', 'b', 'c'],
                 userAgentPackageName: 'com.example.app',
               ),
-              PolylineLayer(
-                polylines: _polylines,
-              ),
-              MarkerLayer(
-                markers: _markers,
-              ),
+              PolylineLayer(polylines: _polylines),
+              MarkerLayer(markers: _markers),
             ],
           ),
 
@@ -560,7 +611,13 @@ class _DetailPageState extends State<DetailPage> {
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, -5))],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10,
+                      offset: Offset(0, -5),
+                    ),
+                  ],
                 ),
                 child: CustomScrollView(
                   controller: scrollController,
@@ -586,7 +643,10 @@ class _DetailPageState extends State<DetailPage> {
 
                           // Header
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 8,
+                            ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -604,25 +664,41 @@ class _DetailPageState extends State<DetailPage> {
                                     ),
                                     Row(
                                       children: [
-                                        const Icon(LucideIcons.clock, size: 14, color: Colors.grey),
+                                        const Icon(
+                                          LucideIcons.clock,
+                                          size: 14,
+                                          color: Colors.grey,
+                                        ),
                                         const SizedBox(width: 4),
                                         Text(
                                           '${(totalTime / 60).floor()}h ${totalTime % 60}m',
-                                          style: const TextStyle(fontSize: 14, color: Colors.grey),
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey,
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFECFDF5), // Emerald 50
+                                    color: const Color(
+                                      0xFFECFDF5,
+                                    ), // Emerald 50
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
                                     children: [
-                                      const Icon(LucideIcons.leaf, size: 12, color: Color(0xFF047857)),
+                                      const Icon(
+                                        LucideIcons.leaf,
+                                        size: 12,
+                                        color: Color(0xFF047857),
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
                                         result.emissions.text != null
@@ -672,7 +748,9 @@ class _DetailPageState extends State<DetailPage> {
                 backgroundColor: const Color(0xFF4F46E5), // Brand
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
             ),
           ),
@@ -682,7 +760,9 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   Widget _buildVerticalNodeTimeline(JourneyResult result) {
-    if (_initData == null) return const Center(child: CircularProgressIndicator());
+    if (_initData == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
     // Calculate times - Base is Main Leg Departure at 08:03
     final int leedsDepartMinutes = 8 * 60 + 3; // 08:03
@@ -708,7 +788,8 @@ class _DetailPageState extends State<DetailPage> {
           extraDetails = 'Platform ${leg.platform}';
         } else if (seg.iconId == 'bus' && leg.nextBusIn != null) {
           extraDetails = 'Bus every ${leg.nextBusIn} mins';
-        } else if ((seg.iconId == 'car' || seg.mode == 'taxi') && leg.waitTime != null) {
+        } else if ((seg.iconId == 'car' || seg.mode == 'taxi') &&
+            leg.waitTime != null) {
           extraDetails = 'Est wait: ${leg.waitTime} min';
         } else if (seg.iconId == 'bike' && leg.desc != null) {
           extraDetails = leg.desc;
@@ -718,241 +799,280 @@ class _DetailPageState extends State<DetailPage> {
 
         // Check for Transfer
         if (seg.mode == 'wait' && seg.label == 'Transfer') {
-             // 10 mins transfer text
-             children.add(_buildTransferSegment(seg));
-             currentMinutes += seg.time;
-             continue; // Skip building regular connection and node
+          // 10 mins transfer text
+          children.add(_buildTransferSegment(seg));
+          currentMinutes += seg.time;
+          continue; // Skip building regular connection and node
         }
 
         // --- ACCESS MERGE DETECTION ---
         // Merge [Walk/Wait... -> Ride] into MultiSegmentConnection
         // But only if the Ride is NOT a Train that triggers a Train Merge
-        bool isWalkOrWait(Segment s) => (s.mode.toLowerCase() == 'walk' || s.iconId == 'footprints') || (s.mode == 'wait' && s.label != 'Transfer');
-        bool isRide(Segment s) => !isWalkOrWait(s) && !(s.mode == 'wait' && s.label == 'Transfer');
+        bool isWalkOrWait(Segment s) =>
+            (s.mode.toLowerCase() == 'walk' || s.iconId == 'footprints') ||
+            (s.mode == 'wait' && s.label != 'Transfer');
+        bool isRide(Segment s) =>
+            !isWalkOrWait(s) && !(s.mode == 'wait' && s.label == 'Transfer');
 
         // --- TRAIN MERGE DETECTION (New) ---
         bool isTrain(Segment s) => s.iconId == 'train';
         if (isTrain(seg) && i + 1 < segments.length) {
-             final nextSeg = segments[i+1];
-             if (isTrain(nextSeg)) {
-                 children.add(_buildMergedSegmentConnection(
-                    seg1: seg,
-                    seg2: nextSeg,
-                    changeLabel: 'Change',
-                    waitTime: 0, // Wait time implicit in segments if split? Or need to sum up?
-                    // Actually, if we just split them in JSON, waitTime is lost unless we added a wait segment.
-                    // But typically wait time is small or 0 for direct connections.
-                    dist1: seg.distance,
-                    dist2: nextSeg.distance,
-                    extraDetails1: seg.detail ?? extraDetails,
-                    isEditable: canEdit,
-                    onEdit: () => _showTrainEdit(leg, legType),
-                    onTap: () => _zoomToSegment(seg) // Zoom to first? Or group?
-                 ));
-                 currentMinutes += seg.time + nextSeg.time;
-                 if (seg.waitTime != null) currentMinutes += seg.waitTime!;
-                 if (nextSeg.waitTime != null) currentMinutes += nextSeg.waitTime!;
+          final nextSeg = segments[i + 1];
+          if (isTrain(nextSeg)) {
+            children.add(
+              _buildMergedSegmentConnection(
+                seg1: seg,
+                seg2: nextSeg,
+                changeLabel: 'Change',
+                waitTime:
+                    0, // Wait time implicit in segments if split? Or need to sum up?
+                // Actually, if we just split them in JSON, waitTime is lost unless we added a wait segment.
+                // But typically wait time is small or 0 for direct connections.
+                dist1: seg.distance,
+                dist2: nextSeg.distance,
+                extraDetails1: seg.detail ?? extraDetails,
+                isEditable: canEdit,
+                onEdit: () => _showTrainEdit(leg, legType),
+                onTap: () => _zoomToSegment(seg), // Zoom to first? Or group?
+              ),
+            );
+            currentMinutes += seg.time + nextSeg.time;
+            if (seg.waitTime != null) currentMinutes += seg.waitTime!;
+            if (nextSeg.waitTime != null) currentMinutes += nextSeg.waitTime!;
 
-                 i++; // Skip next
+            i++; // Skip next
 
-                 // Node logic after the pair?
-                 // The standard loop adds a node after 'i' if i < length-1.
-                 // Here we consumed i and i+1.
-                 // We need to add a node after i+1 if i+1 < length-1.
+            // Node logic after the pair?
+            // The standard loop adds a node after 'i' if i < length-1.
+            // Here we consumed i and i+1.
+            // We need to add a node after i+1 if i+1 < length-1.
 
-                 if (i < segments.length - 1) {
-                     // Next visible is segments[i+1] (which is the one we just consumed as 2nd part)
-                     // Wait, i is now index of 2nd part.
-                     // We need node between 2nd part and 3rd part.
+            if (i < segments.length - 1) {
+              // Next visible is segments[i+1] (which is the one we just consumed as 2nd part)
+              // Wait, i is now index of 2nd part.
+              // We need node between 2nd part and 3rd part.
 
-                     // Copied node logic from below:
-                      String nodeTitle = segments[i].to ?? 'Stop';
-                      Color prevColor = _parseColor(segments[i].lineColor);
+              // Copied node logic from below:
+              String nodeTitle = segments[i].to ?? 'Stop';
+              Color prevColor = _parseColor(segments[i].lineColor);
 
-                      final nextVisible = segments[i + 1];
-                      Color nextColor = _parseColor(nextVisible.lineColor);
-                      if (nextVisible.subSegments != null && nextVisible.subSegments!.isNotEmpty) {
-                           nextColor = _parseColor(nextVisible.subSegments!.first.lineColor);
-                      }
+              final nextVisible = segments[i + 1];
+              Color nextColor = _parseColor(nextVisible.lineColor);
+              if (nextVisible.subSegments != null &&
+                  nextVisible.subSegments!.isNotEmpty) {
+                nextColor = _parseColor(
+                  nextVisible.subSegments!.first.lineColor,
+                );
+              }
 
-                       children.add(_buildNode(
-                          nodeTitle,
-                          _formatMinutes(currentMinutes),
-                          prevColor: prevColor,
-                          nextColor: nextColor));
-                 }
+              children.add(
+                _buildNode(
+                  nodeTitle,
+                  _formatMinutes(currentMinutes),
+                  prevColor: prevColor,
+                  nextColor: nextColor,
+                ),
+              );
+            }
 
-                 continue;
-             }
+            continue;
+          }
         }
 
-        if (isWalkOrWait(seg) && (legType == 'firstMile' || legType == 'lastMile')) {
-             int k = i + 1;
-             while (k < segments.length && isWalkOrWait(segments[k])) {
-                 k++;
-             }
+        if (isWalkOrWait(seg) &&
+            (legType == 'firstMile' || legType == 'lastMile')) {
+          int k = i + 1;
+          while (k < segments.length && isWalkOrWait(segments[k])) {
+            k++;
+          }
 
-             if (k < segments.length) {
-                 final nextSeg = segments[k];
-                 if (isRide(nextSeg)) {
-                      // Candidate for merge: segments[i...k]
-                      bool preventMerge = false;
-                      // Check if nextSeg is Train and Triggers Merge (Look ahead)
-                      if (nextSeg.iconId == 'train') {
-                           int lookAheadIndex = k + 1;
-                           int tempIndex = lookAheadIndex;
-                           Segment? nextTrainSeg;
-                           if (tempIndex < segments.length) {
-                               Segment? checkSeg = segments[tempIndex];
-                               // Skip walk/transfer logic similar to train merge check
-                               if (checkSeg.mode == 'walk' || checkSeg.iconId == 'footprints') {
-                                   tempIndex++;
-                                   if (tempIndex < segments.length) {
-                                       checkSeg = segments[tempIndex];
-                                   } else {
-                                       checkSeg = null;
-                                   }
-                               }
-                               if (checkSeg != null && checkSeg.iconId == 'train') {
-                                   nextTrainSeg = checkSeg;
-                               }
-                           }
+          if (k < segments.length) {
+            final nextSeg = segments[k];
+            if (isRide(nextSeg)) {
+              // Candidate for merge: segments[i...k]
+              bool preventMerge = false;
+              // Check if nextSeg is Train and Triggers Merge (Look ahead)
+              if (nextSeg.iconId == 'train') {
+                int lookAheadIndex = k + 1;
+                int tempIndex = lookAheadIndex;
+                Segment? nextTrainSeg;
+                if (tempIndex < segments.length) {
+                  Segment? checkSeg = segments[tempIndex];
+                  // Skip walk/transfer logic similar to train merge check
+                  if (checkSeg.mode == 'walk' ||
+                      checkSeg.iconId == 'footprints') {
+                    tempIndex++;
+                    if (tempIndex < segments.length) {
+                      checkSeg = segments[tempIndex];
+                    } else {
+                      checkSeg = null;
+                    }
+                  }
+                  if (checkSeg != null && checkSeg.iconId == 'train') {
+                    nextTrainSeg = checkSeg;
+                  }
+                }
 
-                           if (nextTrainSeg != null) {
-                               preventMerge = true;
-                           }
+                if (nextTrainSeg != null) {
+                  preventMerge = true;
+                }
+              }
+
+              if (!preventMerge) {
+                // --- SCAN FOR TRAILING WALKS ---
+                int endIdx = k + 1;
+                while (endIdx < segments.length &&
+                    isWalkOrWait(segments[endIdx])) {
+                  endIdx++;
+                }
+                // -------------------------------
+
+                List<Segment> mergeGroup = segments.sublist(i, endIdx);
+
+                int totalTime = 0;
+                for (var s in mergeGroup) {
+                  totalTime += s.time + (s.waitTime ?? 0);
+                }
+
+                children.add(
+                  _buildMultiSegmentConnection(
+                    segments: mergeGroup,
+                    isEditable: canEdit,
+                    onEdit: () {
+                      if (mergeGroup.any(
+                        (s) => s.iconId == 'train' || _isParkAndRideBus(s),
+                      )) {
+                        _showTrainEdit(leg, legType);
+                      } else {
+                        _showAccessEdit(leg, legType);
                       }
+                    },
+                    onTap: () => _zoomToSegments(mergeGroup),
+                  ),
+                );
 
-                      if (!preventMerge) {
-                            // --- SCAN FOR TRAILING WALKS ---
-                            int endIdx = k + 1;
-                            while (endIdx < segments.length && isWalkOrWait(segments[endIdx])) {
-                                endIdx++;
-                            }
-                            // -------------------------------
+                currentMinutes += totalTime;
 
-                            List<Segment> mergeGroup = segments.sublist(i, endIdx);
+                // Add Node if needed (if not last segment of whole leg)
+                if (endIdx < segments.length) {
+                  Segment lastSeg = mergeGroup.last;
+                  Segment nextVis = segments[endIdx];
+                  children.add(
+                    _buildNode(
+                      lastSeg.to ?? 'Stop',
+                      _formatMinutes(currentMinutes),
+                      prevColor: _parseColor(lastSeg.lineColor),
+                      nextColor: _parseColor(nextVis.lineColor),
+                    ),
+                  );
+                }
 
-                           int totalTime = 0;
-                           for(var s in mergeGroup) {
-                               totalTime += s.time + (s.waitTime ?? 0);
-                           }
-
-                           children.add(_buildMultiSegmentConnection(
-                               segments: mergeGroup,
-                               isEditable: canEdit,
-                               onEdit: () {
-                                  if (mergeGroup.any((s) => s.iconId == 'train' || _isParkAndRideBus(s))) {
-                                    _showTrainEdit(leg, legType);
-                                  } else {
-                                    _showAccessEdit(leg, legType);
-                                  }
-                               },
-                               onTap: () => _zoomToSegments(mergeGroup),
-                           ));
-
-                           currentMinutes += totalTime;
-
-                           // Add Node if needed (if not last segment of whole leg)
-                            if (endIdx < segments.length) {
-                               Segment lastSeg = mergeGroup.last;
-                                Segment nextVis = segments[endIdx];
-                               children.add(_buildNode(
-                                  lastSeg.to ?? 'Stop',
-                                  _formatMinutes(currentMinutes),
-                                  prevColor: _parseColor(lastSeg.lineColor),
-                                  nextColor: _parseColor(nextVis.lineColor)
-                               ));
-                           }
-
-                            i = endIdx - 1; // Loop increments i, so point to last consumed
-                           continue;
-                      }
-                 }
-             }
+                i = endIdx - 1; // Loop increments i, so point to last consumed
+                continue;
+              }
+            }
+          }
         }
 
         // --- GROUP DETECTION ---
         if (seg.subSegments != null && seg.subSegments!.isNotEmpty) {
-            // It's a group (Access or Train)
-            bool isTrainGroup = seg.mode == 'train_group';
+          // It's a group (Access or Train)
+          bool isTrainGroup = seg.mode == 'train_group';
 
-            if (isTrainGroup) {
-                // Train Merge
-                // Expect 2 subsegments
-                if (seg.subSegments!.length >= 2) {
-                    Segment s1 = seg.subSegments![0];
-                    Segment s2 = seg.subSegments![1];
-                    // s1 might need details from parent if populated in previous step
-                    // But details should be on subsegments if process_routes did its job.
-                    // Process_routes populated `detail` on subsegments BEFORE grouping.
+          if (isTrainGroup) {
+            // Train Merge
+            // Expect 2 subsegments
+            if (seg.subSegments!.length >= 2) {
+              Segment s1 = seg.subSegments![0];
+              Segment s2 = seg.subSegments![1];
+              // s1 might need details from parent if populated in previous step
+              // But details should be on subsegments if process_routes did its job.
+              // Process_routes populated `detail` on subsegments BEFORE grouping.
 
-                    // Wait time is on group seg
-                    children.add(_buildMergedSegmentConnection(
-                        seg1: s1,
-                        seg2: s2,
-                        changeLabel: seg.detail ?? 'Change',
-                        waitTime: seg.waitTime ?? 0,
-                        dist1: s1.distance,
-                        dist2: s2.distance,
-                        extraDetails1: s1.detail ?? extraDetails, // Use calculated details if python didn't populate
-                        isEditable: canEdit,
-                        onEdit: () => _showTrainEdit(leg, legType),
-                        onTap: () => _zoomToSegment(seg)
-                    ));
-                }
-            } else {
-                // Access Group
-                children.add(_buildMultiSegmentConnection(
-                    segments: seg.subSegments!,
-                    isEditable: canEdit,
-                    onEdit: () {
-                        if (seg.subSegments!.any((s) => s.iconId == 'train')) {
-                            _showTrainEdit(leg, legType);
-                        } else {
-                            _showAccessEdit(leg, legType);
-                        }
-                    },
-                    onTap: () => _zoomToSegments(seg.subSegments!)
-                ));
+              // Wait time is on group seg
+              children.add(
+                _buildMergedSegmentConnection(
+                  seg1: s1,
+                  seg2: s2,
+                  changeLabel: seg.detail ?? 'Change',
+                  waitTime: seg.waitTime ?? 0,
+                  dist1: s1.distance,
+                  dist2: s2.distance,
+                  extraDetails1:
+                      s1.detail ??
+                      extraDetails, // Use calculated details if python didn't populate
+                  isEditable: canEdit,
+                  onEdit: () => _showTrainEdit(leg, legType),
+                  onTap: () => _zoomToSegment(seg),
+                ),
+              );
             }
-
-            currentMinutes += seg.time;
-            if (seg.waitTime != null) currentMinutes += seg.waitTime!;
-
-        } else {
-            // Single Segment
-
-            // Calculate Distance (if not present)
-            double? distance = seg.distance;
-            if (distance == null && seg.path != null && seg.path!.isNotEmpty) {
-                double totalMeters = 0;
-                for (int j = 0; j < seg.path!.length - 1; j++) {
-                    totalMeters += _distance.as(LengthUnit.Meter, seg.path![j], seg.path![j + 1]);
-                }
-                distance = totalMeters / 1609.34;
-            }
-
-            children.add(_buildSegmentConnection(
-                segment: seg,
-                isEditable: canEdit && (isFirst || seg.iconId == 'train' || _isParkAndRideBus(seg)),
+          } else {
+            // Access Group
+            children.add(
+              _buildMultiSegmentConnection(
+                segments: seg.subSegments!,
+                isEditable: canEdit,
                 onEdit: () {
-                    if (seg.iconId == 'train' || _isParkAndRideBus(seg)) {
-                        _showTrainEdit(leg, legType);
-                    } else {
-                        _showAccessEdit(leg, legType);
-                    }
+                  if (seg.subSegments!.any((s) => s.iconId == 'train')) {
+                    _showTrainEdit(leg, legType);
+                  } else {
+                    _showAccessEdit(leg, legType);
+                  }
                 },
-                onTap: () => _zoomToSegment(seg),
-                distance: distance,
-                extraDetails: seg.detail ?? extraDetails, // Use local extraDetails if seg.detail is null
-                isDriveToStation: legType == 'firstMile' && seg.label == 'Drive' && !_isParkAndRideDestination(seg),
-            ));
+                onTap: () => _zoomToSegments(seg.subSegments!),
+              ),
+            );
+          }
 
-            currentMinutes += seg.time;
-            if (seg.waitTime != null) {
-                currentMinutes += seg.waitTime!;
+          currentMinutes += seg.time;
+          if (seg.waitTime != null) currentMinutes += seg.waitTime!;
+        } else {
+          // Single Segment
+
+          // Calculate Distance (if not present)
+          double? distance = seg.distance;
+          if (distance == null && seg.path != null && seg.path!.isNotEmpty) {
+            double totalMeters = 0;
+            for (int j = 0; j < seg.path!.length - 1; j++) {
+              totalMeters += _distance.as(
+                LengthUnit.Meter,
+                seg.path![j],
+                seg.path![j + 1],
+              );
             }
+            distance = totalMeters / 1609.34;
+          }
+
+          children.add(
+            _buildSegmentConnection(
+              segment: seg,
+              isEditable:
+                  canEdit &&
+                  (isFirst || seg.iconId == 'train' || _isParkAndRideBus(seg)),
+              onEdit: () {
+                if (seg.iconId == 'train' || _isParkAndRideBus(seg)) {
+                  _showTrainEdit(leg, legType);
+                } else {
+                  _showAccessEdit(leg, legType);
+                }
+              },
+              onTap: () => _zoomToSegment(seg),
+              distance: distance,
+              extraDetails:
+                  seg.detail ??
+                  extraDetails, // Use local extraDetails if seg.detail is null
+              isDriveToStation:
+                  legType == 'firstMile' &&
+                  seg.label == 'Drive' &&
+                  !_isParkAndRideDestination(seg),
+            ),
+          );
+
+          currentMinutes += seg.time;
+          if (seg.waitTime != null) {
+            currentMinutes += seg.waitTime!;
+          }
         }
 
         // Node Logic
@@ -961,36 +1081,52 @@ class _DetailPageState extends State<DetailPage> {
           Color prevColor = _parseColor(segments[i].lineColor);
 
           // Use last subsegment info if group
-          if (segments[i].subSegments != null && segments[i].subSegments!.isNotEmpty) {
-              nodeTitle = segments[i].subSegments!.last.to ?? 'Stop';
-              prevColor = _parseColor(segments[i].subSegments!.last.lineColor);
+          if (segments[i].subSegments != null &&
+              segments[i].subSegments!.isNotEmpty) {
+            nodeTitle = segments[i].subSegments!.last.to ?? 'Stop';
+            prevColor = _parseColor(segments[i].subSegments!.last.lineColor);
           }
 
           if (i + 1 < segments.length) {
-               final nextVisible = segments[i + 1];
-               Color nextColor = _parseColor(nextVisible.lineColor);
-               if (nextVisible.subSegments != null && nextVisible.subSegments!.isNotEmpty) {
-                   nextColor = _parseColor(nextVisible.subSegments!.first.lineColor);
-               }
+            final nextVisible = segments[i + 1];
+            Color nextColor = _parseColor(nextVisible.lineColor);
+            if (nextVisible.subSegments != null &&
+                nextVisible.subSegments!.isNotEmpty) {
+              nextColor = _parseColor(nextVisible.subSegments!.first.lineColor);
+            }
 
-               children.add(_buildNode(
-                  nodeTitle,
-                  _formatMinutes(currentMinutes),
-                  prevColor: prevColor,
-                  nextColor: nextColor));
+            children.add(
+              _buildNode(
+                nodeTitle,
+                _formatMinutes(currentMinutes),
+                prevColor: prevColor,
+                nextColor: nextColor,
+              ),
+            );
           }
         }
       }
     }
 
     // --- Start Node ---
-    Color leg1FirstColor = _parseColor(result.leg1.segments.isNotEmpty ? result.leg1.segments.first.lineColor : '#000000');
+    Color leg1FirstColor = _parseColor(
+      result.leg1.segments.isNotEmpty
+          ? result.leg1.segments.first.lineColor
+          : '#000000',
+    );
     String startTitle = 'Start Journey';
-    if (result.leg1.segments.isNotEmpty && result.leg1.segments.first.from != null) {
+    if (result.leg1.segments.isNotEmpty &&
+        result.leg1.segments.first.from != null) {
       startTitle = result.leg1.segments.first.from!;
     }
-    children.add(_buildNode(startTitle, _formatMinutes(currentMinutes),
-        isStart: true, nextColor: leg1FirstColor));
+    children.add(
+      _buildNode(
+        startTitle,
+        _formatMinutes(currentMinutes),
+        isStart: true,
+        nextColor: leg1FirstColor,
+      ),
+    );
 
     // --- Leg 1 ---
     addSegments(result.leg1, 'firstMile');
@@ -1003,42 +1139,74 @@ class _DetailPageState extends State<DetailPage> {
       // Time range: Arrival - Depart
       String leedsTimeStr =
           '${_formatMinutes(currentMinutes)} - ${_formatMinutes(currentMinutes + result.buffer)}';
-      Color leg1LastColor = result.leg1.segments.isNotEmpty ? _parseColor(result.leg1.segments.last.lineColor) : Colors.grey;
-      Color mainLegColor = _parseColor(_initData!.segmentOptions.mainLeg.segments.first.lineColor);
+      Color leg1LastColor = result.leg1.segments.isNotEmpty
+          ? _parseColor(result.leg1.segments.last.lineColor)
+          : Colors.grey;
+      Color mainLegColor = _parseColor(
+        _initData!.segmentOptions.mainLeg.segments.first.lineColor,
+      );
 
-      children.add(_buildNode('Leeds Station', leedsTimeStr,
-          prevColor: leg1LastColor, nextColor: mainLegColor));
+      children.add(
+        _buildNode(
+          'Leeds Station',
+          leedsTimeStr,
+          prevColor: leg1LastColor,
+          nextColor: mainLegColor,
+        ),
+      );
       currentMinutes += result.buffer;
 
       // --- Main Leg ---
       addSegments(_initData!.segmentOptions.mainLeg, 'mainLeg');
 
       // --- Loughborough Node ---
-      Color mainLegLastColor =
-          _parseColor(_initData!.segmentOptions.mainLeg.segments.last.lineColor);
-      Color leg3FirstColor = result.leg3.segments.isNotEmpty ? _parseColor(result.leg3.segments.first.lineColor) : Colors.grey;
+      Color mainLegLastColor = _parseColor(
+        _initData!.segmentOptions.mainLeg.segments.last.lineColor,
+      );
+      Color leg3FirstColor = result.leg3.segments.isNotEmpty
+          ? _parseColor(result.leg3.segments.first.lineColor)
+          : Colors.grey;
 
-      children.add(_buildNode('Loughborough Station', _formatMinutes(currentMinutes),
-          prevColor: mainLegLastColor, nextColor: leg3FirstColor));
+      children.add(
+        _buildNode(
+          'Loughborough Station',
+          _formatMinutes(currentMinutes),
+          prevColor: mainLegLastColor,
+          nextColor: leg3FirstColor,
+        ),
+      );
     } else {
       // --- Interchange Node (Direct Connection) ---
       // Fix: Don't show interchange node if leg3 is empty (Route 2 P&R)
       if (result.leg3.id != 'empty_last_mile') {
-        Color leg1LastColor = result.leg1.segments.isNotEmpty ? _parseColor(result.leg1.segments.last.lineColor) : Colors.grey;
-        Color leg3FirstColor = result.leg3.segments.isNotEmpty ? _parseColor(result.leg3.segments.first.lineColor) : Colors.grey;
+        Color leg1LastColor = result.leg1.segments.isNotEmpty
+            ? _parseColor(result.leg1.segments.last.lineColor)
+            : Colors.grey;
+        Color leg3FirstColor = result.leg3.segments.isNotEmpty
+            ? _parseColor(result.leg3.segments.first.lineColor)
+            : Colors.grey;
 
         // Try to determine interchange name
         String interchangeName = 'Interchange';
-        if (result.leg1.segments.isNotEmpty && result.leg1.segments.last.to != null) {
-           interchangeName = result.leg1.segments.last.to!;
-        } else if (result.leg3.segments.isNotEmpty && result.leg3.segments.first.label.contains('Leeds')) {
-           interchangeName = 'Leeds Station';
+        if (result.leg1.segments.isNotEmpty &&
+            result.leg1.segments.last.to != null) {
+          interchangeName = result.leg1.segments.last.to!;
+        } else if (result.leg3.segments.isNotEmpty &&
+            result.leg3.segments.first.label.contains('Leeds')) {
+          interchangeName = 'Leeds Station';
         }
 
-        String timeStr = '${_formatMinutes(currentMinutes)} - ${_formatMinutes(currentMinutes + result.buffer)}';
+        String timeStr =
+            '${_formatMinutes(currentMinutes)} - ${_formatMinutes(currentMinutes + result.buffer)}';
 
-        children.add(_buildNode(interchangeName, timeStr,
-            prevColor: leg1LastColor, nextColor: leg3FirstColor));
+        children.add(
+          _buildNode(
+            interchangeName,
+            timeStr,
+            prevColor: leg1LastColor,
+            nextColor: leg3FirstColor,
+          ),
+        );
 
         currentMinutes += result.buffer;
       }
@@ -1048,24 +1216,31 @@ class _DetailPageState extends State<DetailPage> {
     addSegments(result.leg3, 'lastMile');
 
     // --- End Node ---
-    Color leg3LastColor = result.leg3.segments.isNotEmpty ? _parseColor(result.leg3.segments.last.lineColor) : Colors.grey;
+    Color leg3LastColor = result.leg3.segments.isNotEmpty
+        ? _parseColor(result.leg3.segments.last.lineColor)
+        : Colors.grey;
     String endTitle = 'Arrive Destination';
-    if (result.leg3.segments.isNotEmpty && result.leg3.segments.last.to != null) {
+    if (result.leg3.segments.isNotEmpty &&
+        result.leg3.segments.last.to != null) {
       endTitle = 'Arrive ${result.leg3.segments.last.to!}';
-    } else if (result.leg3.id == 'empty_last_mile' && result.leg1.segments.isNotEmpty && result.leg1.segments.last.to != null) {
+    } else if (result.leg3.id == 'empty_last_mile' &&
+        result.leg1.segments.isNotEmpty &&
+        result.leg1.segments.last.to != null) {
       // Fix: Fallback to leg1 destination if leg3 is empty (Route 2 P&R)
       endTitle = 'Arrive ${result.leg1.segments.last.to!}';
       // Also use leg1 color for connection to end node if leg3 is empty
       if (result.leg1.segments.isNotEmpty) {
-         leg3LastColor = _parseColor(result.leg1.segments.last.lineColor);
+        leg3LastColor = _parseColor(result.leg1.segments.last.lineColor);
       }
     }
-    children.add(_buildNode(
-      endTitle,
-      _formatMinutes(currentMinutes),
-      isEnd: true,
-      prevColor: leg3LastColor
-    ));
+    children.add(
+      _buildNode(
+        endTitle,
+        _formatMinutes(currentMinutes),
+        isEnd: true,
+        prevColor: leg3LastColor,
+      ),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1094,7 +1269,9 @@ class _DetailPageState extends State<DetailPage> {
     return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
   }
 
-  Widget _buildNode(String title, String time, {
+  Widget _buildNode(
+    String title,
+    String time, {
     bool isStart = false,
     bool isEnd = false,
     Color? prevColor,
@@ -1116,9 +1293,10 @@ class _DetailPageState extends State<DetailPage> {
                           alignment: Alignment.center,
                           children: [
                             Container(
-                                width: 12,
-                                height: double.infinity,
-                                color: Colors.grey[200]),
+                              width: 12,
+                              height: double.infinity,
+                              color: Colors.grey[200],
+                            ),
                             Container(
                               width: 4,
                               height: double.infinity,
@@ -1136,10 +1314,11 @@ class _DetailPageState extends State<DetailPage> {
                     color: Colors.white,
                     shape: BoxShape.circle,
                     border: Border.all(
-                        color: isStart
-                            ? const Color(0xFF0F172A)
-                            : (prevColor ?? const Color(0xFF0F172A)),
-                        width: 3),
+                      color: isStart
+                          ? const Color(0xFF0F172A)
+                          : (prevColor ?? const Color(0xFF0F172A)),
+                      width: 3,
+                    ),
                   ),
                 ),
 
@@ -1151,9 +1330,10 @@ class _DetailPageState extends State<DetailPage> {
                           alignment: Alignment.center,
                           children: [
                             Container(
-                                width: 12,
-                                height: double.infinity,
-                                color: Colors.grey[200]),
+                              width: 12,
+                              height: double.infinity,
+                              color: Colors.grey[200],
+                            ),
                             Container(
                               width: 4,
                               height: double.infinity,
@@ -1170,7 +1350,10 @@ class _DetailPageState extends State<DetailPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(time, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              Text(
+                time,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
               Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
             ],
           ),
@@ -1190,7 +1373,11 @@ class _DetailPageState extends State<DetailPage> {
   }) {
     // Prefer segment.distance if available
     final displayDistance = segment.distance ?? distance;
-    final emission = segment.co2 ?? (displayDistance != null ? calculateEmission(displayDistance, segment.iconId) : 0.0);
+    final emission =
+        segment.co2 ??
+        (displayDistance != null
+            ? calculateEmission(displayDistance, segment.iconId)
+            : 0.0);
     Color lineColor = _parseColor(segment.lineColor);
 
     // Calculate split costs if applicable
@@ -1237,150 +1424,202 @@ class _DetailPageState extends State<DetailPage> {
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[200]!),
-                boxShadow: [
-                  BoxShadow(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[200]!),
+                  boxShadow: [
+                    BoxShadow(
                       color: Colors.black.withAlpha(10),
                       blurRadius: 4,
-                      offset: const Offset(0, 2))
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      // FIX 3: The Icon Halo
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: lineColor.withValues(alpha: 0.15), // The "Halo"
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(_getIconData(segment.iconId),
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        // FIX 3: The Icon Halo
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: lineColor.withValues(
+                              alpha: 0.15,
+                            ), // The "Halo"
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            _getIconData(segment.iconId),
                             color: lineColor, // Keep icon solid
-                            size: 20),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(segment.label,
-                                style: const TextStyle(fontWeight: FontWeight.bold)),
-                            Text(
-                              '${segment.time} min${displayDistance != null ? ' • ${displayDistance.toStringAsFixed(1)} miles' : ''}',
-                              style: const TextStyle(fontSize: 12, color: Colors.grey),
-                            ),
-                            if (isDriveToStation && drivingCost != null && parkingCost != null) ...[
-                               Text(
-                                 'Driving cost: £${drivingCost.toStringAsFixed(2)}',
-                                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
-                               ),
-                               Text(
-                                 parkingCost == 0
-                                     ? 'Parking cost: Free, but limited parking'
-                                     : 'Parking cost (24 hours): £${parkingCost.toStringAsFixed(2)}',
-                                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
-                               ),
-                            ],
-                            if (extraDetails != null) ...[
-                              const SizedBox(height: 2),
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Text(
-                                extraDetails,
+                                segment.label,
                                 style: const TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.blueGrey,
-                                    fontStyle: FontStyle.italic),
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ],
-                            if (segment.numStops != null && segment.numStops! > 0) ...[
-                              const SizedBox(height: 2),
                               Text(
-                                '${segment.numStops} stops',
+                                '${segment.time} min${displayDistance != null ? ' • ${displayDistance.toStringAsFixed(1)} miles' : ''}',
                                 style: const TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   color: Colors.grey,
                                 ),
                               ),
-                            ],
-                            if (segment.stops != null && segment.stops!.isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              ...segment.stops!.map((stop) => Padding(
-                                  padding: const EdgeInsets.only(left: 8, bottom: 2),
-                                  child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                              if (isDriveToStation &&
+                                  drivingCost != null &&
+                                  parkingCost != null) ...[
+                                Text(
+                                  'Driving cost: £${drivingCost.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                Text(
+                                  parkingCost == 0
+                                      ? 'Parking cost: Free, but limited parking'
+                                      : 'Parking cost (24 hours): £${parkingCost.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                              if (extraDetails != null) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  extraDetails,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.blueGrey,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ],
+                              if (segment.numStops != null &&
+                                  segment.numStops! > 0) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${segment.numStops} stops',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                              if (segment.stops != null &&
+                                  segment.stops!.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                ...segment.stops!.map(
+                                  (stop) => Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 8,
+                                      bottom: 2,
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Container(
-                                            margin: const EdgeInsets.only(top: 5),
-                                            width: 4,
-                                            height: 4,
-                                            decoration: const BoxDecoration(
-                                                color: Colors.grey,
-                                                shape: BoxShape.circle)),
+                                          margin: const EdgeInsets.only(top: 5),
+                                          width: 4,
+                                          height: 4,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.grey,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
                                         const SizedBox(width: 6),
                                         Expanded(
-                                            child: Text(stop,
-                                                style: const TextStyle(
-                                                    fontSize: 11,
-                                                    color: Colors.grey))),
-                                      ])))
+                                          child: Text(
+                                            stop,
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
-                          ],
-                        ),
-                      ),
-                      if (isEditable)
-                        TextButton.icon(
-                          onPressed: onEdit,
-                          icon: const Icon(LucideIcons.pencil, size: 14),
-                          label: const Text('Edit'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: const Color(0xFF4F46E5),
-                            textStyle:
-                                const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                           ),
                         ),
-                    ],
-                  ),
-                  if (segment.cost > 0 || displayDistance != null || emission > 0) ...[
-                    const SizedBox(height: 8),
-                    const Divider(),
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        if (segment.cost > 0)
-                          Text(
-                            '£${segment.cost.toStringAsFixed(2)}',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
-                          )
-                        else
-                          const SizedBox(),
-                        if (displayDistance != null || emission > 0)
-                          Row(
-                            children: [
-                              const Icon(LucideIcons.leaf,
-                                  size: 12, color: Colors.green),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${emission.toStringAsFixed(2)} kg CO₂',
-                                style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold),
+                        if (isEditable)
+                          TextButton.icon(
+                            onPressed: onEdit,
+                            icon: const Icon(LucideIcons.pencil, size: 14),
+                            label: const Text('Edit'),
+                            style: TextButton.styleFrom(
+                              foregroundColor: const Color(0xFF4F46E5),
+                              textStyle: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
                               ),
-                            ],
+                            ),
                           ),
                       ],
                     ),
-                  ]
-                ],
+                    if (segment.cost > 0 ||
+                        displayDistance != null ||
+                        emission > 0) ...[
+                      const SizedBox(height: 8),
+                      const Divider(),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (segment.cost > 0)
+                            Text(
+                              '£${segment.cost.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            )
+                          else
+                            const SizedBox(),
+                          if (displayDistance != null || emission > 0)
+                            Row(
+                              children: [
+                                const Icon(
+                                  LucideIcons.leaf,
+                                  size: 12,
+                                  color: Colors.green,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${emission.toStringAsFixed(2)} kg CO₂',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ),
-          )),
+          ),
         ],
       ),
     );
@@ -1392,16 +1631,8 @@ class _DetailPageState extends State<DetailPage> {
     Widget verticalLine = Stack(
       alignment: Alignment.center,
       children: [
-        Container(
-          width: 12,
-          height: double.infinity,
-          color: Colors.grey[200],
-        ),
-        Container(
-          width: 4,
-          height: double.infinity,
-          color: lineColor,
-        ),
+        Container(width: 12, height: double.infinity, color: Colors.grey[200]),
+        Container(width: 4, height: double.infinity, color: lineColor),
       ],
     );
 
@@ -1418,7 +1649,14 @@ class _DetailPageState extends State<DetailPage> {
                 children: [
                   const Icon(LucideIcons.clock, size: 14, color: Colors.grey),
                   const SizedBox(width: 4),
-                  Text('${segment.time} mins transfer', style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic)),
+                  Text(
+                    '${segment.time} mins transfer',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -1443,8 +1681,12 @@ class _DetailPageState extends State<DetailPage> {
     double totalCost = seg1.cost + seg2.cost;
     double totalCo2 = (seg1.co2 ?? 0) + (seg2.co2 ?? 0);
     // If co2 is missing, estimate?
-    if (seg1.co2 == null && dist1 != null) totalCo2 += calculateEmission(dist1, seg1.iconId);
-    if (seg2.co2 == null && dist2 != null) totalCo2 += calculateEmission(dist2, seg2.iconId);
+    if (seg1.co2 == null && dist1 != null) {
+      totalCo2 += calculateEmission(dist1, seg1.iconId);
+    }
+    if (seg2.co2 == null && dist2 != null) {
+      totalCo2 += calculateEmission(dist2, seg2.iconId);
+    }
 
     Color color1 = _parseColor(seg1.lineColor);
     Color color2 = _parseColor(seg2.lineColor);
@@ -1452,17 +1694,13 @@ class _DetailPageState extends State<DetailPage> {
     Widget verticalLine = Stack(
       alignment: Alignment.center,
       children: [
-        Container(
-          width: 12,
-          height: double.infinity,
-          color: Colors.grey[200],
-        ),
+        Container(width: 12, height: double.infinity, color: Colors.grey[200]),
         Column(
           children: [
-             Expanded(child: Container(width: 4, color: color1)),
-             Expanded(child: Container(width: 4, color: color2)),
+            Expanded(child: Container(width: 4, color: color1)),
+            Expanded(child: Container(width: 4, color: color2)),
           ],
-        )
+        ),
       ],
     );
 
@@ -1484,9 +1722,10 @@ class _DetailPageState extends State<DetailPage> {
                   border: Border.all(color: Colors.grey[200]!),
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black.withAlpha(10),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2))
+                      color: Colors.black.withAlpha(10),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
                   ],
                 ),
                 child: Column(
@@ -1509,23 +1748,40 @@ class _DetailPageState extends State<DetailPage> {
                                       color: color1.withValues(alpha: 0.15),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: Icon(_getIconData(seg1.iconId), color: color1, size: 20),
+                                    child: Icon(
+                                      _getIconData(seg1.iconId),
+                                      color: color1,
+                                      size: 20,
+                                    ),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text(seg1.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                        Text(
+                                          seg1.label,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                         Text(
                                           '${seg1.time} min${dist1 != null ? ' • ${dist1.toStringAsFixed(1)} miles' : ''}',
-                                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
                                         ),
                                         if (extraDetails1 != null) ...[
                                           const SizedBox(height: 2),
                                           Text(
                                             extraDetails1,
-                                            style: const TextStyle(fontSize: 11, color: Colors.blueGrey, fontStyle: FontStyle.italic),
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.blueGrey,
+                                              fontStyle: FontStyle.italic,
+                                            ),
                                           ),
                                         ],
                                       ],
@@ -1536,14 +1792,26 @@ class _DetailPageState extends State<DetailPage> {
 
                               // Divider / Change
                               Padding(
-                                padding: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
+                                padding: const EdgeInsets.only(
+                                  left: 20,
+                                  top: 8,
+                                  bottom: 8,
+                                ),
                                 child: Row(
                                   children: [
-                                    const Icon(LucideIcons.arrowDown, size: 12, color: Colors.grey),
+                                    const Icon(
+                                      LucideIcons.arrowDown,
+                                      size: 12,
+                                      color: Colors.grey,
+                                    ),
                                     const SizedBox(width: 8),
                                     Text(
-                                       '$changeLabel (${waitTime > 0 ? '$waitTime mins' : 'Immediate'})',
-                                       style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic)
+                                      '$changeLabel (${waitTime > 0 ? '$waitTime mins' : 'Immediate'})',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                        fontStyle: FontStyle.italic,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -1552,24 +1820,37 @@ class _DetailPageState extends State<DetailPage> {
                               // Seg 2
                               Row(
                                 children: [
-                                   Container(
+                                  Container(
                                     width: 40,
                                     height: 40,
                                     decoration: BoxDecoration(
                                       color: color2.withValues(alpha: 0.15),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: Icon(_getIconData(seg2.iconId), color: color2, size: 20),
+                                    child: Icon(
+                                      _getIconData(seg2.iconId),
+                                      color: color2,
+                                      size: 20,
+                                    ),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text(seg2.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                        Text(
+                                          seg2.label,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                         Text(
                                           '${seg2.time} min${dist2 != null ? ' • ${dist2.toStringAsFixed(1)} miles' : ''}',
-                                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -1587,8 +1868,10 @@ class _DetailPageState extends State<DetailPage> {
                               label: const Text('Edit'),
                               style: TextButton.styleFrom(
                                 foregroundColor: const Color(0xFF4F46E5),
-                                textStyle:
-                                    const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                textStyle: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -1603,22 +1886,31 @@ class _DetailPageState extends State<DetailPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                         if (totalCost > 0)
-                           Text(
-                             '£${totalCost.toStringAsFixed(2)}',
-                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
-                           ),
-                         if (totalCo2 > 0)
-                           Row(
+                        if (totalCost > 0)
+                          Text(
+                            '£${totalCost.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        if (totalCo2 > 0)
+                          Row(
                             children: [
-                              const Icon(LucideIcons.leaf, size: 12, color: Colors.green),
+                              const Icon(
+                                LucideIcons.leaf,
+                                size: 12,
+                                color: Colors.green,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 '${totalCo2.toStringAsFixed(2)} kg CO₂',
                                 style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold),
+                                  fontSize: 12,
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ],
                           ),
@@ -1636,14 +1928,22 @@ class _DetailPageState extends State<DetailPage> {
 
   IconData _getIconData(String iconId) {
     switch (iconId) {
-      case 'train': return LucideIcons.train;
-      case 'bus': return LucideIcons.bus;
-      case 'car': return LucideIcons.car;
-      case 'bike': return LucideIcons.bike;
-      case 'footprints': return LucideIcons.footprints;
-      case 'clock': return LucideIcons.clock; // Added for Transfer
-      case 'parking': return LucideIcons.circle;
-      default: return LucideIcons.circle;
+      case 'train':
+        return LucideIcons.train;
+      case 'bus':
+        return LucideIcons.bus;
+      case 'car':
+        return LucideIcons.car;
+      case 'bike':
+        return LucideIcons.bike;
+      case 'footprints':
+        return LucideIcons.footprints;
+      case 'clock':
+        return LucideIcons.clock; // Added for Transfer
+      case 'parking':
+        return LucideIcons.circle;
+      default:
+        return LucideIcons.circle;
     }
   }
 
@@ -1670,24 +1970,23 @@ class _DetailPageState extends State<DetailPage> {
       if (point.longitude > maxLng) maxLng = point.longitude;
     }
 
-    final bounds = LatLngBounds(
-      LatLng(minLat, minLng),
-      LatLng(maxLat, maxLng),
-    );
+    final bounds = LatLngBounds(LatLng(minLat, minLng), LatLng(maxLat, maxLng));
 
     // Calculate padding to account for bottom sheet (35% of screen height)
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomPadding = screenHeight * 0.35;
 
-    _mapController!.fitCamera(CameraFit.bounds(
-      bounds: bounds,
-      padding: EdgeInsets.only(
-        top: 50,
-        left: 50,
-        right: 50,
-        bottom: bottomPadding + 50,
+    _mapController!.fitCamera(
+      CameraFit.bounds(
+        bounds: bounds,
+        padding: EdgeInsets.only(
+          top: 50,
+          left: 50,
+          right: 50,
+          bottom: bottomPadding + 50,
+        ),
       ),
-    ));
+    );
   }
 
   void _zoomToSegments(List<Segment> segments) {
@@ -1713,10 +2012,7 @@ class _DetailPageState extends State<DetailPage> {
 
     if (!hasPoints) return;
 
-    final bounds = LatLngBounds(
-      LatLng(minLat, minLng),
-      LatLng(maxLat, maxLng),
-    );
+    final bounds = LatLngBounds(LatLng(minLat, minLng), LatLng(maxLat, maxLng));
 
     if (_sheetController.isAttached) {
       _sheetController.animateTo(
@@ -1737,15 +2033,17 @@ class _DetailPageState extends State<DetailPage> {
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomPadding = screenHeight * 0.25;
 
-    _mapController!.fitCamera(CameraFit.bounds(
-      bounds: bounds,
-      padding: EdgeInsets.only(
-        top: 50,
-        left: 50,
-        right: 50,
-        bottom: bottomPadding + 50,
+    _mapController!.fitCamera(
+      CameraFit.bounds(
+        bounds: bounds,
+        padding: EdgeInsets.only(
+          top: 50,
+          left: 50,
+          right: 50,
+          bottom: bottomPadding + 50,
+        ),
       ),
-    ));
+    );
   }
 
   Widget _buildMultiSegmentConnection({
@@ -1768,8 +2066,11 @@ class _DetailPageState extends State<DetailPage> {
       if (seg.path != null && seg.path!.isNotEmpty) {
         double totalMeters = 0;
         for (int j = 0; j < seg.path!.length - 1; j++) {
-          totalMeters +=
-              _distance.as(LengthUnit.Meter, seg.path![j], seg.path![j + 1]);
+          totalMeters += _distance.as(
+            LengthUnit.Meter,
+            seg.path![j],
+            seg.path![j + 1],
+          );
         }
         dist = totalMeters / 1609.34;
       }
@@ -1782,66 +2083,67 @@ class _DetailPageState extends State<DetailPage> {
       lineChildren.add(Expanded(child: Container(width: 4, color: color)));
 
       // Content Row
-      contentChildren.add(Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
+      contentChildren.add(
+        Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(_getIconData(seg.iconId), color: color, size: 20),
             ),
-            child: Icon(_getIconData(seg.iconId), color: color, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(seg.label,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                Text(
-                  '${seg.time} min${dist != null ? ' • ${dist.toStringAsFixed(1)} miles' : ''}',
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-                if (seg.detail != null)
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    seg.detail!,
-                    style: const TextStyle(
+                    seg.label,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    '${seg.time} min${dist != null ? ' • ${dist.toStringAsFixed(1)} miles' : ''}',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  if (seg.detail != null)
+                    Text(
+                      seg.detail!,
+                      style: const TextStyle(
                         fontSize: 11,
                         color: Colors.blueGrey,
-                        fontStyle: FontStyle.italic),
-                  ),
-              ],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ));
+          ],
+        ),
+      );
 
       // Divider / Connector (if not last)
       if (i < segments.length - 1) {
-        contentChildren.add(Padding(
-          padding: const EdgeInsets.only(left: 20, top: 4, bottom: 4),
-          child: Row(
-            children: [
-              Container(width: 2, height: 16, color: Colors.grey[300]),
-            ],
+        contentChildren.add(
+          Padding(
+            padding: const EdgeInsets.only(left: 20, top: 4, bottom: 4),
+            child: Row(
+              children: [
+                Container(width: 2, height: 16, color: Colors.grey[300]),
+              ],
+            ),
           ),
-        ));
+        );
       }
     }
 
     Widget verticalLine = Stack(
       alignment: Alignment.center,
       children: [
-        Container(
-          width: 12,
-          height: double.infinity,
-          color: Colors.grey[200],
-        ),
-        Column(
-          children: lineChildren,
-        )
+        Container(width: 12, height: double.infinity, color: Colors.grey[200]),
+        Column(children: lineChildren),
       ],
     );
 
@@ -1863,9 +2165,10 @@ class _DetailPageState extends State<DetailPage> {
                   border: Border.all(color: Colors.grey[200]!),
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black.withAlpha(10),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2))
+                      color: Colors.black.withAlpha(10),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
                   ],
                 ),
                 child: Column(
@@ -1889,7 +2192,9 @@ class _DetailPageState extends State<DetailPage> {
                               style: TextButton.styleFrom(
                                 foregroundColor: const Color(0xFF4F46E5),
                                 textStyle: const TextStyle(
-                                    fontSize: 12, fontWeight: FontWeight.bold),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -1906,28 +2211,33 @@ class _DetailPageState extends State<DetailPage> {
                             Text(
                               '£${totalCost.toStringAsFixed(2)}',
                               style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87),
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
                             ),
                           if (totalCo2 > 0)
                             Row(
                               children: [
-                                const Icon(LucideIcons.leaf,
-                                    size: 12, color: Colors.green),
+                                const Icon(
+                                  LucideIcons.leaf,
+                                  size: 12,
+                                  color: Colors.green,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   '${totalCo2.toStringAsFixed(2)} kg CO₂',
                                   style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.green,
-                                      fontWeight: FontWeight.bold),
+                                    fontSize: 12,
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ],
                             ),
                         ],
                       ),
-                    ]
+                    ],
                   ],
                 ),
               ),
@@ -1971,9 +2281,9 @@ class _LegSelectorModalState extends State<LegSelectorModal> {
       } else if (_sortOption == 'Lowest Time') {
         return a.time.compareTo(b.time);
       } else {
-         double scoreA = a.cost + (a.time * 0.15);
-         double scoreB = b.cost + (b.time * 0.15);
-         return scoreA.compareTo(scoreB);
+        double scoreA = a.cost + (a.time * 0.15);
+        double scoreB = b.cost + (b.time * 0.15);
+        return scoreA.compareTo(scoreB);
       }
     });
 
@@ -1982,164 +2292,221 @@ class _LegSelectorModalState extends State<LegSelectorModal> {
 
   IconData _getIconData(String iconId) {
     switch (iconId) {
-      case 'train': return LucideIcons.train;
-      case 'bus': return LucideIcons.bus;
-      case 'car': return LucideIcons.car;
-      case 'bike': return LucideIcons.bike;
-      case 'footprints': return LucideIcons.footprints;
-      default: return LucideIcons.circle;
+      case 'train':
+        return LucideIcons.train;
+      case 'bus':
+        return LucideIcons.bus;
+      case 'car':
+        return LucideIcons.car;
+      case 'bike':
+        return LucideIcons.bike;
+      case 'footprints':
+        return LucideIcons.footprints;
+      default:
+        return LucideIcons.circle;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-      final sortedOptions = _getSortedOptions();
+    final sortedOptions = _getSortedOptions();
 
-      return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            width: 48,
+            height: 6,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(3),
+            ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-               Container(
-                margin: const EdgeInsets.symmetric(vertical: 12),
-                width: 48,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(3),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  widget.title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                        Text(
-                          widget.title,
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        DropdownButton<String>(
-                            value: _sortOption,
-                            items: const [
-                                DropdownMenuItem(value: 'Best Value', child: Text('Best Value')),
-                                DropdownMenuItem(value: 'Lowest Cost', child: Text('Lowest Cost')),
-                                DropdownMenuItem(value: 'Lowest Time', child: Text('Lowest Time')),
-                            ],
-                            onChanged: (val) {
-                                if (val != null) setState(() => _sortOption = val);
-                            },
-                            underline: Container(),
-                            icon: const Icon(LucideIcons.arrowUpDown, size: 16),
-                        ),
-                    ],
+                DropdownButton<String>(
+                  value: _sortOption,
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'Best Value',
+                      child: Text('Best Value'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Lowest Cost',
+                      child: Text('Lowest Cost'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Lowest Time',
+                      child: Text('Lowest Time'),
+                    ),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) setState(() => _sortOption = val);
+                  },
+                  underline: Container(),
+                  icon: const Icon(LucideIcons.arrowUpDown, size: 16),
                 ),
-              ),
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  itemCount: sortedOptions.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final option = sortedOptions[index];
-                    final isSelected = option.id == widget.currentLeg.id;
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              itemCount: sortedOptions.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final option = sortedOptions[index];
+                final isSelected = option.id == widget.currentLeg.id;
 
-                    double priceDiff = option.cost - widget.currentLeg.cost;
-                    int timeDiff = option.time - widget.currentLeg.time;
+                double priceDiff = option.cost - widget.currentLeg.cost;
+                int timeDiff = option.time - widget.currentLeg.time;
 
-                    return GestureDetector(
-                      onTap: () => widget.onSelect(option),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFEFF6FF) : Colors.white,
-                          border: Border.all(
-                            color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0),
-                            width: isSelected ? 2 : 1,
+                return GestureDetector(
+                  onTap: () => widget.onSelect(option),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? const Color(0xFFEFF6FF)
+                          : Colors.white,
+                      border: Border.all(
+                        color: isSelected
+                            ? const Color(0xFF4F46E5)
+                            : const Color(0xFFE2E8F0),
+                        width: isSelected ? 2 : 1,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            shape: BoxShape.circle,
                           ),
-                          borderRadius: BorderRadius.circular(12),
+                          child: Icon(
+                            _getIconData(option.iconId),
+                            size: 24,
+                            color: Colors.black87,
+                          ),
                         ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(_getIconData(option.iconId), size: 24, color: Colors.black87),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    widget.labelBuilder != null ? widget.labelBuilder!(option) : option.label,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                  ),
-                                  Text(
-                                    option.detail ?? '',
-                                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Row(
-                                  children: [
-                                    if (!isSelected && priceDiff != 0)
-                                      Icon(
-                                        priceDiff > 0 ? LucideIcons.arrowUp : LucideIcons.arrowDown,
-                                        size: 12,
-                                        color: priceDiff > 0 ? Colors.red : Colors.green,
-                                      ),
-                                    Text(
-                                      isSelected
-                                          ? '£${option.cost.toStringAsFixed(2)}'
-                                          : (priceDiff > 0 ? '+£${priceDiff.abs().toStringAsFixed(2)}' : '-£${priceDiff.abs().toStringAsFixed(2)}'),
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: isSelected ? Colors.black : (priceDiff > 0 ? Colors.red : Colors.green),
-                                      ),
-                                    ),
-                                  ],
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.labelBuilder != null
+                                    ? widget.labelBuilder!(option)
+                                    : option.label,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
                                 ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    if (!isSelected && timeDiff != 0)
-                                      Icon(
-                                        timeDiff > 0 ? LucideIcons.arrowUp : LucideIcons.arrowDown,
-                                        size: 12,
-                                        color: timeDiff > 0 ? Colors.red : Colors.green,
-                                      ),
-                                    Text(
-                                      isSelected
-                                          ? '${option.time} min'
-                                          : (timeDiff > 0 ? '+${timeDiff.abs()} min' : '-${timeDiff.abs()} min'),
-                                      style: TextStyle(
-                                        color: isSelected ? Colors.grey : (timeDiff > 0 ? Colors.red : Colors.green),
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
+                              ),
+                              Text(
+                                option.detail ?? '',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Row(
+                              children: [
+                                if (!isSelected && priceDiff != 0)
+                                  Icon(
+                                    priceDiff > 0
+                                        ? LucideIcons.arrowUp
+                                        : LucideIcons.arrowDown,
+                                    size: 12,
+                                    color: priceDiff > 0
+                                        ? Colors.red
+                                        : Colors.green,
+                                  ),
+                                Text(
+                                  isSelected
+                                      ? '£${option.cost.toStringAsFixed(2)}'
+                                      : (priceDiff > 0
+                                            ? '+£${priceDiff.abs().toStringAsFixed(2)}'
+                                            : '-£${priceDiff.abs().toStringAsFixed(2)}'),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: isSelected
+                                        ? Colors.black
+                                        : (priceDiff > 0
+                                              ? Colors.red
+                                              : Colors.green),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                if (!isSelected && timeDiff != 0)
+                                  Icon(
+                                    timeDiff > 0
+                                        ? LucideIcons.arrowUp
+                                        : LucideIcons.arrowDown,
+                                    size: 12,
+                                    color: timeDiff > 0
+                                        ? Colors.red
+                                        : Colors.green,
+                                  ),
+                                Text(
+                                  isSelected
+                                      ? '${option.time} min'
+                                      : (timeDiff > 0
+                                            ? '+${timeDiff.abs()} min'
+                                            : '-${timeDiff.abs()} min'),
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? Colors.grey
+                                        : (timeDiff > 0
+                                              ? Colors.red
+                                              : Colors.green),
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ],
                             ),
                           ],
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
-        );
+        ],
+      ),
+    );
   }
 }

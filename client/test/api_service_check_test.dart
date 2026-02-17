@@ -24,7 +24,7 @@ void main() {
         if (seg.path == null || seg.path!.isEmpty) {
           // Warning logic removed
         } else {
-           expect(seg.path, isNotEmpty);
+          expect(seg.path, isNotEmpty);
         }
       }
     }
@@ -33,9 +33,9 @@ void main() {
     for (var leg in initData.segmentOptions.lastMile) {
       for (var seg in leg.segments) {
         if (seg.path == null || seg.path!.isEmpty) {
-           // Warning logic removed
+          // Warning logic removed
         } else {
-           expect(seg.path, isNotEmpty);
+          expect(seg.path, isNotEmpty);
         }
       }
     }

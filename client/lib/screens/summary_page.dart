@@ -151,7 +151,6 @@ class _SummaryPageState extends State<SummaryPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -167,8 +166,8 @@ class _SummaryPageState extends State<SummaryPage> {
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _errorMessage != null
-                      ? Center(child: Text('Error: $_errorMessage'))
-                      : _buildResultsList(),
+                  ? Center(child: Text('Error: $_errorMessage'))
+                  : _buildResultsList(),
             ),
           ],
         ),
@@ -181,7 +180,9 @@ class _SummaryPageState extends State<SummaryPage> {
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
         color: Color(0xFF4F46E5), // Brand
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -293,15 +294,20 @@ class _SummaryPageState extends State<SummaryPage> {
                             fontWeight: FontWeight.bold,
                             color: Colors.grey[600],
                           ),
-                          icon: const Icon(LucideIcons.chevronDown, size: 14, color: Colors.grey),
+                          icon: const Icon(
+                            LucideIcons.chevronDown,
+                            size: 14,
+                            color: Colors.grey,
+                          ),
                           onChanged: null,
                           items: <String>['Depart', 'Arrive']
                               .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              })
+                              .toList(),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -330,7 +336,10 @@ class _SummaryPageState extends State<SummaryPage> {
                         });
                       },
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 4,
+                          horizontal: 8,
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -360,7 +369,11 @@ class _SummaryPageState extends State<SummaryPage> {
                           final isSelected = _selectedModes[mode['id']]!;
                           return Expanded(
                             child: Padding(
-                              padding: EdgeInsets.only(right: index == _modeOptions.length - 1 ? 0 : 8.0),
+                              padding: EdgeInsets.only(
+                                right: index == _modeOptions.length - 1
+                                    ? 0
+                                    : 8.0,
+                              ),
                               child: InkWell(
                                 onTap: () {
                                   setState(() {
@@ -368,11 +381,19 @@ class _SummaryPageState extends State<SummaryPage> {
                                   });
                                 },
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: isSelected ? const Color(0xFFEFF6FF) : Colors.white, // Blue 50
+                                    color: isSelected
+                                        ? const Color(0xFFEFF6FF)
+                                        : Colors.white, // Blue 50
                                     border: Border.all(
-                                      color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0), // Accent or Slate 200
+                                      color: isSelected
+                                          ? const Color(0xFF4F46E5)
+                                          : const Color(
+                                              0xFFE2E8F0,
+                                            ), // Accent or Slate 200
                                     ),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -381,7 +402,9 @@ class _SummaryPageState extends State<SummaryPage> {
                                       Icon(
                                         mode['icon'],
                                         size: 20,
-                                        color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
+                                        color: isSelected
+                                            ? const Color(0xFF4F46E5)
+                                            : const Color(0xFF94A3B8),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
@@ -436,35 +459,55 @@ class _SummaryPageState extends State<SummaryPage> {
                         children: [
                           Text(
                             '$_displayTimeType by ',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                           Flexible(
                             child: Text(
                               _displayFrom.split(',')[0],
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                           const Padding(
                             padding: EdgeInsets.symmetric(horizontal: 4),
-                            child: Icon(LucideIcons.arrowRight, size: 12, color: Colors.grey),
+                            child: Icon(
+                              LucideIcons.arrowRight,
+                              size: 12,
+                              color: Colors.grey,
+                            ),
                           ),
                           Flexible(
                             child: Text(
                               _displayTo.split(',')[0],
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
                           Text(
                             '• $_displayTime',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(LucideIcons.pencil, size: 16, color: Colors.grey),
+                    const Icon(
+                      LucideIcons.pencil,
+                      size: 16,
+                      color: Colors.grey,
+                    ),
                   ],
                 ),
         ),
@@ -478,9 +521,7 @@ class _SummaryPageState extends State<SummaryPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DirectDrivePage(
-              routeId: widget.routeId,
-            ),
+            builder: (context) => DirectDrivePage(routeId: widget.routeId),
           ),
         );
       },
@@ -503,7 +544,11 @@ class _SummaryPageState extends State<SummaryPage> {
                     color: Color(0xFFE2E8F0), // Slate 200
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(LucideIcons.car, size: 20, color: Color(0xFF475569)), // Slate 600
+                  child: const Icon(
+                    LucideIcons.car,
+                    size: 20,
+                    color: Color(0xFF475569),
+                  ), // Slate 600
                 ),
                 const SizedBox(width: 12),
                 const Text(
@@ -569,14 +614,18 @@ class _SummaryPageState extends State<SummaryPage> {
                 width: 2,
               ),
             ),
-            color: isActive ? const Color(0xFFE0E7FF).withAlpha(77) : null, // 0.3 * 255 = 76.5
+            color: isActive
+                ? const Color(0xFFE0E7FF).withAlpha(77)
+                : null, // 0.3 * 255 = 76.5
           ),
           child: Column(
             children: [
               Icon(
                 icon,
                 size: 18,
-                color: isActive ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
+                color: isActive
+                    ? const Color(0xFF4F46E5)
+                    : const Color(0xFF94A3B8),
               ),
               const SizedBox(height: 4),
               Text(
@@ -584,7 +633,9 @@ class _SummaryPageState extends State<SummaryPage> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: isActive ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
+                  color: isActive
+                      ? const Color(0xFF4F46E5)
+                      : const Color(0xFF94A3B8),
                 ),
               ),
             ],
@@ -628,7 +679,13 @@ class _SummaryPageState extends State<SummaryPage> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: const Color(0xFFE2E8F0)), // Slate 200
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 2,
+                  offset: Offset(0, 1),
+                ),
+              ],
             ),
             clipBehavior: Clip.antiAlias,
             child: Column(
@@ -672,9 +729,12 @@ class _SummaryPageState extends State<SummaryPage> {
                                   final times = _calculateJourneyTimes(result);
                                   return Text(
                                     '${_formatTime(times['start']!)} - ${_formatTime(times['end']!)}',
-                                    style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF64748B),
+                                    ),
                                   );
-                                }
+                                },
                               ),
                             ],
                           ),
@@ -682,10 +742,7 @@ class _SummaryPageState extends State<SummaryPage> {
                       ),
                       const SizedBox(height: 16),
                       // Schematic
-                      SizedBox(
-                        height: 45,
-                        child: _buildSchematic(result),
-                      ),
+                      SizedBox(height: 45, child: _buildSchematic(result)),
                       const SizedBox(height: 16),
                       Row(
                         children: [
@@ -695,22 +752,33 @@ class _SummaryPageState extends State<SummaryPage> {
                                 showDialog(
                                   context: context,
                                   builder: (context) => Dialog(
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(24.0),
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Row(
                                             children: [
                                               Container(
-                                                padding: const EdgeInsets.all(8),
-                                                decoration: BoxDecoration(
-                                                  color: const Color(0xFFEFF6FF), // Blue 50
-                                                  borderRadius: BorderRadius.circular(8),
+                                                padding: const EdgeInsets.all(
+                                                  8,
                                                 ),
-                                                child: const Icon(LucideIcons.shield, color: Color(0xFF4F46E5)),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(
+                                                    0xFFEFF6FF,
+                                                  ), // Blue 50
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                child: const Icon(
+                                                  LucideIcons.shield,
+                                                  color: Color(0xFF4F46E5),
+                                                ),
                                               ),
                                               const SizedBox(width: 12),
                                               const Text(
@@ -725,54 +793,114 @@ class _SummaryPageState extends State<SummaryPage> {
                                           const SizedBox(height: 16),
                                           const Text(
                                             'This journey has the lowest risk score.',
-                                            style: TextStyle(fontWeight: FontWeight.w500),
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
                                           const SizedBox(height: 12),
                                           Container(
                                             padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFFF8FAFC), // Slate 50
-                                              borderRadius: BorderRadius.circular(8),
-                                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                                              color: const Color(
+                                                0xFFF8FAFC,
+                                              ), // Slate 50
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              border: Border.all(
+                                                color: const Color(0xFFE2E8F0),
+                                              ),
                                             ),
                                             child: Builder(
                                               builder: (context) {
-                                                final breakdown = calculateRiskBreakdown(result, _mainLeg, widget.routeId);
+                                                final breakdown =
+                                                    calculateRiskBreakdown(
+                                                      result,
+                                                      _mainLeg,
+                                                      widget.routeId,
+                                                    );
                                                 return Column(
                                                   children: [
-                                                    _buildRiskRow('First Mile', null, scoreOverride: breakdown.firstMileScore, reasonOverride: breakdown.firstMileReason),
+                                                    _buildRiskRow(
+                                                      'First Mile',
+                                                      null,
+                                                      scoreOverride: breakdown
+                                                          .firstMileScore,
+                                                      reasonOverride: breakdown
+                                                          .firstMileReason,
+                                                    ),
                                                     const SizedBox(height: 12),
-                                                    _buildRiskRow('Main Leg', null, scoreOverride: breakdown.mainLegScore, reasonOverride: breakdown.mainLegReason),
+                                                    _buildRiskRow(
+                                                      'Main Leg',
+                                                      null,
+                                                      scoreOverride: breakdown
+                                                          .mainLegScore,
+                                                      reasonOverride: breakdown
+                                                          .mainLegReason,
+                                                    ),
                                                     const SizedBox(height: 12),
-                                                    _buildRiskRow('Last Mile', null, scoreOverride: breakdown.lastMileScore, reasonOverride: breakdown.lastMileReason),
+                                                    _buildRiskRow(
+                                                      'Last Mile',
+                                                      null,
+                                                      scoreOverride: breakdown
+                                                          .lastMileScore,
+                                                      reasonOverride: breakdown
+                                                          .lastMileReason,
+                                                    ),
                                                     const Divider(height: 16),
                                                     Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
                                                       children: [
-                                                        const Text('Total Score', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                        Text(result.risk.toString(), style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF4F46E5))),
+                                                        const Text(
+                                                          'Total Score',
+                                                          style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          result.risk
+                                                              .toString(),
+                                                          style:
+                                                              const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Color(
+                                                                  0xFF4F46E5,
+                                                                ),
+                                                              ),
+                                                        ),
                                                       ],
                                                     ),
                                                   ],
                                                 );
-                                              }
+                                              },
                                             ),
                                           ),
                                           const SizedBox(height: 16),
                                           const Text(
                                             'Calculated based on historical delay data, number of transfers, and connection buffer times.',
-                                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey,
+                                            ),
                                           ),
                                           const SizedBox(height: 24),
                                           SizedBox(
                                             width: double.infinity,
                                             child: ElevatedButton(
-                                              onPressed: () => Navigator.pop(context),
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
                                               style: ElevatedButton.styleFrom(
-                                                backgroundColor: const Color(0xFF4F46E5),
+                                                backgroundColor: const Color(
+                                                  0xFF4F46E5,
+                                                ),
                                                 foregroundColor: Colors.white,
                                                 shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(8),
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
                                                 ),
                                               ),
                                               child: const Text('Close'),
@@ -785,16 +913,25 @@ class _SummaryPageState extends State<SummaryPage> {
                                 );
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
                                 margin: const EdgeInsets.only(right: 8),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFEFF6FF), // Blue 50
-                                  border: Border.all(color: const Color(0xFFDBEAFE)), // Blue 100
+                                  border: Border.all(
+                                    color: const Color(0xFFDBEAFE),
+                                  ), // Blue 100
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Row(
                                   children: const [
-                                    Icon(LucideIcons.shield, size: 12, color: Color(0xFF1D4ED8)),
+                                    Icon(
+                                      LucideIcons.shield,
+                                      size: 12,
+                                      color: Color(0xFF1D4ED8),
+                                    ),
                                     SizedBox(width: 4),
                                     Text(
                                       'Least Risky',
@@ -810,15 +947,24 @@ class _SummaryPageState extends State<SummaryPage> {
                             ),
                           if (result.emissions.text != null)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFECFDF5), // Emerald 50
-                                border: Border.all(color: const Color(0xFFD1FAE5)), // Emerald 100
+                                border: Border.all(
+                                  color: const Color(0xFFD1FAE5),
+                                ), // Emerald 100
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(LucideIcons.leaf, size: 12, color: Color(0xFF047857)),
+                                  const Icon(
+                                    LucideIcons.leaf,
+                                    size: 12,
+                                    color: Color(0xFF047857),
+                                  ),
                                   const SizedBox(width: 4),
                                   Text(
                                     result.emissions.text!,
@@ -872,12 +1018,15 @@ class _SummaryPageState extends State<SummaryPage> {
       allSegments.addAll(_mainLeg!.segments);
     } else {
       // Fallback if mainLeg not loaded yet (shouldn't happen often if we sync loading, but for safety)
-      allSegments.add(Segment(
+      allSegments.add(
+        Segment(
           mode: 'train',
           label: 'CrossCountry',
           lineColor: '#713e8d',
           iconId: 'train',
-          time: 102));
+          time: 102,
+        ),
+      );
     }
 
     // Leg 3
@@ -912,14 +1061,16 @@ class _SummaryPageState extends State<SummaryPage> {
 
     // 1. Filter out short walks (<= 2 mins), Parking, and Transfer
     for (var seg in flattened) {
-      bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
+      bool isWalk =
+          seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
       if (isWalk && seg.time <= 2) {
         continue;
       }
       if (seg.mode.toLowerCase() == 'parking') {
         continue;
       }
-      if (seg.mode.toLowerCase() == 'wait' || seg.label.toLowerCase() == 'transfer') {
+      if (seg.mode.toLowerCase() == 'wait' ||
+          seg.label.toLowerCase() == 'transfer') {
         continue;
       }
       processed.add(seg);
@@ -930,25 +1081,32 @@ class _SummaryPageState extends State<SummaryPage> {
     int i = 0;
     while (i < processed.length) {
       final seg = processed[i];
-      bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
+      bool isWalk =
+          seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
 
       if (isWalk && i + 2 < processed.length) {
         final next = processed[i + 1];
         final nextNext = processed[i + 2];
-        bool isNextWait = next.mode.toLowerCase() == 'wait' || next.label.toLowerCase() == 'transfer';
-        bool isNextNextWalk = nextNext.mode.toLowerCase() == 'walk' || nextNext.iconId == 'footprints';
+        bool isNextWait =
+            next.mode.toLowerCase() == 'wait' ||
+            next.label.toLowerCase() == 'transfer';
+        bool isNextNextWalk =
+            nextNext.mode.toLowerCase() == 'walk' ||
+            nextNext.iconId == 'footprints';
 
         if (isNextWait && isNextNextWalk) {
           // Merge
-          mergedWalks.add(Segment(
-            mode: 'walk',
-            label: 'Walk',
-            lineColor: seg.lineColor,
-            iconId: seg.iconId,
-            time: seg.time + next.time + nextNext.time,
-            to: nextNext.to,
-            detail: seg.detail,
-          ));
+          mergedWalks.add(
+            Segment(
+              mode: 'walk',
+              label: 'Walk',
+              lineColor: seg.lineColor,
+              iconId: seg.iconId,
+              time: seg.time + next.time + nextNext.time,
+              to: nextNext.to,
+              detail: seg.detail,
+            ),
+          );
           i += 3;
           continue;
         }
@@ -965,8 +1123,10 @@ class _SummaryPageState extends State<SummaryPage> {
       final seg = processed[j];
       if (j + 1 < processed.length) {
         final next = processed[j + 1];
-        bool isTrain1 = seg.mode.toLowerCase() == 'train' || seg.iconId == 'train';
-        bool isTrain2 = next.mode.toLowerCase() == 'train' || next.iconId == 'train';
+        bool isTrain1 =
+            seg.mode.toLowerCase() == 'train' || seg.iconId == 'train';
+        bool isTrain2 =
+            next.mode.toLowerCase() == 'train' || next.iconId == 'train';
 
         if (isTrain1 && isTrain2) {
           // Merge any consecutive trains
@@ -978,18 +1138,20 @@ class _SummaryPageState extends State<SummaryPage> {
             mergedLabel = '${seg.label} + ${next.label}';
           }
 
-          mergedTrains.add(Segment(
-            mode: 'train',
-            label: mergedLabel,
-            lineColor: seg.lineColor,
-            iconId: seg.iconId,
-            time: seg.time + next.time,
-            to: next.to,
-            detail: seg.detail,
-            path: seg.path,
-            co2: (seg.co2 ?? 0) + (next.co2 ?? 0),
-            distance: (seg.distance ?? 0) + (next.distance ?? 0),
-          ));
+          mergedTrains.add(
+            Segment(
+              mode: 'train',
+              label: mergedLabel,
+              lineColor: seg.lineColor,
+              iconId: seg.iconId,
+              time: seg.time + next.time,
+              to: next.to,
+              detail: seg.detail,
+              path: seg.path,
+              co2: (seg.co2 ?? 0) + (next.co2 ?? 0),
+              distance: (seg.distance ?? 0) + (next.distance ?? 0),
+            ),
+          );
           j += 2;
           continue;
         }
@@ -1005,18 +1167,20 @@ class _SummaryPageState extends State<SummaryPage> {
       String label = seg.label.replaceAll('E M R', 'EMR');
 
       if (label != seg.label) {
-        finalPass.add(Segment(
-          mode: seg.mode,
-          label: label,
-          lineColor: seg.lineColor,
-          iconId: seg.iconId,
-          time: seg.time,
-          to: seg.to,
-          detail: seg.detail,
-          path: seg.path,
-          co2: seg.co2,
-          distance: seg.distance,
-        ));
+        finalPass.add(
+          Segment(
+            mode: seg.mode,
+            label: label,
+            lineColor: seg.lineColor,
+            iconId: seg.iconId,
+            time: seg.time,
+            to: seg.to,
+            detail: seg.detail,
+            path: seg.path,
+            co2: seg.co2,
+            distance: seg.distance,
+          ),
+        );
       } else {
         finalPass.add(seg);
       }
@@ -1028,7 +1192,8 @@ class _SummaryPageState extends State<SummaryPage> {
   Map<String, TimeOfDay> _calculateJourneyTimes(JourneyResult result) {
     // Main Leg Departure = 8:03 AM (483 minutes)
     final int mainLegDepartMinutes = 8 * 60 + 3;
-    final int startMinutes = mainLegDepartMinutes - result.buffer - result.leg1.time;
+    final int startMinutes =
+        mainLegDepartMinutes - result.buffer - result.leg1.time;
     // End Time = Start + Duration
     final int endMinutes = startMinutes + result.time;
 
@@ -1043,17 +1208,19 @@ class _SummaryPageState extends State<SummaryPage> {
     totalMinutes = totalMinutes % (24 * 60);
     if (totalMinutes < 0) totalMinutes += 24 * 60;
 
-    return TimeOfDay(
-      hour: totalMinutes ~/ 60,
-      minute: totalMinutes % 60,
-    );
+    return TimeOfDay(hour: totalMinutes ~/ 60, minute: totalMinutes % 60);
   }
 
   String _formatTime(TimeOfDay time) {
     return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
 
-  Widget _buildRiskRow(String title, Leg? leg, {int? scoreOverride, String? reasonOverride}) {
+  Widget _buildRiskRow(
+    String title,
+    Leg? leg, {
+    int? scoreOverride,
+    String? reasonOverride,
+  }) {
     final score = scoreOverride ?? leg?.riskScore ?? 0;
     final reason = reasonOverride ?? leg?.riskReason;
 
@@ -1064,7 +1231,10 @@ class _SummaryPageState extends State<SummaryPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(title, style: const TextStyle(color: Color(0xFF64748B))),
-            Text(score.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              score.toString(),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
           ],
         ),
         if (reason != null)

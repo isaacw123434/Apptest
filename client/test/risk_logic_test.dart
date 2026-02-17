@@ -16,8 +16,20 @@ void main() {
       iconId: 'car',
       lineColor: '#000000',
       segments: [
-        Segment(mode: 'car', label: 'Uber', lineColor: '#000000', iconId: 'car', time: 10),
-        Segment(mode: 'train', label: 'Train', lineColor: '#000000', iconId: 'train', time: 50),
+        Segment(
+          mode: 'car',
+          label: 'Uber',
+          lineColor: '#000000',
+          iconId: 'car',
+          time: 10,
+        ),
+        Segment(
+          mode: 'train',
+          label: 'Train',
+          lineColor: '#000000',
+          iconId: 'train',
+          time: 50,
+        ),
       ],
     );
 
@@ -82,8 +94,20 @@ void main() {
       iconId: 'bus',
       lineColor: '#000000',
       segments: [
-        Segment(mode: 'bus', label: 'Bus', lineColor: '#000000', iconId: 'bus', time: 20),
-        Segment(mode: 'train', label: 'Train', lineColor: '#000000', iconId: 'train', time: 40),
+        Segment(
+          mode: 'bus',
+          label: 'Bus',
+          lineColor: '#000000',
+          iconId: 'bus',
+          time: 20,
+        ),
+        Segment(
+          mode: 'train',
+          label: 'Train',
+          lineColor: '#000000',
+          iconId: 'train',
+          time: 40,
+        ),
       ],
     );
 
@@ -136,67 +160,73 @@ void main() {
   });
 
   test('calculateRiskBreakdown does nothing for normal route', () {
-      // Setup
-      final leg1 = Leg(
-        id: 'uber',
-        label: 'Uber',
-        time: 10,
-        cost: 10,
-        distance: 2,
-        riskScore: 0,
-        riskReason: 'Reliable',
-        iconId: 'car',
-        lineColor: '#000000',
-        segments: [
-          Segment(mode: 'car', label: 'Uber', lineColor: '#000000', iconId: 'car', time: 10),
-        ],
-      );
+    // Setup
+    final leg1 = Leg(
+      id: 'uber',
+      label: 'Uber',
+      time: 10,
+      cost: 10,
+      distance: 2,
+      riskScore: 0,
+      riskReason: 'Reliable',
+      iconId: 'car',
+      lineColor: '#000000',
+      segments: [
+        Segment(
+          mode: 'car',
+          label: 'Uber',
+          lineColor: '#000000',
+          iconId: 'car',
+          time: 10,
+        ),
+      ],
+    );
 
-      final mainLeg = Leg(
-        id: 'main',
-        label: 'Main',
-        time: 50,
-        cost: 20,
-        distance: 50,
-        riskScore: 1,
-        riskReason: 'Delay risk',
-        iconId: 'train',
-        lineColor: '#000000',
-        segments: [],
-      );
+    final mainLeg = Leg(
+      id: 'main',
+      label: 'Main',
+      time: 50,
+      cost: 20,
+      distance: 50,
+      riskScore: 1,
+      riskReason: 'Delay risk',
+      iconId: 'train',
+      lineColor: '#000000',
+      segments: [],
+    );
 
-      final leg3 = Leg(
-        id: 'walk',
-        label: 'Walk',
-        time: 5,
-        cost: 0,
-        distance: 0.1,
-        riskScore: 0,
-        riskReason: null,
-        iconId: 'footprints',
-        lineColor: '#000000',
-        segments: [],
-      );
+    final leg3 = Leg(
+      id: 'walk',
+      label: 'Walk',
+      time: 5,
+      cost: 0,
+      distance: 0.1,
+      riskScore: 0,
+      riskReason: null,
+      iconId: 'footprints',
+      lineColor: '#000000',
+      segments: [],
+    );
 
-      final result = JourneyResult(
-        id: 'j3',
-        leg1: leg1,
-        leg3: leg3,
-        cost: 30,
-        time: 65,
-        buffer: 0,
-        risk: 1, // 0 + 1 + 0
-        emissions: Emissions(val: 0, percent: 0),
-      );
+    final result = JourneyResult(
+      id: 'j3',
+      leg1: leg1,
+      leg3: leg3,
+      cost: 30,
+      time: 65,
+      buffer: 0,
+      risk: 1, // 0 + 1 + 0
+      emissions: Emissions(val: 0, percent: 0),
+    );
 
-      // Execute - route1
-      final breakdown = calculateRiskBreakdown(result, mainLeg, 'route1');
+    // Execute - route1
+    final breakdown = calculateRiskBreakdown(result, mainLeg, 'route1');
 
-      // Verify
-      expect(breakdown.firstMileScore, 0);
-      expect(breakdown.firstMileReason, 'Reliable');
-      expect(breakdown.mainLegScore, 1);
-      expect(breakdown.mainLegReason, 'Delay risk');
-      expect(breakdown.totalScore, 1);
-    });
+    // Verify
+    expect(breakdown.firstMileScore, 0);
+    expect(breakdown.firstMileReason, 'Reliable');
+    expect(breakdown.mainLegScore, 1);
+    expect(breakdown.mainLegReason, 'Delay risk');
+    expect(breakdown.totalScore, 1);
+  });
 }

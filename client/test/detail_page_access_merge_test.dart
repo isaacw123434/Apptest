@@ -66,7 +66,7 @@ class MockAccessMergeApiService extends ApiService {
           iconId: 'train',
           time: 60,
           path: [],
-        )
+        ),
       ],
     );
 
@@ -80,18 +80,19 @@ class MockAccessMergeApiService extends ApiService {
       iconId: 'walk',
       lineColor: '#000000',
       segments: [
-         Segment(
+        Segment(
           mode: 'walk',
           label: 'Walk',
           lineColor: '#000000',
           iconId: 'footprints',
           time: 5,
           path: [],
-        )
+        ),
       ],
     );
 
-    return InitData(journeys: [],
+    return InitData(
+      journeys: [],
       segmentOptions: SegmentOptions(
         firstMile: [firstMile],
         mainLeg: mainLeg,
@@ -104,7 +105,9 @@ class MockAccessMergeApiService extends ApiService {
 }
 
 void main() {
-  testWidgets('DetailPage merges multi-segment access legs correctly', (WidgetTester tester) async {
+  testWidgets('DetailPage merges multi-segment access legs correctly', (
+    WidgetTester tester,
+  ) async {
     // Set screen size
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 1.0;
@@ -123,12 +126,14 @@ void main() {
       emissions: Emissions(val: 0, percent: 0),
     );
 
-    await tester.pumpWidget(MaterialApp(
-      home: DetailPage(
-        journeyResult: journeyResult,
-        apiService: mockApiService,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DetailPage(
+          journeyResult: journeyResult,
+          apiService: mockApiService,
+        ),
       ),
-    ));
+    );
 
     await tester.pumpAndSettle();
 

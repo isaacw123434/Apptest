@@ -29,30 +29,31 @@ class MockApiService extends ApiService {
     );
 
     final firstMile = Leg(
-        id: 'first',
-        label: 'First',
-        time: 5,
-        cost: 2,
-        distance: 1,
-        riskScore: 0,
-        iconId: 'bus',
-        lineColor: '#000000',
-        segments: [],
+      id: 'first',
+      label: 'First',
+      time: 5,
+      cost: 2,
+      distance: 1,
+      riskScore: 0,
+      iconId: 'bus',
+      lineColor: '#000000',
+      segments: [],
     );
 
     final lastMile = Leg(
-        id: 'last',
-        label: 'Last',
-        time: 5,
-        cost: 2,
-        distance: 1,
-        riskScore: 0,
-        iconId: 'bus',
-        lineColor: '#000000',
-        segments: [],
+      id: 'last',
+      label: 'Last',
+      time: 5,
+      cost: 2,
+      distance: 1,
+      riskScore: 0,
+      iconId: 'bus',
+      lineColor: '#000000',
+      segments: [],
     );
 
-    return InitData(journeys: [],
+    return InitData(
+      journeys: [],
       segmentOptions: SegmentOptions(
         firstMile: [firstMile],
         mainLeg: mainLeg,
@@ -65,7 +66,9 @@ class MockApiService extends ApiService {
 }
 
 void main() {
-  testWidgets('DetailPage renders transfer segment with vertical line', (WidgetTester tester) async {
+  testWidgets('DetailPage renders transfer segment with vertical line', (
+    WidgetTester tester,
+  ) async {
     // Set screen size to ensure visibility
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 1.0;
@@ -73,27 +76,27 @@ void main() {
     final mockApiService = MockApiService();
 
     final leg1 = Leg(
-        id: 'first',
-        label: 'First',
-        time: 5,
-        cost: 2,
-        distance: 1,
-        riskScore: 0,
-        iconId: 'bus',
-        lineColor: '#000000',
-        segments: [],
+      id: 'first',
+      label: 'First',
+      time: 5,
+      cost: 2,
+      distance: 1,
+      riskScore: 0,
+      iconId: 'bus',
+      lineColor: '#000000',
+      segments: [],
     );
 
     final leg3 = Leg(
-        id: 'last',
-        label: 'Last',
-        time: 5,
-        cost: 2,
-        distance: 1,
-        riskScore: 0,
-        iconId: 'bus',
-        lineColor: '#000000',
-        segments: [],
+      id: 'last',
+      label: 'Last',
+      time: 5,
+      cost: 2,
+      distance: 1,
+      riskScore: 0,
+      iconId: 'bus',
+      lineColor: '#000000',
+      segments: [],
     );
 
     final journeyResult = JourneyResult(
@@ -107,12 +110,14 @@ void main() {
       emissions: Emissions(val: 0, percent: 0),
     );
 
-    await tester.pumpWidget(MaterialApp(
-      home: DetailPage(
-        journeyResult: journeyResult,
-        apiService: mockApiService,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DetailPage(
+          journeyResult: journeyResult,
+          apiService: mockApiService,
+        ),
       ),
-    ));
+    );
 
     await tester.pumpAndSettle();
 
@@ -146,26 +151,36 @@ void main() {
     // Iterate over stacks to find one that looks like a vertical line and is close to our transfer text.
     // But easier: check if the parent of the text row is Expanded.
 
-    final parent = tester.widget(find.ancestor(of: transferFinder, matching: find.byType(Padding)).first);
+    final parent = tester.widget(
+      find.ancestor(of: transferFinder, matching: find.byType(Padding)).first,
+    );
     // In old impl: Padding(padding: EdgeInsets.only(left: 40...))
     // In new impl: Padding(padding: EdgeInsets.only(bottom: 8, top: 4)) inside Expanded.
 
     if (parent is Padding) {
-       final padding = parent.padding as EdgeInsets;
-       // Old impl has left: 40
-       if (padding.left == 40.0) {
-           fail('Found old implementation: Padding with left 40');
-       }
+      final padding = parent.padding as EdgeInsets;
+      // Old impl has left: 40
+      if (padding.left == 40.0) {
+        fail('Found old implementation: Padding with left 40');
+      }
     }
 
     // Verify vertical line existence
     // We can look for IntrinsicHeight which wraps the whole row
-    final intrinsicHeightFinder = find.ancestor(of: transferFinder, matching: find.byType(IntrinsicHeight)).first;
+    final intrinsicHeightFinder = find
+        .ancestor(of: transferFinder, matching: find.byType(IntrinsicHeight))
+        .first;
     expect(intrinsicHeightFinder, findsOneWidget);
 
     // Inside this IntrinsicHeight, we should find a Stack (the line)
-    final stackFinder = find.descendant(of: intrinsicHeightFinder, matching: find.byType(Stack));
-    expect(stackFinder, findsWidgets); // Should find at least one stack (the vertical line)
+    final stackFinder = find.descendant(
+      of: intrinsicHeightFinder,
+      matching: find.byType(Stack),
+    );
+    expect(
+      stackFinder,
+      findsWidgets,
+    ); // Should find at least one stack (the vertical line)
 
     // Clear timers
     await tester.pump(const Duration(seconds: 1));

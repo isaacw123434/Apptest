@@ -46,20 +46,19 @@ class HorizontalJigsawSchematic extends StatelessWidget {
           double contentBase = hasIcon ? (16.0 + 2.0) : 0.0;
 
           String displayText = seg.label;
-          bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
+          bool isWalk =
+              seg.mode.toLowerCase() == 'walk' ||
+              seg.label.toLowerCase() == 'walk';
 
           if (isWalk) {
-             displayText = ''; // Hide label for all walks
-             contentBase = hasIcon ? 16.0 : 0.0; // Just icon
+            displayText = ''; // Hide label for all walks
+            contentBase = hasIcon ? 16.0 : 0.0; // Just icon
           }
 
           final textPainter = TextPainter(
             text: TextSpan(
               text: displayText,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
             ),
             textDirection: TextDirection.ltr,
             textScaler: textScaler,
@@ -86,11 +85,17 @@ class HorizontalJigsawSchematic extends StatelessWidget {
             maxLines: 1,
           )..layout();
 
-          double topContentWidth = contentBase + (displayText.isNotEmpty ? textPainter.width : 0);
+          double topContentWidth =
+              contentBase + (displayText.isNotEmpty ? textPainter.width : 0);
           double bottomContentWidth = durationPainter.width;
-          double maxContentWidth = topContentWidth > bottomContentWidth ? topContentWidth : bottomContentWidth;
+          double maxContentWidth = topContentWidth > bottomContentWidth
+              ? topContentWidth
+              : bottomContentWidth;
 
-          double minW = (paddingLeft + maxContentWidth + paddingRight + 0.5).ceilToDouble() + 2.0;
+          double minW =
+              (paddingLeft + maxContentWidth + paddingRight + 0.5)
+                  .ceilToDouble() +
+              2.0;
           minWidths[i] = minW;
           totalMinWidth += minW;
         }
@@ -145,10 +150,12 @@ class HorizontalJigsawSchematic extends StatelessWidget {
             final textColor = isBright ? Colors.black : Colors.white;
 
             String displayText = seg.label;
-            bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
+            bool isWalk =
+                seg.mode.toLowerCase() == 'walk' ||
+                seg.label.toLowerCase() == 'walk';
 
             if (isWalk) {
-               displayText = '';
+              displayText = '';
             }
 
             IconData? iconData = _getIconData(seg.iconId);
@@ -178,19 +185,19 @@ class HorizontalJigsawSchematic extends StatelessWidget {
                         if (iconData != null)
                           Icon(iconData, color: textColor, size: 16),
                         if (displayText.isNotEmpty) ...[
-                            if (iconData != null) const SizedBox(width: 2),
-                            Flexible(
-                              child: Text(
-                                displayText,
-                                maxLines: 1,
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontSize: fontSize,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          if (iconData != null) const SizedBox(width: 2),
+                          Flexible(
+                            child: Text(
+                              displayText,
+                              maxLines: 1,
+                              style: TextStyle(
+                                color: textColor,
+                                fontSize: fontSize,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                        ]
+                          ),
+                        ],
                       ],
                     ),
                     Text(
