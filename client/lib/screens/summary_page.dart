@@ -3,7 +3,6 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import '../utils/risk_helper.dart';
-import '../utils/segment_utils.dart';
 import 'detail_page.dart';
 import 'direct_drive_page.dart';
 import 'horizontal_jigsaw_schematic.dart';
@@ -878,13 +877,13 @@ class _SummaryPageState extends State<SummaryPage> {
     List<Segment> processedSegments = [];
 
     // Process each leg separately to avoid merging across legs (e.g. Northern + CrossCountry)
-    processedSegments.addAll(processSegments(result.leg1.segments));
+    processedSegments.addAll(_processSegments(result.leg1.segments));
 
     if (_mainLeg != null) {
-      processedSegments.addAll(processSegments(_mainLeg!.segments));
+      processedSegments.addAll(_processSegments(_mainLeg!.segments));
     } else {
        // Fallback
-       processedSegments.addAll(processSegments([Segment(
+       processedSegments.addAll(_processSegments([Segment(
           mode: 'train',
           label: 'CrossCountry',
           lineColor: '#713e8d',
@@ -892,7 +891,7 @@ class _SummaryPageState extends State<SummaryPage> {
           time: 102)]));
     }
 
-    processedSegments.addAll(processSegments(result.leg3.segments));
+    processedSegments.addAll(_processSegments(result.leg3.segments));
 
     double totalTime = result.time.toDouble();
     // Safety check for totalTime
@@ -902,6 +901,136 @@ class _SummaryPageState extends State<SummaryPage> {
       segments: processedSegments,
       totalTime: totalTime,
     );
+  }
+
+  List<Segment> _processSegments(List<Segment> rawSegments) {
+    // 0. Flatten groups (Access & Train Groups)
+    List<Segment> flattened = [];
+    for (var seg in rawSegments) {
+      if ((seg.mode == 'access_group' || seg.mode == 'train_group') &&
+          seg.subSegments != null &&
+          seg.subSegments!.isNotEmpty) {
+        flattened.addAll(seg.subSegments!);
+      } else {
+        flattened.add(seg);
+      }
+    }
+
+    List<Segment> processed = [];
+
+    // 1. Filter out short walks (<= 2 mins), Parking, and Transfer
+    for (var seg in flattened) {
+      bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
+      if (isWalk && seg.time <= 2) {
+        continue;
+      }
+      if (seg.mode.toLowerCase() == 'parking') {
+        continue;
+      }
+      if (seg.mode.toLowerCase() == 'wait' || seg.label.toLowerCase() == 'transfer') {
+        continue;
+      }
+      processed.add(seg);
+    }
+
+    // 2. Merge Walk - Transfer - Walk
+    List<Segment> mergedWalks = [];
+    int i = 0;
+    while (i < processed.length) {
+      final seg = processed[i];
+      bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.iconId == 'footprints';
+
+      if (isWalk && i + 2 < processed.length) {
+        final next = processed[i + 1];
+        final nextNext = processed[i + 2];
+        bool isNextWait = next.mode.toLowerCase() == 'wait' || next.label.toLowerCase() == 'transfer';
+        bool isNextNextWalk = nextNext.mode.toLowerCase() == 'walk' || nextNext.iconId == 'footprints';
+
+        if (isNextWait && isNextNextWalk) {
+          // Merge
+          mergedWalks.add(Segment(
+            mode: 'walk',
+            label: 'Walk',
+            lineColor: seg.lineColor,
+            iconId: seg.iconId,
+            time: seg.time + next.time + nextNext.time,
+            to: nextNext.to,
+            detail: seg.detail,
+          ));
+          i += 3;
+          continue;
+        }
+      }
+      mergedWalks.add(seg);
+      i++;
+    }
+    processed = mergedWalks;
+
+    // 3. Merge Consecutive Trains
+    List<Segment> mergedTrains = [];
+    int j = 0;
+    while (j < processed.length) {
+      final seg = processed[j];
+      if (j + 1 < processed.length) {
+        final next = processed[j + 1];
+        bool isTrain1 = seg.mode.toLowerCase() == 'train' || seg.iconId == 'train';
+        bool isTrain2 = next.mode.toLowerCase() == 'train' || next.iconId == 'train';
+
+        if (isTrain1 && isTrain2) {
+          // Merge any consecutive trains
+          // If labels differ, combine them. If same, keep one.
+          String mergedLabel = seg.label;
+          if (seg.label != next.label) {
+            // Avoid duplicate text like "CrossCountry + EMR + EMR" if expanding logic runs multiple times
+            // But here we are iterating linearly.
+            mergedLabel = '${seg.label} + ${next.label}';
+          }
+
+          mergedTrains.add(Segment(
+            mode: 'train',
+            label: mergedLabel,
+            lineColor: seg.lineColor,
+            iconId: seg.iconId,
+            time: seg.time + next.time,
+            to: next.to,
+            detail: seg.detail,
+            path: seg.path,
+            co2: (seg.co2 ?? 0) + (next.co2 ?? 0),
+            distance: (seg.distance ?? 0) + (next.distance ?? 0),
+          ));
+          j += 2;
+          continue;
+        }
+      }
+      mergedTrains.add(seg);
+      j++;
+    }
+    processed = mergedTrains;
+
+    // 4. Final pass: Fix EMR labels (if not merged)
+    List<Segment> finalPass = [];
+    for (var seg in processed) {
+      String label = seg.label.replaceAll('E M R', 'EMR');
+
+      if (label != seg.label) {
+        finalPass.add(Segment(
+          mode: seg.mode,
+          label: label,
+          lineColor: seg.lineColor,
+          iconId: seg.iconId,
+          time: seg.time,
+          to: seg.to,
+          detail: seg.detail,
+          path: seg.path,
+          co2: seg.co2,
+          distance: seg.distance,
+        ));
+      } else {
+        finalPass.add(seg);
+      }
+    }
+
+    return finalPass;
   }
 
   Map<String, TimeOfDay> _calculateJourneyTimes(JourneyResult result) {
