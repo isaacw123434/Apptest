@@ -52,4 +52,9 @@ void main() {
     expect(r1.anchor, 'Brough');
     expect(r2.anchor, 'Brough');
   });
+
+  test('Anchor Fallback', () {
+    final r1 = createJourneyResult('1', 'Drive & Park', 10, 10, 0);
+    expect(r1.anchor, 'Drive & Park');
+  });
 }

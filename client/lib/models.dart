@@ -295,7 +295,7 @@ class JourneyResult {
         return destination.replaceAll(RegExp(' Station', caseSensitive: false), "").replaceAll(RegExp(' P&R', caseSensitive: false), "").trim();
       }
     }
-    return "";
+    return leg1.label;
   }
 }
 
