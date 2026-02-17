@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 
 // ignore_for_file: constant_identifier_names
@@ -69,6 +70,7 @@ class Segment {
           }
         }
       } catch (e) {
+        debugPrint('Error parsing path: $e');
         path = null;
       }
     }
@@ -86,6 +88,7 @@ class Segment {
           }
         }
       } catch (e) {
+        debugPrint('Error parsing stopPoints: $e');
         stopPoints = null;
       }
     }
@@ -325,6 +328,7 @@ class InitData {
           }
         }
       } catch (e) {
+        debugPrint('Error parsing mockPath: $e');
         mockPath = [];
       }
     }
