@@ -104,7 +104,8 @@ class RouteSelector {
 
         if (bestCandidate != null) {
           finalResults.add(bestCandidate);
-          groupIndices[bestCandidateKey!] = groupIndices[bestCandidateKey!]! + 1;
+          final key = bestCandidateKey!;
+          groupIndices[key] = (groupIndices[key] ?? 0) + 1;
         } else {
           break;
         }
