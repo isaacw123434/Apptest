@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'utils/app_colors.dart';
 import 'screens/home_page.dart';
 import 'screens/direct_drive_page.dart';
 
@@ -17,13 +18,13 @@ class JourneyPlannerApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF4F46E5), // Indigo
-          primary: const Color(0xFF4F46E5),
-          secondary: const Color(0xFF0F766E), // Teal
+          seedColor: AppColors.brand,
+          primary: AppColors.brand,
+          secondary: AppColors.secondary,
         ),
         useMaterial3: true,
         textTheme: GoogleFonts.interTextTheme(),
-        scaffoldBackgroundColor: const Color(0xFFF8FAFC), // Slate 50
+        scaffoldBackgroundColor: AppColors.slate50,
       ),
       home: const HomePage(),
       routes: {
