@@ -1,4 +1,4 @@
-import 'package:client/screens/horizontal_jigsaw_schematic.dart';
+import 'package:client/widgets/horizontal_jigsaw_schematic.dart';
 import 'package:client/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

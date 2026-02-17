@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../services/api_service.dart';
-import '../utils/time_utils.dart';
 import '../widgets/header.dart';
-import '../widgets/search_form.dart';
 import '../widgets/journey_result_card.dart';
-import 'direct_drive_page.dart';
+import '../widgets/summary/driving_baseline_card.dart';
+import '../widgets/summary/journey_tabs.dart';
+import '../widgets/summary/search_summary_header.dart';
 
 class SummaryPage extends StatefulWidget {
   final String from;
@@ -40,7 +39,6 @@ class _SummaryPageState extends State<SummaryPage> {
   String _activeTab = 'smart'; // smart, fastest, cheapest
   String? _errorMessage;
   final Map<String, List<JourneyResult>> _resultsCache = {};
-  bool _isSearchExpanded = false;
 
   late TextEditingController _fromController;
   late TextEditingController _toController;
@@ -151,10 +149,52 @@ class _SummaryPageState extends State<SummaryPage> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
-            _buildSearchSummary(),
-            if (_directDrive != null) _buildDrivingBaselineCard(),
-            _buildTabs(),
+            const Header(),
+            SearchSummaryHeader(
+              fromController: _fromController,
+              toController: _toController,
+              timeController: _timeController,
+              timeType: _timeType,
+              onTimeTypeChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _timeType = value;
+                  });
+                }
+              },
+              selectedModes: _selectedModes,
+              onModeChanged: (modeId, isSelected) {
+                setState(() {
+                  final newModes = Map<String, bool>.from(_selectedModes);
+                  newModes[modeId] = isSelected;
+                  _selectedModes = newModes;
+                });
+              },
+              onSearch: () {
+                setState(() {
+                  _displayFrom = _fromController.text;
+                  _displayTo = _toController.text;
+                  _displayTime = _timeController.text;
+                  _displayTimeType = _timeType;
+                  _resultsCache.clear();
+                });
+                _fetchInitData();
+                _fetchTabResults();
+              },
+              displayFrom: _displayFrom,
+              displayTo: _displayTo,
+              displayTimeType: _displayTimeType,
+              displayTime: _displayTime,
+            ),
+            if (_directDrive != null)
+              DrivingBaselineCard(
+                directDrive: _directDrive!,
+                routeId: widget.routeId,
+              ),
+            JourneyTabs(
+              activeTab: _activeTab,
+              onTabChanged: _onTabChanged,
+            ),
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -163,244 +203,6 @@ class _SummaryPageState extends State<SummaryPage> {
                       : _buildResultsList(),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return const Header();
-  }
-
-  Widget _buildSearchSummary() {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _isSearchExpanded = !_isSearchExpanded;
-        });
-      },
-      child: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC), // Slate 50
-            border: Border.all(color: const Color(0xFFE2E8F0)), // Slate 200
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: _isSearchExpanded
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SearchForm(
-                      fromController: _fromController,
-                      toController: _toController,
-                      timeController: _timeController,
-                      timeType: _timeType,
-                      onTimeTypeChanged: (value) {
-                        if (value != null) {
-                          setState(() {
-                            _timeType = value;
-                          });
-                        }
-                      },
-                      selectedModes: _selectedModes,
-                      onModeChanged: (modeId, isSelected) {
-                        setState(() {
-                          _selectedModes[modeId] = isSelected;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    // Search Button
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _displayFrom = _fromController.text;
-                          _displayTo = _toController.text;
-                          _displayTime = _timeController.text;
-                          _displayTimeType = _timeType;
-                          _isSearchExpanded = false;
-                          _resultsCache.clear();
-                        });
-                        _fetchInitData();
-                        _fetchTabResults();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF4F46E5),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text('Search'),
-                    ),
-                  ],
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Text(
-                            '$_displayTimeType by ',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
-                          Flexible(
-                            child: Text(
-                              _displayFrom.split(',')[0],
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 4),
-                            child: Icon(LucideIcons.arrowRight, size: 12, color: Colors.grey),
-                          ),
-                          Flexible(
-                            child: Text(
-                              _displayTo.split(',')[0],
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '• $_displayTime',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(LucideIcons.pencil, size: 16, color: Colors.grey),
-                  ],
-                ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDrivingBaselineCard() {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DirectDrivePage(
-              routeId: widget.routeId,
-            ),
-          ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9), // Slate 100
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE2E8F0)), // Slate 200
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFE2E8F0), // Slate 200
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(LucideIcons.car, size: 20, color: Color(0xFF475569)), // Slate 600
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  'Driving',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: Color(0xFF334155), // Slate 700
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Text(
-                  '£${_directDrive!.cost.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFDC2626), // Red 600
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  formatDuration(_directDrive!.time),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 12,
-                    color: Color(0xFF64748B), // Slate 500
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTabs() {
-    return Container(
-      color: Colors.white,
-      child: Row(
-        children: [
-          _buildTab('fastest', 'Fastest', LucideIcons.zap),
-          _buildTab('smart', 'Best Value', LucideIcons.shieldCheck),
-          _buildTab('cheapest', 'Cheapest', LucideIcons.leaf),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTab(String id, String label, IconData icon) {
-    final isActive = _activeTab == id;
-    return Expanded(
-      child: InkWell(
-        onTap: () => _onTabChanged(id),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: isActive ? const Color(0xFF4F46E5) : Colors.transparent,
-                width: 2,
-              ),
-            ),
-            color: isActive ? const Color(0xFFE0E7FF).withAlpha(77) : null, // 0.3 * 255 = 76.5
-          ),
-          child: Column(
-            children: [
-              Icon(
-                icon,
-                size: 18,
-                color: isActive ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: isActive ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

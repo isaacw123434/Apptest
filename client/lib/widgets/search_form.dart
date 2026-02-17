@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../utils/app_colors.dart';
+import 'mode_filter.dart';
 
 class SearchForm extends StatefulWidget {
   final TextEditingController fromController;
@@ -10,7 +11,6 @@ class SearchForm extends StatefulWidget {
   final ValueChanged<String?> onTimeTypeChanged;
   final Map<String, bool> selectedModes;
   final Function(String, bool) onModeChanged;
-  final List<Widget>? actions;
 
   const SearchForm({
     super.key,
@@ -21,7 +21,6 @@ class SearchForm extends StatefulWidget {
     required this.onTimeTypeChanged,
     required this.selectedModes,
     required this.onModeChanged,
-    this.actions,
   });
 
   @override
@@ -29,42 +28,29 @@ class SearchForm extends StatefulWidget {
 }
 
 class _SearchFormState extends State<SearchForm> {
-  bool _isModeDropdownOpen = false;
-
-  final List<Map<String, dynamic>> _modeOptions = [
-    {'id': 'train', 'icon': LucideIcons.train, 'label': 'Train'},
-    {'id': 'bus', 'icon': LucideIcons.bus, 'label': 'Bus'},
-    {'id': 'car', 'icon': LucideIcons.car, 'label': 'Car'},
-    {'id': 'taxi', 'icon': LucideIcons.car, 'label': 'Taxi'},
-    {'id': 'bike', 'icon': LucideIcons.bike, 'label': 'Bike'},
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildInputRow(LucideIcons.circle, widget.fromController, Colors.grey, 'Start'),
+        _buildInputRow(LucideIcons.circle, widget.fromController, Colors.grey),
         const SizedBox(height: 12),
-        _buildInputRow(LucideIcons.circle, widget.toController, Colors.black, 'End'),
+        _buildInputRow(LucideIcons.circle, widget.toController, Colors.black),
         const SizedBox(height: 12),
         _buildTimeRow(),
         const SizedBox(height: 12),
-        if (widget.actions != null) ...[
-          ...widget.actions!,
-          const SizedBox(height: 12),
-        ],
-        _buildModeFilter(),
+        ModeFilter(
+          selectedModes: widget.selectedModes,
+          onModeChanged: widget.onModeChanged,
+        ),
       ],
     );
   }
 
-  Widget _buildInputRow(IconData icon, TextEditingController controller, Color dotColor, String label) {
+  Widget _buildInputRow(IconData icon, TextEditingController controller, Color dotColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Optional: Label could be added here if needed, consistent with SummaryPage
-        // Text(label, style: ...),
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -155,87 +141,6 @@ class _SearchFormState extends State<SearchForm> {
             ),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildModeFilter() {
-    return Column(
-      children: [
-        InkWell(
-          onTap: () {
-            setState(() {
-              _isModeDropdownOpen = !_isModeDropdownOpen;
-            });
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Filter Modes',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.slate500,
-                  ),
-                ),
-                Icon(
-                  LucideIcons.chevronDown,
-                  size: 16,
-                  color: AppColors.slate500,
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (_isModeDropdownOpen) ...[
-          const SizedBox(height: 8),
-          Row(
-            children: _modeOptions.asMap().entries.map((entry) {
-              final index = entry.key;
-              final mode = entry.value;
-              final isSelected = widget.selectedModes[mode['id']] ?? false;
-              return Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(right: index == _modeOptions.length - 1 ? 0 : 8.0),
-                  child: InkWell(
-                    onTap: () => widget.onModeChanged(mode['id'], !isSelected),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      decoration: BoxDecoration(
-                        color: isSelected ? AppColors.blue50 : Colors.white,
-                        border: Border.all(
-                          color: isSelected ? AppColors.brand : AppColors.slate200,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            mode['icon'],
-                            size: 20,
-                            color: isSelected ? AppColors.brand : AppColors.slate400,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            mode['label'],
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
       ],
     );
   }
