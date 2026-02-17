@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/models.dart';
-import '../lib/utils/segment_utils.dart';
+import 'package:client/models.dart';
+import 'package:client/utils/segment_utils.dart';
 
 void main() {
   test('Two consecutive Northern trains should be merged and labeled Northern + Northern', () {
