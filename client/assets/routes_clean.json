@@ -2095,7 +2095,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.0,
@@ -3689,7 +3690,8 @@
             "to": null,
             "cost": 24.53985484732872,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.92,
@@ -3821,7 +3823,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               },
               {
                 "mode": "bus",
@@ -5150,6 +5153,7 @@
                 "cost": 2.0,
                 "numStops": 12,
                 "stops": null,
+                "stopPoints": null,
                 "detail": "Bus every 12 mins"
               },
               {
@@ -5274,7 +5278,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               }
             ],
             "path": [
@@ -8378,6 +8383,7 @@
             "cost": 8.97,
             "numStops": null,
             "stops": null,
+            "stopPoints": null,
             "detail": "Est wait: 4 min"
           }
         ],
@@ -8890,7 +8896,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               },
               {
                 "mode": "train",
@@ -9778,7 +9785,8 @@
                 "to": null,
                 "cost": 3.4,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               }
             ],
             "path": [
@@ -11676,7 +11684,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           },
           {
             "mode": "train",
@@ -12564,7 +12573,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.19,
@@ -13083,6 +13093,7 @@
             "cost": 5.92,
             "numStops": null,
             "stops": null,
+            "stopPoints": null,
             "detail": "Est wait: 3 min"
           },
           {
@@ -13971,7 +13982,8 @@
             "to": null,
             "cost": 3.4,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.51,
@@ -22293,6 +22305,7 @@
               "cost": 25.7,
               "numStops": 2,
               "stops": null,
+              "stopPoints": null,
               "waitTime": 2,
               "detail": "Platform 4"
             },
@@ -30599,6 +30612,7 @@
               "cost": 0.0,
               "numStops": 2,
               "stops": null,
+              "stopPoints": null,
               "detail": "Platform 4"
             }
           ],
@@ -47310,7 +47324,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               },
               {
                 "mode": "bus",
@@ -48870,7 +48885,8 @@
                 "to": null,
                 "cost": 2.0,
                 "numStops": 15,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               }
             ],
             "path": [
@@ -52440,7 +52456,8 @@
             "to": null,
             "cost": 14.89,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 1.2,
@@ -54610,7 +54627,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.0,
@@ -79817,7 +79835,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.0,
@@ -79961,7 +79980,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               },
               {
                 "mode": "bus",
@@ -81521,7 +81541,8 @@
                 "to": null,
                 "cost": 2.0,
                 "numStops": 15,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               }
             ],
             "path": [
@@ -85283,7 +85304,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.0,
@@ -87209,7 +87231,8 @@
             "to": null,
             "cost": 14.89,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 1.2,
@@ -89327,7 +89350,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.0,
@@ -91497,7 +91521,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.0,
@@ -93103,7 +93128,8 @@
             "to": null,
             "cost": 24.53985484732872,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.92,
@@ -93247,7 +93273,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               },
               {
                 "mode": "bus",
@@ -94807,7 +94834,8 @@
                 "to": null,
                 "cost": 2.0,
                 "numStops": 15,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               }
             ],
             "path": [
@@ -98057,7 +98085,8 @@
             "to": null,
             "cost": 24.53985484732872,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.92,
@@ -99983,7 +100012,8 @@
             "to": null,
             "cost": 14.89,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 1.2,
@@ -101589,7 +101619,8 @@
             "to": null,
             "cost": 24.53985484732872,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.92,
@@ -103759,7 +103790,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.0,
@@ -103903,7 +103935,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               },
               {
                 "mode": "bus",
@@ -105232,6 +105265,7 @@
                 "cost": 2.0,
                 "numStops": 12,
                 "stops": null,
+                "stopPoints": null,
                 "detail": "Bus every 12 mins"
               },
               {
@@ -105356,7 +105390,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               }
             ],
             "path": [
@@ -107009,7 +107044,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               },
               {
                 "mode": "bus",
@@ -108569,7 +108605,8 @@
                 "to": null,
                 "cost": 2.0,
                 "numStops": 15,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               }
             ],
             "path": [
@@ -110357,7 +110394,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               },
               {
                 "mode": "bus",
@@ -111686,6 +111724,7 @@
                 "cost": 2.0,
                 "numStops": 12,
                 "stops": null,
+                "stopPoints": null,
                 "detail": "Bus every 12 mins"
               },
               {
@@ -111810,7 +111849,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               }
             ],
             "path": [
@@ -115245,7 +115285,8 @@
             "to": null,
             "cost": 14.89,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 1.2,
@@ -116852,6 +116893,7 @@
             "cost": 8.97,
             "numStops": null,
             "stops": null,
+            "stopPoints": null,
             "detail": "Est wait: 4 min"
           }
         ],
@@ -116996,7 +117038,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               },
               {
                 "mode": "bus",
@@ -118556,7 +118599,8 @@
                 "to": null,
                 "cost": 2.0,
                 "numStops": 15,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               }
             ],
             "path": [
@@ -121807,6 +121851,7 @@
             "cost": 8.97,
             "numStops": null,
             "stops": null,
+            "stopPoints": null,
             "detail": "Est wait: 4 min"
           }
         ],
@@ -123733,7 +123778,8 @@
             "to": null,
             "cost": 14.89,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 1.2,
@@ -124257,7 +124303,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               },
               {
                 "mode": "train",
@@ -125145,7 +125192,8 @@
                 "to": null,
                 "cost": 3.4,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               }
             ],
             "path": [
@@ -126629,7 +126677,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               },
               {
                 "mode": "bus",
@@ -128189,7 +128238,8 @@
                 "to": null,
                 "cost": 2.0,
                 "numStops": 15,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               }
             ],
             "path": [
@@ -130357,7 +130407,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               },
               {
                 "mode": "train",
@@ -131245,7 +131296,8 @@
                 "to": null,
                 "cost": 3.4,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               }
             ],
             "path": [
@@ -134511,7 +134563,8 @@
             "to": null,
             "cost": 14.89,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 1.2,
@@ -135081,7 +135134,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           },
           {
             "mode": "train",
@@ -135969,7 +136023,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.19,
@@ -136113,7 +136168,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               },
               {
                 "mode": "bus",
@@ -137673,7 +137729,8 @@
                 "to": null,
                 "cost": 2.0,
                 "numStops": 15,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               }
             ],
             "path": [
@@ -139887,7 +139944,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           },
           {
             "mode": "train",
@@ -140775,7 +140833,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.19,
@@ -142701,7 +142760,8 @@
             "to": null,
             "cost": 14.89,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 1.2,
@@ -143271,7 +143331,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           },
           {
             "mode": "train",
@@ -144159,7 +144220,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.19,
@@ -146329,7 +146391,8 @@
             "to": null,
             "cost": 0.0,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.0,
@@ -146860,6 +146923,7 @@
             "cost": 5.92,
             "numStops": null,
             "stops": null,
+            "stopPoints": null,
             "detail": "Est wait: 3 min"
           },
           {
@@ -147748,7 +147812,8 @@
             "to": null,
             "cost": 3.4,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.51,
@@ -147892,7 +147957,8 @@
                 "to": null,
                 "cost": 0.0,
                 "numStops": null,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               },
               {
                 "mode": "bus",
@@ -149452,7 +149518,8 @@
                 "to": null,
                 "cost": 2.0,
                 "numStops": 15,
-                "stops": null
+                "stops": null,
+                "stopPoints": null
               }
             ],
             "path": [
@@ -151627,6 +151694,7 @@
             "cost": 5.92,
             "numStops": null,
             "stops": null,
+            "stopPoints": null,
             "detail": "Est wait: 3 min"
           },
           {
@@ -152515,7 +152583,8 @@
             "to": null,
             "cost": 3.4,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 0.51,
@@ -154441,7 +154510,8 @@
             "to": null,
             "cost": 14.89,
             "numStops": null,
-            "stops": null
+            "stops": null,
+            "stopPoints": null
           }
         ],
         "co2": 1.2,

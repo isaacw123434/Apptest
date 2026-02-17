@@ -99,12 +99,15 @@ def parse_segment(json_segment, option_name, route_id):
 
     num_stops = None
     stops = None
+    stop_points = None
 
     if transit_details:
         if 'num_stops' in transit_details:
             num_stops = transit_details['num_stops']
         if 'stops' in transit_details:
             stops = transit_details['stops']
+        if 'stop_points' in transit_details:
+            stop_points = transit_details['stop_points']
 
         if 'departure_stop' in transit_details:
             from_loc = transit_details['departure_stop']['name']
@@ -192,7 +195,8 @@ def parse_segment(json_segment, option_name, route_id):
         'to': to_loc,
         'cost': cost,
         'numStops': num_stops,
-        'stops': stops
+        'stops': stops,
+        'stopPoints': stop_points
     }
 
 def should_merge(a, b):
@@ -214,6 +218,7 @@ def merge_segments(a, b):
 
     new_num_stops = (a.get('numStops') or 0) + (b.get('numStops') or 0)
     new_stops = (a.get('stops') or []) + (b.get('stops') or [])
+    new_stop_points = (a.get('stopPoints') or []) + (b.get('stopPoints') or [])
 
     merged = a.copy()
     merged.update({
@@ -223,7 +228,8 @@ def merge_segments(a, b):
         'co2': new_co2,
         'cost': new_cost,
         'numStops': new_num_stops if new_num_stops > 0 else None,
-        'stops': new_stops if new_stops else None
+        'stops': new_stops if new_stops else None,
+        'stopPoints': new_stop_points if new_stop_points else None
     })
     return merged
 

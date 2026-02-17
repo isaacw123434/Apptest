@@ -27,6 +27,7 @@ class Segment {
   final List<Segment>? subSegments;
   final int? numStops;
   final List<String>? stops;
+  final List<LatLng>? stopPoints;
 
   Segment({
     required this.mode,
@@ -45,6 +46,7 @@ class Segment {
     this.subSegments,
     this.numStops,
     this.stops,
+    this.stopPoints,
   });
 
   factory Segment.fromJson(Map<String, dynamic> json) {
@@ -71,6 +73,23 @@ class Segment {
       }
     }
 
+    var stopPointsList = json['stopPoints'] as List?;
+    List<LatLng>? stopPoints;
+    if (stopPointsList != null) {
+      try {
+        stopPoints = [];
+        for (var point in stopPointsList) {
+          if (point is List && point.length >= 2) {
+            stopPoints.add(LatLng((point[0] as num).toDouble(), (point[1] as num).toDouble()));
+          } else if (point is LatLng) {
+            stopPoints.add(point);
+          }
+        }
+      } catch (e) {
+        stopPoints = null;
+      }
+    }
+
     return Segment(
       mode: json['mode'] ?? '',
       label: json['label'] ?? '',
@@ -88,6 +107,7 @@ class Segment {
       subSegments: subSegments,
       numStops: json['numStops'],
       stops: (json['stops'] as List?)?.map((e) => e as String).toList(),
+      stopPoints: stopPoints,
     );
   }
 }
