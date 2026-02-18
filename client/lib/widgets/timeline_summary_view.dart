@@ -24,8 +24,8 @@ class TimelineSummaryView extends StatelessWidget {
             ? availableWidth
             : 1000.0;
 
-        const double fontSize = 10.0;
-        const double durationFontSize = 8.0;
+        const double fontSize = 12.0;
+        const double durationFontSize = 10.0;
         const double overlap = 10.0;
 
         // Determine the best configuration by trying progressively more compact options
@@ -312,8 +312,8 @@ _LayoutResult _calculateLayout(
   _CompressionConfig config,
   double overlap,
 ) {
-  const double fontSize = 10.0;
-  const double durationFontSize = 8.0;
+  const double fontSize = 12.0;
+  const double durationFontSize = 10.0;
 
   List<double> minWidths = List.filled(segments.length, 0.0);
   double totalMinWidth = 0.0;

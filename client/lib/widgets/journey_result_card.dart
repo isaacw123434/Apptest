@@ -95,7 +95,7 @@ class JourneyResultCard extends StatelessWidget {
                   'TOP CHOICE',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 11,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF047857), // Emerald 700
                     letterSpacing: 1.0,

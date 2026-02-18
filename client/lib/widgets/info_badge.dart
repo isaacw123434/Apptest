@@ -38,7 +38,7 @@ class InfoBadge extends StatelessWidget {
           Text(
             text,
             style: TextStyle(
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: FontWeight.bold,
               color: textColor,
             ),

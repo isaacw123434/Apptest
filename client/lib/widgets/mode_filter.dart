@@ -92,7 +92,7 @@ class _ModeFilterState extends State<ModeFilter> {
                             mode['label'],
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              fontSize: 10,
+                              fontSize: 11,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
