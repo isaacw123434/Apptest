@@ -145,6 +145,15 @@ class TimelineSummaryView extends StatelessWidget {
     bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
 
     IconData? iconData = getIconData(seg.iconId);
+    String? logoAsset;
+
+    if (config.simplifyTrain && seg.mode.toLowerCase() == 'train') {
+      logoAsset = _getTrainLogoAsset(seg.label);
+      if (logoAsset != null) {
+        displayText = '';
+        iconData = null;
+      }
+    }
 
     String durationText = formatDuration(seg.time, compact: isWalk);
     double iconSize = (isWalk && config.smallWalkIcon) ? 12.0 : 16.0;
@@ -165,6 +174,8 @@ class TimelineSummaryView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (logoAsset != null)
+                  Image.asset(logoAsset, height: 16.0),
                 if (iconData != null)
                   Icon(iconData, color: textColor, size: iconSize),
                 if (displayText.isNotEmpty) ...[
@@ -226,7 +237,7 @@ class HorizontalJigsawSegment extends StatelessWidget {
   Widget build(BuildContext context) {
     // Standard left padding calculation
     // If compactPadding is true, we reduce the padding slightly
-    double leftP = isFirst ? 6 : (overlap + 1.0) * 0.75;
+    double leftP = isFirst ? 6 : ((overlap + 1.0) * 0.75) + 2.0;
     double rightP = isLast ? 6.0 : 2.0;
 
     if (compactPadding) {
@@ -286,6 +297,16 @@ class _LayoutResult {
   _LayoutResult(this.minWidths, this.totalMinWidth);
 }
 
+String? _getTrainLogoAsset(String label) {
+  final lower = label.toLowerCase();
+  if (lower.contains('northern')) return 'assets/northern.jpeg';
+  if (lower.contains('crosscountry')) return 'assets/crosscountry.png';
+  if (lower.contains('e m r') || lower.contains('east midlands')) {
+    return 'assets/emr.png';
+  }
+  return null;
+}
+
 String _getDisplayText(Segment seg, _CompressionConfig config) {
   String displayText = seg.label;
   bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
@@ -343,11 +364,20 @@ _LayoutResult _calculateLayout(
         paddingRight = 1.0;
       }
     } else {
-       paddingLeft = isFirst ? 6.0 : (overlap + 1.0) * 0.75;
+       paddingLeft = isFirst ? 6.0 : ((overlap + 1.0) * 0.75) + 2.0;
        paddingRight = isLast ? 6.0 : 2.0;
     }
 
     IconData? iconData = getIconData(seg.iconId);
+    String? logoAsset;
+
+    if (config.simplifyTrain && seg.mode.toLowerCase() == 'train') {
+      logoAsset = _getTrainLogoAsset(seg.label);
+      if (logoAsset != null) {
+        iconData = null;
+      }
+    }
+
     bool hasIcon = iconData != null;
     double iconSize = (isWalk && config.smallWalkIcon) ? 12.0 : 16.0;
 
@@ -355,6 +385,11 @@ _LayoutResult _calculateLayout(
     double contentBase = hasIcon ? (iconSize + 2.0) : 0.0;
 
     String displayText = _getDisplayText(seg, config);
+
+    if (logoAsset != null) {
+      displayText = '';
+      contentBase = 35.0; // Estimate logo width
+    }
 
     if (isWalk) {
        contentBase = hasIcon ? iconSize : 0.0;
