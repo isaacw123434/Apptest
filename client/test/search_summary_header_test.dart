@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:client/widgets/summary/search_summary_header.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 
 void main() {
   testWidgets('SearchSummaryHeader renders correct text order', (WidgetTester tester) async {
