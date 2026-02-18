@@ -26,88 +26,55 @@ class TimelineSummaryView extends StatelessWidget {
 
         const double fontSize = 10.0;
         const double durationFontSize = 8.0;
-        const double overlap = 12.0;
+        const double overlap = 10.0;
 
-        // 1. Measure Minimum Widths
-        List<double> minWidths = List.filled(segments.length, 0.0);
-        double totalMinWidth = 0.0;
+        // Determine the best configuration by trying progressively more compact options
+        final levels = [
+          const _CompressionConfig(), // Level 0: Standard
+          const _CompressionConfig(simplifyBus: true), // Level 1
+          const _CompressionConfig(simplifyBus: true, simplifyTrain: true), // Level 2
+          const _CompressionConfig(simplifyBus: true, simplifyTrain: true, compactWalk: true), // Level 3
+          const _CompressionConfig(simplifyBus: true, simplifyTrain: true, compactWalk: true, smallWalkIcon: true), // Level 4
+        ];
 
-        for (int i = 0; i < segments.length; i++) {
-          final seg = segments[i];
-          bool isFirst = i == 0;
-          bool isLast = i == segments.length - 1;
+        _CompressionConfig selectedConfig = levels[0];
+        _LayoutResult layoutResult = _calculateLayout(segments, textScaler, selectedConfig, overlap);
+        bool fits = false;
 
-          double paddingLeft = isFirst ? 6.0 : (overlap + 1.0) * 0.75;
-          double paddingRight = isLast ? 6.0 : 2.0;
-
-          IconData? iconData = getIconData(seg.iconId);
-          bool hasIcon = iconData != null;
-
-          // Icon (16) + Spacing (2)
-          double contentBase = hasIcon ? (16.0 + 2.0) : 0.0;
-
-          String displayText = seg.label;
-          bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
-
-          if (isWalk) {
-             displayText = ''; // Hide label for all walks
-             contentBase = hasIcon ? 16.0 : 0.0; // Just icon
+        // Check if standard fits
+        if (layoutResult.totalMinWidth <= effectiveWidth) {
+          fits = true;
+        } else {
+          // Try other levels
+          for (int i = 1; i < levels.length; i++) {
+             final config = levels[i];
+             final result = _calculateLayout(segments, textScaler, config, overlap);
+             if (result.totalMinWidth <= effectiveWidth) {
+               selectedConfig = config;
+               layoutResult = result;
+               fits = true;
+               break;
+             }
           }
-
-          final textPainter = TextPainter(
-            text: TextSpan(
-              text: displayText,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            textDirection: TextDirection.ltr,
-            textScaler: textScaler,
-            maxLines: 1,
-          )..layout();
-
-          String durationText = formatDuration(seg.time, compact: isWalk);
-
-          final durationPainter = TextPainter(
-            text: TextSpan(
-              text: durationText,
-              style: TextStyle(
-                fontSize: durationFontSize,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            textDirection: TextDirection.ltr,
-            textScaler: textScaler,
-            maxLines: 1,
-          )..layout();
-
-          double topContentWidth = contentBase + (displayText.isNotEmpty ? textPainter.width : 0);
-          double bottomContentWidth = durationPainter.width;
-          double maxContentWidth = topContentWidth > bottomContentWidth ? topContentWidth : bottomContentWidth;
-
-          double minW = (paddingLeft + maxContentWidth + paddingRight + 0.5).ceilToDouble() + 4.0;
-
-          if (isWalk) {
-            minW -= 4.0;
-          }
-
-          minWidths[i] = minW;
-          totalMinWidth += minW;
         }
 
-        // 2. Check Constraint
-        bool scrollNeeded = totalMinWidth > effectiveWidth;
+        // If still doesn't fit, use the most compact one
+        if (!fits) {
+           selectedConfig = levels.last;
+           layoutResult = _calculateLayout(segments, textScaler, selectedConfig, overlap);
+        }
+
+        bool scrollNeeded = layoutResult.totalMinWidth > effectiveWidth;
         List<double> segmentWidths = List.filled(segments.length, 0.0);
 
         if (scrollNeeded) {
           // Use minWidth for every segment
           for (int i = 0; i < segments.length; i++) {
-            segmentWidths[i] = minWidths[i];
+            segmentWidths[i] = layoutResult.minWidths[i];
           }
         } else {
-          // 3. Distribute Bonus Space
-          double bonusSpace = effectiveWidth - totalMinWidth;
+          // Distribute Bonus Space
+          double bonusSpace = effectiveWidth - layoutResult.totalMinWidth;
 
           // Calculate sum of time for segments to distribute bonus proportionally
           double timeSum = segments.fold(0.0, (sum, s) => sum + s.time);
@@ -117,14 +84,22 @@ class TimelineSummaryView extends StatelessWidget {
             final seg = segments[i];
             double proportion = seg.time / timeSum;
             double share = proportion * bonusSpace;
-            segmentWidths[i] = minWidths[i] + share;
+            segmentWidths[i] = layoutResult.minWidths[i] + share;
           }
         }
 
         Widget content = Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: segments.asMap().entries.map((entry) {
-            return _buildSegmentWidget(entry.key, entry.value, segmentWidths[entry.key], fontSize, durationFontSize, overlap);
+            return _buildSegmentWidget(
+              entry.key,
+              entry.value,
+              segmentWidths[entry.key],
+              fontSize,
+              durationFontSize,
+              overlap,
+              selectedConfig,
+            );
           }).toList(),
         );
 
@@ -140,7 +115,15 @@ class TimelineSummaryView extends StatelessWidget {
     );
   }
 
-  Widget _buildSegmentWidget(int index, Segment seg, double width, double fontSize, double durationFontSize, double overlap) {
+  Widget _buildSegmentWidget(
+    int index,
+    Segment seg,
+    double width,
+    double fontSize,
+    double durationFontSize,
+    double overlap,
+    _CompressionConfig config,
+  ) {
     final isFirst = index == 0;
     final isLast = index == segments.length - 1;
 
@@ -158,16 +141,13 @@ class TimelineSummaryView extends StatelessWidget {
     final isBright = color.computeLuminance() > 0.5;
     final textColor = isBright ? Colors.black : Colors.white;
 
-    String displayText = seg.label;
+    String displayText = _getDisplayText(seg, config);
     bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
-
-    if (isWalk) {
-       displayText = '';
-    }
 
     IconData? iconData = getIconData(seg.iconId);
 
     String durationText = formatDuration(seg.time, compact: isWalk);
+    double iconSize = (isWalk && config.smallWalkIcon) ? 12.0 : 16.0;
 
     return SizedBox(
       width: width,
@@ -177,6 +157,7 @@ class TimelineSummaryView extends StatelessWidget {
         backgroundColor: color,
         borderColor: Colors.white,
         overlap: overlap,
+        compactPadding: isWalk && config.compactWalk,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -185,9 +166,9 @@ class TimelineSummaryView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (iconData != null)
-                  Icon(iconData, color: textColor, size: 16),
+                  Icon(iconData, color: textColor, size: iconSize),
                 if (displayText.isNotEmpty) ...[
-                    if (iconData != null) const SizedBox(width: 2),
+                  if (iconData != null) const SizedBox(width: 2),
                     Flexible(
                       child: Text(
                         displayText,
@@ -228,6 +209,7 @@ class HorizontalJigsawSegment extends StatelessWidget {
   final Color backgroundColor;
   final Color borderColor;
   final double overlap;
+  final bool compactPadding;
 
   const HorizontalJigsawSegment({
     super.key,
@@ -236,11 +218,32 @@ class HorizontalJigsawSegment extends StatelessWidget {
     this.isLast = false,
     this.backgroundColor = Colors.blue,
     this.borderColor = Colors.white,
-    this.overlap = 12.0,
+    this.overlap = 10.0,
+    this.compactPadding = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Standard left padding calculation
+    // If compactPadding is true, we reduce the padding slightly
+    double leftP = isFirst ? 6 : (overlap + 1.0) * 0.75;
+    double rightP = isLast ? 6.0 : 2.0;
+
+    if (compactPadding) {
+      // Reduce padding if compact is requested (mainly for walks)
+      if (isFirst) {
+        leftP = 2.0;
+      } else {
+        leftP = (overlap + 1.0) * 0.5; // Tighter overlap padding
+      }
+
+      if (isLast) {
+        rightP = 2.0;
+      } else {
+        rightP = 1.0;
+      }
+    }
+
     return CustomPaint(
       painter: _HorizontalJigsawPainter(
         isFirst: isFirst,
@@ -251,8 +254,8 @@ class HorizontalJigsawSegment extends StatelessWidget {
       ),
       child: Padding(
         padding: EdgeInsets.only(
-          left: isFirst ? 6 : (overlap + 1.0) * 0.75,
-          right: isLast ? 6.0 : 2.0,
+          left: leftP,
+          right: rightP,
           top: 1,
           bottom: 1,
         ),
@@ -260,6 +263,146 @@ class HorizontalJigsawSegment extends StatelessWidget {
       ),
     );
   }
+}
+
+class _CompressionConfig {
+  final bool simplifyBus;
+  final bool simplifyTrain;
+  final bool compactWalk;
+  final bool smallWalkIcon;
+
+  const _CompressionConfig({
+    this.simplifyBus = false,
+    this.simplifyTrain = false,
+    this.compactWalk = false,
+    this.smallWalkIcon = false,
+  });
+}
+
+class _LayoutResult {
+  final List<double> minWidths;
+  final double totalMinWidth;
+
+  _LayoutResult(this.minWidths, this.totalMinWidth);
+}
+
+String _getDisplayText(Segment seg, _CompressionConfig config) {
+  String displayText = seg.label;
+  bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
+
+  if (isWalk) {
+    return '';
+  }
+
+  if (config.simplifyBus &&
+      seg.mode.toLowerCase() == 'bus' &&
+      displayText.toLowerCase().startsWith('bus ')) {
+    return displayText.substring(4).trim();
+  }
+  if (config.simplifyTrain && seg.mode.toLowerCase() == 'train') {
+    return 'Train';
+  }
+
+  return displayText;
+}
+
+_LayoutResult _calculateLayout(
+  List<Segment> segments,
+  TextScaler textScaler,
+  _CompressionConfig config,
+  double overlap,
+) {
+  const double fontSize = 10.0;
+  const double durationFontSize = 8.0;
+
+  List<double> minWidths = List.filled(segments.length, 0.0);
+  double totalMinWidth = 0.0;
+
+  for (int i = 0; i < segments.length; i++) {
+    final seg = segments[i];
+    bool isFirst = i == 0;
+    bool isLast = i == segments.length - 1;
+
+    // Determine padding based on compactWalk config
+    double paddingLeft;
+    double paddingRight;
+
+    bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
+    bool applyCompact = isWalk && config.compactWalk;
+
+    if (applyCompact) {
+      if (isFirst) {
+        paddingLeft = 2.0;
+      } else {
+        paddingLeft = (overlap + 1.0) * 0.5;
+      }
+
+      if (isLast) {
+        paddingRight = 2.0;
+      } else {
+        paddingRight = 1.0;
+      }
+    } else {
+       paddingLeft = isFirst ? 6.0 : (overlap + 1.0) * 0.75;
+       paddingRight = isLast ? 6.0 : 2.0;
+    }
+
+    IconData? iconData = getIconData(seg.iconId);
+    bool hasIcon = iconData != null;
+    double iconSize = (isWalk && config.smallWalkIcon) ? 12.0 : 16.0;
+
+    // Icon + Spacing (2)
+    double contentBase = hasIcon ? (iconSize + 2.0) : 0.0;
+
+    String displayText = _getDisplayText(seg, config);
+
+    if (isWalk) {
+       contentBase = hasIcon ? iconSize : 0.0;
+    }
+
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: displayText,
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+      textScaler: textScaler,
+      maxLines: 1,
+    )..layout();
+
+    String durationText = formatDuration(seg.time, compact: isWalk);
+
+    final durationPainter = TextPainter(
+      text: TextSpan(
+        text: durationText,
+        style: TextStyle(
+          fontSize: durationFontSize,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+      textScaler: textScaler,
+      maxLines: 1,
+    )..layout();
+
+    double topContentWidth = contentBase + (displayText.isNotEmpty ? textPainter.width : 0);
+    double bottomContentWidth = durationPainter.width;
+    double maxContentWidth = topContentWidth > bottomContentWidth ? topContentWidth : bottomContentWidth;
+
+    double minW = (paddingLeft + maxContentWidth + paddingRight + 0.5).ceilToDouble() + 4.0;
+
+    if (isWalk) {
+      minW -= 4.0;
+    }
+
+    minWidths[i] = minW;
+    totalMinWidth += minW;
+  }
+
+  return _LayoutResult(minWidths, totalMinWidth);
 }
 
 class _HorizontalJigsawPainter extends CustomPainter {
