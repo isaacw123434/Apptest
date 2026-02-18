@@ -46,7 +46,20 @@ class JourneyResultCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.slate200),
-          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.white,
+              offset: Offset(0, -1),
+              blurRadius: 0,
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: Colors.black12,
+              offset: Offset(0, 2),
+              blurRadius: 4,
+              spreadRadius: 0,
+            ),
+          ],
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(

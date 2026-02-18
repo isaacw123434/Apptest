@@ -48,6 +48,7 @@ class SearchForm extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.slate100,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.slate200, width: 1.0),
       ),
       child: Row(
         children: [
@@ -86,6 +87,7 @@ class SearchForm extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.slate100,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.slate200, width: 1.0),
       ),
       child: Row(
         children: [
