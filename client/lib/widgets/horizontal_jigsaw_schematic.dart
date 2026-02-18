@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../utils/time_utils.dart';
 import '../utils/icon_utils.dart';
