@@ -16,6 +16,12 @@ A Flutter application designed to help commuters compare various travel options 
 
 The application uses JSON data to define route options and calculate metrics. The logic handles complex scenarios like park & ride, transfers, and specific pricing models for different starting hubs.
 
+## Design System
+
+We maintain a comprehensive design system to ensure visual consistency and accessibility. This includes our color palette, typography choices, and spacing guidelines.
+
+For a full write-up of our design decisions and style guide, please see [DESIGN.md](DESIGN.md).
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
