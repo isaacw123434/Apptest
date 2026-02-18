@@ -35,6 +35,7 @@ class Header extends StatelessWidget {
                 color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
+                height: 1.25,
               ),
             ),
           ),
