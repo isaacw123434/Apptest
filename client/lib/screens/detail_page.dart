@@ -7,7 +7,9 @@ import '../services/api_service.dart';
 import '../utils/emission_utils.dart';
 import '../utils/time_utils.dart';
 import '../utils/icon_utils.dart';
+import '../utils/app_colors.dart';
 import '../widgets/detail/leg_selector_modal.dart';
+import '../widgets/scale_on_press.dart';
 
 class DetailPage extends StatefulWidget {
   final JourneyResult? journeyResult;
@@ -733,15 +735,43 @@ class _DetailPageState extends State<DetailPage> {
             left: 24,
             right: 24,
             bottom: 24,
-            child: ElevatedButton.icon(
-              onPressed: () {},
-              icon: const Icon(LucideIcons.heart),
-              label: const Text('Save Route'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4F46E5), // Brand
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: ScaleOnPress(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.brandLight, AppColors.brand],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border(
+                    top: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.5),
+                      width: 1.0,
+                    ),
+                  ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(LucideIcons.heart),
+                  label: const Text('Save Route'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
