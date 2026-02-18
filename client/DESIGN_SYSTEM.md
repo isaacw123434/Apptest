@@ -21,7 +21,7 @@ We use the **Inter** font family via `GoogleFonts.interTextTheme()`. This sans-s
 
 | Usage | Size | Weight | Color |
 | :--- | :--- | :--- | :--- |
-| **Header Title** | 20px | Bold (700) | `Colors.white` |
+| **Header Title** | 20px | Bold (700), Height 1.25 | `Colors.white` |
 | **Section Header** | 16px | Bold (700) | `AppColors.slate800` |
 | **Input Text** | 14px | Bold (700) | `AppColors.slate900` |
 | **Body Text** | 14px | Medium (500) | `AppColors.slate700` |
@@ -31,7 +31,7 @@ We use the **Inter** font family via `GoogleFonts.interTextTheme()`. This sans-s
 
 ## 3. Colors
 
-All colors are defined in `lib/utils/app_colors.dart`.
+All colors are defined in `lib/utils/app_colors.dart`. We use an HSL-based system to define colors, allowing for easier generation of variations (e.g., hover states).
 
 ### Brand Colors
 - **Primary (`AppColors.brand`)**: `#4F46E5` - Used for primary buttons, active icons, header background, and highlights.
@@ -89,17 +89,19 @@ We follow a consistent 4px grid system, with key values being multiples of 4.
   - Text: `AppColors.brand`, Bold
 
 ### Input Fields
-- **Style**: Flat, filled style with no visible border (unless focused/active logic added).
+- **Style**: Flat, filled style with a 1px `AppColors.slate200` border.
 - **Background**: `AppColors.slate100`
 - **Text Color**: `AppColors.slate700` (Medium) or `AppColors.slate900` (Bold)
 - **Radius**: 12px
 - **Padding**: 12px
 - **Features**: Often accompanied by a colored dot indicator (e.g., Grey for 'From', Black for 'To').
 
-### Cards (Saved Routes, Upcoming Journeys)
+### Cards (Journey Result, Saved Routes, Upcoming Journeys)
 - **Background**: White
-- **Border**: 1px solid `AppColors.slate100` (or `slate200` for unselected filters)
-- **Shadow**: `BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))`
+- **Border**: 1px solid `AppColors.slate200`
+- **Shadow**: Two-shadow system:
+  1. Light top highlight: `BoxShadow(color: Colors.white, offset: Offset(0, -1), blurRadius: 0)`
+  2. Darker soft shadow: `BoxShadow(color: Colors.black12, offset: Offset(0, 2), blurRadius: 4)`
 - **Radius**: 12px
 - **Padding**: 16px (outer), 12px (inner list items)
 
