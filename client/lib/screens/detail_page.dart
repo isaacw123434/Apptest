@@ -738,18 +738,8 @@ class _DetailPageState extends State<DetailPage> {
             child: ScaleOnPress(
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.brandLight, AppColors.brand],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
+                  color: AppColors.brand,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border(
-                    top: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      width: 1.0,
-                    ),
-                  ),
                   boxShadow: const [
                     BoxShadow(
                       color: Colors.black26,
