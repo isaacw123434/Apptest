@@ -42,7 +42,7 @@ class _ModeFilterState extends State<ModeFilter> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Filter Modes',
                   style: TextStyle(
                     fontSize: 14,

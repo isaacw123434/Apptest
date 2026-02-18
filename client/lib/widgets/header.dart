@@ -9,10 +9,10 @@ class Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.brand,
         boxShadow: [
-          BoxShadow(
+          const BoxShadow(
             color: Colors.black12,
             blurRadius: 4,
             offset: Offset(0, 2),
@@ -41,7 +41,7 @@ class Header extends StatelessWidget {
           ),
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColors.brandDark,
               shape: BoxShape.circle,
             ),

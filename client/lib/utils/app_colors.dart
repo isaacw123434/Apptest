@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color brand = Color(0xFF4F46E5);
-  static const Color brandDark = Color(0xFF3730A3);
-  static const Color brandLight = Color(0xFFE0E7FF);
-  static const Color secondary = Color(0xFF0F766E);
+  static Color _hsl(double h, double s, double l) =>
+      HSLColor.fromAHSL(1.0, h, s, l).toColor();
 
-  static const Color slate50 = Color(0xFFF8FAFC);
-  static const Color slate100 = Color(0xFFF1F5F9);
-  static const Color slate200 = Color(0xFFE2E8F0);
-  static const Color slate400 = Color(0xFF94A3B8);
-  static const Color slate500 = Color(0xFF64748B);
-  static const Color slate700 = Color(0xFF334155);
-  static const Color slate800 = Color(0xFF1E293B);
-  static const Color slate900 = Color(0xFF0F172A);
+  static final Color brand = _hsl(243.4, 0.754, 0.586); // #4F46E5
+  static final Color brandDark = _hsl(243.7, 0.545, 0.414); // #3730A3
+  static final Color brandLight = _hsl(226.5, 1.000, 0.939); // #E0E7FF
+  static final Color secondary = _hsl(175.3, 0.774, 0.261); // #0F766E
+  static final Color slate50 = _hsl(210.0, 0.400, 0.980); // #F8FAFC
+  static final Color slate100 = _hsl(210.0, 0.400, 0.961); // #F1F5F9
+  static final Color slate200 = _hsl(214.3, 0.318, 0.914); // #E2E8F0
+  static final Color slate400 = _hsl(215.0, 0.202, 0.651); // #94A3B8
+  static final Color slate500 = _hsl(215.4, 0.163, 0.469); // #64748B
+  static final Color slate700 = _hsl(215.3, 0.250, 0.267); // #334155
+  static final Color slate800 = _hsl(217.2, 0.326, 0.175); // #1E293B
+  static final Color slate900 = _hsl(222.2, 0.474, 0.112); // #0F172A
+  static final Color blue50 = _hsl(213.8, 1.000, 0.969); // #EFF6FF
 
-  static const Color blue50 = Color(0xFFEFF6FF);
+  // Derived colors
+  static final Color brandHover = _hsl(243.4, 0.754, 0.486); // 10% darker than brand
 }
