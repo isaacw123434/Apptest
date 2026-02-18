@@ -279,14 +279,14 @@ class _DetailPageState extends State<DetailPage> {
     if (isStart) {
       return Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF10B981), // Emerald 500
+          color: const Color(0xFF0F172A), // Slate 900
           shape: BoxShape.circle,
           border: Border.all(color: Colors.white, width: 2),
           boxShadow: const [
              BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))
           ]
         ),
-        child: const Icon(LucideIcons.play, size: 12, color: Colors.white),
+        child: const Icon(LucideIcons.circle, size: 12, color: Colors.white),
       );
     } else if (isEnd) {
       return Container(
