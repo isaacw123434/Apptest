@@ -3,7 +3,7 @@
     "firstMile": [
       {
         "id": "cycle",
-        "label": "Cycle to Leeds",
+        "label": "Cycle to Leeds Station",
         "detail": "18 min bike",
         "time": 18,
         "cost": 0.0,
@@ -2110,7 +2110,7 @@
       },
       {
         "id": "drive_park",
-        "label": "Drive & Park to Leeds",
+        "label": "Drive & Park at Leeds Station",
         "detail": "14 min car",
         "time": 14,
         "cost": 24.53985484732872,
@@ -3705,7 +3705,7 @@
       },
       {
         "id": "bus",
-        "label": "Bus to Leeds",
+        "label": "Bus to Leeds Station",
         "detail": "38 min bus",
         "time": 38,
         "cost": 2.0,
@@ -6802,7 +6802,7 @@
       },
       {
         "id": "uber",
-        "label": "Uber to Leeds",
+        "label": "Uber to Leeds Station",
         "detail": "14 min car",
         "time": 14,
         "cost": 8.97,
@@ -77743,7 +77743,7 @@
       "id": "cycle-bus",
       "leg1": {
         "id": "cycle",
-        "label": "Cycle to Leeds",
+        "label": "Cycle to Leeds Station",
         "detail": "18 min bike",
         "time": 18,
         "cost": 0.0,
@@ -83212,7 +83212,7 @@
       "id": "cycle-uber",
       "leg1": {
         "id": "cycle",
-        "label": "Cycle to Leeds",
+        "label": "Cycle to Leeds Station",
         "detail": "18 min bike",
         "time": 18,
         "cost": 0.0,
@@ -87258,7 +87258,7 @@
       "id": "cycle-cycle",
       "leg1": {
         "id": "cycle",
-        "label": "Cycle to Leeds",
+        "label": "Cycle to Leeds Station",
         "detail": "18 min bike",
         "time": 18,
         "cost": 0.0,
@@ -91548,7 +91548,7 @@
       "id": "drive_park-bus",
       "leg1": {
         "id": "drive_park",
-        "label": "Drive & Park to Leeds",
+        "label": "Drive & Park at Leeds Station",
         "detail": "14 min car",
         "time": 14,
         "cost": 24.53985484732872,
@@ -96505,7 +96505,7 @@
       "id": "drive_park-uber",
       "leg1": {
         "id": "drive_park",
-        "label": "Drive & Park to Leeds",
+        "label": "Drive & Park at Leeds Station",
         "detail": "14 min car",
         "time": 14,
         "cost": 24.53985484732872,
@@ -100039,7 +100039,7 @@
       "id": "drive_park-cycle",
       "leg1": {
         "id": "drive_park",
-        "label": "Drive & Park to Leeds",
+        "label": "Drive & Park at Leeds Station",
         "detail": "14 min car",
         "time": 14,
         "cost": 24.53985484732872,
@@ -103817,7 +103817,7 @@
       "id": "bus-bus",
       "leg1": {
         "id": "bus",
-        "label": "Bus to Leeds",
+        "label": "Bus to Leeds Station",
         "detail": "38 min bus",
         "time": 38,
         "cost": 2.0,
@@ -110276,7 +110276,7 @@
       "id": "bus-uber",
       "leg1": {
         "id": "bus",
-        "label": "Bus to Leeds",
+        "label": "Bus to Leeds Station",
         "detail": "38 min bus",
         "time": 38,
         "cost": 2.0,
@@ -115312,7 +115312,7 @@
       "id": "uber-bus",
       "leg1": {
         "id": "uber",
-        "label": "Uber to Leeds",
+        "label": "Uber to Leeds Station",
         "detail": "14 min car",
         "time": 14,
         "cost": 8.97,
@@ -120270,7 +120270,7 @@
       "id": "uber-uber",
       "leg1": {
         "id": "uber",
-        "label": "Uber to Leeds",
+        "label": "Uber to Leeds Station",
         "detail": "14 min car",
         "time": 14,
         "cost": 8.97,
