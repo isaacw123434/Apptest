@@ -72,10 +72,7 @@ class JourneyResultCard extends StatelessWidget {
                 children: [
                   JourneyResultHeader(result: result),
                   const SizedBox(height: 16),
-                  SizedBox(
-                    height: 45,
-                    child: _buildSchematic(result),
-                  ),
+                  _buildSchematic(result),
                   const SizedBox(height: 16),
                   JourneyBadges(
                     result: result,

@@ -88,19 +88,25 @@ class TimelineSummaryView extends StatelessWidget {
           }
         }
 
-        Widget content = Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: segments.asMap().entries.map((entry) {
-            return _buildSegmentWidget(
-              entry.key,
-              entry.value,
-              segmentWidths[entry.key],
-              fontSize,
-              durationFontSize,
-              overlap,
-              selectedConfig,
-            );
-          }).toList(),
+        // IntrinsicHeight allows the Row to size itself to the tallest child (calculated by layout or text)
+        // But since we are manually calculating widths, we might want to ensure a minimum height or let it grow.
+        // The issue was fixed height 45px.
+        // We can wrap the Row in IntrinsicHeight.
+        Widget content = IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: segments.asMap().entries.map((entry) {
+              return _buildSegmentWidget(
+                entry.key,
+                entry.value,
+                segmentWidths[entry.key],
+                fontSize,
+                durationFontSize,
+                overlap,
+                selectedConfig,
+              );
+            }).toList(),
+          ),
         );
 
         if (scrollNeeded) {
@@ -158,43 +164,46 @@ class TimelineSummaryView extends StatelessWidget {
         borderColor: Colors.white,
         overlap: overlap,
         compactPadding: isWalk && config.compactWalk,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
+        child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4), // Add some vertical padding
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
               children: [
-                if (iconData != null)
-                  Icon(iconData, color: textColor, size: iconSize),
-                if (displayText.isNotEmpty) ...[
-                  if (iconData != null) const SizedBox(width: 2),
-                    Flexible(
-                      child: Text(
-                        displayText,
-                        maxLines: 1,
-                        softWrap: false,
-                        overflow: TextOverflow.visible,
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: fontSize,
-                          fontWeight: FontWeight.bold,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (iconData != null)
+                      Icon(iconData, color: textColor, size: iconSize),
+                    if (displayText.isNotEmpty) ...[
+                      if (iconData != null) const SizedBox(width: 2),
+                        Flexible(
+                          child: Text(
+                            displayText,
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.visible,
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: fontSize,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                ]
+                    ]
+                  ],
+                ),
+                Text(
+                  durationText,
+                  maxLines: 1,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: durationFontSize,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
-            Text(
-              durationText,
-              maxLines: 1,
-              style: TextStyle(
-                color: textColor,
-                fontSize: durationFontSize,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
         ),
       ),
     );
