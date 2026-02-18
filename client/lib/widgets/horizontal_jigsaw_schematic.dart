@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../utils/time_utils.dart';
+import '../utils/icon_utils.dart';
 
 class HorizontalJigsawSchematic extends StatelessWidget {
   final List<Segment> segments;
@@ -40,7 +41,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
           double paddingLeft = isFirst ? 6.0 : (overlap + 1.0) * 0.75;
           double paddingRight = isLast ? 6.0 : 2.0;
 
-          IconData? iconData = _getIconData(seg.iconId);
+          IconData? iconData = getIconData(seg.iconId);
           bool hasIcon = iconData != null;
 
           // Icon (16) + Spacing (2)
@@ -165,7 +166,7 @@ class HorizontalJigsawSchematic extends StatelessWidget {
        displayText = '';
     }
 
-    IconData? iconData = _getIconData(seg.iconId);
+    IconData? iconData = getIconData(seg.iconId);
 
     String durationText = formatDuration(seg.time, compact: isWalk);
 
@@ -219,22 +220,6 @@ class HorizontalJigsawSchematic extends StatelessWidget {
     );
   }
 
-  IconData? _getIconData(String iconId) {
-    switch (iconId) {
-      case 'train':
-        return LucideIcons.train;
-      case 'bus':
-        return LucideIcons.bus;
-      case 'car':
-        return LucideIcons.car;
-      case 'bike':
-        return LucideIcons.bike;
-      case 'footprints':
-        return LucideIcons.footprints;
-      default:
-        return null;
-    }
-  }
 }
 
 class HorizontalJigsawSegment extends StatelessWidget {

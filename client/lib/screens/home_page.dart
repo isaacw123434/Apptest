@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/header.dart';
 import '../widgets/search_form.dart';
-import '../widgets/home/mock_route_buttons.dart';
+import '../widgets/home/quick_route_buttons.dart';
 import '../widgets/home/saved_routes_section.dart';
 import '../widgets/home/upcoming_journeys_section.dart';
 import 'summary_page.dart';
@@ -81,7 +81,7 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                     const SizedBox(height: 12),
-                    MockRouteButtons(
+                    QuickRouteButtons(
                       onMockRoute1: () {
                         setState(() {
                           _fromController.text = 'St Chads, Leeds';

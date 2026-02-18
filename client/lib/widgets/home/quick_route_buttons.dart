@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../utils/app_colors.dart';
 
-class MockRouteButtons extends StatelessWidget {
+class QuickRouteButtons extends StatelessWidget {
   final VoidCallback onMockRoute1;
   final VoidCallback onMockRoute2;
 
-  const MockRouteButtons({
+  const QuickRouteButtons({
     super.key,
     required this.onMockRoute1,
     required this.onMockRoute2,

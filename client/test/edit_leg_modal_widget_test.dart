@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:client/models.dart';
-import 'package:client/screens/detail_page.dart';
+import 'package:client/widgets/detail/leg_selector_modal.dart';
 
 void main() {
   testWidgets('LegSelectorModal displays options and handles selection', (WidgetTester tester) async {
