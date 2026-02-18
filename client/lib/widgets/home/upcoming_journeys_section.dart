@@ -12,7 +12,7 @@ class UpcomingJourneysSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Upcoming Journeys',
             style: TextStyle(
               fontWeight: FontWeight.bold,
@@ -44,7 +44,7 @@ class UpcomingJourneysSection extends StatelessWidget {
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
                           'Leeds → York',
                           style: TextStyle(
@@ -88,7 +88,7 @@ class UpcomingJourneysSection extends StatelessWidget {
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
+                  children: [
                     Text(
                       'On time',
                       style: TextStyle(fontSize: 12, color: AppColors.slate400),

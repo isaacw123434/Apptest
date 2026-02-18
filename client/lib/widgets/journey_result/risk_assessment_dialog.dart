@@ -34,7 +34,7 @@ class RiskAssessmentDialog extends StatelessWidget {
                     color: AppColors.blue50,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(LucideIcons.shield, color: AppColors.brand),
+                  child: Icon(LucideIcons.shield, color: AppColors.brand),
                 ),
                 const SizedBox(width: 12),
                 const Text(
@@ -77,7 +77,7 @@ class RiskAssessmentDialog extends StatelessWidget {
                       children: [
                         const Text('Total Score', style: TextStyle(fontWeight: FontWeight.bold)),
                         Text(result.risk.toString(),
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.brand)),
+                            style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.brand)),
                       ],
                     ),
                   ],
@@ -120,7 +120,7 @@ class RiskAssessmentDialog extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: const TextStyle(color: AppColors.slate500)),
+            Text(title, style: TextStyle(color: AppColors.slate500)),
             Text(score.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
           ],
         ),
@@ -129,7 +129,7 @@ class RiskAssessmentDialog extends StatelessWidget {
             padding: const EdgeInsets.only(top: 2),
             child: Text(
               reason,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
                 color: AppColors.slate500,
                 fontStyle: FontStyle.italic,

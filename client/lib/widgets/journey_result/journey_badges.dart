@@ -33,7 +33,7 @@ class JourneyBadges extends StatelessWidget {
                 routeId: routeId,
               ),
             ),
-            child: const InfoBadge(
+            child: InfoBadge(
               text: 'Least Risky',
               icon: LucideIcons.shield,
               backgroundColor: AppColors.blue50,

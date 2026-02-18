@@ -14,7 +14,7 @@ class SavedRoutesSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Saved Routes',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
@@ -24,7 +24,7 @@ class SavedRoutesSection extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {},
-                child: const Text(
+                child: Text(
                   'See All',
                   style: TextStyle(
                     fontSize: 12,
@@ -53,12 +53,12 @@ class SavedRoutesSection extends StatelessWidget {
                         color: AppColors.brandLight,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(LucideIcons.heart, size: 18, color: AppColors.brand),
+                      child: Icon(LucideIcons.heart, size: 18, color: AppColors.brand),
                     ),
                     const SizedBox(width: 12),
                     Text(
                       route,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w500,
                         color: AppColors.slate700,
                       ),

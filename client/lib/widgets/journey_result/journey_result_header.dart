@@ -20,7 +20,7 @@ class JourneyResultHeader extends StatelessWidget {
           children: [
             Text(
               '£${result.cost.toStringAsFixed(2)}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: AppColors.slate900,
@@ -31,7 +31,7 @@ class JourneyResultHeader extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
                   'Via ${result.anchor}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: AppColors.slate500,
@@ -45,7 +45,7 @@ class JourneyResultHeader extends StatelessWidget {
           children: [
             Text(
               formatDuration(result.time),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.slate900,
@@ -55,7 +55,7 @@ class JourneyResultHeader extends StatelessWidget {
               final times = calculateJourneyTimes(result);
               return Text(
                 '${formatTime(times['start']!)} - ${formatTime(times['end']!)}',
-                style: const TextStyle(fontSize: 12, color: AppColors.slate500),
+                style: TextStyle(fontSize: 12, color: AppColors.slate500),
               );
             }),
           ],

@@ -64,7 +64,7 @@ class SearchForm extends StatelessWidget {
             child: TextField(
               controller: controller,
               readOnly: true, // Assuming these are read-only for now as per original code
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w500,
                 color: AppColors.slate700,
               ),
@@ -92,12 +92,12 @@ class SearchForm extends StatelessWidget {
           DropdownButton<String>(
             value: timeType,
             underline: Container(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.bold,
               color: AppColors.slate500,
             ),
-            icon: const Icon(LucideIcons.chevronDown, size: 14, color: AppColors.slate400),
+            icon: Icon(LucideIcons.chevronDown, size: 14, color: AppColors.slate400),
             onChanged: onTimeTypeChanged,
             items: <String>['Depart', 'Arrive']
                 .map<DropdownMenuItem<String>>((String value) {
@@ -112,7 +112,7 @@ class SearchForm extends StatelessWidget {
             child: TextField(
               controller: timeController,
               readOnly: true,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: AppColors.slate900,
