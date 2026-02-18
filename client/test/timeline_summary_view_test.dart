@@ -1,17 +1,17 @@
-import 'package:client/widgets/horizontal_jigsaw_schematic.dart';
+import 'package:client/widgets/timeline_summary_view.dart';
 import 'package:client/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('HorizontalJigsawSchematic has correct padding', (WidgetTester tester) async {
+  testWidgets('TimelineSummaryView has correct padding', (WidgetTester tester) async {
      final segments = [
        Segment(mode: 'walk', label: 'Walk', lineColor: '#000000', iconId: 'footprints', time: 5),
      ];
 
      await tester.pumpWidget(MaterialApp(
        home: Scaffold(
-         body: HorizontalJigsawSchematic(segments: segments, totalTime: 10),
+         body: TimelineSummaryView(segments: segments, totalTime: 10),
        ),
      ));
 
@@ -32,7 +32,7 @@ void main() {
      expect(paddingWidget.padding, const EdgeInsets.only(left: 6, right: 6, top: 1, bottom: 1));
   });
 
-  testWidgets('HorizontalJigsawSchematic layouts multiple segments', (WidgetTester tester) async {
+  testWidgets('TimelineSummaryView layouts multiple segments', (WidgetTester tester) async {
      final segments = [
        Segment(mode: 'walk', label: 'Walk', lineColor: '#000000', iconId: 'footprints', time: 5),
        Segment(mode: 'bus', label: 'Bus', lineColor: '#FF0000', iconId: 'bus', time: 20),
@@ -43,7 +43,7 @@ void main() {
          body: SizedBox(
             width: 500,
             height: 100,
-            child: HorizontalJigsawSchematic(segments: segments, totalTime: 25)
+            child: TimelineSummaryView(segments: segments, totalTime: 25)
          ),
        ),
      ));
@@ -73,7 +73,7 @@ void main() {
      expect(busPadding.padding, const EdgeInsets.only(left: 9.75, right: 6, top: 1, bottom: 1));
   });
 
-  testWidgets('HorizontalJigsawSchematic hides all walk labels', (WidgetTester tester) async {
+  testWidgets('TimelineSummaryView hides all walk labels', (WidgetTester tester) async {
      final segments = [
        Segment(mode: 'walk', label: 'Walk', lineColor: '#000000', iconId: 'footprints', time: 5),
        Segment(mode: 'train', label: 'Train', lineColor: '#FF0000', iconId: 'train', time: 20),
@@ -85,7 +85,7 @@ void main() {
          body: SizedBox(
             width: 500,
             height: 100,
-            child: HorizontalJigsawSchematic(segments: segments, totalTime: 30)
+            child: TimelineSummaryView(segments: segments, totalTime: 30)
          ),
        ),
      ));

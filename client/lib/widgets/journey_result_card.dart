@@ -3,7 +3,7 @@ import '../models.dart';
 import '../utils/app_colors.dart';
 import '../utils/journey_utils.dart';
 import '../screens/detail_page.dart';
-import 'horizontal_jigsaw_schematic.dart';
+import 'timeline_summary_view.dart';
 import 'journey_result/journey_result_header.dart';
 import 'journey_result/journey_badges.dart';
 
@@ -119,7 +119,7 @@ class JourneyResultCard extends StatelessWidget {
     double totalTime = result.time.toDouble();
     if (totalTime == 0) totalTime = 1;
 
-    return HorizontalJigsawSchematic(
+    return TimelineSummaryView(
       segments: processedSegments,
       totalTime: totalTime,
     );

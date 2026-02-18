@@ -3,11 +3,11 @@ import '../models.dart';
 import '../utils/time_utils.dart';
 import '../utils/icon_utils.dart';
 
-class HorizontalJigsawSchematic extends StatelessWidget {
+class TimelineSummaryView extends StatelessWidget {
   final List<Segment> segments;
   final double totalTime;
 
-  const HorizontalJigsawSchematic({
+  const TimelineSummaryView({
     super.key,
     required this.segments,
     required this.totalTime,

@@ -1,10 +1,10 @@
-import 'package:client/widgets/horizontal_jigsaw_schematic.dart';
+import 'package:client/widgets/timeline_summary_view.dart';
 import 'package:client/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('HorizontalJigsawSchematic displays duration text', (WidgetTester tester) async {
+  testWidgets('TimelineSummaryView displays duration text', (WidgetTester tester) async {
      final segments = [
        Segment(mode: 'walk', label: 'Walk', lineColor: '#000000', iconId: 'footprints', time: 5),
        Segment(mode: 'train', label: 'Train', lineColor: '#FF0000', iconId: 'train', time: 65),
@@ -15,7 +15,7 @@ void main() {
          body: SizedBox(
             width: 500,
             height: 100,
-            child: HorizontalJigsawSchematic(segments: segments, totalTime: 70)
+            child: TimelineSummaryView(segments: segments, totalTime: 70)
          ),
        ),
      ));
