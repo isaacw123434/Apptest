@@ -98,10 +98,6 @@ class _SearchSummaryHeaderState extends State<SearchSummaryHeader> {
                     Expanded(
                       child: Row(
                         children: [
-                          Text(
-                            '${widget.displayTimeType} by ',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
                           Flexible(
                             child: Text(
                               widget.displayFrom.split(',')[0],
@@ -122,7 +118,7 @@ class _SearchSummaryHeaderState extends State<SearchSummaryHeader> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            '• ${widget.displayTime}',
+                            '• ${widget.displayTimeType} by ${widget.displayTime}',
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                           ),
                         ],
