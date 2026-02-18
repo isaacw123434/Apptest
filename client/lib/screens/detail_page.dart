@@ -620,7 +620,7 @@ class _DetailPageState extends State<DetailPage> {
           // 2. Sliding Sheet
           DraggableScrollableSheet(
             controller: _sheetController,
-            initialChildSize: 0.35,
+            initialChildSize: 0.25,
             minChildSize: 0.25,
             maxChildSize: 0.9,
             snap: true,
@@ -738,18 +738,8 @@ class _DetailPageState extends State<DetailPage> {
             child: ScaleOnPress(
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.brandLight, AppColors.brand],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
+                  color: AppColors.brand,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border(
-                    top: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      width: 1.0,
-                    ),
-                  ),
                   boxShadow: const [
                     BoxShadow(
                       color: Colors.black26,
@@ -1767,9 +1757,9 @@ class _DetailPageState extends State<DetailPage> {
       LatLng(maxLat, maxLng),
     );
 
-    // Calculate padding to account for bottom sheet (35% of screen height)
+    // Calculate padding to account for bottom sheet (25% of screen height)
     final screenHeight = MediaQuery.of(context).size.height;
-    final bottomPadding = screenHeight * 0.35;
+    final bottomPadding = screenHeight * 0.25;
 
     _mapController!.fitCamera(CameraFit.bounds(
       bounds: bounds,
