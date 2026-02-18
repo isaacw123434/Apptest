@@ -95,7 +95,7 @@ class SearchForm extends StatelessWidget {
             value: timeType,
             underline: Container(),
             style: TextStyle(
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: FontWeight.bold,
               color: AppColors.slate500,
             ),

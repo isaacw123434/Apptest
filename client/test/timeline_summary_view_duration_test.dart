@@ -43,9 +43,9 @@ void main() {
 
      // Check font size
      final Text text1 = tester.widget(find.text('5'));
-     expect(text1.style?.fontSize, 8.0);
+     expect(text1.style?.fontSize, 10.0);
 
      final Text text2 = tester.widget(find.text('1h 5m'));
-     expect(text2.style?.fontSize, 8.0);
+     expect(text2.style?.fontSize, 10.0);
   });
 }

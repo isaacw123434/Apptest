@@ -246,7 +246,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
           Text(
             label.toUpperCase(),
             style: const TextStyle(
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: FontWeight.bold,
               color: Color(0xFF64748B), // Slate 500
             ),
