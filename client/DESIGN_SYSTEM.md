@@ -72,19 +72,34 @@ We follow a consistent 4px grid system, with key values being multiples of 4.
 - **Small**: `8px` - Used for smaller internal elements (e.g., icon backgrounds).
 - **Circle**: Used for avatars and status dots.
 
-## 5. Components
+## 5. Interaction States
+
+**Active (Pressed) State:**
+To make the app feel tactile and responsive, we use a "scale down" animation on press.
+- **Scale:** 0.96
+- **Transition:** 100ms ease-out
+- **Usage:** Applied to buttons and interactive cards.
+- **Note:** Avoid hover states as they can cause issues on touch screens.
+
+## 6. Components
 
 ### Buttons
 - **Primary Button**:
-  - Background: Subtle Gradient (AppColors.brand to AppColors.brandDark)
+  - Background: `AppColors.brand`
   - Text: White, Bold
   - Radius: 12px
   - Padding: Vertical 12px
   - Elevation: 2
+  - Interaction: Scale to 0.96 on press.
+- **Shiny / Gradient Button (e.g., Save Route)**:
+  - Background: Linear Gradient (`AppColors.brandLight` top to `AppColors.brand` bottom)
+  - Top Highlight: 1px white opacity border on the top edge.
+  - Interaction: Scale to 0.96 on press.
 - **Secondary Button**:
   - Background: `AppColors.secondary`
   - Text: White, Bold
   - Radius: 12px
+  - Interaction: Scale to 0.96 on press.
 - **Text Button**:
   - Text: `AppColors.brand`, Bold
 
@@ -122,7 +137,7 @@ We follow a consistent 4px grid system, with key values being multiples of 4.
   - Icon/Text: `AppColors.slate400`
 - **Radius**: 12px
 
-## 6. Icons
+## 7. Icons
 - **Library**: `lucide_icons` package.
 - **Size**: Typically 20px for actions, 16px-18px for indicators.
 - **Color**: Matches text color or `AppColors.brand` for active states.
