@@ -141,3 +141,57 @@ To make the app feel tactile and responsive, we use a "scale down" animation on 
 - **Library**: `lucide_icons` package.
 - **Size**: Typically 20px for actions, 16px-18px for indicators.
 - **Color**: Matches text color or `AppColors.brand` for active states.
+
+## 8. Screen Specific Specifications
+
+### Summary Overview Page
+
+The Summary Overview page is designed for quick scanning and comparison of journey options. It employs a **list-based layout** with card components to present each option clearly.
+
+**Layout & Hierarchy:**
+- **Header:** Contains the search summary (From, To, Time) and mode toggles. Uses a white background with a shadow to separate it from the content.
+- **Tabs:** "Smart", "Fastest", "Cheapest" tabs allow users to filter results based on their priorities.
+- **Result Cards:** Journey options are displayed as cards. The top choice is highlighted with a "TOP CHOICE" banner.
+
+**Timeline Diagram (Horizontal Jigsaw):**
+- **Purpose:** To provide a quick visual representation of the journey segments and modes.
+- **Design:** Uses a custom "jigsaw" style where segments interlock with an overlap of 12.0.
+- **Colors:** Each segment is colored according to the mode's line color (e.g., Purple for Train, Blue for Bus).
+- **Text:** White or Black text based on background luminance for readability. 10px Bold for labels, 8px Bold for duration.
+- **Why:** The jigsaw shape visually connects the segments, emphasizing the seamless nature of the journey. The horizontal layout saves vertical space, allowing more results to be seen at once.
+
+### Detailed View Page
+
+The Detailed View page provides in-depth information about a specific journey. It uses a **split-screen layout** with a map and a bottom sheet.
+
+**Layout & Hierarchy:**
+- **Map Background:** Takes up the full screen, providing geographical context.
+- **Bottom Sheet:** A draggable sheet containing the journey details. It starts at 35% height and can be expanded.
+- **Header:** Displays the total cost, time, and CO2 savings prominently.
+
+**Timeline Diagram (Vertical Node & Card):**
+- **Purpose:** To show the step-by-step itinerary with detailed information for each leg.
+- **Design:** A vertical timeline connecting nodes (stops) and segments (travel).
+- **Nodes:**
+  - **Start:** Green circle with Play icon.
+  - **End:** Dark circle with Flag icon.
+  - **Intermediate:** 16px white circle with colored border (3px).
+  - **Connection:** Connected by a vertical line.
+- **Segments:** Cards displaying mode icon, label, duration, and specific details (e.g., platform, bus frequency).
+- **Visuals:**
+  - **Track:** A 12px grey track (Grey 200) with a 4px colored line runs vertically, guiding the eye.
+  - **Icon Halo:** A 40px circle with a 15% opacity background highlights the mode icon (20px).
+  - **Cards:** White cards with shadows lift the content off the background.
+  - **Padding:** 12px internal padding for cards.
+- **Why:** The vertical layout allows for more detailed information (intermediate stops, costs) without cramping the UI. The card design separates distinct legs of the journey.
+
+**Map Design:**
+- **Polylines:**
+  - **Solid:** For vehicle travel (Train, Bus, Car).
+  - **Dotted:** For walking segments.
+  - **Width:** 6px for visibility.
+- **Markers:**
+  - **Start:** Green circle with "Play" icon.
+  - **End:** Dark/Black circle with "Flag" icon.
+  - **Nodes:** White circles with dark borders for mode changes.
+- **Why:** Differentiating line styles helps users distinguish between active (walking) and passive (riding) travel. Distinct markers clearly indicate the start and end points.
