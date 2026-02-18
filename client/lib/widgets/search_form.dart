@@ -116,7 +116,7 @@ class SearchForm extends StatelessWidget {
               readOnly: true,
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: AppColors.slate900,
               ),
               decoration: const InputDecoration(

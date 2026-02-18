@@ -16,20 +16,37 @@ class QuickRouteButtons extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: ElevatedButton(
-            onPressed: onMockRoute1,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.brand,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppColors.brand, AppColors.brandDark],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              elevation: 2,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 2,
+                  offset: Offset(0, 2),
+                ),
+              ],
             ),
-            child: const Text(
-              'Mock Route 1',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            child: ElevatedButton(
+              onPressed: onMockRoute1,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                'Mock Route 1',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ),
         ),
@@ -40,7 +57,7 @@ class QuickRouteButtons extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.secondary,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),

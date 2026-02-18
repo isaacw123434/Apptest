@@ -23,7 +23,7 @@ We use the **Inter** font family via `GoogleFonts.interTextTheme()`. This sans-s
 | :--- | :--- | :--- | :--- |
 | **Header Title** | 20px | Bold (700), Height 1.25 | `Colors.white` |
 | **Section Header** | 16px | Bold (700) | `AppColors.slate800` |
-| **Input Text** | 14px | Bold (700) | `AppColors.slate900` |
+| **Input Text** | 14px | Medium (500) | `AppColors.slate900` |
 | **Body Text** | 14px | Medium (500) | `AppColors.slate700` |
 | **Button Text** | 14px | Bold (700) | `Colors.white` |
 | **Secondary Label** | 12px | Regular/Bold | `AppColors.slate500` / `AppColors.slate400` |
@@ -76,10 +76,10 @@ We follow a consistent 4px grid system, with key values being multiples of 4.
 
 ### Buttons
 - **Primary Button**:
-  - Background: `AppColors.brand`
+  - Background: Subtle Gradient (AppColors.brand to AppColors.brandDark)
   - Text: White, Bold
   - Radius: 12px
-  - Padding: Vertical 16px
+  - Padding: Vertical 12px
   - Elevation: 2
 - **Secondary Button**:
   - Background: `AppColors.secondary`
@@ -91,7 +91,7 @@ We follow a consistent 4px grid system, with key values being multiples of 4.
 ### Input Fields
 - **Style**: Flat, filled style with a 1px `AppColors.slate200` border.
 - **Background**: `AppColors.slate100`
-- **Text Color**: `AppColors.slate700` (Medium) or `AppColors.slate900` (Bold)
+- **Text Color**: `AppColors.slate700` (Medium) or `AppColors.slate900` (Medium)
 - **Radius**: 12px
 - **Padding**: 12px
 - **Features**: Often accompanied by a colored dot indicator (e.g., Grey for 'From', Black for 'To').
