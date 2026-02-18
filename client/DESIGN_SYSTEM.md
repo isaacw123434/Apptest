@@ -1,126 +1,126 @@
-# Frontend Design System
+# Frontend Design System & Decisions
 
-This document outlines the design system, theme, styles, padding, spacing, and component guidelines for the EndMile application.
+This document serves as the comprehensive guide for the EndMile application's frontend design, including our core design philosophy, key architectural decisions, and the detailed style guide (colors, typography, spacing).
 
-## 1. Design Philosophy & Rationale
+---
 
-**Clean & Modern Aesthetic:**
-The application aims for a clean, modern, and accessible user interface. We prioritize readability and ease of use, especially for commuters who need quick access to information.
+## 1. Design Decisions & Rationale
 
-- **Slate Grays:** We use a comprehensive scale of "Slate" grays (`AppColors.slate50` to `AppColors.slate900`) for backgrounds, text, and borders. This provides a neutral, professional base that is easy on the eyes and avoids the harsh contrast of pure black on white.
-- **Brand Purple:** The primary brand color (`#4F46E5`) is a vibrant purple/indigo. It is used for primary actions, active states, and key visual elements to draw attention without being overwhelming.
-- **Rounded Corners:** We use consistent rounded corners (typically 12px) to soften the UI and make it feel more friendly and modern.
-- **Whitespace:** Generous use of padding (16px) and spacing (12px) ensures that content is not cramped and information is easily digestible.
-- **Subtle Shadows:** Soft shadows are used to create depth and hierarchy, lifting interactive elements like cards and headers off the background.
+Our design choices are driven by the need to present complex journey data in a way that is instantly understandable and actionable for commuters.
 
-## 2. Typography
+### 1.1 The "Jigsaw" Timeline Visualization
+**Decision:** We implemented a custom "Jigsaw" style visualization for journey segments (see `TimelineSummaryView`).
+**Why:** Standard linear timelines often fail to show the *connection* and *flow* between different modes of transport. The jigsaw pieces, with their interlocking connectors, visually represent a seamless journey where one mode hands off to the next. The proportional width of segments (where space allows) gives users an intuitive sense of time distribution.
 
-We use the **Inter** font family via `GoogleFonts.interTextTheme()`. This sans-serif font is highly legible and works well across various screen sizes.
+### 1.2 Color-Coded Badge System
+**Decision:** We use a strict color-coding system for badges to highlight key decision factors.
+- **Emerald Green (Top Choice / Low Emissions):** Green is universally associated with "Good" or "Go". We use it to draw attention to the most recommended route and environmentally friendly options.
+- **Royal Blue (Least Risky):** Blue conveys trust and stability. We use it for the "Least Risky" badge to reassure users about reliability without the urgency of a "warning" color.
+**Why:** Users need to scan multiple options quickly. Color-coded badges allow them to filter information at a glance without reading every detail.
 
-### Type Scale
+### 1.3 Contextual Dot Indicators
+**Decision:** Input fields for "From" and "To" locations are paired with colored dot indicators (Grey for Start, Black for End).
+**Why:** This mirrors the visual language of the map markers. By linking the input field to the map visual, we reduce cognitive load and help users instantly orient themselves.
 
-| Usage | Size | Weight | Color |
-| :--- | :--- | :--- | :--- |
-| **Header Title** | 20px | Bold (700) | `Colors.white` |
-| **Section Header** | 16px | Bold (700) | `AppColors.slate800` |
-| **Input Text** | 14px | Bold (700) | `AppColors.slate900` |
-| **Body Text** | 14px | Medium (500) | `AppColors.slate700` |
-| **Button Text** | 14px | Bold (700) | `Colors.white` |
-| **Secondary Label** | 12px | Regular/Bold | `AppColors.slate500` / `AppColors.slate400` |
-| **Small Label** | 10px | Bold (700) | `AppColors.slate500` |
+### 1.4 "Slate" Neutral Scale
+**Decision:** We avoided pure black (`#000000`) in favor of a deep "Slate" gray (`AppColors.slate900` - `#0F172A`) for text and strong elements.
+**Why:** Pure black on white can cause eye strain due to high contrast. The Slate scale provides a softer, more modern, and professional aesthetic while maintaining excellent readability.
 
-## 3. Colors
+---
 
-All colors are defined in `lib/utils/app_colors.dart`.
+## 2. Colors
 
-### Brand Colors
-- **Primary (`AppColors.brand`)**: `#4F46E5` - Used for primary buttons, active icons, header background, and highlights.
-- **Dark (`AppColors.brandDark`)**: `#3730A3` - Used for darker accents (e.g., user avatar background).
-- **Light (`AppColors.brandLight`)**: `#E0E7FF` - Used for subtle backgrounds (e.g., icon containers).
-- **Blue 50 (`AppColors.blue50`)**: `#EFF6FF` - Used for selected item backgrounds (e.g., active filter mode).
+Colors are central to our brand and usability. Defined in `lib/utils/app_colors.dart`.
 
-### Secondary Colors
-- **Secondary (`AppColors.secondary`)**: `#0F766E` - Used for alternative actions or distinct UI elements (e.g., secondary buttons).
+### Brand Identity
+- **Primary Brand (`#4F46E5`)**: The core violet/indigo used for primary buttons, active states, and headers.
+- **Brand Dark (`#3730A3`)**: Used for depth and emphasis.
+- **Brand Light (`#E0E7FF`)**: Used for subtle backgrounds and hover states.
+- **Secondary Teal (`#0F766E`)**: used for alternative actions.
+
+### Status & Badge Colors
+*Hardcoded in widgets like `JourneyBadges` and `JourneyResultCard`.*
+- **Emerald (Success/Eco)**:
+  - Background: `#ECFDF5` (Emerald 50)
+  - Text/Icon: `#047857` (Emerald 700)
+  - Border: `#D1FAE5` (Emerald 100)
+- **Blue (Info/Safety)**:
+  - Background: `#EFF6FF` (Blue 50)
+  - Text/Icon: `#1D4ED8` (Blue 700)
+  - Border: `#DBEAFE` (Blue 100)
 
 ### Neutral Scale (Slate)
-- **Background (`AppColors.slate50`)**: `#F8FAFC` - Main scaffold background.
-- **Surface (`Colors.white`)**: Card and container backgrounds.
-- **Input Background (`AppColors.slate100`)**: `#F1F5F9` - Background for text fields and search inputs.
-- **Border (`AppColors.slate200`)**: `#E2E8F0` - Borders for unselected states or dividers.
-- **Disabled/Hint (`AppColors.slate400`)**: `#94A3B8` - Icons and text hints.
-- **Secondary Text (`AppColors.slate500`)**: `#64748B` - Subtitles and secondary information.
-- **Body Text (`AppColors.slate700`)**: `#334155` - Primary content text.
-- **Heading Text (`AppColors.slate800`)**: `#1E293B` - Section headings.
-- **Strong Text (`AppColors.slate900`)**: `#0F172A` - High-emphasis text.
+- **Surface (`#F8FAFC` / `#FFFFFF`)**: Backgrounds for pages and cards.
+- **Borders (`#E2E8F0`)**: Subtle dividers and container borders.
+- **Text**:
+  - **Strong**: `#0F172A` (Headings, Input Text)
+  - **Body**: `#334155` (Primary Content)
+  - **Subtle**: `#64748B` (Secondary Labels, Hints)
+
+---
+
+## 3. Typography
+
+Font Family: **Inter** (via `GoogleFonts.interTextTheme`).
+
+### Hierarchy
+| Element | Size | Weight | Color | Usage |
+| :--- | :--- | :--- | :--- | :--- |
+| **Cost Display** | 24px | Bold (700) | `slate900` | Journey price in result card header. |
+| **Page Header** | 20px | Bold (700) | `White` | Main app bar title. |
+| **Duration** | 18px | Bold (700) | `slate900` | Total journey time. |
+| **Section Title** | 16px | Bold (700) | `slate800` | "Saved Routes", "Upcoming Journeys". |
+| **Input Text** | 14px | Bold (700) | `slate900` | User typed text in search fields. |
+| **Body / Labels** | 14px | Medium (500) | `slate700` | General content. |
+| **Small Metadata** | 12px | Medium (500) | `slate500` | "Via...", Time ranges, Secondary details. |
+| **Tiny / Badge** | 10px | Bold (700) | Colored | Text inside badges and timeline segments. |
+
+---
 
 ## 4. Spacing & Layout
 
-We follow a consistent 4px grid system, with key values being multiples of 4.
+We adhere to a **4px grid**, with `12px` and `16px` being the most common values.
 
 ### Padding
-- **Container Padding**: `16px` - Standard padding for cards, sections, and the main container.
-- **Element Padding**: `12px` - Internal padding for input fields, buttons, and list items.
-- **Small Padding**: `8px` - Padding for smaller elements like icons or tight layouts.
+- **Card/Container Padding**: `16px` (Standard for `JourneyResultCard`, `SearchForm` container).
+- **Element Padding**: `12px` (Input fields, List items).
+- **Icon Container**: `8px` (Backgrounds for icons in lists).
 
-### Gaps (Margins/SizedBox)
-- **Section Gap**: `12px` - Space between major sections or input fields.
-- **Item Gap**: `8px` - Space between related items (e.g., icon and text).
-- **Small Gap**: `4px` - Minimal spacing.
+### Margins
+- **Section Spacing**: `16px` (Between cards).
+- **Item Spacing**: `12px` (Between inputs, between list rows).
+- **Internal Gap**: `8px` (Between icon and text).
 
 ### Border Radius
-- **Standard**: `12px` - Used for Cards, Buttons, Input Fields, and Containers.
-- **Small**: `8px` - Used for smaller internal elements (e.g., icon backgrounds).
-- **Circle**: Used for avatars and status dots.
+- **Standard**: `12px` (Cards, Buttons, Inputs).
+- **Small**: `8px` (Icon backgrounds).
+- **Badge**: `4px` (Small info tags).
+- **Pill**: `3px` (Progress bars/Caps).
 
-## 5. Components
+### Shadows
+- **Card Shadow**: `BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))` - Gives a lifted effect.
+- **Subtle Shadow**: `BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))` - For list items.
 
-### Buttons
-- **Primary Button**:
-  - Background: `AppColors.brand`
-  - Text: White, Bold
-  - Radius: 12px
-  - Padding: Vertical 16px
-  - Elevation: 2
-- **Secondary Button**:
-  - Background: `AppColors.secondary`
-  - Text: White, Bold
-  - Radius: 12px
-- **Text Button**:
-  - Text: `AppColors.brand`, Bold
+---
 
-### Input Fields
-- **Style**: Flat, filled style with no visible border (unless focused/active logic added).
-- **Background**: `AppColors.slate100`
-- **Text Color**: `AppColors.slate700` (Medium) or `AppColors.slate900` (Bold)
-- **Radius**: 12px
-- **Padding**: 12px
-- **Features**: Often accompanied by a colored dot indicator (e.g., Grey for 'From', Black for 'To').
+## 5. Components & Visualizations
 
-### Cards (Saved Routes, Upcoming Journeys)
-- **Background**: White
-- **Border**: 1px solid `AppColors.slate100` (or `slate200` for unselected filters)
-- **Shadow**: `BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))`
-- **Radius**: 12px
-- **Padding**: 16px (outer), 12px (inner list items)
+### 5.1 Journey Result Card
+A complex container that summarizes a trip option.
+- **Structure**: Header (Cost/Time) -> Timeline Schematic -> Badges -> Optional "Top Choice" Footer.
+- **Top Choice Banner**: Full-width footer in Emerald 50 with "TOP CHOICE" text.
+- **Interaction**: Tap anywhere to view details.
 
-### Header
-- **Background**: `AppColors.brand`
-- **Text**: White, 20px Bold
-- **Shadow**: `BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))`
-- **Content**: Title "EndMile" and User Avatar.
+### 5.2 Search Form
+- **Inputs**: Flat style, filled `slate100` background, no visible border unless focused (implied), `12px` radius.
+- **Mode Filter**: Expandable dropdown. Selected items turn `Blue 50` with `Brand` colored borders.
 
-### Mode Filter (Toggle)
-- **Selected**:
-  - Background: `AppColors.blue50`
-  - Border: `AppColors.brand`
-  - Icon/Text: `AppColors.brand`
-- **Unselected**:
-  - Background: White
-  - Border: `AppColors.slate200`
-  - Icon/Text: `AppColors.slate400`
-- **Radius**: 12px
+### 5.3 Progress Bar (Upcoming Journeys)
+Used to show journey progress.
+- **Track**: Height `6px`, Color `slate100`, Radius `3px`.
+- **Fill**: Height `6px`, Color `brand`, Radius `3px`.
 
-## 6. Icons
-- **Library**: `lucide_icons` package.
-- **Size**: Typically 20px for actions, 16px-18px for indicators.
-- **Color**: Matches text color or `AppColors.brand` for active states.
+### 5.4 Saved Route Item
+- **Layout**: Row with Icon Box + Text.
+- **Icon Box**: `brandLight` background with `brand` icon.
+- **Container**: White background, `slate100` border, subtle shadow.
