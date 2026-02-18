@@ -62,7 +62,7 @@ void main() {
      expect(walkPadding.padding, const EdgeInsets.only(left: 6, right: 2.0, top: 1, bottom: 1));
 
      // 2. Bus: isFirst=false, isLast=true
-     // left: 8.25 ((overlap + 1) * 0.75) where overlap is 10.0, right: 6
+     // left: 10.25 ((overlap + 1) * 0.75) + 2.0 where overlap is 10.0, right: 6
      final busSegment = find.ancestor(
        of: find.text('Bus'),
        matching: find.byType(HorizontalJigsawSegment),
@@ -70,7 +70,7 @@ void main() {
      final busPadding = tester.widget<Padding>(
        find.descendant(of: busSegment, matching: find.byType(Padding))
      );
-     expect(busPadding.padding, const EdgeInsets.only(left: 8.25, right: 6, top: 1, bottom: 1));
+     expect(busPadding.padding, const EdgeInsets.only(left: 10.25, right: 6, top: 1, bottom: 1));
   });
 
   testWidgets('TimelineSummaryView hides all walk labels', (WidgetTester tester) async {
