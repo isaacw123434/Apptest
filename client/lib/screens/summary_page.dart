@@ -243,10 +243,45 @@ class _SummaryPageState extends State<SummaryPage> {
           }
         }
 
+        final int initialCount = 3;
+        final bool hasMore = _results.length > initialCount;
+        final int displayedCount =
+            (_showAllRoutes || !hasMore) ? _results.length : initialCount;
+        final int itemCount =
+            displayedCount + (hasMore && !_showAllRoutes ? 1 : 0);
+
         return ListView.builder(
           padding: const EdgeInsets.all(16),
-          itemCount: _results.length,
+          itemCount: itemCount,
           itemBuilder: (context, index) {
+            if (hasMore && !_showAllRoutes && index == displayedCount) {
+              final remaining = _results.length - displayedCount;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _showAllRoutes = true;
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFFE2E8F0)), // Slate 200
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: Text(
+                    'View $remaining more routes',
+                    style: const TextStyle(
+                      color: Color(0xFF475569), // Slate 600
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              );
+            }
+
             final result = _results[index];
             final isTopChoice = index == 0;
             final isLeastRisky = result.risk == minRisk;
@@ -261,55 +296,6 @@ class _SummaryPageState extends State<SummaryPage> {
               forceLogos: forceLogos,
             );
           },
-    final int initialCount = 3;
-    final bool hasMore = _results.length > initialCount;
-    final int displayedCount =
-        (_showAllRoutes || !hasMore) ? _results.length : initialCount;
-    final int itemCount = displayedCount + (hasMore && !_showAllRoutes ? 1 : 0);
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: itemCount,
-      itemBuilder: (context, index) {
-        if (hasMore && !_showAllRoutes && index == displayedCount) {
-          final remaining = _results.length - displayedCount;
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: TextButton(
-              onPressed: () {
-                setState(() {
-                  _showAllRoutes = true;
-                });
-              },
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                backgroundColor: Colors.white,
-                side: const BorderSide(color: Color(0xFFE2E8F0)), // Slate 200
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-              ),
-              child: Text(
-                'View $remaining more routes',
-                style: const TextStyle(
-                  color: Color(0xFF475569), // Slate 600
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          );
-        }
-
-        final result = _results[index];
-        final isTopChoice = index == 0;
-        final isLeastRisky = result.risk == minRisk;
-
-        return JourneyResultCard(
-          result: result,
-          isTopChoice: isTopChoice,
-          isLeastRisky: isLeastRisky,
-          routeId: widget.routeId,
-          mainLeg: _mainLeg,
-          selectedModes: _selectedModes,
         );
       },
     );
