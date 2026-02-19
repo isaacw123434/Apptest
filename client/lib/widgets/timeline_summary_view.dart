@@ -3,6 +3,14 @@ import '../models.dart';
 import '../utils/time_utils.dart';
 import '../utils/icon_utils.dart';
 
+const Map<String, String> trainLogos = {
+  'Northern': 'assets/Northern_Logo.jpeg',
+  'CrossCountry': 'assets/CrossCountry_Logo.png',
+  'EMR': 'assets/EMR_Logo.png',
+};
+
+const double logoWidth = 50.0;
+
 class TimelineSummaryView extends StatelessWidget {
   final List<Segment> segments;
   final double totalTime;
@@ -155,6 +163,15 @@ class TimelineSummaryView extends StatelessWidget {
     String durationText = formatDuration(seg.time, compact: isWalk);
     double iconSize = (isWalk && config.smallWalkIcon) ? 12.0 : 16.0;
 
+    bool useLogo = false;
+    String? logoPath;
+    if (config.simplifyTrain &&
+        seg.mode.toLowerCase() == 'train' &&
+        trainLogos.containsKey(seg.label)) {
+      useLogo = true;
+      logoPath = trainLogos[seg.label];
+    }
+
     return SizedBox(
       width: width,
       child: HorizontalJigsawSegment(
@@ -165,45 +182,55 @@ class TimelineSummaryView extends StatelessWidget {
         overlap: overlap,
         compactPadding: isWalk && config.compactWalk,
         child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4), // Add some vertical padding
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
+          padding: const EdgeInsets.symmetric(
+              vertical: 4), // Add some vertical padding
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (useLogo && logoPath != null)
+                    Image.asset(
+                      logoPath,
+                      height: 20,
+                      width: logoWidth,
+                      fit: BoxFit.contain,
+                    )
+                  else ...[
                     if (iconData != null)
                       Icon(iconData, color: textColor, size: iconSize),
                     if (displayText.isNotEmpty) ...[
                       if (iconData != null) const SizedBox(width: 2),
-                        Flexible(
-                          child: Text(
-                            displayText,
-                            maxLines: 1,
-                            softWrap: false,
-                            overflow: TextOverflow.visible,
-                            style: TextStyle(
-                              color: textColor,
-                              fontSize: fontSize,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      Flexible(
+                        child: Text(
+                          displayText,
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.visible,
+                          style: TextStyle(
+                            color: textColor,
+                            fontSize: fontSize,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
+                      ),
                     ]
-                  ],
+                  ]
+                ],
+              ),
+              Text(
+                durationText,
+                maxLines: 1,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: durationFontSize,
+                  fontWeight: FontWeight.bold,
                 ),
-                Text(
-                  durationText,
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: durationFontSize,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -236,7 +263,7 @@ class HorizontalJigsawSegment extends StatelessWidget {
     // Standard left padding calculation
     // If compactPadding is true, we reduce the padding slightly
     double leftP = isFirst ? 6 : (overlap + 1.0) * 0.75;
-    double rightP = isLast ? 6.0 : 2.0;
+    double rightP = isLast ? 6.0 : 8.0;
 
     if (compactPadding) {
       // Reduce padding if compact is requested (mainly for walks)
@@ -352,8 +379,15 @@ _LayoutResult _calculateLayout(
         paddingRight = 1.0;
       }
     } else {
-       paddingLeft = isFirst ? 6.0 : (overlap + 1.0) * 0.75;
-       paddingRight = isLast ? 6.0 : 2.0;
+      paddingLeft = isFirst ? 6.0 : (overlap + 1.0) * 0.75;
+      paddingRight = isLast ? 6.0 : 8.0;
+    }
+
+    bool useLogo = false;
+    if (config.simplifyTrain &&
+        seg.mode.toLowerCase() == 'train' &&
+        trainLogos.containsKey(seg.label)) {
+      useLogo = true;
     }
 
     IconData? iconData = getIconData(seg.iconId);
@@ -366,7 +400,10 @@ _LayoutResult _calculateLayout(
     String displayText = _getDisplayText(seg, config);
 
     if (isWalk) {
-       contentBase = hasIcon ? iconSize : 0.0;
+      contentBase = hasIcon ? iconSize : 0.0;
+    } else if (useLogo) {
+      contentBase = logoWidth;
+      displayText = '';
     }
 
     final textPainter = TextPainter(
@@ -397,11 +434,16 @@ _LayoutResult _calculateLayout(
       maxLines: 1,
     )..layout();
 
-    double topContentWidth = contentBase + (displayText.isNotEmpty ? textPainter.width : 0);
+    double topContentWidth =
+        contentBase + (displayText.isNotEmpty ? textPainter.width : 0);
     double bottomContentWidth = durationPainter.width;
-    double maxContentWidth = topContentWidth > bottomContentWidth ? topContentWidth : bottomContentWidth;
+    double maxContentWidth = topContentWidth > bottomContentWidth
+        ? topContentWidth
+        : bottomContentWidth;
 
-    double minW = (paddingLeft + maxContentWidth + paddingRight + 0.5).ceilToDouble() + 4.0;
+    double minW = (paddingLeft + maxContentWidth + paddingRight + 0.5)
+            .ceilToDouble() +
+        4.0;
 
     if (isWalk) {
       minW -= 4.0;
