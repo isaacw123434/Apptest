@@ -15,12 +15,37 @@ const double logoWidth = 50.0;
 class TimelineSummaryView extends StatelessWidget {
   final List<Segment> segments;
   final double totalTime;
+  final int minCompressionLevel;
 
   const TimelineSummaryView({
     super.key,
     required this.segments,
     required this.totalTime,
+    this.minCompressionLevel = 0,
   });
+
+  static final List<CompressionConfig> levels = [
+    const CompressionConfig(), // Level 0: Standard
+    const CompressionConfig(simplifyBus: true), // Level 1
+    const CompressionConfig(simplifyBus: true, simplifyTrain: true), // Level 2
+    const CompressionConfig(simplifyBus: true, simplifyTrain: true, compactWalk: true), // Level 3
+    const CompressionConfig(simplifyBus: true, simplifyTrain: true, compactWalk: true, smallWalkIcon: true), // Level 4
+  ];
+
+  static int calculateRequiredLevel(List<Segment> segments, double availableWidth, TextScaler textScaler) {
+    const double overlap = 10.0;
+    // Assume 1000 if infinite, similar to build method logic, though caller should provide valid width
+    final double effectiveWidth = availableWidth.isFinite ? availableWidth : 1000.0;
+
+    for (int i = 0; i < levels.length; i++) {
+      final config = levels[i];
+      final result = _calculateLayout(segments, textScaler, config, overlap);
+      if (result.totalMinWidth <= effectiveWidth) {
+        return i;
+      }
+    }
+    return levels.length - 1;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +53,6 @@ class TimelineSummaryView extends StatelessWidget {
       builder: (context, constraints) {
         final TextScaler textScaler = MediaQuery.of(context).textScaler;
         final availableWidth = constraints.maxWidth;
-        // If availableWidth is infinite (e.g. in scroll view), use a default or screen width
         final double effectiveWidth = availableWidth.isFinite
             ? availableWidth
             : 1000.0;
@@ -37,34 +61,25 @@ class TimelineSummaryView extends StatelessWidget {
         const double durationFontSize = 10.0;
         const double overlap = 10.0;
 
-        // Determine the best configuration by trying progressively more compact options
-        final levels = [
-          const _CompressionConfig(), // Level 0: Standard
-          const _CompressionConfig(simplifyBus: true), // Level 1
-          const _CompressionConfig(simplifyBus: true, simplifyTrain: true), // Level 2
-          const _CompressionConfig(simplifyBus: true, simplifyTrain: true, compactWalk: true), // Level 3
-          const _CompressionConfig(simplifyBus: true, simplifyTrain: true, compactWalk: true, smallWalkIcon: true), // Level 4
-        ];
-
-        _CompressionConfig selectedConfig = levels[0];
+        CompressionConfig selectedConfig = levels[0];
         _LayoutResult layoutResult = _calculateLayout(segments, textScaler, selectedConfig, overlap);
+
+        // Start checking from minCompressionLevel
+        int startLevel = minCompressionLevel;
+        if (startLevel >= levels.length) startLevel = levels.length - 1;
+
         bool fits = false;
 
-        // Check if standard fits
-        if (layoutResult.totalMinWidth <= effectiveWidth) {
-          fits = true;
-        } else {
-          // Try other levels
-          for (int i = 1; i < levels.length; i++) {
-             final config = levels[i];
-             final result = _calculateLayout(segments, textScaler, config, overlap);
-             if (result.totalMinWidth <= effectiveWidth) {
-               selectedConfig = config;
-               layoutResult = result;
-               fits = true;
-               break;
-             }
-          }
+        // Try finding a level that fits, starting from startLevel
+        for (int i = startLevel; i < levels.length; i++) {
+           final config = levels[i];
+           final result = _calculateLayout(segments, textScaler, config, overlap);
+           if (result.totalMinWidth <= effectiveWidth) {
+             selectedConfig = config;
+             layoutResult = result;
+             fits = true;
+             break;
+           }
         }
 
         // If still doesn't fit, use the most compact one
@@ -97,10 +112,6 @@ class TimelineSummaryView extends StatelessWidget {
           }
         }
 
-        // IntrinsicHeight allows the Row to size itself to the tallest child (calculated by layout or text)
-        // But since we are manually calculating widths, we might want to ensure a minimum height or let it grow.
-        // The issue was fixed height 45px.
-        // We can wrap the Row in IntrinsicHeight.
         Widget content = IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -137,7 +148,7 @@ class TimelineSummaryView extends StatelessWidget {
     double fontSize,
     double durationFontSize,
     double overlap,
-    _CompressionConfig config,
+    CompressionConfig config,
   ) {
     final isFirst = index == 0;
     final isLast = index == segments.length - 1;
@@ -196,8 +207,20 @@ class TimelineSummaryView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (useLogo) ...[
+                    // Add Lucide train icon always if logos are used, as requested.
+                    // "even with the train brand logos we still need the lucidide train logo"
+                    if (iconData != null)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4.0),
+                        child: Icon(iconData, color: textColor, size: iconSize),
+                      ),
+
                     for (int k = 0; k < labelParts.length; k++) ...[
-                      if (k > 0) const SizedBox(width: 4),
+                      if (k > 0) ...[
+                        const SizedBox(width: 2),
+                        Icon(Icons.add, color: textColor, size: 10),
+                        const SizedBox(width: 2),
+                      ],
                       if (trainLogos.containsKey(labelParts[k]))
                         Builder(builder: (context) {
                           double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
@@ -207,10 +230,21 @@ class TimelineSummaryView extends StatelessWidget {
                             width: w,
                             fit: BoxFit.contain,
                           );
-                          if (labelParts[k] != 'EMR') {
+                          if (labelParts[k] == 'EMR') {
+                            // EMR: White background + circular cutout (ClipOval on Container)
+                            return ClipOval(
+                              child: Container(
+                                color: Colors.white,
+                                height: 20,
+                                width: w, // 50.0 for EMR
+                                alignment: Alignment.center,
+                                child: img,
+                              ),
+                            );
+                          } else {
+                            // Others: Circular cutout
                             return ClipOval(child: img);
                           }
-                          return img;
                         })
                       else
                         Flexible(
@@ -330,13 +364,13 @@ class HorizontalJigsawSegment extends StatelessWidget {
   }
 }
 
-class _CompressionConfig {
+class CompressionConfig {
   final bool simplifyBus;
   final bool simplifyTrain;
   final bool compactWalk;
   final bool smallWalkIcon;
 
-  const _CompressionConfig({
+  const CompressionConfig({
     this.simplifyBus = false,
     this.simplifyTrain = false,
     this.compactWalk = false,
@@ -351,7 +385,7 @@ class _LayoutResult {
   _LayoutResult(this.minWidths, this.totalMinWidth);
 }
 
-String _getDisplayText(Segment seg, _CompressionConfig config) {
+String _getDisplayText(Segment seg, CompressionConfig config) {
   String displayText = seg.label;
   bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
 
@@ -374,7 +408,7 @@ String _getDisplayText(Segment seg, _CompressionConfig config) {
 _LayoutResult _calculateLayout(
   List<Segment> segments,
   TextScaler textScaler,
-  _CompressionConfig config,
+  CompressionConfig config,
   double overlap,
 ) {
   const double fontSize = 12.0;
@@ -439,10 +473,16 @@ _LayoutResult _calculateLayout(
       contentBase = 0.0;
       displayText = '';
 
+      // Calculate width with extra icon
+      if (hasIcon) {
+        contentBase += iconSize + 4.0;
+      }
+
       for (int k = 0; k < labelParts.length; k++) {
         String part = labelParts[k];
         if (k > 0) {
-           contentBase += 4.0; // Space between parts, enough for a small + if needed
+           // Spacer (2) + Icon(+) (10) + Spacer (2) = 14.0
+           contentBase += 14.0;
         }
 
         if (trainLogos.containsKey(part)) {
