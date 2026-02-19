@@ -69,7 +69,7 @@ void main() {
      final walkPaddings = find.descendant(of: find.byWidget(segmentsWidgets[0]), matching: find.byType(Padding));
      final Padding walkOuterPadding = tester.widget(walkPaddings.first);
 
-     expect(walkOuterPadding.padding, const EdgeInsets.only(left: 6, right: 8.0, top: 1, bottom: 1));
+     expect(walkOuterPadding.padding, const EdgeInsets.only(left: 6, right: 4.0, top: 1, bottom: 1));
 
      // 2. Bus: isFirst=false, isLast=true
      // left: 8.25 ((overlap + 1) * 0.75) where overlap is 10.0, right: 6

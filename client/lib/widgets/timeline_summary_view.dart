@@ -263,7 +263,7 @@ class HorizontalJigsawSegment extends StatelessWidget {
     // Standard left padding calculation
     // If compactPadding is true, we reduce the padding slightly
     double leftP = isFirst ? 6 : (overlap + 1.0) * 0.75;
-    double rightP = isLast ? 6.0 : 8.0;
+    double rightP = isLast ? 6.0 : 4.0;
 
     if (compactPadding) {
       // Reduce padding if compact is requested (mainly for walks)
@@ -380,7 +380,7 @@ _LayoutResult _calculateLayout(
       }
     } else {
       paddingLeft = isFirst ? 6.0 : (overlap + 1.0) * 0.75;
-      paddingRight = isLast ? 6.0 : 8.0;
+      paddingRight = isLast ? 6.0 : 4.0;
     }
 
     bool useLogo = false;
