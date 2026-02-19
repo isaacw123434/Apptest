@@ -205,7 +205,7 @@ class TimelineSummaryView extends StatelessWidget {
     List<String> labelParts = seg.label.split(' + ');
     bool useLogo = false;
 
-    if (config.simplifyTrain && seg.mode.toLowerCase() == 'train') {
+    if (seg.mode.toLowerCase() == 'train') {
       for (var part in labelParts) {
         if (trainLogos.containsKey(part)) {
           useLogo = true;
@@ -257,7 +257,7 @@ class TimelineSummaryView extends StatelessWidget {
                             width: w,
                             fit: BoxFit.contain,
                           );
-                          if (labelParts[k] == 'EMR') {
+                          if (labelParts[k] == 'CrossCountry') {
                             return Container(
                               decoration: const BoxDecoration(
                                 color: Colors.white,
@@ -471,7 +471,7 @@ _LayoutResult _calculateLayout(
     List<String> labelParts = seg.label.split(' + ');
     bool useLogo = false;
 
-    if (config.simplifyTrain && seg.mode.toLowerCase() == 'train') {
+    if (seg.mode.toLowerCase() == 'train') {
       for (var part in labelParts) {
         if (trainLogos.containsKey(part)) {
           useLogo = true;
