@@ -7,6 +7,7 @@ const Map<String, String> trainLogos = {
   'Northern': 'assets/Northern_Logo.jpeg',
   'CrossCountry': 'assets/CrossCountry_Logo.png',
   'EMR': 'assets/EMR_Logo.png',
+  'Transpennine Express': 'assets/Transpennine_Logo.png',
 };
 
 const double logoWidth = 50.0;
@@ -163,13 +164,16 @@ class TimelineSummaryView extends StatelessWidget {
     String durationText = formatDuration(seg.time, compact: isWalk);
     double iconSize = (isWalk && config.smallWalkIcon) ? 12.0 : 16.0;
 
+    List<String> labelParts = seg.label.split(' + ');
     bool useLogo = false;
-    String? logoPath;
-    if (config.simplifyTrain &&
-        seg.mode.toLowerCase() == 'train' &&
-        trainLogos.containsKey(seg.label)) {
-      useLogo = true;
-      logoPath = trainLogos[seg.label];
+
+    if (config.simplifyTrain && seg.mode.toLowerCase() == 'train') {
+       for (var part in labelParts) {
+         if (trainLogos.containsKey(part)) {
+           useLogo = true;
+           break;
+         }
+       }
     }
 
     return SizedBox(
@@ -183,7 +187,7 @@ class TimelineSummaryView extends StatelessWidget {
         compactPadding: isWalk && config.compactWalk,
         child: Padding(
           padding: const EdgeInsets.symmetric(
-              vertical: 4), // Add some vertical padding
+              vertical: 8), // Add some vertical padding
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -191,14 +195,39 @@ class TimelineSummaryView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (useLogo && logoPath != null)
-                    Image.asset(
-                      logoPath,
-                      height: 20,
-                      width: logoWidth,
-                      fit: BoxFit.contain,
-                    )
-                  else ...[
+                  if (useLogo) ...[
+                    for (int k = 0; k < labelParts.length; k++) ...[
+                      if (k > 0) const SizedBox(width: 4),
+                      if (trainLogos.containsKey(labelParts[k]))
+                        Builder(builder: (context) {
+                          double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
+                          Widget img = Image.asset(
+                            trainLogos[labelParts[k]]!,
+                            height: 20,
+                            width: w,
+                            fit: BoxFit.contain,
+                          );
+                          if (labelParts[k] != 'EMR') {
+                            return ClipOval(child: img);
+                          }
+                          return img;
+                        })
+                      else
+                        Flexible(
+                          child: Text(
+                            labelParts[k],
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.visible,
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: fontSize,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                    ]
+                  ] else ...[
                     if (iconData != null)
                       Icon(iconData, color: textColor, size: iconSize),
                     if (displayText.isNotEmpty) ...[
@@ -383,11 +412,16 @@ _LayoutResult _calculateLayout(
       paddingRight = isLast ? 6.0 : 4.0;
     }
 
+    List<String> labelParts = seg.label.split(' + ');
     bool useLogo = false;
-    if (config.simplifyTrain &&
-        seg.mode.toLowerCase() == 'train' &&
-        trainLogos.containsKey(seg.label)) {
-      useLogo = true;
+
+    if (config.simplifyTrain && seg.mode.toLowerCase() == 'train') {
+       for (var part in labelParts) {
+         if (trainLogos.containsKey(part)) {
+           useLogo = true;
+           break;
+         }
+       }
     }
 
     IconData? iconData = getIconData(seg.iconId);
@@ -402,8 +436,35 @@ _LayoutResult _calculateLayout(
     if (isWalk) {
       contentBase = hasIcon ? iconSize : 0.0;
     } else if (useLogo) {
-      contentBase = logoWidth;
+      contentBase = 0.0;
       displayText = '';
+
+      for (int k = 0; k < labelParts.length; k++) {
+        String part = labelParts[k];
+        if (k > 0) {
+           contentBase += 4.0; // Space between parts, enough for a small + if needed
+        }
+
+        if (trainLogos.containsKey(part)) {
+          double w = (part == 'EMR') ? logoWidth : 20.0;
+          contentBase += w;
+        } else {
+           // Measure text for this part
+           final partPainter = TextPainter(
+              text: TextSpan(
+                text: part,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              textDirection: TextDirection.ltr,
+              textScaler: textScaler,
+              maxLines: 1,
+            )..layout();
+            contentBase += partPainter.width;
+        }
+      }
     }
 
     final textPainter = TextPainter(
