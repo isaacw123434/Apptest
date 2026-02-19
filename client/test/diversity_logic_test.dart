@@ -39,10 +39,12 @@ void main() {
     final finalResults = RouteSelector.selectJourneys(results, 'fastest');
 
     // Verification
-    expect(finalResults.length, 3);
+    expect(finalResults.length, 5);
     expect(finalResults[0].id, 'brough_0700'); // Best Brough
     expect(finalResults[1].id, 'beverley_0715'); // Best Beverley (Alternative)
     expect(finalResults[2].id, 'brough_0730'); // Next Best Brough (Fallback)
+    expect(finalResults[3].id, 'brough_0800'); // Next Best Brough (Fallback)
+    expect(finalResults[4].id, 'beverley_0815'); // Next Best Beverley (Fallback)
   });
 
   test('Anchor Extraction Case Insensitivity', () {

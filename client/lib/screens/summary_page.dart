@@ -15,6 +15,7 @@ class SummaryPage extends StatefulWidget {
   final String time;
   final Map<String, bool> selectedModes;
   final String? routeId;
+  final ApiService? apiService;
 
   const SummaryPage({
     super.key,
@@ -24,6 +25,7 @@ class SummaryPage extends StatefulWidget {
     required this.time,
     required this.selectedModes,
     this.routeId,
+    this.apiService,
   });
 
   @override
@@ -31,12 +33,13 @@ class SummaryPage extends StatefulWidget {
 }
 
 class _SummaryPageState extends State<SummaryPage> {
-  final ApiService _apiService = ApiService();
+  late final ApiService _apiService;
 
   List<JourneyResult> _results = [];
   DirectDrive? _directDrive;
   Leg? _mainLeg;
   bool _isLoading = true;
+  bool _showAllRoutes = false;
   String _activeTab = 'smart'; // smart, fastest, cheapest
   String? _errorMessage;
   final Map<String, List<JourneyResult>> _resultsCache = {};
@@ -56,6 +59,7 @@ class _SummaryPageState extends State<SummaryPage> {
   @override
   void initState() {
     super.initState();
+    _apiService = widget.apiService ?? ApiService();
     _displayFrom = widget.from;
     _displayTo = widget.to;
     _displayTimeType = widget.timeType;
@@ -257,6 +261,55 @@ class _SummaryPageState extends State<SummaryPage> {
               forceLogos: forceLogos,
             );
           },
+    final int initialCount = 3;
+    final bool hasMore = _results.length > initialCount;
+    final int displayedCount =
+        (_showAllRoutes || !hasMore) ? _results.length : initialCount;
+    final int itemCount = displayedCount + (hasMore && !_showAllRoutes ? 1 : 0);
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: itemCount,
+      itemBuilder: (context, index) {
+        if (hasMore && !_showAllRoutes && index == displayedCount) {
+          final remaining = _results.length - displayedCount;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: TextButton(
+              onPressed: () {
+                setState(() {
+                  _showAllRoutes = true;
+                });
+              },
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: Color(0xFFE2E8F0)), // Slate 200
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text(
+                'View $remaining more routes',
+                style: const TextStyle(
+                  color: Color(0xFF475569), // Slate 600
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          );
+        }
+
+        final result = _results[index];
+        final isTopChoice = index == 0;
+        final isLeastRisky = result.risk == minRisk;
+
+        return JourneyResultCard(
+          result: result,
+          isTopChoice: isTopChoice,
+          isLeastRisky: isLeastRisky,
+          routeId: widget.routeId,
+          mainLeg: _mainLeg,
+          selectedModes: _selectedModes,
         );
       },
     );
