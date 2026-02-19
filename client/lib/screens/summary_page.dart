@@ -6,6 +6,8 @@ import '../widgets/journey_result_card.dart';
 import '../widgets/summary/driving_baseline_card.dart';
 import '../widgets/summary/journey_tabs.dart';
 import '../widgets/summary/search_summary_header.dart';
+import '../widgets/timeline_summary_view.dart';
+import '../utils/journey_utils.dart';
 
 class SummaryPage extends StatefulWidget {
   final String from;
@@ -215,23 +217,50 @@ class _SummaryPageState extends State<SummaryPage> {
       minRisk = _results.map((r) => r.risk).reduce((a, b) => a < b ? a : b);
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _results.length,
-      itemBuilder: (context, index) {
-        final result = _results[index];
-        final isTopChoice = index == 0;
-        final isLeastRisky = result.risk == minRisk;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate max required compression level across all results for this tab
+        int maxRequiredLevel = 0;
+        // Width available for the timeline view:
+        // Screen width - List Padding (16*2) - Card Border (1*2) - Card Padding (16*2) = -66
+        final double availableWidth = constraints.maxWidth - 66;
+        final TextScaler textScaler = MediaQuery.of(context).textScaler;
 
-        return JourneyResultCard(
-          result: result,
-          isTopChoice: isTopChoice,
-          isLeastRisky: isLeastRisky,
-          routeId: widget.routeId,
-          mainLeg: _mainLeg,
-          selectedModes: _selectedModes,
+        for (var result in _results) {
+           final segments = collectSchematicSegments(result, _mainLeg);
+           final level = TimelineSummaryView.calculateRequiredLevel(segments, availableWidth, textScaler);
+           if (level > maxRequiredLevel) {
+             maxRequiredLevel = level;
+           }
+        }
+
+        // If maxRequiredLevel >= 2 (which corresponds to simplifyTrain=true),
+        // enforce at least level 2 for all cards to ensure consistent branding.
+        int enforcedLevel = 0;
+        if (maxRequiredLevel >= 2) {
+           enforcedLevel = 2;
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: _results.length,
+          itemBuilder: (context, index) {
+            final result = _results[index];
+            final isTopChoice = index == 0;
+            final isLeastRisky = result.risk == minRisk;
+
+            return JourneyResultCard(
+              result: result,
+              isTopChoice: isTopChoice,
+              isLeastRisky: isLeastRisky,
+              routeId: widget.routeId,
+              mainLeg: _mainLeg,
+              selectedModes: _selectedModes,
+              minCompressionLevel: enforcedLevel,
+            );
+          },
         );
-      },
+      }
     );
   }
 }

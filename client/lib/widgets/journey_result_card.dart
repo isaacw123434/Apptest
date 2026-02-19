@@ -14,6 +14,7 @@ class JourneyResultCard extends StatelessWidget {
   final String? routeId;
   final Leg? mainLeg;
   final Map<String, bool> selectedModes;
+  final int minCompressionLevel;
 
   const JourneyResultCard({
     super.key,
@@ -23,6 +24,7 @@ class JourneyResultCard extends StatelessWidget {
     this.routeId,
     this.mainLeg,
     required this.selectedModes,
+    this.minCompressionLevel = 0,
   });
 
   @override
@@ -106,25 +108,7 @@ class JourneyResultCard extends StatelessWidget {
   }
 
   Widget _buildSchematic(JourneyResult result) {
-    // Collect all segments
-    List<Segment> processedSegments = [];
-    processedSegments.addAll(processSegments(result.leg1.segments));
-
-    if (mainLeg != null) {
-      processedSegments.addAll(processSegments(mainLeg!.segments));
-    } else {
-      processedSegments.addAll(processSegments([
-        Segment(
-          mode: 'train',
-          label: 'CrossCountry',
-          lineColor: '#713e8d',
-          iconId: 'train',
-          time: 102,
-        )
-      ]));
-    }
-
-    processedSegments.addAll(processSegments(result.leg3.segments));
+    List<Segment> processedSegments = collectSchematicSegments(result, mainLeg);
 
     double totalTime = result.time.toDouble();
     if (totalTime == 0) totalTime = 1;
@@ -132,6 +116,7 @@ class JourneyResultCard extends StatelessWidget {
     return TimelineSummaryView(
       segments: processedSegments,
       totalTime: totalTime,
+      minCompressionLevel: minCompressionLevel,
     );
   }
 }

@@ -131,6 +131,28 @@ List<Segment> processSegments(List<Segment> rawSegments) {
   return finalPass;
 }
 
+List<Segment> collectSchematicSegments(JourneyResult result, Leg? mainLeg) {
+  List<Segment> processedSegments = [];
+  processedSegments.addAll(processSegments(result.leg1.segments));
+
+  if (mainLeg != null) {
+    processedSegments.addAll(processSegments(mainLeg.segments));
+  } else {
+    processedSegments.addAll(processSegments([
+      Segment(
+        mode: 'train',
+        label: 'CrossCountry',
+        lineColor: '#713e8d',
+        iconId: 'train',
+        time: 102,
+      )
+    ]));
+  }
+
+  processedSegments.addAll(processSegments(result.leg3.segments));
+  return processedSegments;
+}
+
 Map<String, TimeOfDay> calculateJourneyTimes(JourneyResult result) {
   // Main Leg Departure = 8:03 AM (483 minutes)
   final int mainLegDepartMinutes = 8 * 60 + 3;
