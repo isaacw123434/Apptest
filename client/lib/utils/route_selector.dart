@@ -63,7 +63,7 @@ class RouteSelector {
 
     List<JourneyResult> finalResults = [];
     Set<String> usedAnchors = {};
-    int slots = 3;
+    int slots = 999;
 
     // Round 1: Diversity
     for (var key in sortedKeys) {
