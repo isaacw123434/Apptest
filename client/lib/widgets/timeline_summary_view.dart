@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../utils/time_utils.dart';
 import '../utils/icon_utils.dart';
@@ -15,12 +16,41 @@ const double logoWidth = 50.0;
 class TimelineSummaryView extends StatelessWidget {
   final List<Segment> segments;
   final double totalTime;
+  final bool forceLogos;
 
   const TimelineSummaryView({
     super.key,
     required this.segments,
     required this.totalTime,
+    this.forceLogos = false,
   });
+
+  static bool checkIfLogosNeeded(
+    List<Segment> segments,
+    double availableWidth,
+    TextScaler textScaler,
+  ) {
+    // Check if standard config (Level 0) fits
+    const standardConfig = _CompressionConfig();
+    final standardLayout =
+        _calculateLayout(segments, textScaler, standardConfig, 10.0);
+
+    if (standardLayout.totalMinWidth <= availableWidth) {
+      return false;
+    }
+
+    // Check if simplifyBus (Level 1) fits
+    const level1Config = _CompressionConfig(simplifyBus: true);
+    final level1Layout =
+        _calculateLayout(segments, textScaler, level1Config, 10.0);
+
+    if (level1Layout.totalMinWidth <= availableWidth) {
+      return false;
+    }
+
+    // Otherwise, we likely need logos (Level 2+)
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +59,8 @@ class TimelineSummaryView extends StatelessWidget {
         final TextScaler textScaler = MediaQuery.of(context).textScaler;
         final availableWidth = constraints.maxWidth;
         // If availableWidth is infinite (e.g. in scroll view), use a default or screen width
-        final double effectiveWidth = availableWidth.isFinite
-            ? availableWidth
-            : 1000.0;
+        final double effectiveWidth =
+            availableWidth.isFinite ? availableWidth : 1000.0;
 
         const double fontSize = 12.0;
         const double durationFontSize = 10.0;
@@ -39,15 +68,25 @@ class TimelineSummaryView extends StatelessWidget {
 
         // Determine the best configuration by trying progressively more compact options
         final levels = [
-          const _CompressionConfig(), // Level 0: Standard
-          const _CompressionConfig(simplifyBus: true), // Level 1
-          const _CompressionConfig(simplifyBus: true, simplifyTrain: true), // Level 2
-          const _CompressionConfig(simplifyBus: true, simplifyTrain: true, compactWalk: true), // Level 3
-          const _CompressionConfig(simplifyBus: true, simplifyTrain: true, compactWalk: true, smallWalkIcon: true), // Level 4
+          if (!forceLogos) const _CompressionConfig(), // Level 0: Standard
+          if (!forceLogos)
+            const _CompressionConfig(simplifyBus: true), // Level 1
+          const _CompressionConfig(
+              simplifyBus: true, simplifyTrain: true), // Level 2
+          const _CompressionConfig(
+              simplifyBus: true,
+              simplifyTrain: true,
+              compactWalk: true), // Level 3
+          const _CompressionConfig(
+              simplifyBus: true,
+              simplifyTrain: true,
+              compactWalk: true,
+              smallWalkIcon: true), // Level 4
         ];
 
         _CompressionConfig selectedConfig = levels[0];
-        _LayoutResult layoutResult = _calculateLayout(segments, textScaler, selectedConfig, overlap);
+        _LayoutResult layoutResult =
+            _calculateLayout(segments, textScaler, selectedConfig, overlap);
         bool fits = false;
 
         // Check if standard fits
@@ -56,21 +95,23 @@ class TimelineSummaryView extends StatelessWidget {
         } else {
           // Try other levels
           for (int i = 1; i < levels.length; i++) {
-             final config = levels[i];
-             final result = _calculateLayout(segments, textScaler, config, overlap);
-             if (result.totalMinWidth <= effectiveWidth) {
-               selectedConfig = config;
-               layoutResult = result;
-               fits = true;
-               break;
-             }
+            final config = levels[i];
+            final result =
+                _calculateLayout(segments, textScaler, config, overlap);
+            if (result.totalMinWidth <= effectiveWidth) {
+              selectedConfig = config;
+              layoutResult = result;
+              fits = true;
+              break;
+            }
           }
         }
 
         // If still doesn't fit, use the most compact one
         if (!fits) {
-           selectedConfig = levels.last;
-           layoutResult = _calculateLayout(segments, textScaler, selectedConfig, overlap);
+          selectedConfig = levels.last;
+          layoutResult =
+              _calculateLayout(segments, textScaler, selectedConfig, overlap);
         }
 
         bool scrollNeeded = layoutResult.totalMinWidth > effectiveWidth;
@@ -98,9 +139,6 @@ class TimelineSummaryView extends StatelessWidget {
         }
 
         // IntrinsicHeight allows the Row to size itself to the tallest child (calculated by layout or text)
-        // But since we are manually calculating widths, we might want to ensure a minimum height or let it grow.
-        // The issue was fixed height 45px.
-        // We can wrap the Row in IntrinsicHeight.
         Widget content = IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -145,8 +183,7 @@ class TimelineSummaryView extends StatelessWidget {
     Color color;
     try {
       color = Color(
-        int.parse(seg.lineColor.replaceAll('#', ''), radix: 16) +
-            0xFF000000,
+        int.parse(seg.lineColor.replaceAll('#', ''), radix: 16) + 0xFF000000,
       );
     } catch (e) {
       color = Colors.grey;
@@ -157,7 +194,8 @@ class TimelineSummaryView extends StatelessWidget {
     final textColor = isBright ? Colors.black : Colors.white;
 
     String displayText = _getDisplayText(seg, config);
-    bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
+    bool isWalk =
+        seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
 
     IconData? iconData = getIconData(seg.iconId);
 
@@ -168,12 +206,12 @@ class TimelineSummaryView extends StatelessWidget {
     bool useLogo = false;
 
     if (config.simplifyTrain && seg.mode.toLowerCase() == 'train') {
-       for (var part in labelParts) {
-         if (trainLogos.containsKey(part)) {
-           useLogo = true;
-           break;
-         }
-       }
+      for (var part in labelParts) {
+        if (trainLogos.containsKey(part)) {
+          useLogo = true;
+          break;
+        }
+      }
     }
 
     return SizedBox(
@@ -195,22 +233,42 @@ class TimelineSummaryView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Always show icon if available
+                  if (iconData != null) ...[
+                    Icon(iconData, color: textColor, size: iconSize),
+                    // If we have text or logos to follow, add spacing
+                    if (useLogo || displayText.isNotEmpty)
+                      const SizedBox(width: 2),
+                  ],
                   if (useLogo) ...[
                     for (int k = 0; k < labelParts.length; k++) ...[
-                      if (k > 0) const SizedBox(width: 4),
+                      if (k > 0) ...[
+                        const SizedBox(width: 2),
+                        Icon(LucideIcons.plus, size: 8, color: textColor),
+                        const SizedBox(width: 2),
+                      ],
                       if (trainLogos.containsKey(labelParts[k]))
                         Builder(builder: (context) {
-                          double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
+                          double w =
+                              (labelParts[k] == 'EMR') ? logoWidth : 20.0;
                           Widget img = Image.asset(
                             trainLogos[labelParts[k]]!,
                             height: 20,
                             width: w,
                             fit: BoxFit.contain,
                           );
-                          if (labelParts[k] != 'EMR') {
+                          if (labelParts[k] == 'EMR') {
+                            return Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(1),
+                              child: ClipOval(child: img),
+                            );
+                          } else {
                             return ClipOval(child: img);
                           }
-                          return img;
                         })
                       else
                         Flexible(
@@ -228,10 +286,7 @@ class TimelineSummaryView extends StatelessWidget {
                         ),
                     ]
                   ] else ...[
-                    if (iconData != null)
-                      Icon(iconData, color: textColor, size: iconSize),
                     if (displayText.isNotEmpty) ...[
-                      if (iconData != null) const SizedBox(width: 2),
                       Flexible(
                         child: Text(
                           displayText,
@@ -264,7 +319,6 @@ class TimelineSummaryView extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class HorizontalJigsawSegment extends StatelessWidget {
@@ -353,7 +407,8 @@ class _LayoutResult {
 
 String _getDisplayText(Segment seg, _CompressionConfig config) {
   String displayText = seg.label;
-  bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
+  bool isWalk =
+      seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
 
   if (isWalk) {
     return '';
@@ -392,7 +447,8 @@ _LayoutResult _calculateLayout(
     double paddingLeft;
     double paddingRight;
 
-    bool isWalk = seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
+    bool isWalk =
+        seg.mode.toLowerCase() == 'walk' || seg.label.toLowerCase() == 'walk';
     bool applyCompact = isWalk && config.compactWalk;
 
     if (applyCompact) {
@@ -416,12 +472,12 @@ _LayoutResult _calculateLayout(
     bool useLogo = false;
 
     if (config.simplifyTrain && seg.mode.toLowerCase() == 'train') {
-       for (var part in labelParts) {
-         if (trainLogos.containsKey(part)) {
-           useLogo = true;
-           break;
-         }
-       }
+      for (var part in labelParts) {
+        if (trainLogos.containsKey(part)) {
+          useLogo = true;
+          break;
+        }
+      }
     }
 
     IconData? iconData = getIconData(seg.iconId);
@@ -429,6 +485,7 @@ _LayoutResult _calculateLayout(
     double iconSize = (isWalk && config.smallWalkIcon) ? 12.0 : 16.0;
 
     // Icon + Spacing (2)
+    // Always include icon width if hasIcon is true
     double contentBase = hasIcon ? (iconSize + 2.0) : 0.0;
 
     String displayText = _getDisplayText(seg, config);
@@ -436,33 +493,34 @@ _LayoutResult _calculateLayout(
     if (isWalk) {
       contentBase = hasIcon ? iconSize : 0.0;
     } else if (useLogo) {
-      contentBase = 0.0;
+      // Don't reset contentBase to 0.0 if we want to keep the icon!
+      // But we reset text.
       displayText = '';
 
       for (int k = 0; k < labelParts.length; k++) {
         String part = labelParts[k];
         if (k > 0) {
-           contentBase += 4.0; // Space between parts, enough for a small + if needed
+          contentBase += 12.0; // Space + Plus Icon + Space (2 + 8 + 2)
         }
 
         if (trainLogos.containsKey(part)) {
           double w = (part == 'EMR') ? logoWidth : 20.0;
           contentBase += w;
         } else {
-           // Measure text for this part
-           final partPainter = TextPainter(
-              text: TextSpan(
-                text: part,
-                style: TextStyle(
-                  fontSize: fontSize,
-                  fontWeight: FontWeight.bold,
-                ),
+          // Measure text for this part
+          final partPainter = TextPainter(
+            text: TextSpan(
+              text: part,
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
               ),
-              textDirection: TextDirection.ltr,
-              textScaler: textScaler,
-              maxLines: 1,
-            )..layout();
-            contentBase += partPainter.width;
+            ),
+            textDirection: TextDirection.ltr,
+            textScaler: textScaler,
+            maxLines: 1,
+          )..layout();
+          contentBase += partPainter.width;
         }
       }
     }

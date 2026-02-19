@@ -3,6 +3,7 @@ import '../models.dart';
 import '../services/api_service.dart';
 import '../widgets/header.dart';
 import '../widgets/journey_result_card.dart';
+import '../widgets/timeline_summary_view.dart'; // Added
 import '../widgets/summary/driving_baseline_card.dart';
 import '../widgets/summary/journey_tabs.dart';
 import '../widgets/summary/search_summary_header.dart';
@@ -215,21 +216,47 @@ class _SummaryPageState extends State<SummaryPage> {
       minRisk = _results.map((r) => r.risk).reduce((a, b) => a < b ? a : b);
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _results.length,
-      itemBuilder: (context, index) {
-        final result = _results[index];
-        final isTopChoice = index == 0;
-        final isLeastRisky = result.risk == minRisk;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate effective width available for the timeline view
+        // ListView padding: 16 * 2 = 32
+        // Card content padding: 16 * 2 = 32
+        // Border: 1 * 2 = 2
+        // Total padding deduction: 66
+        // We subtract a bit more (70) to be safe and avoid edge case discrepancies
+        final double availableWidth = constraints.maxWidth - 70;
+        final textScaler = MediaQuery.of(context).textScaler;
 
-        return JourneyResultCard(
-          result: result,
-          isTopChoice: isTopChoice,
-          isLeastRisky: isLeastRisky,
-          routeId: widget.routeId,
-          mainLeg: _mainLeg,
-          selectedModes: _selectedModes,
+        bool forceLogos = false;
+
+        // Check if any card requires logos based on space
+        for (var result in _results) {
+          final segments = JourneyResultCard.buildSegments(result, _mainLeg);
+          if (TimelineSummaryView.checkIfLogosNeeded(
+              segments, availableWidth, textScaler)) {
+            forceLogos = true;
+            break;
+          }
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: _results.length,
+          itemBuilder: (context, index) {
+            final result = _results[index];
+            final isTopChoice = index == 0;
+            final isLeastRisky = result.risk == minRisk;
+
+            return JourneyResultCard(
+              result: result,
+              isTopChoice: isTopChoice,
+              isLeastRisky: isLeastRisky,
+              routeId: widget.routeId,
+              mainLeg: _mainLeg,
+              selectedModes: _selectedModes,
+              forceLogos: forceLogos,
+            );
+          },
         );
       },
     );
