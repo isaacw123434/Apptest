@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../models.dart';
 import '../utils/time_utils.dart';
 import '../utils/icon_utils.dart';
@@ -14,11 +15,13 @@ const Map<String, String> trainLogos = {
 const Map<String, String> longTrainLogos = {
   'Northern': 'assets/northernlong.png',
   'Transpennine Express': 'assets/TransPenninelong.png',
+  'CrossCountry': 'assets/CrossCountryTrains.svg',
 };
 
 const Map<String, double> longLogoWidths = {
   'Northern': 68.0,
   'Transpennine Express': 28.0,
+  'CrossCountry': 116.0,
 };
 
 const double logoWidth = 50.0;
@@ -220,8 +223,45 @@ class TimelineSummaryView extends StatelessWidget {
 
     IconData? iconData = getIconData(seg.iconId);
 
-    String durationText = formatDuration(seg.time, compact: isWalk);
     double iconSize = (isWalk && config.smallWalkIcon) ? 12.0 : 16.0;
+
+    String durationText;
+    if (isWalk) {
+       // Calculate available width for text
+       double leftP = isFirst ? 6 : (overlap + 1.0) * 0.75;
+       double rightP = isLast ? 6.0 : 4.0;
+       if (config.compactWalk) {
+          if (isFirst) {
+            leftP = 2.0;
+          } else {
+            leftP = (overlap + 1.0) * 0.5;
+          }
+          if (isLast) {
+            rightP = 2.0;
+          } else {
+            rightP = 1.0;
+          }
+       }
+       double contentAvailable = width - leftP - rightP;
+       if (iconData != null) contentAvailable -= (iconSize + 2.0);
+
+       String longText = formatDuration(seg.time, compact: false);
+       final textPainter = TextPainter(
+          text: TextSpan(text: longText, style: TextStyle(fontSize: durationFontSize, fontWeight: FontWeight.bold)),
+          textDirection: TextDirection.ltr,
+          textScaler: MediaQuery.of(context).textScaler,
+          maxLines: 1,
+       )..layout();
+
+       // Use long text if it fits, otherwise compact
+       if (textPainter.width <= contentAvailable) {
+          durationText = longText;
+       } else {
+          durationText = formatDuration(seg.time, compact: true);
+       }
+    } else {
+       durationText = formatDuration(seg.time, compact: false);
+    }
 
     List<String> labelParts = seg.label.split(' + ');
     bool useLogo = false;
@@ -354,29 +394,49 @@ class TimelineSummaryView extends StatelessWidget {
                             w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
                           }
 
-                          Widget img = Image.asset(
-                            asset,
-                            height: 20,
-                            width: w,
-                            fit: BoxFit.contain,
-                          );
-                          if (labelParts[k] == 'CrossCountry' && !useLong) {
-                            return Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                              padding: const EdgeInsets.all(1),
-                              child: ClipOval(child: img),
-                            );
+                          Widget img;
+                          if (asset.endsWith('.svg')) {
+                             img = SvgPicture.asset(
+                                asset,
+                                height: 20,
+                                width: w,
+                                fit: BoxFit.contain,
+                             );
+                          } else {
+                             img = Image.asset(
+                                asset,
+                                height: 20,
+                                width: w,
+                                fit: BoxFit.contain,
+                             );
+                          }
+
+                          if (labelParts[k] == 'CrossCountry') {
+                             if (useLong) {
+                                return img;
+                             } else {
+                                return Container(
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  padding: const EdgeInsets.all(1),
+                                  child: ClipOval(child: img),
+                                );
+                             }
                           } else if (labelParts[k] == 'EMR') {
                             return img;
                           } else {
-                            // If long, we probably don't want circular clip?
-                            // 'Northern' short is jpeg square. Long is png.
-                            // 'Transpennine' short is png.
+                            // Northern, Transpennine Express
                             if (useLong) {
-                               return img;
+                               return Container(
+                                  decoration: BoxDecoration(
+                                     color: Colors.white,
+                                     borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                                  child: img,
+                               );
                             }
                             return ClipOval(child: img);
                           }

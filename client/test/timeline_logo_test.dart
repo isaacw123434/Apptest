@@ -19,8 +19,14 @@ void main() {
     });
 
     test('shouldUseLongLogo returns false for brand without long logo', () {
-      // CrossCountry doesn't have a long logo defined in longTrainLogos map
-      expect(TimelineSummaryView.shouldUseLongLogo('CrossCountry', 100.0, 20.0), false);
+      // EMR doesn't have a long logo defined in longTrainLogos map
+      expect(TimelineSummaryView.shouldUseLongLogo('EMR', 100.0, 50.0), false);
+    });
+
+    test('shouldUseLongLogo returns true for CrossCountry if space available', () {
+      // CrossCountry: Long=116.0, Short=20.0. Cost=96.0.
+      expect(TimelineSummaryView.shouldUseLongLogo('CrossCountry', 100.0, 20.0), true);
+      expect(TimelineSummaryView.shouldUseLongLogo('CrossCountry', 95.9, 20.0), false);
     });
 
     test('shouldUseLongLogo logic for Transpennine Express', () {
