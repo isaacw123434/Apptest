@@ -11,6 +11,16 @@ const Map<String, String> trainLogos = {
   'Transpennine Express': 'assets/Transpennine_Logo.png',
 };
 
+const Map<String, String> longTrainLogos = {
+  'Northern': 'assets/northernlong.png',
+  'Transpennine Express': 'assets/TransPenninelong.png',
+};
+
+const Map<String, double> longLogoWidths = {
+  'Northern': 68.0,
+  'Transpennine Express': 28.0,
+};
+
 const double logoWidth = 50.0;
 
 class TimelineSummaryView extends StatelessWidget {
@@ -50,6 +60,15 @@ class TimelineSummaryView extends StatelessWidget {
 
     // Otherwise, we likely need logos (Level 2+)
     return true;
+  }
+
+  // Helper method for testing logic
+  static bool shouldUseLongLogo(
+      String brand, double availableBonusSpace, double shortWidth) {
+    if (!longTrainLogos.containsKey(brand)) return false;
+    double longWidth = longLogoWidths[brand] ?? 20.0;
+    double cost = longWidth - shortWidth;
+    return cost > 0 && availableBonusSpace >= cost;
   }
 
   @override
@@ -144,6 +163,7 @@ class TimelineSummaryView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: segments.asMap().entries.map((entry) {
               return _buildSegmentWidget(
+                context, // Pass context for TextScaler
                 entry.key,
                 entry.value,
                 segmentWidths[entry.key],
@@ -169,6 +189,7 @@ class TimelineSummaryView extends StatelessWidget {
   }
 
   Widget _buildSegmentWidget(
+    BuildContext context,
     int index,
     Segment seg,
     double width,
@@ -214,6 +235,75 @@ class TimelineSummaryView extends StatelessWidget {
       }
     }
 
+    List<bool> useLongLogoDecisions = [];
+    if (useLogo) {
+      // Calculate layout to see if we can upgrade to long logos
+      double minRequiredForLogos = 0.0;
+      final textScaler = MediaQuery.of(context).textScaler;
+
+      for (int k = 0; k < labelParts.length; k++) {
+        if (k > 0) minRequiredForLogos += 12.0; // Spacing
+
+        if (trainLogos.containsKey(labelParts[k])) {
+          double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
+          minRequiredForLogos += w;
+        } else {
+          final partPainter = TextPainter(
+            text: TextSpan(
+              text: labelParts[k],
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            textDirection: TextDirection.ltr,
+            textScaler: textScaler,
+            maxLines: 1,
+          )..layout();
+          minRequiredForLogos += partPainter.width;
+        }
+      }
+
+      // Calculate available space
+      double leftP = isFirst ? 6 : (overlap + 1.0) * 0.75;
+      double rightP = isLast ? 6.0 : 4.0;
+      if (isWalk && config.compactWalk) {
+        if (isFirst) {
+          leftP = 2.0;
+        } else {
+          leftP = (overlap + 1.0) * 0.5;
+        }
+
+        if (isLast) {
+          rightP = 2.0;
+        } else {
+          rightP = 1.0;
+        }
+      }
+
+      double contentAvailable = width - leftP - rightP;
+      // Subtract Icon
+      if (iconData != null) {
+        contentAvailable -= (iconSize + 2.0); // Icon + spacing
+      }
+
+      double bonusSpace = contentAvailable - minRequiredForLogos;
+
+      for (int k = 0; k < labelParts.length; k++) {
+        bool decision = false;
+        String brand = labelParts[k];
+        double shortW = (brand == 'EMR') ? logoWidth : 20.0;
+
+        if (shouldUseLongLogo(brand, bonusSpace, shortW)) {
+          decision = true;
+           double longW = longLogoWidths[brand] ?? 20.0;
+           double cost = longW - shortW;
+           bonusSpace -= cost;
+        }
+        useLongLogoDecisions.add(decision);
+      }
+    }
+
     return SizedBox(
       width: width,
       child: HorizontalJigsawSegment(
@@ -249,15 +339,28 @@ class TimelineSummaryView extends StatelessWidget {
                       ],
                       if (trainLogos.containsKey(labelParts[k]))
                         Builder(builder: (context) {
-                          double w =
-                              (labelParts[k] == 'EMR') ? logoWidth : 20.0;
+                          bool useLong = useLongLogoDecisions.length > k
+                              ? useLongLogoDecisions[k]
+                              : false;
+                          String asset = useLong
+                              ? (longTrainLogos[labelParts[k]] ??
+                                  trainLogos[labelParts[k]]!)
+                              : trainLogos[labelParts[k]]!;
+
+                          double w;
+                          if (useLong) {
+                            w = longLogoWidths[labelParts[k]] ?? 20.0;
+                          } else {
+                            w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
+                          }
+
                           Widget img = Image.asset(
-                            trainLogos[labelParts[k]]!,
+                            asset,
                             height: 20,
                             width: w,
                             fit: BoxFit.contain,
                           );
-                          if (labelParts[k] == 'CrossCountry') {
+                          if (labelParts[k] == 'CrossCountry' && !useLong) {
                             return Container(
                               decoration: const BoxDecoration(
                                 color: Colors.white,
@@ -269,6 +372,12 @@ class TimelineSummaryView extends StatelessWidget {
                           } else if (labelParts[k] == 'EMR') {
                             return img;
                           } else {
+                            // If long, we probably don't want circular clip?
+                            // 'Northern' short is jpeg square. Long is png.
+                            // 'Transpennine' short is png.
+                            if (useLong) {
+                               return img;
+                            }
                             return ClipOval(child: img);
                           }
                         })
