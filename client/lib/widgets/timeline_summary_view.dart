@@ -266,6 +266,8 @@ class TimelineSummaryView extends StatelessWidget {
                               padding: const EdgeInsets.all(1),
                               child: ClipOval(child: img),
                             );
+                          } else if (labelParts[k] == 'EMR') {
+                            return img;
                           } else {
                             return ClipOval(child: img);
                           }
