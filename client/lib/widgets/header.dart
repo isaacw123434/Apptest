@@ -22,22 +22,35 @@ class Header extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          GestureDetector(
-            onTap: () {
-              // Navigate to the root route if not already there
-              if (Navigator.canPop(context)) {
-                Navigator.popUntil(context, (route) => route.isFirst);
-              }
-            },
-            child: const Text(
-              'EndMile',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                height: 1.25,
+          Row(
+            children: [
+              if (Navigator.canPop(context))
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(LucideIcons.arrowLeft,
+                        color: Colors.white, size: 24),
+                  ),
+                ),
+              GestureDetector(
+                onTap: () {
+                  // Navigate to the root route if not already there
+                  if (Navigator.canPop(context)) {
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                  }
+                },
+                child: const Text(
+                  'EndMile',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    height: 1.25,
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
           Container(
             padding: const EdgeInsets.all(8),

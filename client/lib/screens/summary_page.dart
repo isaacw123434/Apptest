@@ -256,7 +256,6 @@ class _SummaryPageState extends State<SummaryPage> {
           itemCount: itemCount,
           itemBuilder: (context, index) {
             if (hasMore && !showAll && index == displayedCount) {
-              final remaining = _results.length - displayedCount;
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: TextButton(
@@ -273,7 +272,7 @@ class _SummaryPageState extends State<SummaryPage> {
                         borderRadius: BorderRadius.circular(8)),
                   ),
                   child: Text(
-                    'View $remaining more routes',
+                    'View all routes',
                     style: const TextStyle(
                       color: Color(0xFF475569), // Slate 600
                       fontWeight: FontWeight.w600,
