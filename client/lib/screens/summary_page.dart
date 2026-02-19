@@ -39,7 +39,7 @@ class _SummaryPageState extends State<SummaryPage> {
   DirectDrive? _directDrive;
   Leg? _mainLeg;
   bool _isLoading = true;
-  bool _showAllRoutes = false;
+  final Set<String> _expandedTabs = {};
   String _activeTab = 'smart'; // smart, fastest, cheapest
   String? _errorMessage;
   final Map<String, List<JourneyResult>> _resultsCache = {};
@@ -245,23 +245,24 @@ class _SummaryPageState extends State<SummaryPage> {
 
         final int initialCount = 3;
         final bool hasMore = _results.length > initialCount;
+        final bool showAll = _expandedTabs.contains(_activeTab);
         final int displayedCount =
-            (_showAllRoutes || !hasMore) ? _results.length : initialCount;
+            (showAll || !hasMore) ? _results.length : initialCount;
         final int itemCount =
-            displayedCount + (hasMore && !_showAllRoutes ? 1 : 0);
+            displayedCount + (hasMore && !showAll ? 1 : 0);
 
         return ListView.builder(
           padding: const EdgeInsets.all(16),
           itemCount: itemCount,
           itemBuilder: (context, index) {
-            if (hasMore && !_showAllRoutes && index == displayedCount) {
+            if (hasMore && !showAll && index == displayedCount) {
               final remaining = _results.length - displayedCount;
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: TextButton(
                   onPressed: () {
                     setState(() {
-                      _showAllRoutes = true;
+                      _expandedTabs.add(_activeTab);
                     });
                   },
                   style: TextButton.styleFrom(
