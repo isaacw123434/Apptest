@@ -30,9 +30,9 @@ void main() {
     });
 
     test('shouldUseLongLogo logic for Transpennine Express', () {
-       // Long=28.0, Short=20.0. Cost=8.0.
-       expect(TimelineSummaryView.shouldUseLongLogo('Transpennine Express', 10.0, 20.0), true);
-       expect(TimelineSummaryView.shouldUseLongLogo('Transpennine Express', 7.9, 20.0), false);
+       // Long=56.0, Short=20.0. Cost=36.0.
+       expect(TimelineSummaryView.shouldUseLongLogo('Transpennine Express', 40.0, 20.0), true);
+       expect(TimelineSummaryView.shouldUseLongLogo('Transpennine Express', 35.9, 20.0), false);
     });
   });
 }
