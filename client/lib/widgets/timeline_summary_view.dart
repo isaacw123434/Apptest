@@ -429,23 +429,23 @@ class TimelineSummaryView extends StatelessWidget {
                           } else {
                             // Northern, Transpennine Express
                             if (useLong) {
+                               if (labelParts[k] == 'Northern') {
+                                  return Container(
+                                     decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(4.0),
+                                     ),
+                                     padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 1.0), // Added 1 pixel vertical padding
+                                     child: img,
+                                  );
+                               }
+                               // Transpennine Express
                                return Container(
                                   decoration: BoxDecoration(
                                      color: Colors.white,
-                                     // Decreased radius for Northern, keeping same for TPE for now or also 4?
-                                     // User said "decrease the border curve" for Northern explicitly.
-                                     // And "make the transpennine ling form logo larger".
-                                     // Assuming consistent style, 4.0 for both or checking brand.
-                                     // Given "use same border curve" initially, and then "decrease ... for northern",
-                                     // if I use 4.0 for Northern, I should probably stick to 8.0 for TPE or use 4.0 for consistency.
-                                     // I'll make it conditional based on brand if needed, but for simplicity/consistency 4.0 might be safer if "same border curve" still holds generally.
-                                     // But TPE didn't receive the complaint about "starts with a circle".
-                                     // I'll implement a check.
-                                     borderRadius: BorderRadius.circular(
-                                        labelParts[k] == 'Northern' ? 4.0 : 8.0
-                                     ),
+                                     borderRadius: BorderRadius.circular(8.0),
                                   ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 0.0), // Reduce padding for TPE to make logo larger
                                   child: img,
                                );
                             }
@@ -720,7 +720,7 @@ _LayoutResult _calculateLayout(
       maxLines: 1,
     )..layout();
 
-    String durationText = formatDuration(seg.time, compact: isWalk);
+    String durationText = formatDuration(seg.time, compact: isWalk && config.compactWalk);
 
     final durationPainter = TextPainter(
       text: TextSpan(
