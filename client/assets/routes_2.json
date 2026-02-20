@@ -2486,7 +2486,7 @@
                   ],
                   "color": "#63237f",
                   "name": "Stourton - Leeds City Centre",
-                  "short_name": "PR3 Park & Ride",
+                  "short_name": "PR3 P&R",
                   "text_color": "#eb5ddf",
                   "vehicle": {
                     "icon": "//maps.gstatic.com/mapfiles/transit/iw2/6/bus2.png",
@@ -2577,7 +2577,7 @@
                   ],
                   "color": "#e0603a",
                   "name": "Temple Newsam - Leeds City Centre",
-                  "short_name": "PR2 Park & Ride",
+                  "short_name": "PR2 P&R",
                   "text_color": "#ffffff",
                   "vehicle": {
                     "icon": "//maps.gstatic.com/mapfiles/transit/iw2/6/bus2.png",
@@ -2668,7 +2668,7 @@
                   ],
                   "color": "#6cb656",
                   "name": "Beeston - Leeds City Centre",
-                  "short_name": "PR1 Park & Ride",
+                  "short_name": "PR1 P&R",
                   "text_color": "#ffffff",
                   "vehicle": {
                     "icon": "//maps.gstatic.com/mapfiles/transit/iw2/6/bus2.png",

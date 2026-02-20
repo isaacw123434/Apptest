@@ -443,7 +443,7 @@ class TimelineSummaryView extends StatelessWidget {
                                return Container(
                                   decoration: BoxDecoration(
                                      color: Colors.white,
-                                     borderRadius: BorderRadius.circular(8.0),
+                                     borderRadius: BorderRadius.circular(4.0),
                                   ),
                                   padding: const EdgeInsets.symmetric(horizontal: 0.0), // Reduce padding for TPE to make logo larger
                                   child: img,

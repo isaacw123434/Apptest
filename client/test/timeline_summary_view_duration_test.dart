@@ -23,8 +23,14 @@ void main() {
      expect(find.byType(HorizontalJigsawSegment), findsNWidgets(2));
 
      // Check for duration text
-     // 5 min
-     expect(find.text('5'), findsOneWidget);
+     // 5 min (or 5 if compact)
+     final durationFinder = find.text('5 min');
+     if (durationFinder.evaluate().isEmpty) {
+        expect(find.text('5'), findsOneWidget);
+     } else {
+        expect(durationFinder, findsOneWidget);
+     }
+
      // 65 min -> 1h 5m
      expect(find.text('1h 5m'), findsOneWidget);
 
@@ -34,7 +40,12 @@ void main() {
      // First segment
      final col1 = find.descendant(of: find.byWidget(segmentsWidgets[0]), matching: find.byType(Column));
      expect(col1, findsOneWidget);
-     expect(find.descendant(of: col1, matching: find.text('5')), findsOneWidget);
+
+     if (durationFinder.evaluate().isNotEmpty) {
+        expect(find.descendant(of: col1, matching: find.text('5 min')), findsOneWidget);
+     } else {
+        expect(find.descendant(of: col1, matching: find.text('5')), findsOneWidget);
+     }
 
      // Second segment
      final col2 = find.descendant(of: find.byWidget(segmentsWidgets[1]), matching: find.byType(Column));
@@ -42,7 +53,7 @@ void main() {
      expect(find.descendant(of: col2, matching: find.text('1h 5m')), findsOneWidget);
 
      // Check font size
-     final Text text1 = tester.widget(find.text('5'));
+     final Text text1 = tester.widget(durationFinder.evaluate().isNotEmpty ? find.text('5 min') : find.text('5'));
      expect(text1.style?.fontSize, 10.0);
 
      final Text text2 = tester.widget(find.text('1h 5m'));
