@@ -450,6 +450,8 @@ class TimelineSummaryView extends StatelessWidget {
                      for (int k = 0; k < labelParts.length; k++) ...[
                         if (k > 0) ...[
                           const SizedBox(width: 2),
+                          Icon(LucideIcons.plus, size: 8, color: textColor),
+                          const SizedBox(width: 2),
                         ],
                         if (trainLogos.containsKey(labelParts[k])) ...[
                           Builder(builder: (context) {
@@ -937,7 +939,7 @@ _LayoutResult _calculateLayout(
       displayText = '';
       for (int k = 0; k < labelParts.length; k++) {
         if (k > 0) {
-          contentBase += 4.0; // Spacing between parts
+          contentBase += 12.0; // Spacing between parts: 2 (space) + 8 (icon) + 2 (space)
         }
 
         if (trainLogos.containsKey(labelParts[k])) {
