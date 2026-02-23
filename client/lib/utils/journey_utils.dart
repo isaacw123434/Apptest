@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models.dart';
+import 'time_utils.dart';
 
 List<Segment> processSegments(List<Segment> rawSegments) {
   // 0. Flatten groups (Access & Train Groups)
@@ -156,5 +157,5 @@ TimeOfDay minutesToTimeOfDay(int totalMinutes) {
 }
 
 String formatTime(TimeOfDay time) {
-  return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  return formatTimeFromMinutes(time.hour * 60 + time.minute);
 }

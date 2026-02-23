@@ -9,3 +9,9 @@ String formatDuration(int minutes, {bool compact = false}) {
   }
   return '${hours}h ${mins}m';
 }
+
+String formatTimeFromMinutes(int totalMinutes) {
+  int hour = (totalMinutes ~/ 60) % 24;
+  int minute = totalMinutes % 60;
+  return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+}

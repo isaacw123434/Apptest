@@ -867,7 +867,7 @@ class _DetailPageState extends State<DetailPage> {
 
                        children.add(_buildNode(
                           nodeTitle,
-                          _formatMinutes(currentMinutes),
+                          formatTimeFromMinutes(currentMinutes),
                           prevColor: prevColor,
                           nextColor: nextColor));
                  }
@@ -949,7 +949,7 @@ class _DetailPageState extends State<DetailPage> {
                                 Segment nextVis = segments[endIdx];
                                children.add(_buildNode(
                                   lastSeg.to ?? 'Stop',
-                                  _formatMinutes(currentMinutes),
+                                  formatTimeFromMinutes(currentMinutes),
                                   prevColor: _parseColor(lastSeg.lineColor),
                                   nextColor: _parseColor(nextVis.lineColor)
                                ));
@@ -1069,7 +1069,7 @@ class _DetailPageState extends State<DetailPage> {
 
                children.add(_buildNode(
                   nodeTitle,
-                  _formatMinutes(currentMinutes),
+                  formatTimeFromMinutes(currentMinutes),
                   prevColor: prevColor,
                   nextColor: nextColor));
           }
@@ -1083,7 +1083,7 @@ class _DetailPageState extends State<DetailPage> {
     if (result.leg1.segments.isNotEmpty && result.leg1.segments.first.from != null) {
       startTitle = result.leg1.segments.first.from!;
     }
-    children.add(_buildNode(startTitle, _formatMinutes(currentMinutes),
+    children.add(_buildNode(startTitle, formatTimeFromMinutes(currentMinutes),
         isStart: true, nextColor: leg1FirstColor));
 
     // --- Leg 1 ---
@@ -1096,7 +1096,7 @@ class _DetailPageState extends State<DetailPage> {
       // --- Leeds Node ---
       // Time range: Arrival - Depart
       String leedsTimeStr =
-          '${_formatMinutes(currentMinutes)} - ${_formatMinutes(currentMinutes + result.buffer)}';
+          '${formatTimeFromMinutes(currentMinutes)} - ${formatTimeFromMinutes(currentMinutes + result.buffer)}';
       Color leg1LastColor = result.leg1.segments.isNotEmpty ? _parseColor(result.leg1.segments.last.lineColor) : Colors.grey;
       Color mainLegColor = _parseColor(_initData!.segmentOptions.mainLeg.segments.first.lineColor);
 
@@ -1112,7 +1112,7 @@ class _DetailPageState extends State<DetailPage> {
           _parseColor(_initData!.segmentOptions.mainLeg.segments.last.lineColor);
       Color leg3FirstColor = result.leg3.segments.isNotEmpty ? _parseColor(result.leg3.segments.first.lineColor) : Colors.grey;
 
-      children.add(_buildNode('Loughborough Station', _formatMinutes(currentMinutes),
+      children.add(_buildNode('Loughborough Station', formatTimeFromMinutes(currentMinutes),
           prevColor: mainLegLastColor, nextColor: leg3FirstColor));
     } else {
       // --- Interchange Node (Direct Connection) ---
@@ -1129,7 +1129,7 @@ class _DetailPageState extends State<DetailPage> {
            interchangeName = 'Leeds Station';
         }
 
-        String timeStr = '${_formatMinutes(currentMinutes)} - ${_formatMinutes(currentMinutes + result.buffer)}';
+        String timeStr = '${formatTimeFromMinutes(currentMinutes)} - ${formatTimeFromMinutes(currentMinutes + result.buffer)}';
 
         children.add(_buildNode(interchangeName, timeStr,
             prevColor: leg1LastColor, nextColor: leg3FirstColor));
@@ -1156,7 +1156,7 @@ class _DetailPageState extends State<DetailPage> {
     }
     children.add(_buildNode(
       endTitle,
-      _formatMinutes(currentMinutes),
+      formatTimeFromMinutes(currentMinutes),
       isEnd: true,
       prevColor: leg3LastColor
     ));
@@ -1180,12 +1180,6 @@ class _DetailPageState extends State<DetailPage> {
       return to.contains('park & ride') || to.contains('p&r');
     }
     return false;
-  }
-
-  String _formatMinutes(int totalMinutes) {
-    int hour = (totalMinutes ~/ 60) % 24;
-    int minute = totalMinutes % 60;
-    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
   }
 
   Widget _buildNode(String title, String time, {
