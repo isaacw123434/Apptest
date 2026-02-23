@@ -55,6 +55,9 @@ All colors are defined in `lib/utils/app_colors.dart`. We use an HSL-based syste
 
 ## 4. Spacing & Layout
 
+**Units:**
+All dimensions in this design system and the codebase are specified in **logical pixels** (often referred to as `px` or `double` in Flutter). We do **not** use `rem` or other web-based relative units. Flutter's logical pixels are device-independent and ensure consistent physical size across different screen densities.
+
 We follow a consistent 4px grid system, with key values being multiples of 4.
 
 ### Padding
