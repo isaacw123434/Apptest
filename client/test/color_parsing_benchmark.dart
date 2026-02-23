@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:client/models.dart';
@@ -17,6 +19,7 @@ void main() {
     // Baseline: Parsing
     final stopwatchParsing = Stopwatch()..start();
     for (int i = 0; i < iterations; i++) {
+        // ignore: unused_local_variable
         Color color;
         try {
           color = Color(
@@ -27,7 +30,7 @@ void main() {
         }
     }
     stopwatchParsing.stop();
-    print('Parsing ${iterations} times took: ${stopwatchParsing.elapsedMilliseconds}ms');
+    print('Parsing $iterations times took: ${stopwatchParsing.elapsedMilliseconds}ms');
 
     final stopwatchCached = Stopwatch()..start();
     for (int i = 0; i < iterations; i++) {
@@ -35,6 +38,6 @@ void main() {
        final color = segment.color;
     }
     stopwatchCached.stop();
-    print('Cached access ${iterations} times took: ${stopwatchCached.elapsedMilliseconds}ms');
+    print('Cached access $iterations times took: ${stopwatchCached.elapsedMilliseconds}ms');
   });
 }
