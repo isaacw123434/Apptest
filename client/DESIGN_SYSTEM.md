@@ -57,6 +57,9 @@ All colors are defined in `lib/utils/app_colors.dart`. We use an HSL-based syste
 
 We follow a consistent 4px grid system, with key values being multiples of 4.
 
+### Units
+All dimensions (padding, margins, font sizes, border radii, etc.) are specified in **logical pixels (`px`)**. We do **not** use `rem` or other relative units common in web development, as Flutter uses a device-independent pixel system.
+
 ### Padding
 - **Container Padding**: `16px` - Standard padding for cards, sections, and the main container.
 - **Element Padding**: `12px` - Internal padding for input fields, buttons, and list items.
