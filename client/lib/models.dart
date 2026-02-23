@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
 // ignore_for_file: constant_identifier_names
@@ -15,6 +16,7 @@ class Segment {
   final String mode;
   final String label;
   final String lineColor;
+  final Color color;
   final String iconId;
   final int time;
   final String? from;
@@ -48,7 +50,17 @@ class Segment {
     this.numStops,
     this.stops,
     this.stopPoints,
-  });
+  }) : color = _parseColor(lineColor);
+
+  static Color _parseColor(String lineColor) {
+    try {
+      return Color(
+        int.parse(lineColor.replaceAll('#', ''), radix: 16) + 0xFF000000,
+      );
+    } catch (e) {
+      return Colors.grey;
+    }
+  }
 
   factory Segment.fromJson(Map<String, dynamic> json) {
     var subSegmentsList = json['subSegments'] as List?;
