@@ -31,6 +31,7 @@ enum TimelineLayoutType {
   textPreferred,
   logoAsIcon,
   iconPlusShortText,
+  shortLogoOnly,
 }
 
 class TimelineSummaryView extends StatelessWidget {
@@ -291,12 +292,14 @@ class TimelineSummaryView extends StatelessWidget {
     bool useTextPreferred = layoutType == TimelineLayoutType.textPreferred && isTrain;
     bool useLogoAsIcon = layoutType == TimelineLayoutType.logoAsIcon && isTrain;
     bool useIconPlusShortText = layoutType == TimelineLayoutType.iconPlusShortText && isTrain;
+    bool useShortLogoOnly = layoutType == TimelineLayoutType.shortLogoOnly && isTrain;
 
     // Logic variables for rendering
     bool renderStandardLogo = useLogo; // Original logic
     bool renderTextPreferred = false;
     bool renderLogoAsIcon = false;
     bool renderIconPlusShortText = false;
+    bool renderShortLogoOnly = false;
     bool fallbackToShortLogo = false;
 
     if (useTextPreferred) {
@@ -310,6 +313,10 @@ class TimelineSummaryView extends StatelessWidget {
       renderStandardLogo = false;
       renderIconPlusShortText = true;
       // iconData is kept (standard icon)
+    } else if (useShortLogoOnly) {
+      renderStandardLogo = false;
+      renderShortLogoOnly = true;
+      iconData = null; // Remove standard icon
     }
 
     List<bool> useLongLogoDecisions = [];
@@ -435,7 +442,7 @@ class TimelineSummaryView extends StatelessWidget {
                   if (iconData != null) ...[
                     Icon(iconData, color: textColor, size: iconSize),
                     // If we have text or logos to follow, add spacing
-                    if (renderStandardLogo || displayText.isNotEmpty || renderTextPreferred || fallbackToShortLogo || renderLogoAsIcon || renderIconPlusShortText)
+                  if (renderStandardLogo || displayText.isNotEmpty || renderTextPreferred || fallbackToShortLogo || renderLogoAsIcon || renderIconPlusShortText || renderShortLogoOnly)
                       const SizedBox(width: 2),
                   ],
                   // Logo As Icon Logic: Render logo first
@@ -531,6 +538,44 @@ class TimelineSummaryView extends StatelessWidget {
                             ),
                           ),
                         ),
+                     ]
+                  ] else if (renderShortLogoOnly) ...[
+                     for (int k = 0; k < labelParts.length; k++) ...[
+                        if (k > 0) ...[
+                          const SizedBox(width: 2),
+                        ],
+                        if (trainLogos.containsKey(labelParts[k])) ...[
+                          Builder(builder: (context) {
+                             String asset = trainLogos[labelParts[k]]!;
+                             double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
+
+                             Widget img;
+                             if (asset.endsWith('.svg')) {
+                                img = SvgPicture.asset(asset, height: 20, width: w, fit: BoxFit.contain);
+                             } else {
+                                img = Image.asset(asset, height: 20, width: w, fit: BoxFit.contain);
+                             }
+
+                             if (labelParts[k] == 'CrossCountry' || labelParts[k] == 'Northern' || labelParts[k] == 'Transpennine Express') {
+                               return ClipOval(child: img);
+                             }
+                             return img;
+                          }),
+                        ] else ...[
+                           Flexible(
+                            child: Text(
+                              labelParts[k],
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.visible,
+                              style: TextStyle(
+                                color: textColor,
+                                fontSize: fontSize,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ]
                      ]
                   ],
 
@@ -656,7 +701,7 @@ class TimelineSummaryView extends StatelessWidget {
                           ),
                         ),
                      ]
-                  ] else if (!renderLogoAsIcon && !renderIconPlusShortText) ...[
+                  ] else if (!renderLogoAsIcon && !renderIconPlusShortText && !renderShortLogoOnly) ...[
                     // Normal text display (e.g. Bus)
                     if (displayText.isNotEmpty) ...[
                       Flexible(
@@ -873,8 +918,9 @@ _LayoutResult _calculateLayout(
     bool useTextPreferred = layoutType == TimelineLayoutType.textPreferred && isTrain;
     bool useLogoAsIcon = layoutType == TimelineLayoutType.logoAsIcon && isTrain;
     bool useIconPlusShortText = layoutType == TimelineLayoutType.iconPlusShortText && isTrain;
+    bool useShortLogoOnly = layoutType == TimelineLayoutType.shortLogoOnly && isTrain;
 
-    if (useLogoAsIcon) {
+    if (useLogoAsIcon || useShortLogoOnly) {
       hasIcon = false;
     }
 
@@ -886,19 +932,47 @@ _LayoutResult _calculateLayout(
 
     if (isWalk) {
       contentBase = hasIcon ? iconSize : 0.0;
+    } else if (useShortLogoOnly) {
+      // Short logo only mode
+      displayText = '';
+      for (int k = 0; k < labelParts.length; k++) {
+        if (k > 0) {
+          contentBase += 4.0; // Spacing between parts
+        }
+
+        if (trainLogos.containsKey(labelParts[k])) {
+          double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
+          contentBase += w + 2.0; // Adding 2.0 for padding (1.0 left + 1.0 right)
+        } else {
+           // Fallback to text measurement
+           final partPainter = TextPainter(
+              text: TextSpan(
+                text: labelParts[k],
+                style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+              ),
+              textDirection: TextDirection.ltr,
+              textScaler: textScaler,
+              maxLines: 1,
+           )..layout();
+           contentBase += partPainter.width;
+        }
+      }
     } else if (useLogoAsIcon) {
        // Logo as icon mode
        // Icon is replaced by short logo.
        // Followed by shortened text (if not EMR/XC).
        for (int k = 0; k < labelParts.length; k++) {
-         if (k > 0) contentBase += 4.0; // Spacing between parts
+         if (k > 0) {
+           contentBase += 4.0; // Spacing between parts
+         }
 
          // Logo width
          if (trainLogos.containsKey(labelParts[k])) {
             double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
             contentBase += w;
-            if (labelParts[k] != 'EMR' && labelParts[k] != 'CrossCountry')
-               contentBase += 2.0; // Spacing after logo
+            if (labelParts[k] != 'EMR' && labelParts[k] != 'CrossCountry') {
+              contentBase += 2.0; // Spacing after logo
+            }
          }
 
          // Text width (shortened)
