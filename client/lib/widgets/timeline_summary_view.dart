@@ -30,6 +30,7 @@ enum TimelineLayoutType {
   original,
   textPreferred,
   logoAsIcon,
+  iconPlusShortText,
 }
 
 class TimelineSummaryView extends StatelessWidget {
@@ -289,11 +290,13 @@ class TimelineSummaryView extends StatelessWidget {
     bool isTrain = seg.mode.toLowerCase() == 'train';
     bool useTextPreferred = layoutType == TimelineLayoutType.textPreferred && isTrain;
     bool useLogoAsIcon = layoutType == TimelineLayoutType.logoAsIcon && isTrain;
+    bool useIconPlusShortText = layoutType == TimelineLayoutType.iconPlusShortText && isTrain;
 
     // Logic variables for rendering
     bool renderStandardLogo = useLogo; // Original logic
     bool renderTextPreferred = false;
     bool renderLogoAsIcon = false;
+    bool renderIconPlusShortText = false;
     bool fallbackToShortLogo = false;
 
     if (useTextPreferred) {
@@ -303,6 +306,10 @@ class TimelineSummaryView extends StatelessWidget {
       renderStandardLogo = false;
       renderLogoAsIcon = true;
       iconData = null; // Remove standard icon
+    } else if (useIconPlusShortText) {
+      renderStandardLogo = false;
+      renderIconPlusShortText = true;
+      // iconData is kept (standard icon)
     }
 
     List<bool> useLongLogoDecisions = [];
@@ -428,7 +435,7 @@ class TimelineSummaryView extends StatelessWidget {
                   if (iconData != null) ...[
                     Icon(iconData, color: textColor, size: iconSize),
                     // If we have text or logos to follow, add spacing
-                    if (renderStandardLogo || displayText.isNotEmpty || renderTextPreferred || fallbackToShortLogo || renderLogoAsIcon)
+                    if (renderStandardLogo || displayText.isNotEmpty || renderTextPreferred || fallbackToShortLogo || renderLogoAsIcon || renderIconPlusShortText)
                       const SizedBox(width: 2),
                   ],
                   // Logo As Icon Logic: Render logo first
@@ -455,48 +462,73 @@ class TimelineSummaryView extends StatelessWidget {
                              }
                              return img;
                           }),
-                          const SizedBox(width: 2),
+                          // Only add spacing if we are going to show text
+                          if (labelParts[k] != 'EMR' && labelParts[k] != 'CrossCountry')
+                             const SizedBox(width: 2),
                         ],
 
-                        // Followed by text (shortened if needed)
-                        Flexible(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              String fullName = labelParts[k];
-                              String shortName = _getShortenedName(fullName);
+                        // Followed by text (shortened if needed), but suppress for EMR and XC
+                        if (labelParts[k] != 'EMR' && labelParts[k] != 'CrossCountry')
+                          Flexible(
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                String fullName = labelParts[k];
+                                String shortName = _getShortenedName(fullName);
 
-                              // Measure full name against available width
-                              final textPainter = TextPainter(
-                                text: TextSpan(
-                                  text: fullName,
+                                // Measure full name against available width
+                                final textPainter = TextPainter(
+                                  text: TextSpan(
+                                    text: fullName,
+                                    style: TextStyle(
+                                      fontSize: fontSize,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  textDirection: TextDirection.ltr,
+                                  textScaler: MediaQuery.of(context).textScaler,
+                                  maxLines: 1,
+                                )..layout(maxWidth: constraints.maxWidth);
+
+                                String textToUse = fullName;
+                                // If full name doesn't fit (exceeds max lines or width), use short name
+                                if (textPainter.didExceedMaxLines || textPainter.width > constraints.maxWidth) {
+                                  textToUse = shortName;
+                                }
+
+                                return Text(
+                                  textToUse,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  overflow: TextOverflow.visible,
                                   style: TextStyle(
+                                    color: textColor,
                                     fontSize: fontSize,
                                     fontWeight: FontWeight.bold,
                                   ),
-                                ),
-                                textDirection: TextDirection.ltr,
-                                textScaler: MediaQuery.of(context).textScaler,
-                                maxLines: 1,
-                              )..layout(maxWidth: constraints.maxWidth);
-
-                              String textToUse = fullName;
-                              // If full name doesn't fit (exceeds max lines or width), use short name
-                              if (textPainter.didExceedMaxLines || textPainter.width > constraints.maxWidth) {
-                                 textToUse = shortName;
-                              }
-
-                              return Text(
-                                 textToUse,
-                                 maxLines: 1,
-                                 softWrap: false,
-                                 overflow: TextOverflow.visible,
-                                 style: TextStyle(
-                                   color: textColor,
-                                   fontSize: fontSize,
-                                   fontWeight: FontWeight.bold,
-                                 ),
-                              );
-                            },
+                                );
+                              },
+                            ),
+                          ),
+                     ]
+                  ] else if (renderIconPlusShortText) ...[
+                     // Icon + Short Text Mode
+                     for (int k = 0; k < labelParts.length; k++) ...[
+                        if (k > 0) ...[
+                          const SizedBox(width: 2),
+                          Icon(LucideIcons.plus, size: 8, color: textColor),
+                          const SizedBox(width: 2),
+                        ],
+                        Flexible(
+                          child: Text(
+                            _getShortenedName(labelParts[k]),
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.visible,
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: fontSize,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                      ]
@@ -624,7 +656,7 @@ class TimelineSummaryView extends StatelessWidget {
                           ),
                         ),
                      ]
-                  ] else if (!renderLogoAsIcon) ...[
+                  ] else if (!renderLogoAsIcon && !renderIconPlusShortText) ...[
                     // Normal text display (e.g. Bus)
                     if (displayText.isNotEmpty) ...[
                       Flexible(
@@ -840,6 +872,7 @@ _LayoutResult _calculateLayout(
     bool isTrain = seg.mode.toLowerCase() == 'train';
     bool useTextPreferred = layoutType == TimelineLayoutType.textPreferred && isTrain;
     bool useLogoAsIcon = layoutType == TimelineLayoutType.logoAsIcon && isTrain;
+    bool useIconPlusShortText = layoutType == TimelineLayoutType.iconPlusShortText && isTrain;
 
     if (useLogoAsIcon) {
       hasIcon = false;
@@ -856,7 +889,7 @@ _LayoutResult _calculateLayout(
     } else if (useLogoAsIcon) {
        // Logo as icon mode
        // Icon is replaced by short logo.
-       // Followed by shortened text.
+       // Followed by shortened text (if not EMR/XC).
        for (int k = 0; k < labelParts.length; k++) {
          if (k > 0) contentBase += 4.0; // Spacing between parts
 
@@ -864,23 +897,42 @@ _LayoutResult _calculateLayout(
          if (trainLogos.containsKey(labelParts[k])) {
             double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
             contentBase += w;
-            contentBase += 2.0; // Spacing after logo
+            if (labelParts[k] != 'EMR' && labelParts[k] != 'CrossCountry')
+               contentBase += 2.0; // Spacing after logo
          }
 
          // Text width (shortened)
-         String name = _getShortenedName(labelParts[k]);
-         final partPainter = TextPainter(
-            text: TextSpan(
-              text: name,
-              style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-            ),
-            textDirection: TextDirection.ltr,
-            textScaler: textScaler,
-            maxLines: 1,
-         )..layout();
-         contentBase += partPainter.width;
+         if (labelParts[k] != 'EMR' && labelParts[k] != 'CrossCountry') {
+           String name = _getShortenedName(labelParts[k]);
+           final partPainter = TextPainter(
+              text: TextSpan(
+                text: name,
+                style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+              ),
+              textDirection: TextDirection.ltr,
+              textScaler: textScaler,
+              maxLines: 1,
+           )..layout();
+           contentBase += partPainter.width;
+         }
        }
        displayText = ''; // We handled it manually
+    } else if (useIconPlusShortText) {
+       // Icon + Short Text Mode
+       // Icon is kept (hasIcon = true).
+       // Followed by short text.
+       displayText = '';
+       for (int k = 0; k < labelParts.length; k++) {
+          if (k > 0) contentBase += 12.0;
+          String name = _getShortenedName(labelParts[k]);
+          final partPainter = TextPainter(
+             text: TextSpan(text: name, style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold)),
+             textDirection: TextDirection.ltr,
+             textScaler: textScaler,
+             maxLines: 1,
+          )..layout();
+          contentBase += partPainter.width;
+       }
     } else if (useTextPreferred) {
        // Text Preferred Mode
        displayText = '';
