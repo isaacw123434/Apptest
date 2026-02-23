@@ -5,6 +5,7 @@ import '../widgets/home/quick_route_buttons.dart';
 import '../widgets/home/saved_routes_section.dart';
 import '../widgets/home/upcoming_journeys_section.dart';
 import 'summary_page.dart';
+import 'icon_testing_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -98,6 +99,24 @@ class _HomePageState extends State<HomePage> {
                         });
                         _handleSearch();
                       },
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const IconTestingPage(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueGrey,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 48),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: const Text('Icon Testing'),
                     ),
                   ],
                 ),
