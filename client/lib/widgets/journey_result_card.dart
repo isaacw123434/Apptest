@@ -15,6 +15,7 @@ class JourneyResultCard extends StatelessWidget {
   final Leg? mainLeg;
   final Map<String, bool> selectedModes;
   final bool forceLogos;
+  final TimelineLayoutType layoutType;
 
   const JourneyResultCard({
     super.key,
@@ -25,6 +26,7 @@ class JourneyResultCard extends StatelessWidget {
     this.mainLeg,
     required this.selectedModes,
     this.forceLogos = false,
+    this.layoutType = TimelineLayoutType.original,
   });
 
   static List<Segment> buildSegments(JourneyResult result, Leg? mainLeg) {
@@ -139,6 +141,7 @@ class JourneyResultCard extends StatelessWidget {
       segments: processedSegments,
       totalTime: totalTime,
       forceLogos: forceLogos,
+      layoutType: layoutType,
     );
   }
 }

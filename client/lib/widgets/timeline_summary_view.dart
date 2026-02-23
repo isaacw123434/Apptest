@@ -26,16 +26,24 @@ const Map<String, double> longLogoWidths = {
 
 const double logoWidth = 50.0;
 
+enum TimelineLayoutType {
+  original,
+  textPreferred,
+  logoAsIcon,
+}
+
 class TimelineSummaryView extends StatelessWidget {
   final List<Segment> segments;
   final double totalTime;
   final bool forceLogos;
+  final TimelineLayoutType layoutType;
 
   const TimelineSummaryView({
     super.key,
     required this.segments,
     required this.totalTime,
     this.forceLogos = false,
+    this.layoutType = TimelineLayoutType.original,
   });
 
   static bool checkIfLogosNeeded(
@@ -46,7 +54,7 @@ class TimelineSummaryView extends StatelessWidget {
     // Check if standard config (Level 0) fits
     const standardConfig = _CompressionConfig();
     final standardLayout =
-        _calculateLayout(segments, textScaler, standardConfig, 10.0);
+        _calculateLayout(segments, textScaler, standardConfig, 10.0, TimelineLayoutType.original);
 
     if (standardLayout.totalMinWidth <= availableWidth) {
       return false;
@@ -55,7 +63,7 @@ class TimelineSummaryView extends StatelessWidget {
     // Check if simplifyBus (Level 1) fits
     const level1Config = _CompressionConfig(simplifyBus: true);
     final level1Layout =
-        _calculateLayout(segments, textScaler, level1Config, 10.0);
+        _calculateLayout(segments, textScaler, level1Config, 10.0, TimelineLayoutType.original);
 
     if (level1Layout.totalMinWidth <= availableWidth) {
       return false;
@@ -108,7 +116,7 @@ class TimelineSummaryView extends StatelessWidget {
 
         _CompressionConfig selectedConfig = levels[0];
         _LayoutResult layoutResult =
-            _calculateLayout(segments, textScaler, selectedConfig, overlap);
+            _calculateLayout(segments, textScaler, selectedConfig, overlap, layoutType);
         bool fits = false;
 
         // Check if standard fits
@@ -119,7 +127,7 @@ class TimelineSummaryView extends StatelessWidget {
           for (int i = 1; i < levels.length; i++) {
             final config = levels[i];
             final result =
-                _calculateLayout(segments, textScaler, config, overlap);
+                _calculateLayout(segments, textScaler, config, overlap, layoutType);
             if (result.totalMinWidth <= effectiveWidth) {
               selectedConfig = config;
               layoutResult = result;
@@ -133,7 +141,7 @@ class TimelineSummaryView extends StatelessWidget {
         if (!fits) {
           selectedConfig = levels.last;
           layoutResult =
-              _calculateLayout(segments, textScaler, selectedConfig, overlap);
+              _calculateLayout(segments, textScaler, selectedConfig, overlap, layoutType);
         }
 
         bool scrollNeeded = layoutResult.totalMinWidth > effectiveWidth;
@@ -174,6 +182,7 @@ class TimelineSummaryView extends StatelessWidget {
                 durationFontSize,
                 overlap,
                 selectedConfig,
+                layoutType,
               );
             }).toList(),
           ),
@@ -200,6 +209,7 @@ class TimelineSummaryView extends StatelessWidget {
     double durationFontSize,
     double overlap,
     _CompressionConfig config,
+    TimelineLayoutType layoutType,
   ) {
     final isFirst = index == 0;
     final isLast = index == segments.length - 1;
@@ -275,72 +285,123 @@ class TimelineSummaryView extends StatelessWidget {
       }
     }
 
+    // Special logic for layout types
+    bool isTrain = seg.mode.toLowerCase() == 'train';
+    bool useTextPreferred = layoutType == TimelineLayoutType.textPreferred && isTrain;
+    bool useLogoAsIcon = layoutType == TimelineLayoutType.logoAsIcon && isTrain;
+
+    // Logic variables for rendering
+    bool renderStandardLogo = useLogo; // Original logic
+    bool renderTextPreferred = false;
+    bool renderLogoAsIcon = false;
+    bool fallbackToShortLogo = false;
+
+    if (useTextPreferred) {
+      renderStandardLogo = false;
+      renderTextPreferred = true;
+    } else if (useLogoAsIcon) {
+      renderStandardLogo = false;
+      renderLogoAsIcon = true;
+      iconData = null; // Remove standard icon
+    }
+
     List<bool> useLongLogoDecisions = [];
-    if (useLogo) {
-      // Calculate layout to see if we can upgrade to long logos
-      double minRequiredForLogos = 0.0;
-      final textScaler = MediaQuery.of(context).textScaler;
+    if (renderStandardLogo || fallbackToShortLogo) { // Only calculate for standard or fallback
+       // Reuse original logic for calculating long logos
+       double minRequiredForLogos = 0.0;
+       final textScaler = MediaQuery.of(context).textScaler;
 
-      for (int k = 0; k < labelParts.length; k++) {
-        if (k > 0) minRequiredForLogos += 12.0; // Spacing
+       for (int k = 0; k < labelParts.length; k++) {
+         if (k > 0) minRequiredForLogos += 12.0; // Spacing
 
-        if (trainLogos.containsKey(labelParts[k])) {
-          double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
-          minRequiredForLogos += w;
-        } else {
-          final partPainter = TextPainter(
-            text: TextSpan(
-              text: labelParts[k],
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            textDirection: TextDirection.ltr,
-            textScaler: textScaler,
-            maxLines: 1,
-          )..layout();
-          minRequiredForLogos += partPainter.width;
-        }
-      }
+         if (trainLogos.containsKey(labelParts[k])) {
+           double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
+           minRequiredForLogos += w;
+         } else {
+           final partPainter = TextPainter(
+             text: TextSpan(
+               text: labelParts[k],
+               style: TextStyle(
+                 fontSize: fontSize,
+                 fontWeight: FontWeight.bold,
+               ),
+             ),
+             textDirection: TextDirection.ltr,
+             textScaler: textScaler,
+             maxLines: 1,
+           )..layout();
+           minRequiredForLogos += partPainter.width;
+         }
+       }
 
+       // Calculate available space
+       double leftP = isFirst ? 6 : (overlap + 1.0) * 0.75;
+       double rightP = isLast ? 6.0 : 4.0;
+       if (isWalk && config.compactWalk) {
+         if (isFirst) {
+           leftP = 2.0;
+         } else {
+           leftP = (overlap + 1.0) * 0.5;
+         }
+
+         if (isLast) {
+           rightP = 2.0;
+         } else {
+           rightP = 1.0;
+         }
+       }
+
+       double contentAvailable = width - leftP - rightP;
+       // Subtract Icon
+       if (iconData != null) {
+         contentAvailable -= (iconSize + 2.0); // Icon + spacing
+       }
+
+       double bonusSpace = contentAvailable - minRequiredForLogos;
+
+       for (int k = 0; k < labelParts.length; k++) {
+         bool decision = false;
+         String brand = labelParts[k];
+         double shortW = (brand == 'EMR') ? logoWidth : 20.0;
+
+         if (shouldUseLongLogo(brand, bonusSpace, shortW)) {
+           decision = true;
+            double longW = longLogoWidths[brand] ?? 20.0;
+            double cost = longW - shortW;
+            bonusSpace -= cost;
+         }
+         useLongLogoDecisions.add(decision);
+       }
+    }
+
+    // Calculate if text fits for textPreferred
+    if (useTextPreferred) {
       // Calculate available space
       double leftP = isFirst ? 6 : (overlap + 1.0) * 0.75;
       double rightP = isLast ? 6.0 : 4.0;
-      if (isWalk && config.compactWalk) {
-        if (isFirst) {
-          leftP = 2.0;
-        } else {
-          leftP = (overlap + 1.0) * 0.5;
-        }
-
-        if (isLast) {
-          rightP = 2.0;
-        } else {
-          rightP = 1.0;
-        }
-      }
-
       double contentAvailable = width - leftP - rightP;
-      // Subtract Icon
       if (iconData != null) {
-        contentAvailable -= (iconSize + 2.0); // Icon + spacing
+        contentAvailable -= (iconSize + 2.0);
       }
 
-      double bonusSpace = contentAvailable - minRequiredForLogos;
-
+      double requiredWidth = 0;
       for (int k = 0; k < labelParts.length; k++) {
-        bool decision = false;
-        String brand = labelParts[k];
-        double shortW = (brand == 'EMR') ? logoWidth : 20.0;
+         if (k > 0) requiredWidth += 12.0; // Spacing
+         final partPainter = TextPainter(
+            text: TextSpan(
+              text: labelParts[k],
+              style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+            ),
+            textDirection: TextDirection.ltr,
+            textScaler: MediaQuery.of(context).textScaler,
+            maxLines: 1,
+         )..layout();
+         requiredWidth += partPainter.width;
+      }
 
-        if (shouldUseLongLogo(brand, bonusSpace, shortW)) {
-          decision = true;
-           double longW = longLogoWidths[brand] ?? 20.0;
-           double cost = longW - shortW;
-           bonusSpace -= cost;
-        }
-        useLongLogoDecisions.add(decision);
+      if (requiredWidth > contentAvailable) {
+        fallbackToShortLogo = true;
+        renderTextPreferred = false;
       }
     }
 
@@ -367,10 +428,81 @@ class TimelineSummaryView extends StatelessWidget {
                   if (iconData != null) ...[
                     Icon(iconData, color: textColor, size: iconSize),
                     // If we have text or logos to follow, add spacing
-                    if (useLogo || displayText.isNotEmpty)
+                    if (renderStandardLogo || displayText.isNotEmpty || renderTextPreferred || fallbackToShortLogo || renderLogoAsIcon)
                       const SizedBox(width: 2),
                   ],
-                  if (useLogo) ...[
+                  // Logo As Icon Logic: Render logo first
+                  if (renderLogoAsIcon) ...[
+                     for (int k = 0; k < labelParts.length; k++) ...[
+                        if (k > 0) ...[
+                          const SizedBox(width: 2),
+                        ],
+                        if (trainLogos.containsKey(labelParts[k])) ...[
+                          Builder(builder: (context) {
+                             // Use short logo as icon
+                             String asset = trainLogos[labelParts[k]]!;
+                             double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
+
+                             Widget img;
+                             if (asset.endsWith('.svg')) {
+                                img = SvgPicture.asset(asset, height: 20, width: w, fit: BoxFit.contain);
+                             } else {
+                                img = Image.asset(asset, height: 20, width: w, fit: BoxFit.contain);
+                             }
+
+                             if (labelParts[k] == 'CrossCountry' || labelParts[k] == 'Northern' || labelParts[k] == 'Transpennine Express') {
+                               return ClipOval(child: img);
+                             }
+                             return img;
+                          }),
+                          const SizedBox(width: 2),
+                        ],
+
+                        // Followed by text (shortened if needed)
+                        Flexible(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              String fullName = labelParts[k];
+                              String shortName = _getShortenedName(fullName);
+
+                              // Measure full name against available width
+                              final textPainter = TextPainter(
+                                text: TextSpan(
+                                  text: fullName,
+                                  style: TextStyle(
+                                    fontSize: fontSize,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                textDirection: TextDirection.ltr,
+                                textScaler: MediaQuery.of(context).textScaler,
+                                maxLines: 1,
+                              )..layout(maxWidth: constraints.maxWidth);
+
+                              String textToUse = fullName;
+                              // If full name doesn't fit (exceeds max lines or width), use short name
+                              if (textPainter.didExceedMaxLines || textPainter.width > constraints.maxWidth) {
+                                 textToUse = shortName;
+                              }
+
+                              return Text(
+                                 textToUse,
+                                 maxLines: 1,
+                                 softWrap: false,
+                                 overflow: TextOverflow.visible,
+                                 style: TextStyle(
+                                   color: textColor,
+                                   fontSize: fontSize,
+                                   fontWeight: FontWeight.bold,
+                                 ),
+                              );
+                            },
+                          ),
+                        ),
+                     ]
+                  ],
+
+                  if (renderStandardLogo || fallbackToShortLogo) ...[
                     for (int k = 0; k < labelParts.length; k++) ...[
                       if (k > 0) ...[
                         const SizedBox(width: 2),
@@ -379,9 +511,12 @@ class TimelineSummaryView extends StatelessWidget {
                       ],
                       if (trainLogos.containsKey(labelParts[k]))
                         Builder(builder: (context) {
-                          bool useLong = useLongLogoDecisions.length > k
-                              ? useLongLogoDecisions[k]
-                              : false;
+                          bool useLong = false;
+                          if (renderStandardLogo && useLongLogoDecisions.length > k) {
+                             useLong = useLongLogoDecisions[k];
+                          }
+                          // If fallbackToShortLogo is true, we force short logo (useLong = false)
+
                           String asset = useLong
                               ? (longTrainLogos[labelParts[k]] ??
                                   trainLogos[labelParts[k]]!)
@@ -467,7 +602,30 @@ class TimelineSummaryView extends StatelessWidget {
                           ),
                         ),
                     ]
-                  ] else ...[
+                  ] else if (renderTextPreferred) ...[
+                    // Text Preferred Mode
+                     for (int k = 0; k < labelParts.length; k++) ...[
+                        if (k > 0) ...[
+                          const SizedBox(width: 2),
+                          Icon(LucideIcons.plus, size: 8, color: textColor),
+                          const SizedBox(width: 2),
+                        ],
+                        Flexible(
+                          child: Text(
+                            labelParts[k],
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.visible,
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: fontSize,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                     ]
+                  ] else if (!renderLogoAsIcon) ...[
+                    // Normal text display (e.g. Bus)
                     if (displayText.isNotEmpty) ...[
                       Flexible(
                         child: Text(
@@ -608,11 +766,23 @@ String _getDisplayText(Segment seg, _CompressionConfig config) {
   return displayText;
 }
 
+String _getShortenedName(String name) {
+  switch (name) {
+    case 'Transpennine Express':
+      return 'TPE';
+    case 'CrossCountry':
+      return 'XC';
+    default:
+      return name;
+  }
+}
+
 _LayoutResult _calculateLayout(
   List<Segment> segments,
   TextScaler textScaler,
   _CompressionConfig config,
   double overlap,
+  TimelineLayoutType layoutType,
 ) {
   const double fontSize = 12.0;
   const double durationFontSize = 10.0;
@@ -666,6 +836,15 @@ _LayoutResult _calculateLayout(
     bool hasIcon = iconData != null;
     double iconSize = (isWalk && config.smallWalkIcon) ? 12.0 : 16.0;
 
+    // Layout Type Logic Overrides
+    bool isTrain = seg.mode.toLowerCase() == 'train';
+    bool useTextPreferred = layoutType == TimelineLayoutType.textPreferred && isTrain;
+    bool useLogoAsIcon = layoutType == TimelineLayoutType.logoAsIcon && isTrain;
+
+    if (useLogoAsIcon) {
+      hasIcon = false;
+    }
+
     // Icon + Spacing (2)
     // Always include icon width if hasIcon is true
     double contentBase = hasIcon ? (iconSize + 2.0) : 0.0;
@@ -674,9 +853,49 @@ _LayoutResult _calculateLayout(
 
     if (isWalk) {
       contentBase = hasIcon ? iconSize : 0.0;
+    } else if (useLogoAsIcon) {
+       // Logo as icon mode
+       // Icon is replaced by short logo.
+       // Followed by shortened text.
+       for (int k = 0; k < labelParts.length; k++) {
+         if (k > 0) contentBase += 4.0; // Spacing between parts
+
+         // Logo width
+         if (trainLogos.containsKey(labelParts[k])) {
+            double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
+            contentBase += w;
+            contentBase += 2.0; // Spacing after logo
+         }
+
+         // Text width (shortened)
+         String name = _getShortenedName(labelParts[k]);
+         final partPainter = TextPainter(
+            text: TextSpan(
+              text: name,
+              style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+            ),
+            textDirection: TextDirection.ltr,
+            textScaler: textScaler,
+            maxLines: 1,
+         )..layout();
+         contentBase += partPainter.width;
+       }
+       displayText = ''; // We handled it manually
+    } else if (useTextPreferred) {
+       // Text Preferred Mode
+       displayText = '';
+       for (int k = 0; k < labelParts.length; k++) {
+          if (k > 0) contentBase += 12.0;
+          final partPainter = TextPainter(
+             text: TextSpan(text: labelParts[k], style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold)),
+             textDirection: TextDirection.ltr,
+             textScaler: textScaler,
+             maxLines: 1,
+          )..layout();
+          contentBase += partPainter.width;
+       }
     } else if (useLogo) {
-      // Don't reset contentBase to 0.0 if we want to keep the icon!
-      // But we reset text.
+      // Original Logo Logic
       displayText = '';
 
       for (int k = 0; k < labelParts.length; k++) {
