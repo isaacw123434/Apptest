@@ -942,7 +942,7 @@ _LayoutResult _calculateLayout(
 
         if (trainLogos.containsKey(labelParts[k])) {
           double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
-          contentBase += w;
+          contentBase += w + 2.0; // Adding 2.0 for padding (1.0 left + 1.0 right)
         } else {
            // Fallback to text measurement
            final partPainter = TextPainter(
