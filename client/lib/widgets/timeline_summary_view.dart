@@ -897,8 +897,9 @@ _LayoutResult _calculateLayout(
          if (trainLogos.containsKey(labelParts[k])) {
             double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
             contentBase += w;
-            if (labelParts[k] != 'EMR' && labelParts[k] != 'CrossCountry')
-               contentBase += 2.0; // Spacing after logo
+            if (labelParts[k] != 'EMR' && labelParts[k] != 'CrossCountry') {
+              contentBase += 2.0; // Spacing after logo
+            }
          }
 
          // Text width (shortened)
