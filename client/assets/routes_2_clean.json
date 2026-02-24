@@ -70900,7 +70900,7 @@
             "subSegments": [
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 15,
@@ -72097,7 +72097,7 @@
               },
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 76,
@@ -87328,7 +87328,7 @@
             "subSegments": [
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 15,
@@ -88525,7 +88525,7 @@
               },
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 76,
@@ -103732,7 +103732,7 @@
             "subSegments": [
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 15,
@@ -104929,7 +104929,7 @@
               },
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 76,
@@ -120152,7 +120152,7 @@
             "subSegments": [
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 15,
@@ -121349,7 +121349,7 @@
               },
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 76,
@@ -235966,7 +235966,7 @@
           },
           {
             "mode": "access_group",
-            "label": "PR3 P&R",
+            "label": "PR3 Park & Ride",
             "lineColor": "#63237f",
             "iconId": "bus",
             "time": 30,
@@ -236169,7 +236169,7 @@
               },
               {
                 "mode": "bus",
-                "label": "PR3 P&R",
+                "label": "PR3 Park & Ride",
                 "lineColor": "#63237f",
                 "iconId": "bus",
                 "time": 11,
@@ -241258,7 +241258,7 @@
           },
           {
             "mode": "bus",
-            "label": "PR2 P&R",
+            "label": "PR2 Park & Ride",
             "lineColor": "#e0603a",
             "iconId": "bus",
             "time": 15,
@@ -245404,7 +245404,7 @@
           },
           {
             "mode": "bus",
-            "label": "PR1 P&R",
+            "label": "PR1 Park & Ride",
             "lineColor": "#6cb656",
             "iconId": "bus",
             "time": 13,
@@ -321410,7 +321410,7 @@
             "subSegments": [
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 15,
@@ -322607,7 +322607,7 @@
               },
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 76,
@@ -338037,7 +338037,7 @@
             "subSegments": [
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 15,
@@ -339234,7 +339234,7 @@
               },
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 76,
@@ -354640,7 +354640,7 @@
             "subSegments": [
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 15,
@@ -355837,7 +355837,7 @@
               },
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 76,
@@ -371259,7 +371259,7 @@
             "subSegments": [
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 15,
@@ -372456,7 +372456,7 @@
               },
               {
                 "mode": "train",
-                "label": "Northern",
+                "label": "Northern + Northern",
                 "lineColor": "#262262",
                 "iconId": "train",
                 "time": 76,
@@ -488864,7 +488864,7 @@
           },
           {
             "mode": "access_group",
-            "label": "PR3 P&R",
+            "label": "PR3 Park & Ride",
             "lineColor": "#63237f",
             "iconId": "bus",
             "time": 30,
@@ -489067,7 +489067,7 @@
               },
               {
                 "mode": "bus",
-                "label": "PR3 P&R",
+                "label": "PR3 Park & Ride",
                 "lineColor": "#63237f",
                 "iconId": "bus",
                 "time": 11,
@@ -494180,7 +494180,7 @@
           },
           {
             "mode": "bus",
-            "label": "PR2 P&R",
+            "label": "PR2 Park & Ride",
             "lineColor": "#e0603a",
             "iconId": "bus",
             "time": 15,
@@ -498350,7 +498350,7 @@
           },
           {
             "mode": "bus",
-            "label": "PR1 P&R",
+            "label": "PR1 Park & Ride",
             "lineColor": "#6cb656",
             "iconId": "bus",
             "time": 13,
