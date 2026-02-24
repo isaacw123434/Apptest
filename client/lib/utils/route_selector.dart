@@ -25,8 +25,8 @@ class RouteSelector {
           minRisk = combos.map((c) => c.risk).reduce((a, b) => a < b ? a : b);
         }
         results.sort((a, b) {
-          double scoreA = a.cost + (a.time * 0.3) + ((a.risk - minRisk) * 20.0);
-          double scoreB = b.cost + (b.time * 0.3) + ((b.risk - minRisk) * 20.0);
+          double scoreA = a.cost + (a.time * 0.3) + ((a.risk - minRisk) * 20.0) + a.emissions.val;
+          double scoreB = b.cost + (b.time * 0.3) + ((b.risk - minRisk) * 20.0) + b.emissions.val;
           return scoreA.compareTo(scoreB);
         });
       }
@@ -51,8 +51,8 @@ class RouteSelector {
           if (combos.isNotEmpty) {
             minRisk = combos.map((c) => c.risk).reduce((x, y) => x < y ? x : y);
           }
-          double scoreA = a.cost + (a.time * 0.3) + ((a.risk - minRisk) * 20.0);
-          double scoreB = b.cost + (b.time * 0.3) + ((b.risk - minRisk) * 20.0);
+          double scoreA = a.cost + (a.time * 0.3) + ((a.risk - minRisk) * 20.0) + a.emissions.val;
+          double scoreB = b.cost + (b.time * 0.3) + ((b.risk - minRisk) * 20.0) + b.emissions.val;
           return scoreA.compareTo(scoreB);
         }
     }
