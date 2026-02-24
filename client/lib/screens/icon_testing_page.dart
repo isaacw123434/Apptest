@@ -125,8 +125,6 @@ class _IconTestingPageState extends State<IconTestingPage> with SingleTickerProv
              _buildVariant(route, mainLeg, routeId, TimelineLayoutType.textPreferred, 'Variant 1: Text Preference'),
              const SizedBox(height: 16),
              _buildVariant(route, mainLeg, routeId, TimelineLayoutType.logoAsIcon, 'Variant 2: Logo as Icon'),
-             const SizedBox(height: 16),
-             _buildVariant(route, mainLeg, routeId, TimelineLayoutType.iconPlusShortText, 'Variant 3: Icon + Short Text'),
            ],
          );
        },
