@@ -12,18 +12,6 @@ const Map<String, String> trainLogos = {
   'Transpennine Express': 'assets/Transpennine_Logo.png',
 };
 
-const Map<String, String> longTrainLogos = {
-  'Northern': 'assets/northernlong.png',
-  'Transpennine Express': 'assets/TransPenninelong.png',
-  'CrossCountry': 'assets/CrossCountryTrains.svg',
-};
-
-const Map<String, double> longLogoWidths = {
-  'Northern': 68.0,
-  'Transpennine Express': 56.0,
-  'CrossCountry': 116.0,
-};
-
 const double logoWidth = 50.0;
 
 class TimelineSummaryView extends StatelessWidget {
@@ -63,15 +51,6 @@ class TimelineSummaryView extends StatelessWidget {
 
     // Otherwise, we likely need logos (Level 2+)
     return true;
-  }
-
-  // Helper method for testing logic
-  static bool shouldUseLongLogo(
-      String brand, double availableBonusSpace, double shortWidth) {
-    if (!longTrainLogos.containsKey(brand)) return false;
-    double longWidth = longLogoWidths[brand] ?? 20.0;
-    double cost = longWidth - shortWidth;
-    return cost > 0 && availableBonusSpace >= cost;
   }
 
   @override
@@ -275,75 +254,6 @@ class TimelineSummaryView extends StatelessWidget {
       }
     }
 
-    List<bool> useLongLogoDecisions = [];
-    if (useLogo) {
-      // Calculate layout to see if we can upgrade to long logos
-      double minRequiredForLogos = 0.0;
-      final textScaler = MediaQuery.of(context).textScaler;
-
-      for (int k = 0; k < labelParts.length; k++) {
-        if (k > 0) minRequiredForLogos += 12.0; // Spacing
-
-        if (trainLogos.containsKey(labelParts[k])) {
-          double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
-          minRequiredForLogos += w;
-        } else {
-          final partPainter = TextPainter(
-            text: TextSpan(
-              text: labelParts[k],
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            textDirection: TextDirection.ltr,
-            textScaler: textScaler,
-            maxLines: 1,
-          )..layout();
-          minRequiredForLogos += partPainter.width;
-        }
-      }
-
-      // Calculate available space
-      double leftP = isFirst ? 6 : (overlap + 1.0) * 0.75;
-      double rightP = isLast ? 6.0 : 4.0;
-      if (isWalk && config.compactWalk) {
-        if (isFirst) {
-          leftP = 2.0;
-        } else {
-          leftP = (overlap + 1.0) * 0.5;
-        }
-
-        if (isLast) {
-          rightP = 2.0;
-        } else {
-          rightP = 1.0;
-        }
-      }
-
-      double contentAvailable = width - leftP - rightP;
-      // Subtract Icon
-      if (iconData != null) {
-        contentAvailable -= (iconSize + 2.0); // Icon + spacing
-      }
-
-      double bonusSpace = contentAvailable - minRequiredForLogos;
-
-      for (int k = 0; k < labelParts.length; k++) {
-        bool decision = false;
-        String brand = labelParts[k];
-        double shortW = (brand == 'EMR') ? logoWidth : 20.0;
-
-        if (shouldUseLongLogo(brand, bonusSpace, shortW)) {
-          decision = true;
-           double longW = longLogoWidths[brand] ?? 20.0;
-           double cost = longW - shortW;
-           bonusSpace -= cost;
-        }
-        useLongLogoDecisions.add(decision);
-      }
-    }
-
     return SizedBox(
       width: width,
       child: HorizontalJigsawSegment(
@@ -379,76 +289,39 @@ class TimelineSummaryView extends StatelessWidget {
                       ],
                       if (trainLogos.containsKey(labelParts[k]))
                         Builder(builder: (context) {
-                          bool useLong = useLongLogoDecisions.length > k
-                              ? useLongLogoDecisions[k]
-                              : false;
-                          String asset = useLong
-                              ? (longTrainLogos[labelParts[k]] ??
-                                  trainLogos[labelParts[k]]!)
-                              : trainLogos[labelParts[k]]!;
-
-                          double w;
-                          if (useLong) {
-                            w = longLogoWidths[labelParts[k]] ?? 20.0;
-                          } else {
-                            w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
-                          }
+                          String asset = trainLogos[labelParts[k]]!;
+                          double w = (labelParts[k] == 'EMR') ? logoWidth : 20.0;
 
                           Widget img;
                           if (asset.endsWith('.svg')) {
-                             img = SvgPicture.asset(
-                                asset,
-                                height: 20,
-                                width: w,
-                                fit: BoxFit.contain,
-                             );
+                            img = SvgPicture.asset(
+                              asset,
+                              height: 20,
+                              width: w,
+                              fit: BoxFit.contain,
+                            );
                           } else {
-                             img = Image.asset(
-                                asset,
-                                height: 20,
-                                width: w,
-                                fit: BoxFit.contain,
-                             );
+                            img = Image.asset(
+                              asset,
+                              height: 20,
+                              width: w,
+                              fit: BoxFit.contain,
+                            );
                           }
 
                           if (labelParts[k] == 'CrossCountry') {
-                             if (useLong) {
-                                return img;
-                             } else {
-                                return Container(
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  padding: const EdgeInsets.all(1),
-                                  child: ClipOval(child: img),
-                                );
-                             }
+                            return Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(1),
+                              child: ClipOval(child: img),
+                            );
                           } else if (labelParts[k] == 'EMR') {
                             return img;
                           } else {
                             // Northern, Transpennine Express
-                            if (useLong) {
-                               if (labelParts[k] == 'Northern') {
-                                  return Container(
-                                     decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(4.0),
-                                     ),
-                                     padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 1.0), // Added 1 pixel vertical padding
-                                     child: img,
-                                  );
-                               }
-                               // Transpennine Express
-                               return Container(
-                                  decoration: BoxDecoration(
-                                     color: Colors.white,
-                                     borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 0.0), // Reduce padding for TPE to make logo larger
-                                  child: img,
-                               );
-                            }
                             return ClipOval(child: img);
                           }
                         })
