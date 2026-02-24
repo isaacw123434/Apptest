@@ -47,8 +47,8 @@ void main() {
     // within the same anchor group. Inter-group sorting might prioritize diversity.
     for (int i = 0; i < results.length - 1; i++) {
         if (results[i].anchor == results[i+1].anchor) {
-          double scoreA = results[i].cost + (results[i].time * 0.3) + (results[i].risk * 20.0);
-          double scoreB = results[i+1].cost + (results[i+1].time * 0.3) + (results[i+1].risk * 20.0);
+          double scoreA = results[i].cost + (results[i].time * 0.3) + (results[i].risk * 20.0) + results[i].emissions.val;
+          double scoreB = results[i+1].cost + (results[i+1].time * 0.3) + (results[i+1].risk * 20.0) + results[i+1].emissions.val;
           expect(scoreA <= scoreB, isTrue, reason: 'Results from same anchor should be sorted by score');
         }
     }
