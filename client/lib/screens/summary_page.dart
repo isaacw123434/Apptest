@@ -294,7 +294,6 @@ class _SummaryPageState extends State<SummaryPage> {
               mainLeg: _mainLeg,
               selectedModes: _selectedModes,
               forceLogos: forceLogos,
-              layoutType: TimelineLayoutType.shortLogoOnly,
             );
           },
         );
