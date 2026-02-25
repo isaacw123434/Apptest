@@ -41,6 +41,14 @@ dependencies:
   google_fonts: ^6.1.0
   flutter_map: ^8.2.2
   flutter_svg: ^2.0.7
+  material_design_icons_flutter: ^7.0.7296
+  font_awesome_flutter: ^10.12.0
+  ionicons: ^0.2.2
+  feather_icons: ^1.2.0
+  remixicon: ^1.4.1
+  eva_icons_flutter: ^3.1.0
+  line_awesome_flutter: ^3.0.1
+  table_sticky_headers: ^2.0.0
 
 dev_dependencies:
   flutter_test:

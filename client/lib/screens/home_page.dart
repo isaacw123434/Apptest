@@ -5,6 +5,7 @@ import '../widgets/home/quick_route_buttons.dart';
 import '../widgets/home/saved_routes_section.dart';
 import '../widgets/home/upcoming_journeys_section.dart';
 import 'summary_page.dart';
+import 'icon_comparison_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -104,6 +105,23 @@ class _HomePageState extends State<HomePage> {
               ),
               const SavedRoutesSection(),
               const UpcomingJourneysSection(),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const IconComparisonPage(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.compare),
+                  label: const Text('Compare Transport Icons'),
+                ),
+              ),
+              const SizedBox(height: 32),
             ],
           ),
         ),
