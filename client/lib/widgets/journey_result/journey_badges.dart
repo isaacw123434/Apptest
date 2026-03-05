@@ -31,6 +31,7 @@ class JourneyBadges extends StatelessWidget {
               context: context,
               builder: (context) => RiskAssessmentDialog(
                 result: result,
+                isLeastRisky: isLeastRisky,
                 mainLeg: mainLeg,
                 routeId: routeId,
               ),
@@ -50,6 +51,7 @@ class JourneyBadges extends StatelessWidget {
               context: context,
               builder: (context) => RiskAssessmentDialog(
                 result: result,
+                isLeastRisky: isLeastRisky,
                 mainLeg: mainLeg,
                 routeId: routeId,
               ),
@@ -69,6 +71,7 @@ class JourneyBadges extends StatelessWidget {
               context: context,
               builder: (context) => RiskAssessmentDialog(
                 result: result,
+                isLeastRisky: isLeastRisky,
                 mainLeg: mainLeg,
                 routeId: routeId,
               ),

@@ -6,18 +6,29 @@ import '../../utils/risk_helper.dart';
 
 class RiskAssessmentDialog extends StatelessWidget {
   final JourneyResult result;
+  final bool isLeastRisky;
   final Leg? mainLeg;
   final String? routeId;
 
   const RiskAssessmentDialog({
     super.key,
     required this.result,
+    required this.isLeastRisky,
     this.mainLeg,
     this.routeId,
   });
 
   @override
   Widget build(BuildContext context) {
+    String riskMessage = '';
+    if (isLeastRisky) {
+      riskMessage = 'This journey has the lowest risk score.';
+    } else if (result.risk >= 4) {
+      riskMessage = 'This journey has a high risk score. It is highly prone to delays or missed connections.';
+    } else if (result.risk >= 2) {
+      riskMessage = 'This journey has a medium risk score. There is some potential for delays or connection issues.';
+    }
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -47,11 +58,13 @@ class RiskAssessmentDialog extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            const Text(
-              'This journey has the lowest risk score.',
-              style: TextStyle(fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 12),
+            if (riskMessage.isNotEmpty) ...[
+              Text(
+                riskMessage,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 12),
+            ],
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
