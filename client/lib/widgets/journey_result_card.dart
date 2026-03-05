@@ -98,11 +98,23 @@ class JourneyResultCard extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildSchematic(result),
                   const SizedBox(height: 16),
-                  JourneyBadges(
-                    result: result,
-                    isLeastRisky: isLeastRisky,
-                    mainLeg: mainLeg,
-                    routeId: routeId,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: JourneyBadges(
+                          result: result,
+                          isLeastRisky: isLeastRisky,
+                          mainLeg: mainLeg,
+                          routeId: routeId,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.chevron_right,
+                        color: Color(0xFF94A3B8), // slate400
+                      ),
+                    ],
                   ),
                 ],
               ),
