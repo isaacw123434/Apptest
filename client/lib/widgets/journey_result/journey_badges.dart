@@ -21,7 +21,9 @@ class JourneyBadges extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Wrap(
+      spacing: 8.0,
+      runSpacing: 8.0,
       children: [
         if (isLeastRisky)
           GestureDetector(
@@ -40,7 +42,44 @@ class JourneyBadges extends StatelessWidget {
               borderColor: Color(0xFFDBEAFE), // Blue 100
               iconColor: Color(0xFF1D4ED8),
               textColor: Color(0xFF1D4ED8),
-              margin: EdgeInsets.only(right: 8),
+            ),
+          ),
+        if (!isLeastRisky && result.risk >= 4)
+          GestureDetector(
+            onTap: () => showDialog(
+              context: context,
+              builder: (context) => RiskAssessmentDialog(
+                result: result,
+                mainLeg: mainLeg,
+                routeId: routeId,
+              ),
+            ),
+            child: InfoBadge(
+              text: 'High Risk',
+              icon: LucideIcons.alertTriangle,
+              backgroundColor: const Color(0xFFFEF2F2), // Red 50
+              borderColor: const Color(0xFFFEE2E2), // Red 100
+              iconColor: const Color(0xFFDC2626), // Red 600
+              textColor: const Color(0xFFDC2626), // Red 600
+            ),
+          )
+        else if (!isLeastRisky && result.risk >= 2)
+          GestureDetector(
+            onTap: () => showDialog(
+              context: context,
+              builder: (context) => RiskAssessmentDialog(
+                result: result,
+                mainLeg: mainLeg,
+                routeId: routeId,
+              ),
+            ),
+            child: InfoBadge(
+              text: 'Medium Risk',
+              icon: LucideIcons.alertCircle,
+              backgroundColor: const Color(0xFFFFFBEB), // Amber 50
+              borderColor: const Color(0xFFFEF3C7), // Amber 100
+              iconColor: const Color(0xFFD97706), // Amber 600
+              textColor: const Color(0xFFD97706), // Amber 600
             ),
           ),
         if (result.emissions.text != null)
