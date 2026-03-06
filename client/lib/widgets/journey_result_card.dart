@@ -4,6 +4,8 @@ import '../utils/app_colors.dart';
 import '../utils/journey_utils.dart';
 import '../screens/detail_page.dart';
 import 'timeline_summary_view.dart';
+import 'package:provider/provider.dart';
+import '../providers/route_provider.dart';
 import 'journey_result/journey_result_header.dart';
 import 'journey_result/journey_badges.dart';
 
@@ -53,16 +55,20 @@ class JourneyResultCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DetailPage(
-              journeyResult: result,
-              routeId: routeId,
-              selectedModes: selectedModes,
+        Provider.of<RouteProvider>(context, listen: false).setSelectedRoute(result);
+
+        if (MediaQuery.of(context).size.width < 800) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DetailPage(
+                journeyResult: result,
+                routeId: routeId,
+                selectedModes: selectedModes,
+              ),
             ),
-          ),
-        );
+          );
+        }
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
