@@ -4,6 +4,10 @@ import '../widgets/search_form.dart';
 import '../widgets/home/quick_route_buttons.dart';
 import '../widgets/home/saved_routes_section.dart';
 import '../widgets/home/upcoming_journeys_section.dart';
+import '../widgets/responsive_layout.dart';
+import '../widgets/map_widget.dart';
+import 'package:provider/provider.dart';
+import '../providers/route_provider.dart';
 import 'summary_page.dart';
 import 'icon_comparison_page.dart';
 
@@ -33,14 +37,27 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SummaryPage(
-          from: _fromController.text,
-          to: _toController.text,
-          timeType: _timeType,
-          time: _timeController.text,
-          selectedModes: _selectedModes,
-          routeId: _currentRouteId,
-        ),
+        builder: (context) {
+          final summaryPage = SummaryPage(
+            from: _fromController.text,
+            to: _toController.text,
+            timeType: _timeType,
+            time: _timeController.text,
+            selectedModes: _selectedModes,
+            routeId: _currentRouteId,
+          );
+          return ResponsiveLayout(
+            mobileView: summaryPage,
+            desktopLeftPanel: summaryPage,
+            desktopRightPanel: Consumer<RouteProvider>(
+              builder: (context, routeProvider, child) {
+                return MapWidget(
+                  routeData: routeProvider.selectedRoute,
+                );
+              },
+            ),
+          );
+        },
       ),
     );
   }

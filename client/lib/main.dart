@@ -3,9 +3,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'utils/app_colors.dart';
 import 'screens/home_page.dart';
 import 'screens/direct_drive_page.dart';
+import 'widgets/responsive_layout.dart';
+import 'widgets/map_widget.dart';
+import 'package:provider/provider.dart';
+import 'providers/route_provider.dart';
 
 void main() {
-  runApp(const JourneyPlannerApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => RouteProvider()),
+      ],
+      child: const JourneyPlannerApp(),
+    ),
+  );
 }
 
 class JourneyPlannerApp extends StatelessWidget {
@@ -26,7 +37,15 @@ class JourneyPlannerApp extends StatelessWidget {
         textTheme: GoogleFonts.interTextTheme(),
         scaffoldBackgroundColor: AppColors.slate50,
       ),
-      home: const HomePage(),
+    home: const ResponsiveLayout(
+      mobileView: HomePage(),
+      desktopLeftPanel: HomePage(),
+      desktopRightPanel: MapWidget(
+        initialLat: 54.5,
+        initialLng: -3.0,
+        initialZoom: 6.0,
+      ),
+    ),
       routes: {
         '/direct-drive': (context) => const DirectDrivePage(),
       },
