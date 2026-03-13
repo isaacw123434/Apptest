@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+
 import '../../utils/app_colors.dart';
 
 class UpcomingJourneysSection extends StatelessWidget {
@@ -39,7 +39,7 @@ class UpcomingJourneysSection extends StatelessWidget {
                         color: AppColors.brand,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(LucideIcons.train, size: 18, color: Colors.white),
+                      child: const Icon(Icons.train, size: 18, color: Colors.white),
                     ),
                     const SizedBox(width: 12),
                     Column(

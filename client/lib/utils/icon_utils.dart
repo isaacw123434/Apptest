@@ -1,22 +1,22 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 IconData? getIconData(String iconId) {
   switch (iconId) {
     case 'train':
-      return LucideIcons.train;
+      return Icons.train;
     case 'bus':
-      return LucideIcons.bus;
+      return Icons.directions_bus;
     case 'car':
-      return LucideIcons.car;
+      return Icons.directions_car;
     case 'bike':
-      return LucideIcons.bike;
+      return Icons.pedal_bike;
     case 'footprints':
       return LucideIcons.footprints;
     case 'clock':
-      return LucideIcons.clock;
+      return Icons.access_time;
     case 'parking':
-      return LucideIcons.circle;
+      return Icons.circle;
     default:
       return null;
   }

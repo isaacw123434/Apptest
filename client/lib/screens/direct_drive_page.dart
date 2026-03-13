@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import '../utils/emission_utils.dart';
@@ -113,7 +112,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
               onPressed: () => Navigator.pop(context),
               backgroundColor: Colors.white,
               foregroundColor: Colors.black,
-              child: const Icon(LucideIcons.chevronLeft),
+              child: const Icon(Icons.chevron_left),
             ),
           ),
 
@@ -163,7 +162,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
                             color: const Color(0xFFF1F5F9), // Slate 100
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(LucideIcons.car, color: Color(0xFF475569)),
+                          child: const Icon(Icons.directions_car, color: Color(0xFF475569)),
                         ),
                       ],
                     ),
@@ -184,7 +183,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: () {},
-                        icon: const Icon(LucideIcons.map),
+                        icon: const Icon(Icons.map),
                         label: const Text('Open Maps'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2563EB), // Blue 600
@@ -214,7 +213,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
              BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))
           ]
         ),
-        child: const Icon(LucideIcons.circle, size: 12, color: Colors.white),
+        child: const Icon(Icons.circle, size: 12, color: Colors.white),
       );
     } else if (isEnd) {
       return Container(
@@ -226,7 +225,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
              BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))
           ]
         ),
-        child: const Icon(LucideIcons.flag, size: 12, color: Colors.white),
+        child: const Icon(Icons.flag, size: 12, color: Colors.white),
       );
     } else {
       return const SizedBox();

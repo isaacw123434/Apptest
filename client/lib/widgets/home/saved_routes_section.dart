@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+
 import '../../utils/app_colors.dart';
 
 class SavedRoutesSection extends StatelessWidget {
@@ -53,7 +53,7 @@ class SavedRoutesSection extends StatelessWidget {
                         color: AppColors.brandLight,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(LucideIcons.heart, size: 18, color: AppColors.brand),
+                      child: Icon(Icons.favorite, size: 18, color: AppColors.brand),
                     ),
                     const SizedBox(width: 12),
                     Text(

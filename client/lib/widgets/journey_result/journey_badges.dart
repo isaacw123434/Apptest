@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../../models.dart';
 import '../../utils/app_colors.dart';
 import '../info_badge.dart';
@@ -38,7 +37,7 @@ class JourneyBadges extends StatelessWidget {
             ),
             child: InfoBadge(
               text: 'Least Risky',
-              icon: LucideIcons.shield,
+              icon: Icons.shield,
               backgroundColor: AppColors.blue50,
               borderColor: Color(0xFFDBEAFE), // Blue 100
               iconColor: Color(0xFF1D4ED8),
@@ -58,7 +57,7 @@ class JourneyBadges extends StatelessWidget {
             ),
             child: InfoBadge(
               text: 'High Risk',
-              icon: LucideIcons.alertTriangle,
+              icon: Icons.warning,
               backgroundColor: const Color(0xFFFEF2F2), // Red 50
               borderColor: const Color(0xFFFEE2E2), // Red 100
               iconColor: const Color(0xFFDC2626), // Red 600
@@ -78,7 +77,7 @@ class JourneyBadges extends StatelessWidget {
             ),
             child: InfoBadge(
               text: 'Medium Risk',
-              icon: LucideIcons.alertCircle,
+              icon: Icons.error_outline,
               backgroundColor: const Color(0xFFFFFBEB), // Amber 50
               borderColor: const Color(0xFFFEF3C7), // Amber 100
               iconColor: const Color(0xFFD97706), // Amber 600
@@ -88,7 +87,7 @@ class JourneyBadges extends StatelessWidget {
         if (result.emissions.text != null)
           InfoBadge(
             text: result.emissions.text!,
-            icon: LucideIcons.leaf,
+            icon: Icons.eco,
             backgroundColor: const Color(0xFFECFDF5), // Emerald 50
             borderColor: const Color(0xFFD1FAE5), // Emerald 100
             iconColor: const Color(0xFF047857),

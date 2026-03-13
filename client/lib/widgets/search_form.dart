@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../utils/app_colors.dart';
 import 'mode_filter.dart';
 
@@ -99,7 +98,7 @@ class SearchForm extends StatelessWidget {
               fontWeight: FontWeight.bold,
               color: AppColors.slate500,
             ),
-            icon: Icon(LucideIcons.chevronDown, size: 14, color: AppColors.slate400),
+            icon: Icon(Icons.keyboard_arrow_down, size: 14, color: AppColors.slate400),
             onChanged: onTimeTypeChanged,
             items: <String>['Depart', 'Arrive']
                 .map<DropdownMenuItem<String>>((String value) {

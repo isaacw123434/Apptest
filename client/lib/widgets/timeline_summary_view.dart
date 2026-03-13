@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
 import '../models.dart';
 import '../utils/time_utils.dart';
@@ -284,7 +284,7 @@ class TimelineSummaryView extends StatelessWidget {
                     for (int k = 0; k < labelParts.length; k++) ...[
                       if (k > 0) ...[
                         const SizedBox(width: 2),
-                        Icon(LucideIcons.plus, size: 8, color: textColor),
+                        Icon(Icons.add, size: 8, color: textColor),
                         const SizedBox(width: 2),
                       ],
                       if (trainLogos.containsKey(labelParts[k]))

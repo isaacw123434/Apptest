@@ -4,7 +4,7 @@ import 'package:client/models.dart';
 import 'package:client/widgets/detail/leg_selector_modal.dart';
 
 void main() {
-  testWidgets('LegSelectorModal displays options and handles selection', (WidgetTester tester) async {
+  testWidgets('LegSelectorModal displays groups and handles selection', (WidgetTester tester) async {
     final option1 = Leg(
       id: 'opt1',
       label: 'Option 1',
@@ -28,13 +28,25 @@ void main() {
       segments: [],
     );
 
-    final options = [option1, option2];
     Leg? selectedLeg;
+
+    final groups = [
+      LegOptionGroup(
+        title: 'Option 1',
+        icon: Icons.directions_walk,
+        options: [option1],
+      ),
+      LegOptionGroup(
+        title: 'Option 2',
+        icon: Icons.directions_car,
+        options: [option2],
+      ),
+    ];
 
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
         body: LegSelectorModal(
-          options: options,
+          groups: groups,
           currentLeg: option1,
           title: 'Test Modal',
           onSelect: (leg) {
@@ -61,75 +73,74 @@ void main() {
     expect(selectedLeg!.id, 'opt2');
   });
 
-  testWidgets('LegSelectorModal sorting works', (WidgetTester tester) async {
-      // Create options with distinct costs and times
-      final cheapSlow = Leg(
-        id: 'cheap',
-        label: 'Cheap',
-        time: 60,
-        cost: 1.0,
-        distance: 1.0,
-        riskScore: 0,
-        iconId: 'bus',
-        lineColor: '#000000',
-        segments: [],
-      );
-      final expensiveFast = Leg(
-        id: 'fast',
-        label: 'Fast',
-        time: 10,
-        cost: 100.0,
-        distance: 1.0,
-        riskScore: 0,
-        iconId: 'car',
-        lineColor: '#000000',
-        segments: [],
-      );
+  testWidgets('LegSelectorModal grouped options expand and select', (WidgetTester tester) async {
+    final driveOpt = Leg(
+      id: 'train_drive_brough',
+      label: 'Drive to Brough Station',
+      time: 60,
+      cost: 12.0,
+      distance: 1.0,
+      riskScore: 0,
+      iconId: 'car',
+      lineColor: '#000000',
+      segments: [],
+    );
+    final cycleOpt = Leg(
+      id: 'train_cycle_brough',
+      label: 'Cycle to Brough Station',
+      time: 80,
+      cost: 5.0,
+      distance: 1.0,
+      riskScore: 0,
+      iconId: 'bike',
+      lineColor: '#000000',
+      segments: [],
+    );
 
-      final options = [expensiveFast, cheapSlow]; // Initial order: Fast, Cheap
+    Leg? selectedLeg;
 
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: LegSelectorModal(
-            options: options,
-            currentLeg: cheapSlow,
-            title: 'Sort Test',
-            onSelect: (_) {},
-          ),
+    final groups = [
+      LegOptionGroup(
+        title: 'Via Brough',
+        subtitle: 'Train to Leeds',
+        icon: Icons.train,
+        options: [driveOpt, cycleOpt],
+      ),
+    ];
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: LegSelectorModal(
+          groups: groups,
+          currentLeg: driveOpt,
+          title: 'Choose Route',
+          onSelect: (leg) {
+            selectedLeg = leg;
+          },
         ),
-      ));
+      ),
+    ));
+    await tester.pumpAndSettle();
 
-      // Default sort is Best Value: (1 + 60*0.15 = 10) vs (100 + 10*0.15 = 101.5). Cheap comes first.
-      // Verify order by finding widgets location
-      final cheapFinder = find.text('Cheap');
-      final fastFinder = find.text('Fast');
+    // Group title visible
+    expect(find.text('Via Brough'), findsOneWidget);
 
-      // We expect 'Cheap' to appear before 'Fast' (visually higher = lower Y)
-      expect(tester.getTopLeft(cheapFinder).dy, lessThan(tester.getTopLeft(fastFinder).dy));
+    // Since driveOpt is current, group auto-expands - access mode chips visible
+    expect(find.text('Drive'), findsOneWidget);
+    expect(find.text('Cycle'), findsOneWidget);
 
-      // Change Sort to Lowest Time
-      await tester.tap(find.byType(DropdownButton<String>));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Lowest Time').last); // Dropdown menu item
-      await tester.pumpAndSettle();
+    // Tap cycle chip
+    await tester.tap(find.text('Cycle'));
+    await tester.pumpAndSettle();
 
-      // Now Fast (10m) should be first
-      expect(tester.getTopLeft(fastFinder).dy, lessThan(tester.getTopLeft(cheapFinder).dy));
-
-      // Change Sort to Lowest Cost
-      await tester.tap(find.byType(DropdownButton<String>));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Lowest Cost').last);
-      await tester.pumpAndSettle();
-
-      // Now Cheap (£1) should be first
-      expect(tester.getTopLeft(cheapFinder).dy, lessThan(tester.getTopLeft(fastFinder).dy));
+    expect(selectedLeg, isNotNull);
+    expect(selectedLeg!.id, 'train_cycle_brough');
   });
 
-  testWidgets('LegSelectorModal uses labelBuilder', (WidgetTester tester) async {
-    final option1 = Leg(
+  testWidgets('LegSelectorModal single option card shows diff', (WidgetTester tester) async {
+    final current = Leg(
       id: 'opt1',
-      label: 'Drive to Eastrington + Train',
+      label: 'Current',
       time: 20,
       cost: 5.0,
       distance: 1.0,
@@ -138,30 +149,36 @@ void main() {
       lineColor: '#000000',
       segments: [],
     );
+    final other = Leg(
+      id: 'opt2',
+      label: 'Other',
+      time: 30,
+      cost: 8.0,
+      distance: 1.0,
+      riskScore: 0,
+      iconId: 'car',
+      lineColor: '#000000',
+      segments: [],
+    );
 
-    final options = [option1];
+    final groups = [
+      LegOptionGroup(title: 'Current', icon: Icons.circle, options: [current]),
+      LegOptionGroup(title: 'Other', icon: Icons.circle, options: [other]),
+    ];
 
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
         body: LegSelectorModal(
-          options: options,
-          currentLeg: option1,
-          title: 'Label Builder Test',
+          groups: groups,
+          currentLeg: current,
+          title: 'Test',
           onSelect: (_) {},
-          labelBuilder: (leg) {
-             if (leg.label.contains('Eastrington')) {
-                 return 'Eastrington to Leeds';
-             }
-             return leg.label;
-          },
         ),
       ),
     ));
     await tester.pumpAndSettle();
 
-    // Verify modified label is displayed
-    expect(find.text('Eastrington to Leeds'), findsOneWidget);
-    // Verify original label is NOT displayed
-    expect(find.text('Drive to Eastrington + Train'), findsNothing);
+    // Other option should show price diff
+    expect(find.text('+£3.00'), findsOneWidget);
   });
 }

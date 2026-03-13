@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+
 import '../search_form.dart';
 
 class SearchSummaryHeader extends StatefulWidget {
@@ -107,7 +107,7 @@ class _SearchSummaryHeaderState extends State<SearchSummaryHeader> {
                           ),
                           const Padding(
                             padding: EdgeInsets.symmetric(horizontal: 4),
-                            child: Icon(LucideIcons.arrowRight, size: 12, color: Colors.grey),
+                            child: Icon(Icons.arrow_forward, size: 12, color: Colors.grey),
                           ),
                           Flexible(
                             child: Text(
@@ -124,7 +124,7 @@ class _SearchSummaryHeaderState extends State<SearchSummaryHeader> {
                         ],
                       ),
                     ),
-                    const Icon(LucideIcons.pencil, size: 16, color: Colors.grey),
+                    const Icon(Icons.edit, size: 16, color: Colors.grey),
                   ],
                 ),
         ),

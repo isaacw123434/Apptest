@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import '../utils/emission_utils.dart';
@@ -286,7 +285,7 @@ class _DetailPageState extends State<DetailPage> {
              BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))
           ]
         ),
-        child: const Icon(LucideIcons.circle, size: 12, color: Colors.white),
+        child: const Icon(Icons.circle, size: 12, color: Colors.white),
       );
     } else if (isEnd) {
       return Container(
@@ -298,7 +297,7 @@ class _DetailPageState extends State<DetailPage> {
              BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))
           ]
         ),
-        child: const Icon(LucideIcons.flag, size: 12, color: Colors.white),
+        child: const Icon(Icons.flag, size: 12, color: Colors.white),
       );
     } else {
       // Node
@@ -320,25 +319,123 @@ class _DetailPageState extends State<DetailPage> {
     }
   }
 
-  Map<String, List<Leg>> _groupLegsByStation(List<Leg> options) {
-    final Map<String, List<Leg>> groupedLegs = {};
-    for (var option in options) {
-      String suffix = _getStationSuffix(option.label);
-      if (!groupedLegs.containsKey(suffix)) {
-        groupedLegs[suffix] = [];
-      }
-      groupedLegs[suffix]!.add(option);
+  /// Check if a leg contains a train segment.
+  bool _legHasTrain(Leg leg) {
+    for (var seg in leg.segments) {
+      if (seg.iconId == 'train' || seg.mode == 'train_group') return true;
+      if (seg.subSegments != null && seg.subSegments!.any((sub) => sub.iconId == 'train')) return true;
     }
-    return groupedLegs;
+    return false;
   }
 
-  String _getStationSuffix(String label) {
-    final RegExp pattern = RegExp(r'^(Walk|Cycle|Uber|Drive|Bus|Taxi)(.*)', caseSensitive: false);
-    final match = pattern.firstMatch(label);
-    if (match != null && match.groupCount >= 2) {
-      return match.group(2)!.trim();
+  /// Extract station name from a leg's ID for grouping.
+  String _extractStation(Leg leg) {
+    final parts = leg.id.split('_');
+    if (parts.length >= 3 && parts.first == 'train') {
+      String station = parts.sublist(2).join(' ');
+      return station.split(' ').map((w) => '${w[0].toUpperCase()}${w.substring(1)}').join(' ');
     }
-    return label;
+    final stationMatch = RegExp(r'to\s+([\w\s]+?)\s+Station', caseSensitive: false).firstMatch(leg.label);
+    if (stationMatch != null) return stationMatch.group(1)!.trim();
+    return leg.label;
+  }
+
+  /// Filter legs by toggled-off modes. Only checks the access mode, not the train part.
+  List<Leg> _filterByModes(List<Leg> legs) {
+    if (widget.selectedModes == null) return legs;
+    final modes = widget.selectedModes!;
+
+    return legs.where((leg) {
+      for (var seg in leg.segments) {
+        if (seg.mode == 'walk' || seg.mode == 'wait' || seg.iconId == 'footprints') continue;
+        if (seg.mode == 'train' || seg.mode == 'train_group') continue;
+
+        String modeKey = seg.mode;
+        if (modeKey == 'access_group') {
+          if (seg.subSegments != null) {
+            for (var sub in seg.subSegments!) {
+              if (sub.mode != 'walk' && sub.mode != 'wait') {
+                modeKey = sub.mode;
+                break;
+              }
+            }
+          } else {
+            modeKey = 'bus';
+          }
+        }
+        if (modes.containsKey(modeKey) && !(modes[modeKey]!)) return false;
+        break;
+      }
+      return true;
+    }).toList();
+  }
+
+  /// Build grouped options for the leg selector modal.
+  List<LegOptionGroup> _createOptionGroups(List<Leg> options) {
+    final Map<String, List<Leg>> trainGroups = {};
+    final List<Leg> directOptions = [];
+    final List<Leg> parkAndRideOptions = [];
+
+    for (var leg in options) {
+      bool isPR = leg.id.contains('_pr') || leg.label.toLowerCase().contains('p&r');
+      if (isPR) {
+        parkAndRideOptions.add(leg);
+      } else if (_legHasTrain(leg)) {
+        String station = _extractStation(leg);
+        trainGroups.putIfAbsent(station, () => []);
+        trainGroups[station]!.add(leg);
+      } else {
+        directOptions.add(leg);
+      }
+    }
+
+    List<LegOptionGroup> groups = [];
+
+    for (var leg in directOptions) {
+      groups.add(LegOptionGroup(
+        title: leg.label,
+        subtitle: leg.detail,
+        icon: getIconData(leg.iconId) ?? Icons.circle,
+        options: [leg],
+      ));
+    }
+
+    for (var entry in trainGroups.entries) {
+      // Derive subtitle from the train segment
+      String? subtitle;
+      final rep = entry.value.first;
+      for (var seg in rep.segments) {
+        if (seg.iconId == 'train' && seg.from != null && seg.to != null) {
+          subtitle = '${seg.from} to ${seg.to}';
+          break;
+        }
+        if (seg.mode == 'train_group' && seg.subSegments != null && seg.subSegments!.isNotEmpty) {
+          final first = seg.subSegments!.first;
+          final last = seg.subSegments!.last;
+          if (first.from != null && last.to != null) {
+            subtitle = '${first.from} to ${last.to}';
+          }
+          break;
+        }
+      }
+      groups.add(LegOptionGroup(
+        title: 'Via ${entry.key}',
+        subtitle: subtitle,
+        icon: Icons.train,
+        options: entry.value,
+      ));
+    }
+
+    for (var leg in parkAndRideOptions) {
+      groups.add(LegOptionGroup(
+        title: leg.label,
+        subtitle: leg.detail,
+        icon: Icons.local_parking,
+        options: [leg],
+      ));
+    }
+
+    return groups;
   }
 
   void _updateLeg(String legType, Leg newLeg) {
@@ -458,22 +555,30 @@ class _DetailPageState extends State<DetailPage> {
         ? _initData!.segmentOptions.firstMile
         : _initData!.segmentOptions.lastMile;
 
-    // Filter by anchor station
-    List<Leg> filteredOptions = _filterLegs(allOptions, legType, currentLeg: currentLeg);
+    // Filter by anchor station (same destination)
+    List<Leg> filtered = _filterLegs(allOptions, legType, currentLeg: currentLeg);
+    // Filter by mode toggles
+    filtered = _filterByModes(filtered);
 
+    List<LegOptionGroup> groups = _createOptionGroups(filtered);
+    if (groups.isEmpty) return;
 
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (context) {
-        return LegSelectorModal(
-          options: filteredOptions,
-          currentLeg: currentLeg,
-          title: 'Access Options',
-          onSelect: (Leg selectedLeg) {
-            _updateLeg(legType, selectedLeg);
-            Navigator.pop(context);
-          },
+        return FractionallySizedBox(
+          heightFactor: 0.7,
+          child: LegSelectorModal(
+            groups: groups,
+            currentLeg: currentLeg,
+            title: 'Access Options',
+            onSelect: (Leg selectedLeg) {
+              _updateLeg(legType, selectedLeg);
+              Navigator.pop(context);
+            },
+          ),
         );
       },
     );
@@ -486,70 +591,29 @@ class _DetailPageState extends State<DetailPage> {
         ? _initData!.segmentOptions.firstMile
         : _initData!.segmentOptions.lastMile;
 
-    // Filter by anchor station
-    allOptions = _filterLegs(allOptions, legType, currentLeg: currentLeg);
+    // No anchor filtering — show ALL options for route switching
+    // Filter by mode toggles
+    List<Leg> filtered = _filterByModes(allOptions);
 
-    Map<String, List<Leg>> grouped = _groupLegsByStation(allOptions);
-    // Determine current access mode from first segment
-    String currentAccessMode = currentLeg.segments.isNotEmpty ? currentLeg.segments.first.mode : 'walk';
-
-    // Pick representatives
-    List<Leg> representatives = [];
-    grouped.forEach((suffix, legs) {
-      // Find leg matching current access mode
-      Leg? match;
-      try {
-         match = legs.firstWhere((leg) {
-             if (leg.segments.isEmpty) return false;
-             return leg.segments.first.mode == currentAccessMode;
-         });
-      } catch (e) {
-         match = null;
-      }
-
-      if (match != null) {
-          representatives.add(match);
-      } else {
-          // Fallback: Lowest Cost
-          legs.sort((a, b) => a.cost.compareTo(b.cost));
-          representatives.add(legs.first);
-      }
-    });
+    List<LegOptionGroup> groups = _createOptionGroups(filtered);
+    if (groups.isEmpty) return;
 
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (context) {
-        return LegSelectorModal(
-          options: representatives,
-          currentLeg: currentLeg,
-          title: 'Choose Route',
-          labelBuilder: (leg) {
-             // Try to construct "FromStation to ToStation"
-             // Find train segment
-             Segment? trainSeg;
-             try {
-                trainSeg = leg.segments.firstWhere((s) => s.iconId == 'train');
-             } catch (e) {
-                trainSeg = null;
-             }
-
-             if (trainSeg != null && trainSeg.from != null && trainSeg.to != null) {
-                 return '${trainSeg.from} to ${trainSeg.to}';
-             }
-
-             // Fallback: parse label if "Drive to X + Train"
-             final match = RegExp(r'to\s+(.*?)\s+\+\s+Train', caseSensitive: false).firstMatch(leg.label);
-             if (match != null) {
-                 return '${match.group(1)} to Leeds'; // Assume Leeds if implicit
-             }
-
-             return leg.label;
-          },
-          onSelect: (Leg selectedLeg) {
-            _updateLeg(legType, selectedLeg);
-            Navigator.pop(context);
-          },
+        return FractionallySizedBox(
+          heightFactor: 0.7,
+          child: LegSelectorModal(
+            groups: groups,
+            currentLeg: currentLeg,
+            title: 'Choose Route',
+            onSelect: (Leg selectedLeg) {
+              _updateLeg(legType, selectedLeg);
+              Navigator.pop(context);
+            },
+          ),
         );
       },
     );
@@ -613,7 +677,7 @@ class _DetailPageState extends State<DetailPage> {
               onPressed: () => Navigator.pop(context),
               backgroundColor: Colors.white,
               foregroundColor: Colors.black,
-              child: const Icon(LucideIcons.chevronLeft),
+              child: const Icon(Icons.chevron_left),
             ),
           ),
 
@@ -675,7 +739,7 @@ class _DetailPageState extends State<DetailPage> {
                                     ),
                                     Row(
                                       children: [
-                                        const Icon(LucideIcons.clock, size: 14, color: Colors.grey),
+                                        const Icon(Icons.access_time, size: 14, color: Colors.grey),
                                         const SizedBox(width: 4),
                                         Text(
                                           '${(totalTime / 60).floor()}h ${totalTime % 60}m',
@@ -693,7 +757,7 @@ class _DetailPageState extends State<DetailPage> {
                                   ),
                                   child: Row(
                                     children: [
-                                      const Icon(LucideIcons.leaf, size: 12, color: Color(0xFF047857)),
+                                      const Icon(Icons.eco, size: 12, color: Color(0xFF047857)),
                                       const SizedBox(width: 4),
                                       Text(
                                         result.emissions.text != null
@@ -750,7 +814,7 @@ class _DetailPageState extends State<DetailPage> {
                 ),
                 child: ElevatedButton.icon(
                   onPressed: () {},
-                  icon: const Icon(LucideIcons.heart),
+                  icon: const Icon(Icons.favorite),
                   label: const Text('Save Route'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
@@ -1354,7 +1418,7 @@ class _DetailPageState extends State<DetailPage> {
                           color: lineColor.withValues(alpha: 0.15), // The "Halo"
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(getIconData(segment.iconId) ?? LucideIcons.circle,
+                        child: Icon(getIconData(segment.iconId) ?? Icons.circle,
                             color: lineColor, // Keep icon solid
                             size: 20),
                       ),
@@ -1429,7 +1493,7 @@ class _DetailPageState extends State<DetailPage> {
                       if (isEditable)
                         TextButton.icon(
                           onPressed: onEdit,
-                          icon: const Icon(LucideIcons.pencil, size: 14),
+                          icon: const Icon(Icons.edit, size: 14),
                           label: const Text('Edit'),
                           style: TextButton.styleFrom(
                             foregroundColor: const Color(0xFF4F46E5),
@@ -1456,7 +1520,7 @@ class _DetailPageState extends State<DetailPage> {
                         if (displayDistance != null || emission > 0)
                           Row(
                             children: [
-                              const Icon(LucideIcons.leaf,
+                              const Icon(Icons.eco,
                                   size: 12, color: Colors.green),
                               const SizedBox(width: 4),
                               Text(
@@ -1510,7 +1574,7 @@ class _DetailPageState extends State<DetailPage> {
               padding: const EdgeInsets.only(bottom: 8, top: 4),
               child: Row(
                 children: [
-                  const Icon(LucideIcons.clock, size: 14, color: Colors.grey),
+                  const Icon(Icons.access_time, size: 14, color: Colors.grey),
                   const SizedBox(width: 4),
                   Text('${formatDuration(segment.time)} transfer', style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic)),
                 ],
@@ -1603,7 +1667,7 @@ class _DetailPageState extends State<DetailPage> {
                                       color: color1.withValues(alpha: 0.15),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: Icon(getIconData(seg1.iconId) ?? LucideIcons.circle, color: color1, size: 20),
+                                    child: Icon(getIconData(seg1.iconId) ?? Icons.circle, color: color1, size: 20),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
@@ -1633,7 +1697,7 @@ class _DetailPageState extends State<DetailPage> {
                                 padding: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
                                 child: Row(
                                   children: [
-                                    const Icon(LucideIcons.arrowDown, size: 12, color: Colors.grey),
+                                    const Icon(Icons.arrow_downward, size: 12, color: Colors.grey),
                                     const SizedBox(width: 8),
                                     Text(
                                        '$changeLabel (${waitTime > 0 ? formatDuration(waitTime) : 'Immediate'})',
@@ -1653,7 +1717,7 @@ class _DetailPageState extends State<DetailPage> {
                                       color: color2.withValues(alpha: 0.15),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: Icon(getIconData(seg2.iconId) ?? LucideIcons.circle, color: color2, size: 20),
+                                    child: Icon(getIconData(seg2.iconId) ?? Icons.circle, color: color2, size: 20),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
@@ -1677,7 +1741,7 @@ class _DetailPageState extends State<DetailPage> {
                           Center(
                             child: TextButton.icon(
                               onPressed: onEdit,
-                              icon: const Icon(LucideIcons.pencil, size: 14),
+                              icon: const Icon(Icons.edit, size: 14),
                               label: const Text('Edit'),
                               style: TextButton.styleFrom(
                                 foregroundColor: const Color(0xFF4F46E5),
@@ -1705,7 +1769,7 @@ class _DetailPageState extends State<DetailPage> {
                          if (totalCo2 > 0)
                            Row(
                             children: [
-                              const Icon(LucideIcons.leaf, size: 12, color: Colors.green),
+                              const Icon(Icons.eco, size: 12, color: Colors.green),
                               const SizedBox(width: 4),
                               Text(
                                 '${totalCo2.toStringAsFixed(2)} kg CO₂e',
@@ -1873,7 +1937,7 @@ class _DetailPageState extends State<DetailPage> {
               color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
-            child: Icon(getIconData(seg.iconId) ?? LucideIcons.circle, color: color, size: 20),
+            child: Icon(getIconData(seg.iconId) ?? Icons.circle, color: color, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1966,7 +2030,7 @@ class _DetailPageState extends State<DetailPage> {
                           Center(
                             child: TextButton.icon(
                               onPressed: onEdit,
-                              icon: const Icon(LucideIcons.pencil, size: 14),
+                              icon: const Icon(Icons.edit, size: 14),
                               label: const Text('Edit'),
                               style: TextButton.styleFrom(
                                 foregroundColor: const Color(0xFF4F46E5),
@@ -1995,7 +2059,7 @@ class _DetailPageState extends State<DetailPage> {
                           if (totalCo2 > 0)
                             Row(
                               children: [
-                                const Icon(LucideIcons.leaf,
+                                const Icon(Icons.eco,
                                     size: 12, color: Colors.green),
                                 const SizedBox(width: 4),
                                 Text(

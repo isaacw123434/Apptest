@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+
 import '../utils/app_colors.dart';
 
 class Header extends StatelessWidget {
@@ -29,7 +29,7 @@ class Header extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 8.0),
                   child: GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(LucideIcons.arrowLeft,
+                    child: const Icon(Icons.arrow_back,
                         color: Colors.white, size: 24),
                   ),
                 ),
@@ -58,7 +58,7 @@ class Header extends StatelessWidget {
               color: AppColors.brandDark,
               shape: BoxShape.circle,
             ),
-            child: const Icon(LucideIcons.user, color: Colors.white, size: 20),
+            child: const Icon(Icons.person, color: Colors.white, size: 20),
           ),
         ],
       ),

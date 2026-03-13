@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../../models.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/risk_helper.dart';
@@ -45,7 +44,7 @@ class RiskAssessmentDialog extends StatelessWidget {
                     color: AppColors.blue50,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(LucideIcons.shield, color: AppColors.brand),
+                  child: Icon(Icons.shield, color: AppColors.brand),
                 ),
                 const SizedBox(width: 12),
                 const Text(

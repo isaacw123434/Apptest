@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../../utils/app_colors.dart';
 
 class JourneyTabs extends StatelessWidget {
@@ -18,9 +17,9 @@ class JourneyTabs extends StatelessWidget {
       color: Colors.white,
       child: Row(
         children: [
-          _buildTab('fastest', 'Fastest', LucideIcons.zap),
-          _buildTab('smart', 'Best Value', LucideIcons.shieldCheck),
-          _buildTab('cheapest', 'Cheapest', LucideIcons.leaf),
+          _buildTab('fastest', 'Fastest', Icons.bolt),
+          _buildTab('smart', 'Best Value', Icons.verified_user),
+          _buildTab('cheapest', 'Cheapest', Icons.eco),
         ],
       ),
     );
