@@ -6,7 +6,6 @@ import '../services/api_service.dart';
 import '../utils/emission_utils.dart';
 import '../utils/time_utils.dart';
 import '../utils/icon_utils.dart';
-import '../utils/app_colors.dart';
 import '../widgets/detail/leg_selector_modal.dart';
 import '../widgets/scale_on_press.dart';
 
@@ -39,6 +38,8 @@ class _DetailPageState extends State<DetailPage> {
   List<Marker> _markers = [];
   JourneyResult? _currentResult;
   bool _isMapReady = false;
+  LatLng? _initialCenter;
+  double _initialZoom = 9.0;
 
   @override
   void initState() {
@@ -47,6 +48,7 @@ class _DetailPageState extends State<DetailPage> {
     _mapController = MapController();
     if (widget.journeyResult != null) {
       _currentResult = widget.journeyResult;
+      _computeInitialBounds();
       _updatePolylines();
     }
     _fetchData();
@@ -70,6 +72,60 @@ class _DetailPageState extends State<DetailPage> {
       }
     } catch (e) {
       debugPrint('Error fetching data: $e');
+    }
+  }
+
+  void _computeInitialBounds() {
+    if (_currentResult == null) return;
+    final result = _currentResult!;
+    List<LatLng> allPoints = [];
+
+    void collectPoints(Segment seg) {
+      if (seg.subSegments != null && seg.subSegments!.isNotEmpty) {
+        for (var sub in seg.subSegments!) {
+          collectPoints(sub);
+        }
+        return;
+      }
+      if (seg.path != null && seg.path!.isNotEmpty) {
+        for (var p in seg.path!) {
+          if (p.latitude.abs() <= 90) {
+            allPoints.add(LatLng(p.latitude, p.longitude));
+          }
+        }
+      }
+    }
+
+    for (var seg in result.leg1.segments) {
+      collectPoints(seg);
+    }
+    for (var seg in result.leg3.segments) {
+      collectPoints(seg);
+    }
+
+    if (allPoints.isNotEmpty) {
+      double minLat = allPoints.first.latitude;
+      double maxLat = allPoints.first.latitude;
+      double minLng = allPoints.first.longitude;
+      double maxLng = allPoints.first.longitude;
+      for (var p in allPoints) {
+        if (p.latitude < minLat) minLat = p.latitude;
+        if (p.latitude > maxLat) maxLat = p.latitude;
+        if (p.longitude < minLng) minLng = p.longitude;
+        if (p.longitude > maxLng) maxLng = p.longitude;
+      }
+      _initialCenter = LatLng((minLat + maxLat) / 2, (minLng + maxLng) / 2);
+      // Rough zoom estimate based on lat span
+      final latSpan = maxLat - minLat;
+      if (latSpan > 2) {
+        _initialZoom = 7.0;
+      } else if (latSpan > 1) {
+        _initialZoom = 8.0;
+      } else if (latSpan > 0.5) {
+        _initialZoom = 9.0;
+      } else {
+        _initialZoom = 10.0;
+      }
     }
   }
 
@@ -640,8 +696,8 @@ class _DetailPageState extends State<DetailPage> {
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: const LatLng(53.28, -1.37),
-              initialZoom: 9.0,
+              initialCenter: _initialCenter ?? const LatLng(53.28, -1.37),
+              initialZoom: _initialZoom,
               interactionOptions: const InteractionOptions(
                 flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
               ),
@@ -796,35 +852,20 @@ class _DetailPageState extends State<DetailPage> {
 
           // Save Button
           Positioned(
-            left: 24,
-            right: 24,
-            bottom: 24,
+            right: 16,
+            bottom: 16,
             child: ScaleOnPress(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.brand,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 4,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton.icon(
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: FloatingActionButton(
+                  mini: true,
                   onPressed: () {},
-                  icon: const Icon(Icons.favorite),
-                  label: const Text('Save Route'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.grey[600],
+                  elevation: 2,
+                  shape: const CircleBorder(),
+                  child: const Icon(Icons.bookmark_border, size: 20),
                 ),
               ),
             ),
@@ -1172,8 +1213,10 @@ class _DetailPageState extends State<DetailPage> {
       addSegments(_initData!.segmentOptions.mainLeg, 'mainLeg');
 
       // --- Loughborough Node ---
-      Color mainLegLastColor =
-          _parseColor(_initData!.segmentOptions.mainLeg.segments.last.lineColor);
+      final lastMainSeg = _initData!.segmentOptions.mainLeg.segments.last;
+      Color mainLegLastColor = (lastMainSeg.subSegments != null && lastMainSeg.subSegments!.isNotEmpty)
+          ? _parseColor(lastMainSeg.subSegments!.last.lineColor)
+          : _parseColor(lastMainSeg.lineColor);
       Color leg3FirstColor = result.leg3.segments.isNotEmpty ? _parseColor(result.leg3.segments.first.lineColor) : Colors.grey;
 
       children.add(_buildNode('Loughborough Station', _formatMinutes(currentMinutes),
