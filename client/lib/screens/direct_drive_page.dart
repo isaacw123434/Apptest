@@ -175,7 +175,7 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
                         const SizedBox(width: 8),
                         Expanded(child: _buildInfoBox('Distance', '${_initData!.directDrive.distance} mi')),
                         const SizedBox(width: 8),
-                        Expanded(child: _buildInfoBox('CO₂e', '${(_initData!.directDrive.co2 ?? calculateEmission(_initData!.directDrive.distance, IconIds.car)).toStringAsFixed(2)} kg CO₂e')),
+                        Expanded(child: _buildCarbonBox(_initData!.directDrive.co2 ?? calculateEmission(_initData!.directDrive.distance, IconIds.car))),
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -261,6 +261,49 @@ class _DirectDrivePageState extends State<DirectDrivePage> {
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF0F172A), // Slate 900
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCarbonBox(double co2) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC), // Slate 50
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'CARBON',
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF64748B), // Slate 500
+            ),
+          ),
+          const SizedBox(height: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              co2.toStringAsFixed(2),
+              maxLines: 1,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F172A), // Slate 900
+              ),
+            ),
+          ),
+          Text(
+            'kg CO₂e',
+            style: const TextStyle(
+              fontSize: 10,
+              color: Color(0xFF64748B), // Slate 500
             ),
           ),
         ],
