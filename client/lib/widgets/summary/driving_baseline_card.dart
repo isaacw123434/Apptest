@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models.dart';
 import '../../screens/direct_drive_page.dart';
+import '../../utils/app_colors.dart';
 import '../../utils/time_utils.dart';
 
 class DrivingBaselineCard extends StatelessWidget {
@@ -30,34 +31,41 @@ class DrivingBaselineCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(0),
         decoration: BoxDecoration(
-          color: const Color(0xFFFEFCE8), // Amber 50 — warm tint to distinguish
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFFFDE68A), // Amber 200 dashed-feel border
-            width: 1.5,
+            color: AppColors.slate200,
+            width: 1,
           ),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              offset: Offset(0, 2),
+              blurRadius: 4,
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // "Driving baseline" label strip
+            // Label strip
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: const BoxDecoration(
-                color: Color(0xFFFEF3C7), // Amber 100
-                borderRadius: BorderRadius.vertical(top: Radius.circular(11)),
+              decoration: BoxDecoration(
+                color: AppColors.slate50,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(11)),
               ),
               child: Row(
-                children: const [
-                  Icon(Icons.compare_arrows, size: 14, color: Color(0xFF92400E)), // Amber 800
-                  SizedBox(width: 6),
+                children: [
+                  Icon(Icons.directions_car, size: 14, color: AppColors.slate500),
+                  const SizedBox(width: 6),
                   Text(
-                    'Driving Baseline',
+                    'Drive Only',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF92400E), // Amber 800
+                      color: AppColors.slate700,
                       letterSpacing: 0.3,
                     ),
                   ),
@@ -74,30 +82,30 @@ class DrivingBaselineCard extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFFDE68A), // Amber 200
+                        decoration: BoxDecoration(
+                          color: AppColors.brandLight,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.directions_car, size: 20, color: Color(0xFF78350F)), // Amber 900
+                        child: Icon(Icons.directions_car, size: 20, color: AppColors.brand),
                       ),
                       const SizedBox(width: 12),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             'Drive Only',
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
-                              color: Color(0xFF78350F), // Amber 900
+                              color: AppColors.slate800,
                             ),
                           ),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text(
-                            'Tap to compare with alternatives',
+                            'View route',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Color(0xFFB45309), // Amber 700
+                              color: AppColors.slate500,
                             ),
                           ),
                         ],
@@ -108,25 +116,25 @@ class DrivingBaselineCard extends StatelessWidget {
                     children: [
                       Text(
                         '£${directDrive.cost.toStringAsFixed(2)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF78350F), // Amber 900
+                          color: AppColors.slate800,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         formatDuration(directDrive.time),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 12,
-                          color: Color(0xFFB45309), // Amber 700
+                          color: AppColors.slate500,
                         ),
                       ),
                       const SizedBox(width: 4),
-                      const Icon(
+                      Icon(
                         Icons.chevron_right,
                         size: 16,
-                        color: Color(0xFFD97706), // Amber 600
+                        color: AppColors.slate400,
                       ),
                     ],
                   ),

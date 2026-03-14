@@ -142,7 +142,21 @@ To make the app feel tactile and responsive, we use a "scale down" animation on 
 - **Size**: Typically 20px for actions, 16px-18px for indicators.
 - **Color**: Matches text color or `AppColors.brand` for active states.
 
-## 8. Screen Specific Specifications
+## 8. Brand & Tone Guidelines
+
+All UI components must feel consistent and on-brand. Avoid warning-style colours (amber, red, orange) for neutral informational elements — reserve those for genuine alerts or errors.
+
+### Voice & Tone
+- **Neutral and helpful** — never judgemental about transport choices. The app presents options, not opinions.
+- **Action labels** should be clear and direct: prefer "View route" over "Tap to compare with alternatives".
+- Avoid language that frames one mode as a "baseline" against which others are measured. Each option is valid.
+
+### Component Theming
+- All card variants (including drive-only cards) must use the **brand palette** (`AppColors.brand`, `AppColors.brandLight`, `AppColors.slate*`) — not standalone amber/warning palettes.
+- Distinguish card types through **subtle layout differences** (label strips, icons) rather than contrasting colour schemes that imply hierarchy or warning.
+- Shadows, borders, and radii should match the standard card spec (12px radius, `AppColors.slate200` border, soft `Colors.black12` shadow).
+
+## 9. Screen Specific Specifications
 
 ### Summary Overview Page
 
