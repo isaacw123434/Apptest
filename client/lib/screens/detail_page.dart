@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../models.dart';
 import '../services/api_service.dart';
+import '../utils/app_colors.dart';
 import '../utils/emission_utils.dart';
 import '../utils/time_utils.dart';
 import '../utils/icon_utils.dart';
@@ -856,16 +857,15 @@ class _DetailPageState extends State<DetailPage> {
             bottom: 16,
             child: ScaleOnPress(
               child: SizedBox(
-                width: 40,
-                height: 40,
+                width: 48,
+                height: 48,
                 child: FloatingActionButton(
-                  mini: true,
                   onPressed: () {},
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.grey[600],
-                  elevation: 2,
+                  backgroundColor: AppColors.brand,
+                  foregroundColor: Colors.white,
+                  elevation: 4,
                   shape: const CircleBorder(),
-                  child: const Icon(Icons.bookmark_border, size: 20),
+                  child: const Icon(Icons.bookmark_border, size: 22),
                 ),
               ),
             ),
@@ -1577,6 +1577,8 @@ class _DetailPageState extends State<DetailPage> {
                           ),
                       ],
                     ),
+                    if (_buildSegmentActionButton(segment.iconId) != null)
+                      _buildSegmentActionButton(segment.iconId)!,
                   ]
                 ],
               ),
@@ -1825,6 +1827,8 @@ class _DetailPageState extends State<DetailPage> {
                           ),
                       ],
                     ),
+                    if (_buildSegmentActionButton(seg1.iconId) != null)
+                      _buildSegmentActionButton(seg1.iconId)!,
                   ],
                 ),
               ),
@@ -1835,6 +1839,65 @@ class _DetailPageState extends State<DetailPage> {
     );
   }
 
+
+  Widget? _buildSegmentActionButton(String iconId) {
+    String? label;
+    IconData? icon;
+
+    switch (iconId) {
+      case 'train':
+        label = 'Book on Trainline';
+        icon = Icons.confirmation_number_outlined;
+        break;
+      case 'bus':
+        label = 'Open in Maps';
+        icon = Icons.map_outlined;
+        break;
+      case 'car':
+        label = 'Open in Maps';
+        icon = Icons.map_outlined;
+        break;
+      case 'bike':
+        label = 'Open in Maps';
+        icon = Icons.map_outlined;
+        break;
+      case 'footprints':
+        label = 'Open in Maps';
+        icon = Icons.map_outlined;
+        break;
+      default:
+        return null;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: SizedBox(
+        width: double.infinity,
+        height: 36,
+        child: OutlinedButton.icon(
+          onPressed: () {
+            // TODO: deeplink to maps / Trainline
+          },
+          icon: Icon(icon, size: 14),
+          label: Text(label),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: iconId == 'train'
+                ? const Color(0xFF0F766E)
+                : const Color(0xFF4F46E5),
+            side: BorderSide(
+              color: iconId == 'train'
+                  ? const Color(0xFF0F766E).withValues(alpha: 0.3)
+                  : const Color(0xFF4F46E5).withValues(alpha: 0.3),
+            ),
+            textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   void _zoomToFit() {
     if (!mounted) return;
@@ -2116,7 +2179,10 @@ class _DetailPageState extends State<DetailPage> {
                             ),
                         ],
                       ),
-                    ]
+                    ],
+                    // Use the last segment's mode (walk→bus = bus action)
+                    if (_buildSegmentActionButton(segments.last.iconId) != null)
+                      _buildSegmentActionButton(segments.last.iconId)!,
                   ],
                 ),
               ),

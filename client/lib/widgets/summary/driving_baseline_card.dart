@@ -61,7 +61,7 @@ class DrivingBaselineCard extends StatelessWidget {
                   Icon(Icons.directions_car, size: 14, color: AppColors.slate500),
                   const SizedBox(width: 6),
                   Text(
-                    'Drive Only',
+                    'Petrol',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
