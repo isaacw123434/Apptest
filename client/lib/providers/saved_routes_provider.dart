@@ -27,6 +27,12 @@ class SavedRoutesProvider extends ChangeNotifier {
     return route?.isPermanent ?? false;
   }
 
+  /// Count of favourited routes for a specific from→to pair
+  int countForPair(String from, String to) {
+    final key = '$from→$to';
+    return _savedRoutes.where((r) => r.routeKey == key).length;
+  }
+
   void toggleHeart(String from, String to, JourneyResult journey) {
     final index = _savedRoutes.indexWhere((r) => r.journey.id == journey.id);
     if (index >= 0) {
@@ -50,17 +56,16 @@ class SavedRoutesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void saveFromDetail(String from, String to, JourneyResult journey) {
+  /// Bookmark a route (isPermanent = committed/upcoming journey)
+  void toggleBookmark(String from, String to, JourneyResult journey) {
     final index = _savedRoutes.indexWhere((r) => r.journey.id == journey.id);
     if (index >= 0) {
-      if (_savedRoutes[index].isPermanent) {
-        // Already permanent — toggle off
-        _savedRoutes.removeAt(index);
-      } else {
-        // Upgrade heart to permanent
-        _savedRoutes[index] = _savedRoutes[index].copyWith(isPermanent: true);
-      }
+      // Toggle isPermanent
+      _savedRoutes[index] = _savedRoutes[index].copyWith(
+        isPermanent: !_savedRoutes[index].isPermanent,
+      );
     } else {
+      // Heart + bookmark in one go
       _savedRoutes.add(SavedRoute(
         routeKey: '$from→$to',
         from: from,
@@ -74,8 +79,17 @@ class SavedRoutesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Alias kept for detail page compatibility
+  void saveFromDetail(String from, String to, JourneyResult journey) {
+    toggleBookmark(from, to, journey);
+  }
+
   List<SavedRoute> getRoutesForPair(String from, String to) {
     final key = '$from→$to';
     return _savedRoutes.where((r) => r.routeKey == key).toList();
   }
+
+  /// Get all bookmarked (upcoming) routes
+  List<SavedRoute> get upcomingRoutes =>
+      _savedRoutes.where((r) => r.isPermanent).toList();
 }

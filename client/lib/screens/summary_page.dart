@@ -221,7 +221,7 @@ class _SummaryPageState extends State<SummaryPage> {
               bottom: 16,
               child: Consumer<SavedRoutesProvider>(
                 builder: (context, provider, _) {
-                  final count = provider.savedCount;
+                  final count = provider.countForPair(_displayFrom, _displayTo);
                   if (count == 0) return const SizedBox.shrink();
                   return _HeartFab(
                     count: count,
@@ -388,39 +388,50 @@ class _HeartFabState extends State<_HeartFab>
       scale: _scaleAnimation,
       child: ScaleOnPress(
         onTap: widget.onTap,
-        child: Container(
-          width: 52,
-          height: 52,
-          decoration: const BoxDecoration(
-            color: Colors.red,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 6,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
+        child: SizedBox(
+          width: 58,
+          height: 58,
           child: Stack(
-            alignment: Alignment.center,
             children: [
-              const Icon(Icons.favorite, color: Colors.white, size: 24),
               Positioned(
-                top: 4,
-                right: 4,
+                bottom: 0,
+                left: 0,
                 child: Container(
-                  padding: const EdgeInsets.all(4),
+                  width: 52,
+                  height: 52,
                   decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 6,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.favorite, color: Colors.white, size: 24),
+                ),
+              ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
+                    border: Border.all(color: Colors.red, width: 1.5),
                   ),
                   child: Text(
                     '${widget.count}',
                     style: const TextStyle(
                       color: Colors.red,
-                      fontSize: 10,
+                      fontSize: 11,
                       fontWeight: FontWeight.bold,
+                      height: 1,
                     ),
                   ),
                 ),

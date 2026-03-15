@@ -32,6 +32,7 @@ class SavedRoutesPage extends StatefulWidget {
 
 class _SavedRoutesPageState extends State<SavedRoutesPage> {
   String _sortBy = 'fastest';
+  bool _ascending = true;
   final Set<String> _removing = {};
   final Map<String, Timer> _removeTimers = {};
 
@@ -44,21 +45,25 @@ class _SavedRoutesPageState extends State<SavedRoutesPage> {
   }
 
   List<SavedRoute> _filteredAndSorted(List<SavedRoute> routes) {
-    // Filter to only routes matching this journey's from→to
     final routeKey = '${widget.from}→${widget.to}';
     var filtered = routes.where((r) => r.routeKey == routeKey).toList();
 
+    int Function(SavedRoute, SavedRoute) comparator;
     switch (_sortBy) {
       case 'fastest':
-        filtered.sort((a, b) => a.journey.time.compareTo(b.journey.time));
+        comparator = (a, b) => a.journey.time.compareTo(b.journey.time);
       case 'cheapest':
-        filtered.sort((a, b) => a.journey.cost.compareTo(b.journey.cost));
+        comparator = (a, b) => a.journey.cost.compareTo(b.journey.cost);
       case 'carbon':
-        filtered.sort(
-            (a, b) => a.journey.emissions.val.compareTo(b.journey.emissions.val));
+        comparator = (a, b) =>
+            a.journey.emissions.val.compareTo(b.journey.emissions.val);
       case 'risk':
-        filtered.sort((a, b) => a.journey.risk.compareTo(b.journey.risk));
+        comparator = (a, b) => a.journey.risk.compareTo(b.journey.risk);
+      default:
+        comparator = (a, b) => a.journey.time.compareTo(b.journey.time);
     }
+
+    filtered.sort((a, b) => _ascending ? comparator(a, b) : comparator(b, a));
     return filtered;
   }
 
@@ -97,11 +102,10 @@ class _SavedRoutesPageState extends State<SavedRoutesPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: Text(
-                      'Saved Routes',
+                      'Favourite Routes',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -109,9 +113,30 @@ class _SavedRoutesPageState extends State<SavedRoutesPage> {
                       ),
                     ),
                   ),
+                  // Sort direction toggle
+                  GestureDetector(
+                    onTap: () => setState(() => _ascending = !_ascending),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.slate200),
+                      ),
+                      child: Icon(
+                        _ascending
+                            ? Icons.arrow_upward
+                            : Icons.arrow_downward,
+                        size: 18,
+                        color: AppColors.slate700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Sort dropdown
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
@@ -133,7 +158,8 @@ class _SavedRoutesPageState extends State<SavedRoutesPage> {
                               value: 'cheapest', child: Text('Cheapest')),
                           DropdownMenuItem(
                               value: 'carbon', child: Text('Carbon')),
-                          DropdownMenuItem(value: 'risk', child: Text('Risk')),
+                          DropdownMenuItem(
+                              value: 'risk', child: Text('Risk')),
                         ],
                         onChanged: (value) {
                           if (value != null) {
@@ -159,7 +185,7 @@ class _SavedRoutesPageState extends State<SavedRoutesPage> {
                               size: 48, color: AppColors.slate400),
                           const SizedBox(height: 12),
                           Text(
-                            'No saved routes yet',
+                            'No favourite routes yet',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -179,63 +205,119 @@ class _SavedRoutesPageState extends State<SavedRoutesPage> {
                     );
                   }
 
-                  // Calculate minRisk for badge (same as summary page)
-                  int minRisk = 999;
-                  if (routes.isNotEmpty) {
-                    minRisk = routes
-                        .map((r) => r.journey.risk)
-                        .reduce((a, b) => a < b ? a : b);
-                  }
+                  int minRisk = routes
+                      .map((r) => r.journey.risk)
+                      .reduce((a, b) => a < b ? a : b);
 
                   return ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: routes.length,
                     itemBuilder: (context, index) {
                       final saved = routes[index];
-                      final isRemoving = _removing.contains(saved.journey.id);
+                      final isRemoving =
+                          _removing.contains(saved.journey.id);
 
                       return AnimatedOpacity(
                         opacity: isRemoving ? 0.5 : 1.0,
                         duration: const Duration(milliseconds: 300),
                         child: Stack(
                           children: [
-                            // Reuse the exact same JourneyResultCard from summary
-                            AbsorbPointer(
-                              absorbing: isRemoving,
-                              child: JourneyResultCard(
-                                result: saved.journey,
-                                isTopChoice: false,
-                                isLeastRisky: saved.journey.risk == minRisk,
-                                routeId: widget.routeId,
-                                mainLeg: widget.mainLeg,
-                                selectedModes: widget.selectedModes,
-                                from: saved.from,
-                                to: saved.to,
-                                onHeartTap: () {
-                                  if (isRemoving) {
-                                    _undoRemoval(saved.journey.id);
-                                  } else {
-                                    _startRemoval(saved.journey.id);
-                                  }
-                                },
-                              ),
+                            Column(
+                              children: [
+                                AbsorbPointer(
+                                  absorbing: isRemoving,
+                                  child: JourneyResultCard(
+                                    result: saved.journey,
+                                    isTopChoice: false,
+                                    isLeastRisky:
+                                        saved.journey.risk == minRisk,
+                                    routeId: widget.routeId,
+                                    mainLeg: widget.mainLeg,
+                                    selectedModes: widget.selectedModes,
+                                    from: saved.from,
+                                    to: saved.to,
+                                    onHeartTap: () {
+                                      if (isRemoving) {
+                                        _undoRemoval(saved.journey.id);
+                                      } else {
+                                        _startRemoval(saved.journey.id);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
+                            // Bookmark button positioned at bottom-right of card
+                            if (!isRemoving)
+                              Positioned(
+                                right: 8,
+                                bottom: 24,
+                                child: Consumer<SavedRoutesProvider>(
+                                  builder: (context, prov, _) {
+                                    final isBooked = prov.isPermanent(
+                                        saved.journey.id);
+                                    return ScaleOnPress(
+                                      onTap: () {
+                                        prov.toggleBookmark(
+                                          saved.from,
+                                          saved.to,
+                                          saved.journey,
+                                        );
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: isBooked
+                                              ? AppColors.brand
+                                              : Colors.white,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: isBooked
+                                                ? AppColors.brand
+                                                : AppColors.slate200,
+                                          ),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Colors.black12,
+                                              blurRadius: 4,
+                                              offset: Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Icon(
+                                          isBooked
+                                              ? Icons.bookmark
+                                              : Icons.bookmark_border,
+                                          size: 18,
+                                          color: isBooked
+                                              ? Colors.white
+                                              : AppColors.slate400,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
                             // Undo overlay when removing
                             if (isRemoving)
                               Positioned.fill(
                                 child: Container(
                                   margin: const EdgeInsets.only(bottom: 16),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.8),
-                                    borderRadius: BorderRadius.circular(12),
+                                    color: Colors.white
+                                        .withValues(alpha: 0.8),
+                                    borderRadius:
+                                        BorderRadius.circular(12),
                                   ),
                                   child: Center(
                                     child: ScaleOnPress(
-                                      onTap: () =>
-                                          _undoRemoval(saved.journey.id),
+                                      onTap: () => _undoRemoval(
+                                          saved.journey.id),
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 16, vertical: 8),
+                                        padding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 16,
+                                                vertical: 8),
                                         decoration: BoxDecoration(
                                           color: AppColors.brand,
                                           borderRadius:

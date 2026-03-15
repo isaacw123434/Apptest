@@ -14,41 +14,7 @@ class SavedRoutesSection extends StatelessWidget {
     return Consumer<SavedRoutesProvider>(
       builder: (context, provider, _) {
         final routes = provider.savedRoutes;
-        if (routes.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Saved Routes',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: AppColors.slate800,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.slate100),
-                  ),
-                  child: Text(
-                    'Heart routes from search results to save them here',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: AppColors.slate400,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
+        if (routes.isEmpty) return const SizedBox.shrink();
 
         // Group by routeKey
         final grouped = <String, List<SavedRoute>>{};
@@ -62,7 +28,7 @@ class SavedRoutesSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Saved Routes',
+                'Favourite Routes',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -123,7 +89,7 @@ class SavedRoutesSection extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'See your $count saved route${count == 1 ? '' : 's'}',
+                                '${pair.from} → ${pair.to}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
@@ -132,7 +98,7 @@ class SavedRoutesSection extends StatelessWidget {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                '${pair.from} → ${pair.to}',
+                                '$count favourite${count == 1 ? '' : 's'}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: AppColors.slate400,
