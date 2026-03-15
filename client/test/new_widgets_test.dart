@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:client/providers/saved_routes_provider.dart';
 import 'package:client/widgets/header.dart';
 import 'package:client/widgets/search_form.dart';
 import 'package:client/widgets/journey_result_card.dart';
@@ -28,7 +30,7 @@ void main() {
 
     expect(find.text('From'), findsOneWidget);
     expect(find.text('To'), findsOneWidget);
-    expect(find.text('Filter Modes'), findsOneWidget);
+    expect(find.text('Exclude Modes'), findsOneWidget);
   });
 
   testWidgets('JourneyResultCard renders cost and duration', (WidgetTester tester) async {
@@ -70,13 +72,18 @@ void main() {
       emissions: Emissions(val: 100, percent: 50, text: 'Low CO2'),
     );
 
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: JourneyResultCard(
-          result: result,
-          isTopChoice: true,
-          isLeastRisky: false,
-          selectedModes: const {},
+    await tester.pumpWidget(ChangeNotifierProvider(
+      create: (_) => SavedRoutesProvider(),
+      child: MaterialApp(
+        home: Scaffold(
+          body: JourneyResultCard(
+            result: result,
+            isTopChoice: true,
+            isLeastRisky: false,
+            selectedModes: const {},
+            from: 'TestFrom',
+            to: 'TestTo',
+          ),
         ),
       ),
     ));

@@ -4,8 +4,10 @@ import '../utils/app_colors.dart';
 import '../utils/journey_utils.dart';
 import '../screens/detail_page.dart';
 import 'timeline_summary_view.dart';
+import 'scale_on_press.dart';
 import 'package:provider/provider.dart';
 import '../providers/route_provider.dart';
+import '../providers/saved_routes_provider.dart';
 import 'journey_result/journey_result_header.dart';
 import 'journey_result/journey_badges.dart';
 
@@ -17,6 +19,8 @@ class JourneyResultCard extends StatelessWidget {
   final Leg? mainLeg;
   final Map<String, bool> selectedModes;
   final bool forceLogos;
+  final String from;
+  final String to;
 
   const JourneyResultCard({
     super.key,
@@ -27,6 +31,8 @@ class JourneyResultCard extends StatelessWidget {
     this.mainLeg,
     required this.selectedModes,
     this.forceLogos = false,
+    required this.from,
+    required this.to,
   });
 
   static List<Segment> buildSegments(JourneyResult result, Leg? mainLeg) {
@@ -65,6 +71,8 @@ class JourneyResultCard extends StatelessWidget {
                 journeyResult: result,
                 routeId: routeId,
                 selectedModes: selectedModes,
+                from: from,
+                to: to,
               ),
             ),
           );
@@ -116,9 +124,26 @@ class JourneyResultCard extends StatelessWidget {
                           routeId: routeId,
                         ),
                       ),
-                      const Icon(
-                        Icons.chevron_right,
-                        color: Color(0xFF94A3B8), // slate400
+                      Consumer<SavedRoutesProvider>(
+                        builder: (context, provider, _) {
+                          final isSaved = provider.isSaved(result.id);
+                          return GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              provider.toggleHeart(from, to, result);
+                            },
+                            child: ScaleOnPress(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Icon(
+                                  isSaved ? Icons.favorite : Icons.favorite_border,
+                                  color: isSaved ? Colors.red : const Color(0xFF94A3B8),
+                                  size: 22,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

@@ -7,12 +7,14 @@ import 'widgets/responsive_layout.dart';
 import 'widgets/map_widget.dart';
 import 'package:provider/provider.dart';
 import 'providers/route_provider.dart';
+import 'providers/saved_routes_provider.dart';
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => RouteProvider()),
+        ChangeNotifierProvider(create: (_) => SavedRoutesProvider()..init()),
       ],
       child: const JourneyPlannerApp(),
     ),

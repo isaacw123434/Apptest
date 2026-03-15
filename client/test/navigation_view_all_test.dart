@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:client/providers/saved_routes_provider.dart';
 import 'package:client/screens/summary_page.dart';
 import 'package:client/widgets/header.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:client/models.dart';
 import 'package:client/services/api_service.dart';
 
@@ -62,7 +63,9 @@ void main() {
     final journeys = createJourneyResults(10); // More than 3
     final apiService = MockApiService(initData: createInitData(), journeys: journeys);
 
-    await tester.pumpWidget(MaterialApp(
+    await tester.pumpWidget(ChangeNotifierProvider(
+      create: (_) => SavedRoutesProvider(),
+      child: MaterialApp(
       home: SummaryPage(
         from: 'A',
         to: 'B',
@@ -71,7 +74,7 @@ void main() {
         selectedModes: {},
         apiService: apiService,
       ),
-    ));
+    )));
 
     await tester.pump(); // trigger initState
     await tester.pump(const Duration(milliseconds: 100));
@@ -89,7 +92,9 @@ void main() {
     final journeys = createJourneyResults(1);
     final apiService = MockApiService(initData: createInitData(), journeys: journeys);
 
-    await tester.pumpWidget(MaterialApp(
+    await tester.pumpWidget(ChangeNotifierProvider(
+      create: (_) => SavedRoutesProvider(),
+      child: MaterialApp(
       home: Builder(
         builder: (context) => TextButton(
           onPressed: () {
@@ -105,7 +110,7 @@ void main() {
           child: const Text('Go'),
         ),
       ),
-    ));
+    )));
 
     // Tap to go to SummaryPage
     await tester.tap(find.text('Go'));
@@ -116,10 +121,10 @@ void main() {
     expect(find.byType(Header), findsOneWidget);
 
     // Check if back button exists in Header
-    expect(find.byIcon(LucideIcons.arrowLeft), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_back), findsOneWidget);
 
     // Tap the back button
-    await tester.tap(find.byIcon(LucideIcons.arrowLeft));
+    await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
 
     // Check if we are back at the start

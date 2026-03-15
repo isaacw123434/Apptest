@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:client/screens/detail_page.dart';
+import 'package:provider/provider.dart';
 import 'package:client/models.dart';
+import 'package:client/providers/saved_routes_provider.dart';
+import 'package:client/screens/detail_page.dart';
 import 'package:client/services/api_service.dart';
 
 class MockApiService extends ApiService {
@@ -65,10 +67,13 @@ void main() {
       emissions: Emissions(val: 0, percent: 0),
     );
 
-    await tester.pumpWidget(MaterialApp(
-      home: DetailPage(
-        journeyResult: dummyResult,
-        apiService: mockApiService,
+    await tester.pumpWidget(ChangeNotifierProvider(
+      create: (_) => SavedRoutesProvider(),
+      child: MaterialApp(
+        home: DetailPage(
+          journeyResult: dummyResult,
+          apiService: mockApiService,
+        ),
       ),
     ));
 

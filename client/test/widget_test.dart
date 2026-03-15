@@ -6,13 +6,22 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:client/providers/route_provider.dart';
+import 'package:client/providers/saved_routes_provider.dart';
 
 import 'package:client/main.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const JourneyPlannerApp());
+    await tester.pumpWidget(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => RouteProvider()),
+        ChangeNotifierProvider(create: (_) => SavedRoutesProvider()),
+      ],
+      child: const JourneyPlannerApp(),
+    ));
 
     // Verify that our counter starts at 0.
     expect(find.text('EndMile'), findsOneWidget);

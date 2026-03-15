@@ -9,12 +9,16 @@ import '../utils/time_utils.dart';
 import '../utils/icon_utils.dart';
 import '../widgets/detail/leg_selector_modal.dart';
 import '../widgets/scale_on_press.dart';
+import 'package:provider/provider.dart';
+import '../providers/saved_routes_provider.dart';
 
 class DetailPage extends StatefulWidget {
   final JourneyResult? journeyResult;
   final ApiService? apiService;
   final String? routeId;
   final Map<String, bool>? selectedModes;
+  final String from;
+  final String to;
 
   const DetailPage({
     super.key,
@@ -22,6 +26,8 @@ class DetailPage extends StatefulWidget {
     this.apiService,
     this.routeId,
     this.selectedModes,
+    this.from = '',
+    this.to = '',
   });
 
   @override
@@ -855,19 +861,38 @@ class _DetailPageState extends State<DetailPage> {
           Positioned(
             right: 16,
             bottom: 16,
-            child: ScaleOnPress(
-              child: SizedBox(
-                width: 48,
-                height: 48,
-                child: FloatingActionButton(
-                  onPressed: () {},
-                  backgroundColor: AppColors.brand,
-                  foregroundColor: Colors.white,
-                  elevation: 4,
-                  shape: const CircleBorder(),
-                  child: const Icon(Icons.bookmark_border, size: 22),
-                ),
-              ),
+            child: Consumer<SavedRoutesProvider>(
+              builder: (context, provider, _) {
+                final journey = _currentResult;
+                if (journey == null) return const SizedBox.shrink();
+                final isSaved = provider.isPermanent(journey.id);
+                return ScaleOnPress(
+                  onTap: () {
+                    provider.saveFromDetail(widget.from, widget.to, journey);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(isSaved ? 'Route unsaved' : 'Route saved'),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                  child: SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: FloatingActionButton(
+                      onPressed: null,
+                      backgroundColor: AppColors.brand,
+                      foregroundColor: Colors.white,
+                      elevation: 4,
+                      shape: const CircleBorder(),
+                      child: Icon(
+                        isSaved ? Icons.bookmark : Icons.bookmark_border,
+                        size: 22,
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],

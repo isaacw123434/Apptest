@@ -8,7 +8,10 @@ import '../widgets/responsive_layout.dart';
 import '../widgets/map_widget.dart';
 import 'package:provider/provider.dart';
 import '../providers/route_provider.dart';
+import '../providers/saved_routes_provider.dart';
+import '../utils/app_colors.dart';
 import 'summary_page.dart';
+import 'saved_routes_page.dart';
 import 'icon_comparison_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -99,6 +102,59 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                     const SizedBox(height: 12),
+                    Consumer<SavedRoutesProvider>(
+                      builder: (context, provider, _) {
+                        final saved = provider.getRoutesForPair(
+                          _fromController.text,
+                          _toController.text,
+                        );
+                        if (saved.isEmpty) return const SizedBox.shrink();
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SavedRoutesPage(
+                                  from: _fromController.text,
+                                  to: _toController.text,
+                                  selectedModes: _selectedModes,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: AppColors.brandLight,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                  color: AppColors.brand.withValues(alpha: 0.3)),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.favorite,
+                                    color: Colors.red, size: 18),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'View your ${saved.length} saved route${saved.length == 1 ? '' : 's'}',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.slate700,
+                                    ),
+                                  ),
+                                ),
+                                Icon(Icons.chevron_right,
+                                    color: AppColors.slate400),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                     QuickRouteButtons(
                       onMockRoute1: () {
                         setState(() {

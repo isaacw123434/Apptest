@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models.dart';
 import '../services/api_service.dart';
+import '../providers/saved_routes_provider.dart';
 import '../widgets/header.dart';
 import '../widgets/journey_result_card.dart';
-import '../widgets/timeline_summary_view.dart'; // Added
+import '../widgets/timeline_summary_view.dart';
+import '../widgets/scale_on_press.dart';
 import '../widgets/summary/driving_baseline_card.dart';
 import '../widgets/summary/journey_tabs.dart';
 import '../widgets/summary/search_summary_header.dart';
+import 'saved_routes_page.dart';
 
 class SummaryPage extends StatefulWidget {
   final String from;
@@ -152,7 +156,9 @@ class _SummaryPageState extends State<SummaryPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // Slate 50
       body: SafeArea(
-        child: Column(
+        child: Stack(
+          children: [
+            Column(
           children: [
             const Header(),
             SearchSummaryHeader(
@@ -206,6 +212,35 @@ class _SummaryPageState extends State<SummaryPage> {
                   : _errorMessage != null
                       ? Center(child: Text('Error: $_errorMessage'))
                       : _buildResultsList(),
+            ),
+          ],
+            ),
+            // Floating heart FAB
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: Consumer<SavedRoutesProvider>(
+                builder: (context, provider, _) {
+                  final count = provider.savedCount;
+                  if (count == 0) return const SizedBox.shrink();
+                  return _HeartFab(
+                    count: count,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SavedRoutesPage(
+                            from: _displayFrom,
+                            to: _displayTo,
+                            routeId: widget.routeId,
+                            selectedModes: _selectedModes,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -294,10 +329,105 @@ class _SummaryPageState extends State<SummaryPage> {
               mainLeg: _mainLeg,
               selectedModes: _selectedModes,
               forceLogos: forceLogos,
+              from: _displayFrom,
+              to: _displayTo,
             );
           },
         );
       },
+    );
+  }
+}
+
+class _HeartFab extends StatefulWidget {
+  final int count;
+  final VoidCallback onTap;
+
+  const _HeartFab({required this.count, required this.onTap});
+
+  @override
+  State<_HeartFab> createState() => _HeartFabState();
+}
+
+class _HeartFabState extends State<_HeartFab>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.2), weight: 50),
+      TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 50),
+    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+  }
+
+  @override
+  void didUpdateWidget(_HeartFab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.count != widget.count) {
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: ScaleOnPress(
+        onTap: widget.onTap,
+        child: Container(
+          width: 52,
+          height: 52,
+          decoration: const BoxDecoration(
+            color: Colors.red,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 6,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              const Icon(Icons.favorite, color: Colors.white, size: 24),
+              Positioned(
+                top: 4,
+                right: 4,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    '${widget.count}',
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

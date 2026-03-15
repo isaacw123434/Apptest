@@ -50,6 +50,28 @@ class Segment {
     this.stopPoints,
   });
 
+  Map<String, dynamic> toJson() {
+    return {
+      'mode': mode,
+      'label': label,
+      'lineColor': lineColor,
+      'iconId': iconId,
+      'time': time,
+      'from': from,
+      'to': to,
+      'detail': detail,
+      'path': path?.map((p) => [p.latitude, p.longitude]).toList(),
+      'co2': co2,
+      'distance': distance,
+      'cost': cost,
+      'waitTime': waitTime,
+      'subSegments': subSegments?.map((s) => s.toJson()).toList(),
+      'numStops': numStops,
+      'stops': stops,
+      'stopPoints': stopPoints?.map((p) => [p.latitude, p.longitude]).toList(),
+    };
+  }
+
   factory Segment.fromJson(Map<String, dynamic> json) {
     var subSegmentsList = json['subSegments'] as List?;
     List<Segment>? subSegments;
@@ -158,6 +180,30 @@ class Leg {
     this.co2,
   });
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'label': label,
+      'detail': detail,
+      'time': time,
+      'cost': cost,
+      'distance': distance,
+      'riskScore': riskScore,
+      'riskReason': riskReason,
+      'iconId': iconId,
+      'color': color,
+      'bgColor': bgColor,
+      'lineColor': lineColor,
+      'desc': desc,
+      'waitTime': waitTime,
+      'nextBusIn': nextBusIn,
+      'recommended': recommended,
+      'platform': platform,
+      'segments': segments.map((s) => s.toJson()).toList(),
+      'co2': co2,
+    };
+  }
+
   factory Leg.fromJson(Map<String, dynamic> json) {
     var segmentsList = json['segments'] as List?;
     List<Segment> segments = segmentsList != null
@@ -246,6 +292,14 @@ class Emissions {
     this.text,
   });
 
+  Map<String, dynamic> toJson() {
+    return {
+      'val': val,
+      'percent': percent,
+      'text': text,
+    };
+  }
+
   factory Emissions.fromJson(Map<String, dynamic> json) {
     return Emissions(
       val: (json['val'] ?? 0).toDouble(),
@@ -275,6 +329,19 @@ class JourneyResult {
     required this.risk,
     required this.emissions,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'leg1': leg1.toJson(),
+      'leg3': leg3.toJson(),
+      'cost': cost,
+      'time': time,
+      'buffer': buffer,
+      'risk': risk,
+      'emissions': emissions.toJson(),
+    };
+  }
 
   factory JourneyResult.fromJson(Map<String, dynamic> json) {
     return JourneyResult(
@@ -315,6 +382,24 @@ class InitData {
     required this.journeys,
   });
 
+  Map<String, dynamic> toJson() {
+    return {
+      'segmentOptions': {
+        'firstMile': segmentOptions.firstMile.map((l) => l.toJson()).toList(),
+        'mainLeg': segmentOptions.mainLeg.toJson(),
+        'lastMile': segmentOptions.lastMile.map((l) => l.toJson()).toList(),
+      },
+      'directDrive': {
+        'time': directDrive.time,
+        'cost': directDrive.cost,
+        'distance': directDrive.distance,
+        'co2': directDrive.co2,
+      },
+      'mockPath': mockPath.map((p) => [p.latitude, p.longitude]).toList(),
+      'journeys': journeys.map((j) => j.toJson()).toList(),
+    };
+  }
+
   factory InitData.fromJson(Map<String, dynamic> json) {
     var pathList = json['mockPath'] as List?;
     List<LatLng> mockPath = [];
@@ -343,6 +428,57 @@ class InitData {
       directDrive: DirectDrive.fromJson(json['directDrive']),
       mockPath: mockPath,
       journeys: journeys,
+    );
+  }
+}
+
+class SavedRoute {
+  final String routeKey;
+  final String from;
+  final String to;
+  final JourneyResult journey;
+  final DateTime savedAt;
+  final bool isPermanent;
+
+  SavedRoute({
+    required this.routeKey,
+    required this.from,
+    required this.to,
+    required this.journey,
+    required this.savedAt,
+    this.isPermanent = false,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'routeKey': routeKey,
+      'from': from,
+      'to': to,
+      'journey': journey.toJson(),
+      'savedAt': savedAt.toIso8601String(),
+      'isPermanent': isPermanent,
+    };
+  }
+
+  factory SavedRoute.fromJson(Map<String, dynamic> json) {
+    return SavedRoute(
+      routeKey: json['routeKey'] ?? '',
+      from: json['from'] ?? '',
+      to: json['to'] ?? '',
+      journey: JourneyResult.fromJson(json['journey']),
+      savedAt: DateTime.parse(json['savedAt']),
+      isPermanent: json['isPermanent'] ?? false,
+    );
+  }
+
+  SavedRoute copyWith({bool? isPermanent}) {
+    return SavedRoute(
+      routeKey: routeKey,
+      from: from,
+      to: to,
+      journey: journey,
+      savedAt: savedAt,
+      isPermanent: isPermanent ?? this.isPermanent,
     );
   }
 }
