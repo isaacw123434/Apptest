@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
     'bus': true,
     'car': true,
     'taxi': true,
-    'bike': false,
+    'bike': true,
   };
 
   void _handleSearch() {

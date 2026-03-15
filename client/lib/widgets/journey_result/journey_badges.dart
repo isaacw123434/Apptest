@@ -20,9 +20,8 @@ class JourneyBadges extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8.0,
-      runSpacing: 8.0,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (isLeastRisky)
           GestureDetector(
@@ -84,7 +83,8 @@ class JourneyBadges extends StatelessWidget {
               textColor: const Color(0xFFD97706), // Amber 600
             ),
           ),
-        if (result.emissions.text != null)
+        if (result.emissions.text != null) ...[
+          const SizedBox(height: 4),
           InfoBadge(
             text: result.emissions.text!,
             icon: Icons.eco,
@@ -93,6 +93,7 @@ class JourneyBadges extends StatelessWidget {
             iconColor: const Color(0xFF047857),
             textColor: const Color(0xFF047857),
           ),
+        ],
       ],
     );
   }

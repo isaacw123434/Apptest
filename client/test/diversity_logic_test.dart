@@ -38,13 +38,13 @@ void main() {
     // Call Selector
     final finalResults = RouteSelector.selectJourneys(results, 'fastest');
 
-    // Verification
+    // Verification — fastest tab re-sorts strictly by time
     expect(finalResults.length, 5);
-    expect(finalResults[0].id, 'brough_0700'); // Best Brough
-    expect(finalResults[1].id, 'beverley_0715'); // Best Beverley (Alternative)
-    expect(finalResults[2].id, 'brough_0730'); // Next Best Brough (Fallback)
-    expect(finalResults[3].id, 'brough_0800'); // Next Best Brough (Fallback)
-    expect(finalResults[4].id, 'beverley_0815'); // Next Best Beverley (Fallback)
+    expect(finalResults[0].id, 'brough_0700'); // 65 min
+    expect(finalResults[1].id, 'brough_0730'); // 65 min
+    expect(finalResults[2].id, 'brough_0800'); // 65 min
+    expect(finalResults[3].id, 'beverley_0715'); // 85 min
+    expect(finalResults[4].id, 'beverley_0815'); // 85 min
   });
 
   test('Anchor Extraction Case Insensitivity', () {

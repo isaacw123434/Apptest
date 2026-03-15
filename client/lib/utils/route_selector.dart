@@ -112,6 +112,13 @@ class RouteSelector {
       }
     }
 
+    // For fastest/cheapest tabs, re-sort the full list strictly by the tab
+    // criteria. The diversity algorithm chose WHICH journeys to include;
+    // now we order them for display.
+    if (tab == 'fastest' || tab == 'cheapest') {
+      finalResults.sort((a, b) => compareJourneys(a, b));
+    }
+
     return finalResults;
   }
 }

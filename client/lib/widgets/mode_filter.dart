@@ -27,7 +27,7 @@ class ModeFilter extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 8, bottom: 8),
           child: Text(
-            'Transport Modes',
+            'Exclude Modes',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -39,18 +39,19 @@ class ModeFilter extends StatelessWidget {
           children: _modeOptions.asMap().entries.map((entry) {
             final index = entry.key;
             final mode = entry.value;
-            final isSelected = selectedModes[mode['id']] ?? false;
+            final isIncluded = selectedModes[mode['id']] ?? true;
+            final isExcluded = !isIncluded;
             return Expanded(
               child: Padding(
                 padding: EdgeInsets.only(right: index == _modeOptions.length - 1 ? 0 : 8.0),
                 child: InkWell(
-                  onTap: () => onModeChanged(mode['id'], !isSelected),
+                  onTap: () => onModeChanged(mode['id'], !isIncluded),
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.blue50 : Colors.white,
+                      color: isExcluded ? const Color(0xFFFEF2F2) : Colors.white,
                       border: Border.all(
-                        color: isSelected ? AppColors.brand : AppColors.slate200,
+                        color: isExcluded ? const Color(0xFFDC2626) : AppColors.slate200,
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -59,15 +60,16 @@ class ModeFilter extends StatelessWidget {
                         Icon(
                           mode['icon'],
                           size: 20,
-                          color: isSelected ? AppColors.brand : AppColors.slate400,
+                          color: isExcluded ? const Color(0xFFDC2626) : AppColors.slate400,
                         ),
                         const SizedBox(height: 4),
                         Text(
                           mode['label'],
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
+                            color: isExcluded ? const Color(0xFFDC2626) : null,
                           ),
                         ),
                       ],
