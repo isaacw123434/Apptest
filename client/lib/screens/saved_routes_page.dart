@@ -236,6 +236,7 @@ class _SavedRoutesPageState extends State<SavedRoutesPage> {
                                     selectedModes: widget.selectedModes,
                                     from: saved.from,
                                     to: saved.to,
+                                    showBookmark: true,
                                     onHeartTap: () {
                                       if (isRemoving) {
                                         _undoRemoval(saved.journey.id);
@@ -247,57 +248,6 @@ class _SavedRoutesPageState extends State<SavedRoutesPage> {
                                 ),
                               ],
                             ),
-                            // Bookmark button positioned at bottom-right of card
-                            if (!isRemoving)
-                              Positioned(
-                                right: 8,
-                                bottom: 24,
-                                child: Consumer<SavedRoutesProvider>(
-                                  builder: (context, prov, _) {
-                                    final isBooked = prov.isPermanent(
-                                        saved.journey.id);
-                                    return ScaleOnPress(
-                                      onTap: () {
-                                        prov.toggleBookmark(
-                                          saved.from,
-                                          saved.to,
-                                          saved.journey,
-                                        );
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(6),
-                                        decoration: BoxDecoration(
-                                          color: isBooked
-                                              ? AppColors.brand
-                                              : Colors.white,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: isBooked
-                                                ? AppColors.brand
-                                                : AppColors.slate200,
-                                          ),
-                                          boxShadow: const [
-                                            BoxShadow(
-                                              color: Colors.black12,
-                                              blurRadius: 4,
-                                              offset: Offset(0, 2),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Icon(
-                                          isBooked
-                                              ? Icons.bookmark
-                                              : Icons.bookmark_border,
-                                          size: 18,
-                                          color: isBooked
-                                              ? Colors.white
-                                              : AppColors.slate400,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
                             // Undo overlay when removing
                             if (isRemoving)
                               Positioned.fill(

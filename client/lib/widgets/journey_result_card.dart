@@ -22,6 +22,8 @@ class JourneyResultCard extends StatelessWidget {
   final String from;
   final String to;
   final VoidCallback? onHeartTap;
+  final bool showBookmark;
+  final VoidCallback? onBookmarkTap;
 
   const JourneyResultCard({
     super.key,
@@ -35,6 +37,8 @@ class JourneyResultCard extends StatelessWidget {
     required this.from,
     required this.to,
     this.onHeartTap,
+    this.showBookmark = false,
+    this.onBookmarkTap,
   });
 
   static List<Segment> buildSegments(JourneyResult result, Leg? mainLeg) {
@@ -126,6 +130,32 @@ class JourneyResultCard extends StatelessWidget {
                           routeId: routeId,
                         ),
                       ),
+                      if (showBookmark)
+                        Consumer<SavedRoutesProvider>(
+                          builder: (context, provider, _) {
+                            final isBooked = provider.isPermanent(result.id);
+                            return GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {
+                                if (onBookmarkTap != null) {
+                                  onBookmarkTap!();
+                                } else {
+                                  provider.toggleBookmark(from, to, result);
+                                }
+                              },
+                              child: ScaleOnPress(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Icon(
+                                    isBooked ? Icons.bookmark : Icons.bookmark_border,
+                                    color: isBooked ? AppColors.brand : const Color(0xFF94A3B8),
+                                    size: 22,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       Consumer<SavedRoutesProvider>(
                         builder: (context, provider, _) {
                           final isSaved = provider.isSaved(result.id);
