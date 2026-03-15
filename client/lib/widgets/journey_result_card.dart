@@ -21,6 +21,7 @@ class JourneyResultCard extends StatelessWidget {
   final bool forceLogos;
   final String from;
   final String to;
+  final VoidCallback? onHeartTap;
 
   const JourneyResultCard({
     super.key,
@@ -33,6 +34,7 @@ class JourneyResultCard extends StatelessWidget {
     this.forceLogos = false,
     required this.from,
     required this.to,
+    this.onHeartTap,
   });
 
   static List<Segment> buildSegments(JourneyResult result, Leg? mainLeg) {
@@ -130,7 +132,11 @@ class JourneyResultCard extends StatelessWidget {
                           return GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () {
-                              provider.toggleHeart(from, to, result);
+                              if (onHeartTap != null) {
+                                onHeartTap!();
+                              } else {
+                                provider.toggleHeart(from, to, result);
+                              }
                             },
                             child: ScaleOnPress(
                               child: Padding(

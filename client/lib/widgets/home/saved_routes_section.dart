@@ -59,48 +59,15 @@ class SavedRoutesSection extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Saved Routes',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: AppColors.slate800,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      final first = routes.first;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SavedRoutesPage(
-                            from: first.from,
-                            to: first.to,
-                            selectedModes: const {
-                              'train': true,
-                              'bus': true,
-                              'car': true,
-                              'taxi': true,
-                              'bike': true,
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'See All',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.brand,
-                      ),
-                    ),
-                  ),
-                ],
+              Text(
+                'Saved Routes',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: AppColors.slate800,
+                ),
               ),
               const SizedBox(height: 8),
               ...grouped.entries.map((entry) {
@@ -147,7 +114,7 @@ class SavedRoutesSection extends StatelessWidget {
                             color: AppColors.brandLight,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Icon(Icons.favorite,
+                          child: const Icon(Icons.favorite,
                               size: 18, color: Colors.red),
                         ),
                         const SizedBox(width: 12),
@@ -156,14 +123,16 @@ class SavedRoutesSection extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                entry.key,
+                                'See your $count saved route${count == 1 ? '' : 's'}',
                                 style: TextStyle(
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
                                   color: AppColors.slate700,
                                 ),
                               ),
+                              const SizedBox(height: 2),
                               Text(
-                                '$count saved route${count == 1 ? '' : 's'}',
+                                '${pair.from} → ${pair.to}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: AppColors.slate400,

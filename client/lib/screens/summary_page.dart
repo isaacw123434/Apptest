@@ -234,6 +234,7 @@ class _SummaryPageState extends State<SummaryPage> {
                             to: _displayTo,
                             routeId: widget.routeId,
                             selectedModes: _selectedModes,
+                            mainLeg: _mainLeg,
                           ),
                         ),
                       );
