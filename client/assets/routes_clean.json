@@ -3,7 +3,7 @@
     "firstMile": [
       {
         "id": "cycle",
-        "label": "Cycle to Leeds",
+        "label": "Cycle to Leeds City Centre",
         "detail": "18 min bike",
         "time": 18,
         "cost": 0.0,
@@ -2110,7 +2110,7 @@
       },
       {
         "id": "drive_park",
-        "label": "Drive & Park to Leeds",
+        "label": "Drive & Park to Leeds City Centre",
         "detail": "14 min car",
         "time": 14,
         "cost": 24.53985484732872,
@@ -3705,7 +3705,7 @@
       },
       {
         "id": "bus",
-        "label": "Bus to Leeds",
+        "label": "Bus to Leeds City Centre",
         "detail": "38 min bus",
         "time": 38,
         "cost": 2.0,
@@ -6802,7 +6802,7 @@
       },
       {
         "id": "uber",
-        "label": "Uber to Leeds",
+        "label": "Uber to Leeds City Centre",
         "detail": "14 min car",
         "time": 14,
         "cost": 8.97,

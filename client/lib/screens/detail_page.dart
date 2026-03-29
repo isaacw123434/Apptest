@@ -547,6 +547,13 @@ class _DetailPageState extends State<DetailPage> {
     });
   }
 
+  String? _getSegmentDestination(Segment segment) {
+    if (segment.subSegments != null && segment.subSegments!.isNotEmpty) {
+      return _getSegmentDestination(segment.subSegments!.last);
+    }
+    return segment.to;
+  }
+
   List<Leg> _filterLegs(List<Leg> options, String legType, {Leg? currentLeg}) {
     if (_initData == null) return options;
     final mainLeg = _initData!.segmentOptions.mainLeg;
@@ -563,7 +570,7 @@ class _DetailPageState extends State<DetailPage> {
                   s.mode.toLowerCase() != 'wait' && s.label != 'Transfer',
                   orElse: () => currentLeg.segments.first
               );
-              anchorStation = accessSeg.to;
+              anchorStation = _getSegmentDestination(accessSeg);
            } catch(e) {
               anchorStation = null;
            }
@@ -578,7 +585,7 @@ class _DetailPageState extends State<DetailPage> {
                         s.mode.toLowerCase() != 'wait' && s.label != 'Transfer',
                         orElse: () => leg.segments.first
                     );
-                    return optAccessSeg.to == anchorStation;
+                    return _getSegmentDestination(optAccessSeg) == anchorStation;
                 } catch (e) {
                     return false;
                 }
@@ -597,7 +604,7 @@ class _DetailPageState extends State<DetailPage> {
 
        return options.where((leg) {
            if (leg.segments.isEmpty) return false;
-           return leg.segments.last.to == anchorStation;
+           return _getSegmentDestination(leg.segments.last) == anchorStation;
        }).toList();
     } else if (legType == 'lastMile') {
        anchorStation = mainLeg.segments.last.to;
