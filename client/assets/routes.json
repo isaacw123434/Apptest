@@ -613,7 +613,10 @@
                 "color": "#30227d",
                 "text_color": "#eb5ddf",
                 "agency": "LeedsCity",
-                "num_stops": 12
+                "num_stops": 12,
+                "stops": [],
+                "stop_points": [],
+                "line_uri": "https://www.firstbus.co.uk/leeds"
               }
             },
             {
@@ -1115,7 +1118,11 @@
                 "vehicle_type": "HEAVY_RAIL",
                 "color": "#262262",
                 "text_color": "#ffffff",
-                "agency": "Northern"
+                "agency": "Northern",
+                "num_stops": 3,
+                "stops": [],
+                "stop_points": [],
+                "line_uri": "https://www.northernrailway.co.uk/"
               }
             },
             {
@@ -1303,7 +1310,11 @@
                 "vehicle_type": "HEAVY_RAIL",
                 "color": "#262262",
                 "text_color": "#ffffff",
-                "agency": "Northern"
+                "agency": "Northern",
+                "num_stops": 3,
+                "stops": [],
+                "stop_points": [],
+                "line_uri": "https://www.northernrailway.co.uk/"
               }
             },
             {
@@ -1475,7 +1486,11 @@
                 "vehicle_type": "HEAVY_RAIL",
                 "color": "#262262",
                 "text_color": "#ffffff",
-                "agency": "Northern"
+                "agency": "Northern",
+                "num_stops": 3,
+                "stops": [],
+                "stop_points": [],
+                "line_uri": "https://www.northernrailway.co.uk/"
               }
             },
             {
@@ -1547,7 +1562,10 @@
                 "arrival_stop": {
                   "name": "Sheffield Station"
                 },
-                "num_stops": 2
+                "num_stops": 3,
+                "stops": [],
+                "stop_points": [],
+                "line_uri": "https://www.northernrailway.co.uk/"
               }
             },
             {
@@ -1593,7 +1611,10 @@
                 "arrival_stop": {
                   "name": "Loughborough Station"
                 },
-                "num_stops": 2
+                "num_stops": 6,
+                "stops": [],
+                "stop_points": [],
+                "line_uri": "https://www.eastmidlandsrailway.co.uk/"
               }
             }
           ]
@@ -1643,7 +1664,10 @@
                 "color": "#002663",
                 "text_color": "#ffffff",
                 "agency": "Nottingham City Transport",
-                "num_stops": 15
+                "num_stops": 10,
+                "stops": [],
+                "stop_points": [],
+                "line_uri": "https://www.nctx.co.uk/"
               }
             }
           ]
