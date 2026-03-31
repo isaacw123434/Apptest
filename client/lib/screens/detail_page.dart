@@ -1346,7 +1346,7 @@ class _DetailPageState extends State<DetailPage> {
                                 height: double.infinity,
                                 color: Colors.grey[200]),
                             Container(
-                              width: 4,
+                              width: 12,
                               height: double.infinity,
                               color: prevColor ?? Colors.grey[300],
                             ),
@@ -1381,7 +1381,7 @@ class _DetailPageState extends State<DetailPage> {
                                 height: double.infinity,
                                 color: Colors.grey[200]),
                             Container(
-                              width: 4,
+                              width: 12,
                               height: double.infinity,
                               color: nextColor ?? Colors.grey[300],
                             ),
@@ -1441,7 +1441,7 @@ class _DetailPageState extends State<DetailPage> {
         ),
         // The Route Color (Foreground)
         Container(
-          width: 4, // Thicker for visibility
+          width: 12, // Thicker for visibility
           height: double.infinity,
           color: lineColor,
         ),
@@ -1626,7 +1626,7 @@ class _DetailPageState extends State<DetailPage> {
           color: Colors.grey[200],
         ),
         Container(
-          width: 4,
+          width: 12,
           height: double.infinity,
           color: lineColor,
         ),
@@ -1687,8 +1687,8 @@ class _DetailPageState extends State<DetailPage> {
         ),
         Column(
           children: [
-             Expanded(child: Container(width: 4, color: color1)),
-             Expanded(child: Container(width: 4, color: color2)),
+             Expanded(child: Container(width: 12, color: color1)),
+             Expanded(child: Container(width: 12, color: color2)),
           ],
         )
       ],
@@ -2056,7 +2056,7 @@ class _DetailPageState extends State<DetailPage> {
       totalCo2 += segCo2;
 
       Color color = _parseColor(seg.lineColor);
-      lineChildren.add(Expanded(child: Container(width: 4, color: color)));
+      lineChildren.add(Expanded(child: Container(width: 12, color: color)));
 
       // Content Row
       contentChildren.add(Row(
