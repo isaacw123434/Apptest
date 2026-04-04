@@ -183,14 +183,7 @@ class TimelineSummaryView extends StatelessWidget {
     final isFirst = index == 0;
     final isLast = index == segments.length - 1;
 
-    Color color;
-    try {
-      color = Color(
-        int.parse(seg.lineColor.replaceAll('#', ''), radix: 16) + 0xFF000000,
-      );
-    } catch (e) {
-      color = Colors.grey;
-    }
+    Color color = seg.color;
 
     // Text color needs to contrast with background.
     final isBright = color.computeLuminance() > 0.5;
