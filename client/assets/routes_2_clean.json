@@ -6528,7 +6528,7 @@
             "distance": 41.19701243988219,
             "co2": 2.471820746392931,
             "from": "Brough",
-            "to": "Leeds",
+            "to": "Brough Station",
             "cost": 8.1,
             "numStops": 7,
             "stops": null,
@@ -13071,7 +13071,7 @@
             "distance": 41.19701243988219,
             "co2": 2.471820746392931,
             "from": "Brough",
-            "to": "Leeds",
+            "to": "Brough Station",
             "cost": 8.1,
             "numStops": 7,
             "stops": null,
@@ -19618,7 +19618,7 @@
             "distance": 41.19701243988219,
             "co2": 2.471820746392931,
             "from": "Brough",
-            "to": "Leeds",
+            "to": "Brough Station",
             "cost": 8.1,
             "numStops": 7,
             "stops": null,
@@ -21608,7 +21608,7 @@
                 "distance": 14.167298395615594,
                 "co2": 1.4167298395615595,
                 "from": "Beverley Bus Station",
-                "to": "Brough",
+                "to": "Brough Station",
                 "cost": 3.0,
                 "numStops": 15,
                 "stops": null,
@@ -23540,7 +23540,8 @@
                 53.72715,
                 -0.57884
               ]
-            ]
+            ],
+            "to": "Brough Station"
           },
           {
             "mode": "wait",
@@ -34403,7 +34404,7 @@
             "distance": 25.60055674997204,
             "co2": 1.5360334049983222,
             "from": "York (YRK)",
-            "to": "Leeds",
+            "to": "York Station",
             "cost": 5.2,
             "numStops": 1,
             "stops": null,
@@ -40122,7 +40123,7 @@
             "distance": 25.60055674997204,
             "co2": 1.5360334049983222,
             "from": "York (YRK)",
-            "to": "Leeds",
+            "to": "York Station",
             "cost": 5.2,
             "numStops": 1,
             "stops": null,
@@ -45825,7 +45826,7 @@
             "distance": 25.60055674997204,
             "co2": 1.5360334049983222,
             "from": "York (YRK)",
-            "to": "Leeds",
+            "to": "York Station",
             "cost": 5.2,
             "numStops": 1,
             "stops": null,
@@ -56047,7 +56048,7 @@
                 "distance": 32.311382305789955,
                 "co2": 3.2311382305789955,
                 "from": "Beverley York Road",
-                "to": "Rail Station",
+                "to": "York Station",
                 "cost": 3.0,
                 "numStops": 53,
                 "stops": null,
@@ -66211,7 +66212,8 @@
                 53.95729,
                 -1.09261
               ]
-            ]
+            ],
+            "to": "York Station"
           },
           {
             "mode": "wait",
@@ -87000,7 +87002,8 @@
                 53.79564,
                 -1.54803
               ]
-            ]
+            ],
+            "to": "Beverley Station"
           }
         ],
         "co2": 3.89,
@@ -103428,7 +103431,8 @@
                 53.79564,
                 -1.54803
               ]
-            ]
+            ],
+            "to": "Beverley Station"
           }
         ],
         "co2": 3.89,
@@ -119832,7 +119836,8 @@
                 53.79564,
                 -1.54803
               ]
-            ]
+            ],
+            "to": "Beverley Station"
           }
         ],
         "co2": 3.59,
@@ -136252,7 +136257,8 @@
                 53.79564,
                 -1.54803
               ]
-            ]
+            ],
+            "to": "Beverley Station"
           }
         ],
         "co2": 3.59,
@@ -151217,7 +151223,8 @@
                 53.79564,
                 -1.54803
               ]
-            ]
+            ],
+            "to": "Hull Station"
           }
         ],
         "co2": 6.41,
@@ -166182,7 +166189,8 @@
                 53.79564,
                 -1.54803
               ]
-            ]
+            ],
+            "to": "Hull Station"
           }
         ],
         "co2": 6.41,
@@ -181115,7 +181123,8 @@
                 53.79564,
                 -1.54803
               ]
-            ]
+            ],
+            "to": "Hull Station"
           }
         ],
         "co2": 3.07,
@@ -182757,7 +182766,7 @@
                 "distance": 8.823492860427256,
                 "co2": 0.8823492860427257,
                 "from": "Beverley Bus Station",
-                "to": "Hull Interchange",
+                "to": "Hull Station",
                 "cost": 3.0,
                 "numStops": null,
                 "stops": null,
@@ -184345,7 +184354,8 @@
                 53.7475,
                 -0.34478
               ]
-            ]
+            ],
+            "to": "Hull Station"
           },
           {
             "mode": "wait",
@@ -203953,7 +203963,7 @@
             "distance": 32.39713174344762,
             "co2": 1.9438279046068574,
             "from": "Eastrington",
-            "to": "Leeds",
+            "to": "Eastrington Station",
             "cost": 7.0,
             "numStops": 1,
             "stops": null,
@@ -209816,7 +209826,7 @@
             "distance": 32.39713174344762,
             "co2": 1.9438279046068574,
             "from": "Eastrington",
-            "to": "Leeds",
+            "to": "Eastrington Station",
             "cost": 7.0,
             "numStops": 1,
             "stops": null,
@@ -215639,7 +215649,7 @@
             "distance": 32.39713174344762,
             "co2": 1.9438279046068574,
             "from": "Eastrington",
-            "to": "Leeds",
+            "to": "Eastrington Station",
             "cost": 7.0,
             "numStops": 1,
             "stops": null,
@@ -218342,7 +218352,7 @@
                 "distance": 0.3106863683249034,
                 "co2": 0.0,
                 "from": null,
-                "to": "Hull",
+                "to": "Eastrington Station",
                 "cost": 0.0,
                 "numStops": null,
                 "stops": null,
@@ -220970,7 +220980,8 @@
                 53.74389,
                 -0.34728
               ]
-            ]
+            ],
+            "to": "Eastrington Station"
           },
           {
             "mode": "wait",
@@ -234717,7 +234728,7 @@
       },
       {
         "id": "drive_stourton_pr",
-        "label": "Drive via Stourton P&R to Leeds",
+        "label": "Drive to Stourton Park & Ride",
         "detail": "64 min car then 30 min bus",
         "time": 94,
         "cost": 28.79546895000435,
@@ -239987,7 +239998,8 @@
                 53.79624,
                 -1.55781
               ]
-            ]
+            ],
+            "to": "Stourton Park & Ride"
           }
         ],
         "co2": 14.57,
@@ -240001,7 +240013,7 @@
       },
       {
         "id": "drive_temple_green_pr",
-        "label": "Drive via Temple Green P&R to Leeds",
+        "label": "Drive to Temple Green Park & Ride",
         "detail": "66 min car",
         "time": 105,
         "cost": 29.802092783377038,
@@ -244133,7 +244145,7 @@
             "distance": 1.0109734425292356,
             "co2": 0.0,
             "from": null,
-            "to": "Wellington Place, Leeds",
+            "to": "Temple Green Park & Ride",
             "cost": 0.0,
             "numStops": null,
             "stops": null,
@@ -244151,7 +244163,7 @@
       },
       {
         "id": "drive_elland_road_pr",
-        "label": "Drive via Elland Road P&R to Leeds",
+        "label": "Drive to Elland Road Park & Ride",
         "detail": "70 min car",
         "time": 97,
         "cost": 30.47317533895883,
@@ -247262,7 +247274,7 @@
             "distance": 0.6257223458063554,
             "co2": 0.0,
             "from": null,
-            "to": "Wellington Place, Leeds",
+            "to": "Elland Road Park & Ride",
             "cost": 0.0,
             "numStops": null,
             "stops": null,
@@ -255446,7 +255458,7 @@
             "distance": 41.19701243988219,
             "co2": 2.471820746392931,
             "from": "Brough",
-            "to": "Leeds",
+            "to": "Brough Station",
             "cost": 8.1,
             "numStops": 7,
             "stops": null,
@@ -262188,7 +262200,7 @@
             "distance": 41.19701243988219,
             "co2": 2.471820746392931,
             "from": "Brough",
-            "to": "Leeds",
+            "to": "Brough Station",
             "cost": 8.1,
             "numStops": 7,
             "stops": null,
@@ -268934,7 +268946,7 @@
             "distance": 41.19701243988219,
             "co2": 2.471820746392931,
             "from": "Brough",
-            "to": "Leeds",
+            "to": "Brough Station",
             "cost": 8.1,
             "numStops": 7,
             "stops": null,
@@ -271123,7 +271135,7 @@
                 "distance": 14.167298395615594,
                 "co2": 1.4167298395615595,
                 "from": "Beverley Bus Station",
-                "to": "Brough",
+                "to": "Brough Station",
                 "cost": 3.0,
                 "numStops": 15,
                 "stops": null,
@@ -273055,7 +273067,8 @@
                 53.72715,
                 -0.57884
               ]
-            ]
+            ],
+            "to": "Brough Station"
           },
           {
             "mode": "wait",
@@ -284117,7 +284130,7 @@
             "distance": 25.60055674997204,
             "co2": 1.5360334049983222,
             "from": "York (YRK)",
-            "to": "Leeds",
+            "to": "York Station",
             "cost": 5.2,
             "numStops": 1,
             "stops": null,
@@ -290035,7 +290048,7 @@
             "distance": 25.60055674997204,
             "co2": 1.5360334049983222,
             "from": "York (YRK)",
-            "to": "Leeds",
+            "to": "York Station",
             "cost": 5.2,
             "numStops": 1,
             "stops": null,
@@ -295937,7 +295950,7 @@
             "distance": 25.60055674997204,
             "co2": 1.5360334049983222,
             "from": "York (YRK)",
-            "to": "Leeds",
+            "to": "York Station",
             "cost": 5.2,
             "numStops": 1,
             "stops": null,
@@ -306358,7 +306371,7 @@
                 "distance": 32.311382305789955,
                 "co2": 3.2311382305789955,
                 "from": "Beverley York Road",
-                "to": "Rail Station",
+                "to": "York Station",
                 "cost": 3.0,
                 "numStops": 53,
                 "stops": null,
@@ -316522,7 +316535,8 @@
                 53.95729,
                 -1.09261
               ]
-            ]
+            ],
+            "to": "York Station"
           },
           {
             "mode": "wait",
@@ -337510,7 +337524,8 @@
                 53.79564,
                 -1.54803
               ]
-            ]
+            ],
+            "to": "Beverley Station"
           }
         ],
         "co2": 3.89,
@@ -354137,7 +354152,8 @@
                 53.79564,
                 -1.54803
               ]
-            ]
+            ],
+            "to": "Beverley Station"
           }
         ],
         "co2": 3.89,
@@ -370740,7 +370756,8 @@
                 53.79564,
                 -1.54803
               ]
-            ]
+            ],
+            "to": "Beverley Station"
           }
         ],
         "co2": 3.59,
@@ -387359,7 +387376,8 @@
                 53.79564,
                 -1.54803
               ]
-            ]
+            ],
+            "to": "Beverley Station"
           }
         ],
         "co2": 3.59,
@@ -402523,7 +402541,8 @@
                 53.79564,
                 -1.54803
               ]
-            ]
+            ],
+            "to": "Hull Station"
           }
         ],
         "co2": 6.41,
@@ -417687,7 +417706,8 @@
                 53.79564,
                 -1.54803
               ]
-            ]
+            ],
+            "to": "Hull Station"
           }
         ],
         "co2": 6.41,
@@ -432819,7 +432839,8 @@
                 53.79564,
                 -1.54803
               ]
-            ]
+            ],
+            "to": "Hull Station"
           }
         ],
         "co2": 3.07,
@@ -434660,7 +434681,7 @@
                 "distance": 8.823492860427256,
                 "co2": 0.8823492860427257,
                 "from": "Beverley Bus Station",
-                "to": "Hull Interchange",
+                "to": "Hull Station",
                 "cost": 3.0,
                 "numStops": null,
                 "stops": null,
@@ -436248,7 +436269,8 @@
                 53.7475,
                 -0.34478
               ]
-            ]
+            ],
+            "to": "Hull Station"
           },
           {
             "mode": "wait",
@@ -456055,7 +456077,7 @@
             "distance": 32.39713174344762,
             "co2": 1.9438279046068574,
             "from": "Eastrington",
-            "to": "Leeds",
+            "to": "Eastrington Station",
             "cost": 7.0,
             "numStops": 1,
             "stops": null,
@@ -462117,7 +462139,7 @@
             "distance": 32.39713174344762,
             "co2": 1.9438279046068574,
             "from": "Eastrington",
-            "to": "Leeds",
+            "to": "Eastrington Station",
             "cost": 7.0,
             "numStops": 1,
             "stops": null,
@@ -468139,7 +468161,7 @@
             "distance": 32.39713174344762,
             "co2": 1.9438279046068574,
             "from": "Eastrington",
-            "to": "Leeds",
+            "to": "Eastrington Station",
             "cost": 7.0,
             "numStops": 1,
             "stops": null,
@@ -471041,7 +471063,7 @@
                 "distance": 0.3106863683249034,
                 "co2": 0.0,
                 "from": null,
-                "to": "Hull",
+                "to": "Eastrington Station",
                 "cost": 0.0,
                 "numStops": null,
                 "stops": null,
@@ -473669,7 +473691,8 @@
                 53.74389,
                 -0.34728
               ]
-            ]
+            ],
+            "to": "Eastrington Station"
           },
           {
             "mode": "wait",
@@ -487615,7 +487638,7 @@
       "id": "drive_stourton_pr-empty_last_mile",
       "leg1": {
         "id": "drive_stourton_pr",
-        "label": "Drive via Stourton P&R to Leeds",
+        "label": "Drive to Stourton Park & Ride",
         "detail": "64 min car then 30 min bus",
         "time": 94,
         "cost": 28.79546895000435,
@@ -492885,7 +492908,8 @@
                 53.79624,
                 -1.55781
               ]
-            ]
+            ],
+            "to": "Stourton Park & Ride"
           }
         ],
         "co2": 14.57,
@@ -492923,7 +492947,7 @@
       "id": "drive_temple_green_pr-empty_last_mile",
       "leg1": {
         "id": "drive_temple_green_pr",
-        "label": "Drive via Temple Green P&R to Leeds",
+        "label": "Drive to Temple Green Park & Ride",
         "detail": "66 min car",
         "time": 105,
         "cost": 29.802092783377038,
@@ -497055,7 +497079,7 @@
             "distance": 1.0109734425292356,
             "co2": 0.0,
             "from": null,
-            "to": "Wellington Place, Leeds",
+            "to": "Temple Green Park & Ride",
             "cost": 0.0,
             "numStops": null,
             "stops": null,
@@ -497097,7 +497121,7 @@
       "id": "drive_elland_road_pr-empty_last_mile",
       "leg1": {
         "id": "drive_elland_road_pr",
-        "label": "Drive via Elland Road P&R to Leeds",
+        "label": "Drive to Elland Road Park & Ride",
         "detail": "70 min car",
         "time": 97,
         "cost": 30.47317533895883,
@@ -500208,7 +500232,7 @@
             "distance": 0.6257223458063554,
             "co2": 0.0,
             "from": null,
-            "to": "Wellington Place, Leeds",
+            "to": "Elland Road Park & Ride",
             "cost": 0.0,
             "numStops": null,
             "stops": null,
